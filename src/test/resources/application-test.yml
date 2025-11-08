@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  #  data:
+  #    redis:
+  #      host: localhost
+  #      port: 6379
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      # ddl-auto: update
+      ddl-auto: none
+    properties:
+      hibernate:
+        #show-sql: true
+        format_sql: true
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: test-bucket
+      presign:
+        expiration: 10m
+    stack:
+      auto: false
+
+jwt:
+  secret-key: some-very-very-very-very-very-very-very-long-secret-key
+
+logging:
+  level:
+    org.springframework: INFO
+    com.moty.solarserver: DEBUG
