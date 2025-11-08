@@ -1,0 +1,15 @@
+package kr.muroom.muroombackendbach.filestorage.presentation.dto.response;
+
+import java.util.List;
+
+public record GeneratePresignedUrlsPutResponse(
+    List<PresignedUrlInfo> presignedUrls
+) {
+
+  public record PresignedUrlInfo(
+      String url,
+      String fileKey
+  ) {
+
+  }
+}
