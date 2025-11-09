@@ -48,7 +48,7 @@ public class BetaRegistration extends CreatedDateEntity {
 
   private String featureSuggestions;
 
-  @OneToMany(mappedBy = "registration", fetch = FetchType.EAGER, cascade = CascadeType.ALL,
+  @OneToMany(mappedBy = "registration", fetch = FetchType.LAZY, cascade = CascadeType.ALL,
       orphanRemoval = true)
   @Builder.Default
   private List<BetaIntroductoryImage> introductoryImages = new ArrayList<>();

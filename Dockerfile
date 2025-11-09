@@ -27,7 +27,7 @@ FROM amazoncorretto:21-alpine
 # 7. 컨테이너 내부 작업 디렉토리를 /app으로 지정.
 WORKDIR /app
 
-# 8. 보안 강화를 위해 애플리케이션 실행 전용 그룹(moty)과 사용자(monte)를 생성.
+# 8. 보안 강화를 위해 애플리케이션 실행 전용 그룹(muroom)과 사용자(monte)를 생성.
 RUN addgroup -S muroom && adduser -S monte -G muroom
 
 # 9. 이전 'builder' 스테이지에서 생성된 .jar 파일만 현재 스테이지로 복사.

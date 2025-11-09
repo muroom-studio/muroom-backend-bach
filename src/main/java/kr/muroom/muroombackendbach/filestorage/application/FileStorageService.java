@@ -35,7 +35,8 @@ public class FileStorageService {
 
   public PresignedPutUrlDto generatePresignedPutUrl(String fileName, String domain,
       String contentType) {
-    String fileKey = domain + "/" + UUID.randomUUID() + "-" + fileName;
+    String sanitizedFileName = fileName.replaceAll("[^a-zA-Z0-9.\\-_]", "_");
+    String fileKey = domain + "/" + UUID.randomUUID() + "-" + sanitizedFileName;
 
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
         .bucket(bucket)
