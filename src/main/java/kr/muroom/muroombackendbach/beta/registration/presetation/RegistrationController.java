@@ -1,12 +1,16 @@
 package kr.muroom.muroombackendbach.beta.registration.presetation;
 
-import java.util.List;
 import kr.muroom.muroombackendbach.beta.registration.application.RegistrationService;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto.GetResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
+import kr.muroom.muroombackendbach.common.presentation.response.PageResponse;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,8 +41,11 @@ public class RegistrationController {
   }
 
   @GetMapping
-  public ApiResponse<List<RegistrationDto.GetResponse>> getRegistration() {
-    List<GetResponse> response = registrationService.getAllRegistrations();
+  public ApiResponse<PageResponse<GetResponse>> getRegistration(
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+  ) {
+    Page<GetResponse> registrations = registrationService.getAllRegistrations(pageable);
+    PageResponse<GetResponse> response = new PageResponse<>(registrations);
     return ApiResponse.success(response);
   }
 }

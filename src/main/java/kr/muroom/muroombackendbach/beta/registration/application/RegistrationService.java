@@ -5,11 +5,14 @@ import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaIntroduct
 import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaRegistration;
 import kr.muroom.muroombackendbach.beta.registration.domain.repository.BetaRegistrationRepository;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto;
+import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto.GetResponse;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse.PresignedUrlInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,27 +83,27 @@ public class RegistrationService {
   }
 
   @Transactional(readOnly = true)
-  public List<RegistrationDto.GetResponse> getAllRegistrations() {
-    List<BetaRegistration> registrations = betaRegistrationRepository.findAllWithImages();
+  public Page<GetResponse> getAllRegistrations(Pageable pageable) {
+    Page<BetaRegistration> pagedRegistrations = betaRegistrationRepository.findAllWithImages(
+        pageable);
 
-    return registrations.stream()
-        .map(registration -> {
-          List<String> introductoryImageUrls = registration.getIntroductoryImages().stream()
-              .map(image ->
-                  fileStorageService.generatePresignedGetUrl(image.getFileKey()))
-              .toList();
+    return pagedRegistrations.map(registration -> {
+      List<String> introductoryImageUrls = registration.getIntroductoryImages().stream()
+          .map(image ->
+              fileStorageService.generatePresignedGetUrl(image.getFileKey()))
+          .toList();
 
-          return RegistrationDto.GetResponse.builder()
-              .id(registration.getId())
-              .name(registration.getName())
-              .phoneNumber(registration.getPhoneNumber())
-              .thirdPartyUrl(registration.getThirdPartyUrl())
-              .agreedToPrivacy(registration.getAgreedToPrivacy())
-              .featureSuggestions(registration.getFeatureSuggestions())
-              .introductoryImageUrls(introductoryImageUrls)
-              .createdAt(registration.getCreatedAt())
-              .build();
-        })
-        .toList();
+      return RegistrationDto.GetResponse.builder()
+          .id(registration.getId())
+          .name(registration.getName())
+          .phoneNumber(registration.getPhoneNumber())
+          .thirdPartyUrl(registration.getThirdPartyUrl())
+          .agreedToPrivacy(registration.getAgreedToPrivacy())
+          .featureSuggestions(registration.getFeatureSuggestions())
+          .introductoryImageUrls(introductoryImageUrls)
+          .createdAt(registration.getCreatedAt())
+          .build();
+    });
   }
+
 }
