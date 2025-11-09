@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: muroom-backend-bach
+
+  # dev 로 실행
+  profiles:
+    active: dev
