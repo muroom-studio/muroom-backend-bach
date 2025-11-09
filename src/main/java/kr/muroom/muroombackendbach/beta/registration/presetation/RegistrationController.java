@@ -48,4 +48,10 @@ public class RegistrationController {
     PageResponse<GetResponse> response = new PageResponse<>(registrations);
     return ApiResponse.success(response);
   }
+
+  @GetMapping("/counts")
+  public ApiResponse<RegistrationDto.CountResponse> getRegistrationCounts() {
+    RegistrationDto.CountResponse response = registrationService.getRegistrationCounts();
+    return ApiResponse.success(response);
+  }
 }

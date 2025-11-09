@@ -5,6 +5,7 @@ import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaIntroduct
 import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaRegistration;
 import kr.muroom.muroombackendbach.beta.registration.domain.repository.BetaRegistrationRepository;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto;
+import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto.CountResponse;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto.GetResponse;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
@@ -106,4 +107,11 @@ public class RegistrationService {
     });
   }
 
+  @Transactional(readOnly = true)
+  public CountResponse getRegistrationCounts() {
+    Long totalRegistrations = betaRegistrationRepository.countDistinctPhoneNumber();
+    return CountResponse.builder()
+        .totalRegistrations(totalRegistrations)
+        .build();
+  }
 }

@@ -49,4 +49,11 @@ public final class RegistrationDto {
   ) {
 
   }
+
+  @Builder
+  public record CountResponse(
+      Long totalRegistrations
+  ) {
+
+  }
 }
