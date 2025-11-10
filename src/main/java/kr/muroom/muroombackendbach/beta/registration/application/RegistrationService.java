@@ -25,20 +25,10 @@ public class RegistrationService {
   private final BetaRegistrationRepository betaRegistrationRepository;
   private final FileStorageService fileStorageService;
 
-  private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-      "application/pdf"
-  );
-
   public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(
       RegistrationDto.GeneratePresignedUrlsRequest request) {
     List<PresignedUrlInfo> presignedUrlInfos = request.fileUploadRequests().stream()
         .map((fileRequest) -> {
-          validateContentType(fileRequest.contentType());
 
           String domain = fileRequest.type().getDomain();
 
@@ -75,12 +65,6 @@ public class RegistrationService {
     }
 
     betaRegistrationRepository.save(newRegistration);
-  }
-
-  private void validateContentType(String contentType) {
-    if (!ALLOWED_CONTENT_TYPES.contains(contentType)) {
-      throw new IllegalArgumentException("허용되지 않는 파일 형식입니다: " + contentType);
-    }
   }
 
   @Transactional(readOnly = true)
