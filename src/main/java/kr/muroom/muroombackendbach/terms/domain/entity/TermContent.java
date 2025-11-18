@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 @Table(name = "term_contents")
 public class TermContent {
     @Id
-    @Column(name = "term_id")
     private Long termId;
 
     @OneToOne(fetch = FetchType.LAZY)

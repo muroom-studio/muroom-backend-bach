@@ -3,10 +3,12 @@ package kr.muroom.muroombackendbach.terms.domain.entity;
 import jakarta.persistence.*;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "owner_agreements")
 public class OwnerAgreement {
     @Id
@@ -18,7 +20,7 @@ public class OwnerAgreement {
     private Terms terms;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "onwers_id")
+    @JoinColumn(name = "owners_id")
     private Owner owner;
 
     @CreatedDate

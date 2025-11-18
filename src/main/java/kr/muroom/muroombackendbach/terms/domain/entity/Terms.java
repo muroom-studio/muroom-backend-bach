@@ -24,7 +24,8 @@ public class Terms {
     @Column(length = 50)
     private String version;
 
-    private Boolean isMandatory;
+    @Column(nullable = false)
+    private boolean isMandatory;
 
     private OffsetDateTime effectiveAt;
 
