@@ -47,7 +47,10 @@ public class RegistrationService {
         .name(request.name())
         .phoneNumber(request.phoneNumber())
         .thirdPartyUrl(request.thirdPartyUrl())
-        .agreedToPrivacy(request.agreedToPrivacy())
+        .agreedToPersonalInfoCollection(request.agreedToPersonalInfoCollection())
+        .agreedToContentCollection(request.agreedToContentCollection())
+        .agreedToThirdPartyProvision(request.agreedToThirdPartyProvision())
+        .agreedToMarketing(request.agreedToMarketing() != null && request.agreedToMarketing())
         .featureSuggestions(request.featureSuggestions())
         .build();
 
@@ -83,7 +86,10 @@ public class RegistrationService {
           .name(registration.getName())
           .phoneNumber(registration.getPhoneNumber())
           .thirdPartyUrl(registration.getThirdPartyUrl())
-          .agreedToPrivacy(registration.getAgreedToPrivacy())
+          .agreedToPersonalInfoCollection(registration.getAgreedToPersonalInfoCollection())
+          .agreedToContentCollection(registration.getAgreedToContentCollection())
+          .agreedToThirdPartyProvision(registration.getAgreedToThirdPartyProvision())
+          .agreedToMarketing(registration.getAgreedToMarketing())
           .featureSuggestions(registration.getFeatureSuggestions())
           .introductoryImageUrls(introductoryImageUrls)
           .createdAt(registration.getCreatedAt())

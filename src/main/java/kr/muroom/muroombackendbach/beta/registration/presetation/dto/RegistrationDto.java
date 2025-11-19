@@ -28,7 +28,11 @@ public final class RegistrationDto {
       @NotBlank(message = "이름은 필수 입력입니다.") String name,
       @NotBlank(message = "전화번호는 필수 입력입니다.") String phoneNumber,
       @NotBlank(message = "외부 URL은 필수 입력입니다.") String thirdPartyUrl,
-      @AssertTrue(message = "개인정보 수집 및 이용에 동의하셔야 합니다.") Boolean agreedToPrivacy,
+      @AssertTrue(message = "개인정보 수집 및 이용에 동의하셔야 합니다.") Boolean agreedToPersonalInfoCollection,
+      @AssertTrue(message = "작업실 콘텐츠 수집에 동의하셔야 합니다.")
+      Boolean agreedToContentCollection,
+      @AssertTrue(message = "제3자 제공에 동의하셔야 합니다.") Boolean agreedToThirdPartyProvision,
+      Boolean agreedToMarketing,
       String featureSuggestions,
       @Size(max = 10, message = "소개 이미지 파일은 최대 10개까지 업로드할 수 있습니다.")
       List<String> introductoryImageFileKeys
@@ -42,7 +46,10 @@ public final class RegistrationDto {
       String name,
       String phoneNumber,
       String thirdPartyUrl,
-      Boolean agreedToPrivacy,
+      Boolean agreedToPersonalInfoCollection,
+      Boolean agreedToContentCollection,
+      Boolean agreedToThirdPartyProvision,
+      Boolean agreedToMarketing,
       String featureSuggestions,
       List<String> introductoryImageUrls,
       LocalDateTime createdAt
