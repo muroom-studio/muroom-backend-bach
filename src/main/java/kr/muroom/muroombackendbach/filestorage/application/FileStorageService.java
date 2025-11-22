@@ -12,6 +12,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+/**
+ * S3에서 파일 업로드 및 다운로드를 위한 사전 서명된 URL을 생성하는 서비스입니다.
+ */
 @Service
 public class FileStorageService {
 
@@ -19,6 +22,13 @@ public class FileStorageService {
   private final String bucket;
   private final Duration expiration;
 
+  /**
+   * 파일 저장 서비스 생성자입니다.
+   *
+   * @param s3Presigner S3 프리사이너 - S3와 상호작용하여 사전 서명된 URL을 생성합니다.
+   * @param bucket      S3 버킷 이름
+   * @param expiration  사전 서명된 URL의 만료 시간
+   */
   public FileStorageService(
       S3Presigner s3Presigner,
       @Value("${cloud.aws.s3.bucket}") String bucket,
@@ -29,10 +39,24 @@ public class FileStorageService {
     this.expiration = expiration;
   }
 
+  /**
+   * 사전 서명된 업로드 URL과 파일 키를 포함하는 DTO입니다.
+   *
+   * @param url     사전 서명된 업로드 URL
+   * @param fileKey S3에 저장될 파일 키
+   */
   public record PresignedPutUrlDto(String url, String fileKey) {
 
   }
 
+  /**
+   * 주어진 파일 이름과 도메인에 대해 사전 서명된 업로드 URL을 생성합니다.
+   *
+   * @param fileName    업로드할 파일의 이름
+   * @param domain      파일이 속한 도메인 (예: "profile-images", "documents" 등)
+   * @param contentType 파일의 MIME 타입 (예: "image/png", "application/pdf" 등)
+   * @return 사전 서명된 업로드 URL과 파일 키를 포함하는 DTO
+   */
   public PresignedPutUrlDto generatePresignedPutUrl(String fileName, String domain,
       String contentType) {
     String sanitizedFileName = fileName.replaceAll("[^a-zA-Z0-9.\\-_]", "_");
@@ -55,6 +79,12 @@ public class FileStorageService {
     return new PresignedPutUrlDto(presignedPutObjectRequest.url().toString(), fileKey);
   }
 
+  /**
+   * 주어진 파일 키에 대해 사전 서명된 조회 및 다운로드 URL을 생성합니다.
+   *
+   * @param fileKey S3에 저장된 파일의 키
+   * @return 사전 서명된 조회 및 다운로드 URL
+   */
   public String generatePresignedGetUrl(String fileKey) {
     GetObjectRequest getObjectRequest = GetObjectRequest.builder()
         .bucket(bucket)
