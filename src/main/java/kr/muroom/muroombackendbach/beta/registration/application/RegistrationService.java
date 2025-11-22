@@ -4,9 +4,11 @@ import java.util.List;
 import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaIntroductoryImage;
 import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaRegistration;
 import kr.muroom.muroombackendbach.beta.registration.domain.repository.BetaRegistrationRepository;
+import kr.muroom.muroombackendbach.beta.registration.exception.RegistrationErrorCode;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto.CountResponse;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto.GetResponse;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
@@ -28,6 +30,10 @@ public class RegistrationService {
   private final BetaRegistrationRepository betaRegistrationRepository;
   private final FileStorageService fileStorageService;
 
+  private static final List<String> ALLOWED_FILE_TYPES = List.of(
+      "application/pdf"
+  );
+
   /**
    * 파일 업로드를 위한 사전 서명된 PUT URL을 생성합니다.
    *
@@ -38,6 +44,8 @@ public class RegistrationService {
       RegistrationDto.GeneratePresignedUrlsRequest request) {
     List<PresignedUrlInfo> presignedUrlInfos = request.fileUploadRequests().stream()
         .map((fileRequest) -> {
+
+          validateContentType(fileRequest.contentType());
 
           String domain = fileRequest.type().getDomain();
 
@@ -64,7 +72,7 @@ public class RegistrationService {
         .agreedToPersonalInfoCollection(request.agreedToPersonalInfoCollection())
         .agreedToContentCollection(request.agreedToContentCollection())
         .agreedToThirdPartyProvision(request.agreedToThirdPartyProvision())
-        .agreedToMarketing(request.agreedToMarketing() != null && request.agreedToMarketing())
+        .agreedToMarketing(Boolean.TRUE.equals(request.agreedToMarketing()))
         .featureSuggestions(request.featureSuggestions())
         .build();
 
@@ -128,5 +136,11 @@ public class RegistrationService {
     return CountResponse.builder()
         .totalRegistrations(totalRegistrations)
         .build();
+  }
+
+  private void validateContentType(String contentType) {
+    if (!contentType.startsWith("image/") && !ALLOWED_FILE_TYPES.contains(contentType)) {
+      throw new BusinessException(RegistrationErrorCode.UNSUPPORTED_FILE_TYPE);
+    }
   }
 }

@@ -13,9 +13,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum CommonErrorCode implements ErrorCode {
 
-  INVALID_INPUT(HttpStatus.BAD_REQUEST, "C001", "입력값이 올바르지 않습니다."),
-  METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "C002", "허용되지 않은 요청입니다."),
-  INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C004", "서버 내부 오류가 발생했습니다."),
+  INVALID_INPUT(HttpStatus.BAD_REQUEST, "CM-400-01", "입력값이 올바르지 않습니다."),
+  METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "CM-405-01", "허용되지 않은 요청입니다."),
+  INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CM-500-01", "서버 내부 오류가 발생했습니다."),
   ;
 
   private final HttpStatus status;
