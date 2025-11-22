@@ -1,17 +1,26 @@
 package kr.muroom.muroombackendbach.user.domain.entity;
 
 import jakarta.persistence.*;
+import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "owners")
+@Builder(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
-public class Owner {
+public class Owner extends CreatedDateEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ownerId;
@@ -24,18 +33,32 @@ public class Owner {
     @Column(length = 16)
     private String phoneNumber;
 
-    @Column(length = 10)
+    @Column(length = 20, unique = true)
     private String nickname;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
     private UserStatus status;
 
-    @CreatedDate
-    private OffsetDateTime createdAt;
+    private LocalDateTime deletedAt;
 
-    @LastModifiedDate
-    private OffsetDateTime updatedAt;
+    public static Owner of(
+            String name,
+            LocalDate birthdate,
+            String phoneNumber,
+            String nickname
+    ) {
+        return Owner.builder()
+                .name(name)
+                .birthdate(birthdate)
+                .phoneNumber(phoneNumber)
+                .nickname(nickname)
+                .status(UserStatus.ACTIVE)
+                .build();
+    }
 
-    private OffsetDateTime deletedAt;
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+        this.status = UserStatus.INACTIVE;
+    }
 }

@@ -1,8 +1,8 @@
-package kr.muroom.muroombackendbach.terms.domain.presentation;
+package kr.muroom.muroombackendbach.terms.presentation;
 
-import kr.muroom.muroombackendbach.terms.domain.application.TermService;
+import kr.muroom.muroombackendbach.terms.application.TermService;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
-import kr.muroom.muroombackendbach.terms.domain.presentation.dto.TermDto;
+import kr.muroom.muroombackendbach.terms.presentation.dto.TermDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,4 +29,6 @@ public class TermController {
     public ResponseEntity<List<TermDto.TermsWithContentDto>> getOwnerTerms(@RequestParam(required = false) List<TermsType> types) {
         return ResponseEntity.ok().body(termService.getTermsOwnerByType(types));
     }
+
+
 }

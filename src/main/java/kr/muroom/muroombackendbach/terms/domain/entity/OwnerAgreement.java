@@ -1,16 +1,20 @@
 package kr.muroom.muroombackendbach.terms.domain.entity;
 
 import jakarta.persistence.*;
+import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Entity
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
@@ -29,5 +33,12 @@ public class OwnerAgreement {
     private Owner owner;
 
     @CreatedDate
-    private OffsetDateTime agreedAt;
+    private LocalDateTime agreedAt;
+
+    public static OwnerAgreement of(Owner owner, Terms terms) {
+        return OwnerAgreement.builder()
+                .owner(owner)
+                .terms(terms)
+                .build();
+    }
 }

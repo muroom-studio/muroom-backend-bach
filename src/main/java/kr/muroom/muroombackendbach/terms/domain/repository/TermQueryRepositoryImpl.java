@@ -6,7 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.muroom.muroombackendbach.terms.domain.entity.QTermContent;
 import kr.muroom.muroombackendbach.terms.domain.entity.QTerms;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
-import kr.muroom.muroombackendbach.terms.domain.presentation.dto.TermDto;
+import kr.muroom.muroombackendbach.terms.presentation.dto.TermDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
