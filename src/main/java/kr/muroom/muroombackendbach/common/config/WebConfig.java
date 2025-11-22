@@ -8,6 +8,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * 웹 관련 설정 클래스입니다.
+ */
 @Configuration
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
@@ -21,6 +24,13 @@ public class WebConfig implements WebMvcConfigurer {
         .allowCredentials(true);
   }
 
+  /**
+   * 비밀번호 인코더 빈을 생성합니다.
+   *
+   * <p>SecurityConfig에 선언하지 않고 별도의 설정 클래스로 분리한 이유는, 순환 참조 문제를 방지하기 위함입니다.
+   *
+   * @return PasswordEncoder 인스턴스
+   */
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
