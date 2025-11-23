@@ -12,9 +12,6 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-/**
- * S3에서 파일 업로드 및 다운로드를 위한 사전 서명된 URL을 생성하는 서비스입니다.
- */
 @Service
 public class FileStorageService {
 

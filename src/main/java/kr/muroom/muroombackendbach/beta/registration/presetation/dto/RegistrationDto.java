@@ -5,10 +5,11 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
-import java.util.List;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.request.FileUploadRequest;
 import lombok.Builder;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public final class RegistrationDto {
 
