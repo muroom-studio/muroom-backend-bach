@@ -4,8 +4,11 @@ import java.util.List;
 import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaIntroductoryImage;
 import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaRegistration;
 import kr.muroom.muroombackendbach.beta.registration.domain.repository.BetaRegistrationRepository;
+import kr.muroom.muroombackendbach.beta.registration.exception.RegistrationErrorCode;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto;
+import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto.CountResponse;
 import kr.muroom.muroombackendbach.beta.registration.presetation.dto.RegistrationDto.GetResponse;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
@@ -16,6 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 베타 등록 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -24,19 +30,21 @@ public class RegistrationService {
   private final BetaRegistrationRepository betaRegistrationRepository;
   private final FileStorageService fileStorageService;
 
-  private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
+  private static final List<String> ALLOWED_FILE_TYPES = List.of(
       "application/pdf"
   );
 
+  /**
+   * 파일 업로드를 위한 사전 서명된 PUT URL을 생성합니다.
+   *
+   * @param request 사전 서명된 URL 생성을 위한 요청 데이터
+   * @return 생성된 사전 서명된 URL 정보
+   */
   public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(
       RegistrationDto.GeneratePresignedUrlsRequest request) {
     List<PresignedUrlInfo> presignedUrlInfos = request.fileUploadRequests().stream()
         .map((fileRequest) -> {
+
           validateContentType(fileRequest.contentType());
 
           String domain = fileRequest.type().getDomain();
@@ -51,12 +59,20 @@ public class RegistrationService {
     return new GeneratePresignedUrlsPutResponse(presignedUrlInfos);
   }
 
+  /**
+   * 새로운 매물을 등록합니다.
+   *
+   * @param request 베타 등록 생성을 위한 요청 데이터
+   */
   public void addNewRegistration(RegistrationDto.CreateRequest request) {
     BetaRegistration newRegistration = BetaRegistration.builder()
         .name(request.name())
         .phoneNumber(request.phoneNumber())
         .thirdPartyUrl(request.thirdPartyUrl())
-        .agreedToPrivacy(request.agreedToPrivacy())
+        .agreedToPersonalInfoCollection(request.agreedToPersonalInfoCollection())
+        .agreedToContentCollection(request.agreedToContentCollection())
+        .agreedToThirdPartyProvision(request.agreedToThirdPartyProvision())
+        .agreedToMarketing(Boolean.TRUE.equals(request.agreedToMarketing()))
         .featureSuggestions(request.featureSuggestions())
         .build();
 
@@ -76,12 +92,12 @@ public class RegistrationService {
     betaRegistrationRepository.save(newRegistration);
   }
 
-  private void validateContentType(String contentType) {
-    if (!ALLOWED_CONTENT_TYPES.contains(contentType)) {
-      throw new IllegalArgumentException("허용되지 않는 파일 형식입니다: " + contentType);
-    }
-  }
-
+  /**
+   * 모든 베타 등록 정보를 페이징 처리하여 조회합니다.
+   *
+   * @param pageable 페이징 및 정렬 정보를 포함하는 Pageable 객체
+   * @return 페이징된 베타 등록 정보 목록
+   */
   @Transactional(readOnly = true)
   public Page<GetResponse> getAllRegistrations(Pageable pageable) {
     Page<BetaRegistration> pagedRegistrations = betaRegistrationRepository.findAllWithImages(
@@ -98,7 +114,10 @@ public class RegistrationService {
           .name(registration.getName())
           .phoneNumber(registration.getPhoneNumber())
           .thirdPartyUrl(registration.getThirdPartyUrl())
-          .agreedToPrivacy(registration.getAgreedToPrivacy())
+          .agreedToPersonalInfoCollection(registration.getAgreedToPersonalInfoCollection())
+          .agreedToContentCollection(registration.getAgreedToContentCollection())
+          .agreedToThirdPartyProvision(registration.getAgreedToThirdPartyProvision())
+          .agreedToMarketing(registration.getAgreedToMarketing())
           .featureSuggestions(registration.getFeatureSuggestions())
           .introductoryImageUrls(introductoryImageUrls)
           .createdAt(registration.getCreatedAt())
@@ -106,4 +125,22 @@ public class RegistrationService {
     });
   }
 
+  /**
+   * 베타 등록 통계 정보를 조회합니다.
+   *
+   * @return 베타 등록 통계 정보
+   */
+  @Transactional(readOnly = true)
+  public CountResponse getRegistrationCounts() {
+    Long totalRegistrations = betaRegistrationRepository.countDistinctPhoneNumber();
+    return CountResponse.builder()
+        .totalRegistrations(totalRegistrations)
+        .build();
+  }
+
+  private void validateContentType(String contentType) {
+    if (!contentType.startsWith("image/") && !ALLOWED_FILE_TYPES.contains(contentType)) {
+      throw new BusinessException(RegistrationErrorCode.UNSUPPORTED_FILE_TYPE);
+    }
+  }
 }

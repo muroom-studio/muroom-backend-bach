@@ -44,7 +44,16 @@ public class BetaRegistration extends CreatedDateEntity {
   private String thirdPartyUrl;
 
   @Column(nullable = false)
-  private Boolean agreedToPrivacy; // 개인정보 수집 및 이용 동의 여부
+  private Boolean agreedToPersonalInfoCollection;
+
+  @Column(nullable = false)
+  private Boolean agreedToContentCollection;
+
+  @Column(nullable = false)
+  private Boolean agreedToThirdPartyProvision;
+
+  @Column(nullable = false)
+  private Boolean agreedToMarketing;
 
   private String featureSuggestions;
 

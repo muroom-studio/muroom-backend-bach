@@ -56,6 +56,14 @@ public class BetaRegistrationRepositoryImpl implements BetaRegistrationQueryRepo
     return new PageImpl<>(content, pageable, total);
   }
 
+  @Override
+  public Long countDistinctPhoneNumber() {
+    return queryFactory
+        .select(betaRegistration.phoneNumber.countDistinct())
+        .from(betaRegistration)
+        .fetchOne();
+  }
+
   private OrderSpecifier<?>[] getOrderSpecifiers(Sort sort) {
     return sort.stream()
         .map(order -> {
