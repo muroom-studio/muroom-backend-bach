@@ -1,7 +1,6 @@
 package kr.muroom.muroombackendbach.terms.domain.entity;
 
 import jakarta.persistence.*;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Entity
 @Builder
@@ -21,12 +19,14 @@ import java.time.OffsetDateTime;
 @Table(name = "owner_agreements")
 public class OwnerAgreement {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ownerAgreementId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "owner_agreement_id_seq_generator")
+    @SequenceGenerator(name = "owner_agreement_id_seq_generator", sequenceName = "owner_agreement_id_seq",allocationSize = 1)
+    @Column(name = "owner_agreement_id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "terms_id")
-    private Terms terms;
+    private Term term;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owners_id")
@@ -35,10 +35,10 @@ public class OwnerAgreement {
     @CreatedDate
     private LocalDateTime agreedAt;
 
-    public static OwnerAgreement of(Owner owner, Terms terms) {
+    public static OwnerAgreement of(Owner owner, Term term) {
         return OwnerAgreement.builder()
                 .owner(owner)
-                .terms(terms)
+                .term(term)
                 .build();
     }
 }

@@ -1,7 +1,6 @@
 package kr.muroom.muroombackendbach.terms.presentation.dto;
 
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
-import lombok.Builder;
 
 import java.time.OffsetDateTime;
 

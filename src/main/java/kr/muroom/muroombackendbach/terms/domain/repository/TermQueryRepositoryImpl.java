@@ -3,8 +3,8 @@ package kr.muroom.muroombackendbach.terms.domain.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.muroom.muroombackendbach.terms.domain.entity.QTerm;
 import kr.muroom.muroombackendbach.terms.domain.entity.QTermContent;
-import kr.muroom.muroombackendbach.terms.domain.entity.QTerms;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import kr.muroom.muroombackendbach.terms.presentation.dto.TermDto;
 import lombok.RequiredArgsConstructor;
@@ -20,14 +20,14 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
 
     @Override
     public List<TermDto.TermsWithContentDto> findLatestTermsByRoleAndTypes(String role, List<TermsType> types) {
-        QTerms t = QTerms.terms;
-        QTerms t2 = new QTerms("t2");
+        QTerm t = QTerm.term;
+        QTerm t2 = new QTerm("t2");
         QTermContent tc = QTermContent.termContent;
 
         return queryFactory
                 .select(Projections.constructor(
                         TermDto.TermsWithContentDto.class,
-                        t.termId,
+                        t.id,
                         t.type,
                         t.targetRole,
                         t.version,
@@ -36,7 +36,7 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
                         tc.content
                 ))
                 .from(t)
-                .join(tc).on(tc.terms.eq(t))
+                .join(tc).on(tc.term.eq(t))
             .where(
                 t.targetRole.eq(role),
                 t.type.in(types),

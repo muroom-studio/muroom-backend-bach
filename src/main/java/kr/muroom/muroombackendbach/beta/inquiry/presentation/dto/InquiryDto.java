@@ -2,8 +2,9 @@ package kr.muroom.muroombackendbach.beta.inquiry.presentation.dto;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
 import lombok.Builder;
+
+import java.time.LocalDateTime;
 
 public final class InquiryDto {
 

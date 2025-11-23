@@ -1,17 +1,14 @@
 package kr.muroom.muroombackendbach.user.domain.entity;
 
 import jakarta.persistence.*;
-import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
+import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -20,10 +17,12 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
-public class Owner extends CreatedDateEntity {
+public class Owner extends AuditableEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ownerId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "owner_id_seq_generator")
+    @SequenceGenerator(name = "owner_id_seq_generator", sequenceName = "owner_id_seq",allocationSize = 1)
+    @Column(name = "owner_id")
+    private Long id;
 
     @Column(length = 50)
     private String name;
@@ -40,7 +39,7 @@ public class Owner extends CreatedDateEntity {
     @Column(length = 50)
     private UserStatus status;
 
-    private LocalDateTime deletedAt;
+    private OffsetDateTime deletedAt;
 
     public static Owner of(
             String name,
@@ -58,7 +57,7 @@ public class Owner extends CreatedDateEntity {
     }
 
     public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = OffsetDateTime.now();
         this.status = UserStatus.INACTIVE;
     }
 }

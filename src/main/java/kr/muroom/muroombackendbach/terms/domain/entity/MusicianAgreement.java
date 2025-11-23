@@ -6,12 +6,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Entity
 @Builder
@@ -21,12 +19,14 @@ import java.time.OffsetDateTime;
 @Table(name = "musician_agreements")
 public class MusicianAgreement {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long musicianAgreementId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "musician_agreement_id_seq_generator")
+    @SequenceGenerator(name = "musician_agreement_id_seq_generator", sequenceName = "musician_agreement_id_seq",allocationSize = 1)
+    @Column(name = "musician_agreement_id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "terms_id")
-    private Terms terms;
+    private Term term;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "musician_id")
@@ -35,10 +35,10 @@ public class MusicianAgreement {
     @CreatedDate
     private LocalDateTime agreedAt;
 
-    public static MusicianAgreement of(Musician musician, Terms terms) {
+    public static MusicianAgreement of(Musician musician, Term term) {
         return MusicianAgreement.builder()
                 .musician(musician)
-                .terms(terms)
+                .term(term)
                 .build();
     }
 }

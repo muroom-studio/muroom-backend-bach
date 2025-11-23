@@ -1,14 +1,11 @@
 package kr.muroom.muroombackendbach.user.domain.entity;
 
 import jakarta.persistence.*;
-import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
+import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -17,11 +14,14 @@ import java.time.OffsetDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
-public class Musician extends CreatedDateEntity {
+@Builder
+public class Musician extends AuditableEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long musicianId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "musician_id_seq_generator")
+    @SequenceGenerator(name = "musician_id_seq_generator", sequenceName = "musician_id_seq",  allocationSize = 1)
+    @Column(name = "musician_id")
+    private Long id;
 
     @Column(length = 50)
     private String name;
@@ -38,7 +38,7 @@ public class Musician extends CreatedDateEntity {
     @Column(length = 50)
     private UserStatus status;
 
-    private LocalDateTime deletedAt;
+    private OffsetDateTime deletedAt;
 
     public static Musician of(
             String name,
@@ -56,7 +56,7 @@ public class Musician extends CreatedDateEntity {
     }
 
     public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = OffsetDateTime.now();
         this.status = UserStatus.INACTIVE; // enum 값에 맞게 수정
     }
 }

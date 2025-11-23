@@ -16,11 +16,13 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "terms")
 @EntityListeners(AuditingEntityListener.class)
-public class Terms {
+public class Term {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long termId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "term_id_seq_generator")
+    @SequenceGenerator(name = "term_id_seq_generator", sequenceName = "term_id_seq",allocationSize = 1)
+    @Column(name = "term_id")
+    private Long id;
 
     @Column(length = 50)
     @Enumerated(EnumType.STRING)
