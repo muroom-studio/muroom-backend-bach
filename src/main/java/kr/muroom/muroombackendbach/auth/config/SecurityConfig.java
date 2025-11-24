@@ -1,10 +1,10 @@
 package kr.muroom.muroombackendbach.auth.config;
 
+import kr.muroom.muroombackendbach.auth.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,29 +13,31 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  @Bean
-  public SecurityFilterChain apiSecurityfilterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(Customizer.withDefaults())
+    private final CustomOAuth2UserService customOAuth2UserService;
 
-        .csrf(AbstractHttpConfigurer::disable)
-
-        .sessionManagement((session) -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .formLogin(AbstractHttpConfigurer::disable)
-        .httpBasic(AbstractHttpConfigurer::disable)
-        .anonymous(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests((auth) -> auth
-            .requestMatchers(
-                "/api/beta/**",
-                "/api/ping"
-            ).permitAll()
-            .anyRequest().permitAll());
-
-    return http.build();
-  }
+    @Bean
+    public SecurityFilterChain apiSecurityfilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/oauth2/**",
+                                "/login/**",
+                                "/api/ping"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo ->
+                                userInfo.userService(customOAuth2UserService)
+                        )
+                        .defaultSuccessUrl("/api/ping", true)
+                );
+        return http.build();
+    }
 }
