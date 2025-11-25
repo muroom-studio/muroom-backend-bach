@@ -13,6 +13,7 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.MapLis
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,8 +41,9 @@ public class StudioController {
   public ApiResponse<PaginatedData<StudioResponse.MapList>> searchStudiosForMapList(
       @Parameter(description = "지도 검색 범위 (최소/최대 위도, 최소/최대 경도)")
       @ModelAttribute StudioRequest.MapBoundsSearch request,
-      @Parameter(description = "페이지네이션 정보로 기본 정렬은 가격 오름차순입니다.")
-      @PageableDefault Pageable pageable
+      @Parameter(description = "페이지네이션 및 정렬 정보", example = "page=0&size=10&sort=latest,desc (최신순)"
+          + " / sort=price,asc (가격 오름차순) / sort=price,desc (가격 내림차순)")
+      @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
   ) {
     Page<MapList> response = studioService.searchStudiosForMapList(request, pageable);
     return ApiResponse.success(PaginatedData.from(response));
