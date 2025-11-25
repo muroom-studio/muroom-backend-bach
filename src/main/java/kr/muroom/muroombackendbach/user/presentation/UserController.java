@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.user.presentation;
 
+import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.UserService;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/nickname/check")
-    public UserDto.NicknameCheckResponse checkNickname(@RequestParam String nickname) {
+    public ApiResponse<UserDto.NicknameCheckResponse> checkNickname(@RequestParam String nickname) {
         boolean available = userService.isNicknameAvailable(nickname);
-        return new UserDto.NicknameCheckResponse(available);
+        return ApiResponse.success(new UserDto.NicknameCheckResponse(available));
     }
 }

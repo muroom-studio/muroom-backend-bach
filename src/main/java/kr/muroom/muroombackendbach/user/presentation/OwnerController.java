@@ -1,10 +1,9 @@
 package kr.muroom.muroombackendbach.user.presentation;
 
+import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.OwnerService;
 import kr.muroom.muroombackendbach.user.presentation.dto.OwnerDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,11 +17,8 @@ public class OwnerController {
     private final OwnerService ownerService;
 
     @PostMapping
-    public ResponseEntity<Void> registerOwner(@RequestBody OwnerDto.OwnerSignUpDto request) {
+    public ApiResponse<Void> registerOwner(@RequestBody OwnerDto.OwnerSignUpDto request) {
         ownerService.registerOwner(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ApiResponse.created();
     }
-
-
-
 }

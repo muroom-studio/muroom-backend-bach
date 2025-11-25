@@ -41,9 +41,6 @@ cloud:
     stack:
       auto: false
 
-jwt:
-  secret-key: ${JWT_SECRET_KEY}
-
 logging:
   level:
     org.springframework: INFO
