@@ -53,6 +53,29 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * 외부 API 연동 예외를 처리합니다.
+   *
+   * @param e ExternalApiException 외부 API 연동 예외
+   * @return {@code ResponseEntity<ApiResponse<ErrorPayload>>} 응답 엔티티
+   */
+  @ExceptionHandler(ExternalApiException.class)
+  protected ResponseEntity<ApiResponse<ErrorPayload>> handleExternalApiException(
+      final ExternalApiException e) {
+    // TODO: 슬랙/메일/모니터링 시스템 연동
+    log.error("[# ExternalApiException] ", e);
+
+    final ErrorCode errorCode = CommonErrorCode.EXTERNAL_SERVICE_UNAVAILABLE;
+
+    final ApiResponse<ErrorPayload> response = ApiResponse.fail(
+        errorCode.getStatus(),
+        errorCode.getCode(),
+        "외부 시스템 연동 중 오류가 발생했습니다."
+    );
+
+    return new ResponseEntity<>(response, errorCode.getStatus());
+  }
+
+  /**
    * 지원되지 않는 HTTP 메서드 예외를 처리합니다.
    *
    * @param e HttpRequestMethodNotSupportedException 지원되지 않는 HTTP 메서드 예외

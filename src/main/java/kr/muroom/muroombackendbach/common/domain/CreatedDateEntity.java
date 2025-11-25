@@ -3,11 +3,10 @@ package kr.muroom.muroombackendbach.common.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import java.time.OffsetDateTime;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 /**
  * 생성 일시를 자동으로 관리하는 추상 엔티티 클래스입니다.
@@ -19,5 +18,5 @@ public abstract class CreatedDateEntity {
 
   @CreatedDate
   @Column(updatable = false, nullable = false)
-  private LocalDateTime createdAt;
+  private OffsetDateTime createdAt;
 }

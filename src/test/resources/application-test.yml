@@ -5,6 +5,9 @@ spring:
     username: sa
     password:
 
+  sql:
+    init:
+      mode: never
   #  data:
   #    redis:
   #      host: localhost
@@ -38,3 +41,17 @@ logging:
   level:
     org.springframework: INFO
     com.moty.solarserver: DEBUG
+
+seoul:
+  api:
+    key: test-seoul-api-key
+
+kakao:
+  api:
+    rest-api-key: test-kakao-rest-api-key
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

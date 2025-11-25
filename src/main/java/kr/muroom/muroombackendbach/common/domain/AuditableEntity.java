@@ -3,11 +3,10 @@ package kr.muroom.muroombackendbach.common.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import java.time.OffsetDateTime;
 import lombok.Getter;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 /**
  * 수정 일시를 자동으로 관리하는 추상 엔티티 클래스입니다.
@@ -21,5 +20,5 @@ public abstract class AuditableEntity extends CreatedDateEntity {
 
   @LastModifiedDate
   @Column(nullable = false)
-  private LocalDateTime updatedAt;
+  private OffsetDateTime updatedAt;
 }

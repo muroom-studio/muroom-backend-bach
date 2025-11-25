@@ -1,11 +1,10 @@
 package kr.muroom.muroombackendbach.auth.config;
 
-import kr.muroom.muroombackendbach.auth.oauth.handler.OAuth2LoginSuccessHandler;
-import kr.muroom.muroombackendbach.auth.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -14,35 +13,33 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+  @Bean
+  public SecurityFilterChain apiSecurityfilterChain(HttpSecurity http) throws Exception {
+    http
+        .cors(Customizer.withDefaults())
 
-    @Bean
-    public SecurityFilterChain apiSecurityfilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/oauth2/**",
-                                "/login/**",
-                                "/api/ping",
-                                "/api/v1/musician/register"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(userInfo ->
-                                userInfo.userService(customOAuth2UserService)
-                        )
-                        .successHandler(oAuth2LoginSuccessHandler)
-                );
-        return http.build();
-    }
+        .csrf(AbstractHttpConfigurer::disable)
+
+        .sessionManagement((session) -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .formLogin(AbstractHttpConfigurer::disable)
+        .httpBasic(AbstractHttpConfigurer::disable)
+        .anonymous(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests((auth) -> auth
+            .requestMatchers(
+                "/api/beta/**",
+                "/api/ping",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**",
+                "/api/v1/musician/register"
+            ).permitAll()
+            .anyRequest().permitAll());
+
+    return http.build();
+  }
 }

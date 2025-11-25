@@ -10,6 +10,10 @@ spring:
       idle-timeout: 30000
       connection-timeout: 60000
 
+  sql:
+    init:
+      mode: never
+
   #  data:
   #    redis:
   #      host: localhost
@@ -19,16 +23,13 @@ spring:
     open-in-view: false
     hibernate:
       # ddl-auto: update
-      ddl-auto: none
+      ddl-auto: create-drop
     properties:
       hibernate:
         #show-sql: true
         format_sql: true
     defer-datasource-initialization: true
 
-  sql:
-    init:
-      mode: always
 cloud:
   aws:
     region:
@@ -46,8 +47,13 @@ jwt:
 logging:
   level:
     org.springframework: INFO
-    kr.muroom.muroombackendbach: DEBUG     # 🔥 너네 코드 전체
+    kr.muroom.muroombackendbach: DEBUG
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
 
 oauth2:
   kakao:

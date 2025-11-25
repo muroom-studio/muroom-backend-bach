@@ -7,4 +7,25 @@ spring:
     active: dev
 
 cors:
-  allowed-origins: "http://localhost:3000,https://muroom.kr,https://www.muroom.kr"
+  allowed-origins: "http://localhost:3000, https://muroom.kr, https://www.muroom.kr"
+
+seoul:
+  api:
+    key: ${SEOUL_API_KEY}
+
+kakao:
+  api:
+    rest-api-key: ${KAKAO_REST_API_KEY}
+
+springdoc:
+  version: v1.0.0
+  title: Muroom API Docs
+  description: Muroom API 명세서입니다.
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+    groups-order: DESC
+  paths-to-match:
+    - /api/v1/**
+#    - /api/v2/**
+#    - /api/v3/**
