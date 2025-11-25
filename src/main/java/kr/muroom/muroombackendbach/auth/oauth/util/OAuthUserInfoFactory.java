@@ -1,9 +1,9 @@
 package kr.muroom.muroombackendbach.auth.oauth.util;
 
-import kr.muroom.muroombackendbach.auth.oauth.user.GoogleUserInfo;
-import kr.muroom.muroombackendbach.auth.oauth.user.KakaoUserInfo;
-import kr.muroom.muroombackendbach.auth.oauth.user.NaverUserInfo;
-import kr.muroom.muroombackendbach.auth.oauth.user.OAuthUserInfo;
+import kr.muroom.muroombackendbach.auth.oauth.userinfo.GoogleUserInfo;
+import kr.muroom.muroombackendbach.auth.oauth.userinfo.KakaoUserInfo;
+import kr.muroom.muroombackendbach.auth.oauth.userinfo.NaverUserInfo;
+import kr.muroom.muroombackendbach.auth.oauth.userinfo.OAuthUserInfo;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 
 import java.util.Map;

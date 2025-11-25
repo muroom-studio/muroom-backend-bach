@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.auth.config;
 
+import kr.muroom.muroombackendbach.auth.oauth.handler.OAuth2LoginSuccessHandler;
 import kr.muroom.muroombackendbach.auth.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,18 +18,22 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain apiSecurityfilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/oauth2/**",
                                 "/login/**",
-                                "/api/ping"
+                                "/api/ping",
+                                "/api/v1/musician/register"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -36,7 +41,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo ->
                                 userInfo.userService(customOAuth2UserService)
                         )
-                        .defaultSuccessUrl("/api/ping", true)
+                        .successHandler(oAuth2LoginSuccessHandler)
                 );
         return http.build();
     }

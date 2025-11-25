@@ -17,11 +17,10 @@ public class MusicianController {
 
     private final MusicianService musicianService;
 
-    @PostMapping
-    public ResponseEntity<Object> registerMusician(@RequestBody MusicianDto.MusicianSignUpDto musicianSignUpRequest) {
-        musicianService.registerMusician(musicianSignUpRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @PostMapping("/register")
+    public ResponseEntity<MusicianDto.MusicianSignUpResponse> registerMusician(@RequestBody MusicianDto.MusicianSignUpDto musicianSignUpRequest) {
+        MusicianDto.MusicianSignUpResponse response =
+                musicianService.registerMusician(musicianSignUpRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-
 }

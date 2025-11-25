@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 @Configuration
 public class OAuth2ClientConfig {
-
     @Value("${oauth2.kakao.client-id}")
     private String kakaoClientId;
 

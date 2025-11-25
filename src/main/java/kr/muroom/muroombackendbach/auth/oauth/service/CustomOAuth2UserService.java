@@ -1,12 +1,12 @@
 package kr.muroom.muroombackendbach.auth.oauth.service;
 
 import kr.muroom.muroombackendbach.auth.oauth.user.CustomOAuth2User;
-import kr.muroom.muroombackendbach.auth.oauth.user.OAuthUserInfo;
+import kr.muroom.muroombackendbach.auth.oauth.user.UnregisteredOAuth2User;
+import kr.muroom.muroombackendbach.auth.oauth.userinfo.OAuthUserInfo;
 import kr.muroom.muroombackendbach.auth.oauth.util.OAuthUserInfoFactory;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
-import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -22,7 +22,6 @@ import java.util.Map;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final SocialAccountRepository socialAccountRepository;
-    private final MusicianRepository musicianRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -37,28 +36,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         SocialAccount socialAccount = socialAccountRepository
                 .findByProviderAndProviderUserId(provider, providerId)
-                .orElseGet(() -> createSocialAccount(provider, providerId));
+                .orElse(null);
+
+        if (socialAccount == null) {
+            return new UnregisteredOAuth2User(
+                    registrationId,
+                    providerId,
+                    attributes
+            );
+        }
 
         Musician musician = socialAccount.getMusician();
 
         return new CustomOAuth2User(
                 musician.getId(),
                 providerId,
-                attributes
+                attributes,
+                registrationId
         );
-    }
-
-    private SocialAccount createSocialAccount(OAuthProvider provider, String providerId) {
-        Musician musician = Musician.builder()
-                .build();
-        musicianRepository.save(musician);
-
-        SocialAccount socialAccount = SocialAccount.builder()
-                .musician(musician)
-                .provider(provider)
-                .providerUserId(providerId)
-                .build();
-
-        return socialAccountRepository.save(socialAccount);
     }
 }

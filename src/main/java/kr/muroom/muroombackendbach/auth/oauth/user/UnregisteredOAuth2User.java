@@ -5,14 +5,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-public record CustomOAuth2User(
-        Long musicianId,
+public record UnregisteredOAuth2User(
+        String provider,
         String providerId,
-        Map<String, Object> attributes,
-        String provider
+        Map<String, Object> attributes
 ) implements OAuth2User {
 
     @Override
@@ -22,11 +21,11 @@ public record CustomOAuth2User(
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_OAUTH_PENDING"));
     }
 
     @Override
     public String getName() {
-        return String.valueOf(musicianId);
+        return provider + ":" + providerId;
     }
 }

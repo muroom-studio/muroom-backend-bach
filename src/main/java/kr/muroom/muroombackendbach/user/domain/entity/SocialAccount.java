@@ -7,7 +7,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
-@Table(name = "social_accounts")
+@Table(
+        name = "social_accounts",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_provider_provider_user",
+                        columnNames = {"provider", "provider_user_id"}
+                )
+        }
+)
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

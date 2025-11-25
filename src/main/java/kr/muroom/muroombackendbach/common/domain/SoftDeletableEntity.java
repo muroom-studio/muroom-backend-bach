@@ -2,9 +2,10 @@ package kr.muroom.muroombackendbach.common.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import org.hibernate.annotations.SQLRestriction;
+
+import java.time.LocalDateTime;
 
 /**
  * 소프트 삭제 기능을 제공하는 추상 엔티티 클래스입니다.
