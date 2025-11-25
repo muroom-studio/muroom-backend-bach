@@ -2,7 +2,7 @@ package kr.muroom.muroombackendbach.beta.inquiry.presentation.dto;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import lombok.Builder;
 
 public final class InquiryDto {
@@ -27,7 +27,7 @@ public final class InquiryDto {
       String phoneNumber,
       String content,
       Boolean agreedToPrivacy,
-      LocalDateTime createdAt
+      OffsetDateTime createdAt
   ) {
 
   }

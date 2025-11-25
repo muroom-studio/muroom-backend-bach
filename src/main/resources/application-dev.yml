@@ -10,6 +10,10 @@ spring:
       idle-timeout: 30000
       connection-timeout: 60000
 
+  sql:
+    init:
+      mode: never
+
   #  data:
   #    redis:
   #      host: localhost
@@ -19,11 +23,12 @@ spring:
     open-in-view: false
     hibernate:
       # ddl-auto: update
-      ddl-auto: none
+      ddl-auto: create-drop
     properties:
       hibernate:
         #show-sql: true
         format_sql: true
+    defer-datasource-initialization: true
 
 cloud:
   aws:
@@ -43,3 +48,9 @@ logging:
   level:
     org.springframework: INFO
     com.moty.solarserver: DEBUG
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

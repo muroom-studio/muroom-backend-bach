@@ -1,0 +1,40 @@
+services:
+  # 1. Database (Postgres 17 + PostGIS 3.4)
+  db:
+    image: postgis/postgis:17-3.4
+    container_name: muroom-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: ${TZ}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - muroom-network
+
+  # 2. Redis
+  redis:
+    image: redis:alpine
+    container_name: muroom-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - muroom-network
+
+# 볼륨 정의 (데이터 보존용)
+volumes:
+  postgres_data:
+  redis_data:
+
+# 네트워크 정의 (컨테이너끼리 통신용)
+networks:
+  muroom-network:
+    driver: bridge
