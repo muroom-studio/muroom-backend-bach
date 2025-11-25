@@ -14,8 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-  //환경변수 생성자 주입
-  private String[] allowedOrigins;
+  private final String[] allowedOrigins;
 
   public WebConfig(@Value("${cors.allowed-origins}") String[] allowedOrigins) {
     this.allowedOrigins = allowedOrigins;
@@ -24,7 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**")
-        .allowedOrigins()
+        .allowedOrigins(allowedOrigins)
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .allowedHeaders("*")
         .allowCredentials(true);

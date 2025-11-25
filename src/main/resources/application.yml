@@ -7,7 +7,7 @@ spring:
     active: dev
 
 cors:
-  allowed-origins: "http://localhost:3000,https://muroom.kr,https://www.muroom.kr"
+  allowed-origins: "http://localhost:3000, https://muroom.kr, https://www.muroom.kr"
 
 seoul:
   api:
