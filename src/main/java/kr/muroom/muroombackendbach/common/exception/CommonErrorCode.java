@@ -16,7 +16,9 @@ public enum CommonErrorCode implements ErrorCode {
   INVALID_INPUT(HttpStatus.BAD_REQUEST, "CM-400-01", "입력값이 올바르지 않습니다."),
   METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "CM-405-01", "허용되지 않은 요청입니다."),
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CM-500-01", "서버 내부 오류가 발생했습니다."),
-  ;
+
+  EXTERNAL_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "CM-503-01",
+      "외부 서비스 이용이 일시적으로 불가능합니다.");
 
   private final HttpStatus status;
   private final String code;

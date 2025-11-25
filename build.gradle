@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.6'
+    id 'org.springframework.boot' version '3.5.8'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -24,45 +24,73 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    set('springCloudVersion', "2025.0.0")
+    set('queryDslVersion', "5.1.0")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
 dependencies {
+    // Web & Security
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // JWT
     implementation 'io.jsonwebtoken:jjwt:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    // SQL Logging
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
     //Phone Number
     implementation 'com.googlecode.libphonenumber:libphonenumber:5.5'
 
+    // Spatial (GIS)
+    implementation 'org.hibernate.orm:hibernate-spatial'
+    implementation 'com.bedatadriven:jackson-datatype-jts:2.4'
 
     //Redis
 //    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     //QueryDSL
-    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
-    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta"
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
-
-    //AWS Secrets Manager
-    //implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager'
 
     //AWS SDK v2
     implementation platform('software.amazon.awssdk:bom:2.35.0')
     implementation 'software.amazon.awssdk:s3'
 
+    // OpenFeign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // DB
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'com.h2database:h2'
-    annotationProcessor 'org.projectlombok:lombok'
+
+    // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Swagger / OpenAPI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
 }
+
 // QueryDSL 설정
 def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
 sourceSets {

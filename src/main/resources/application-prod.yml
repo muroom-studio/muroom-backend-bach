@@ -43,3 +43,9 @@ logging:
   level:
     org.springframework: INFO
     com.moty.solarserver: DEBUG
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
