@@ -35,7 +35,8 @@ public class SecurityConfig {
                 "/api/ping",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
-                "/v3/api-docs/**"
+                "/v3/api-docs/**",
+                "/api/v1/musician/register"
             ).permitAll()
             .anyRequest().permitAll());
 

@@ -14,6 +14,12 @@ public final class MusicianDto {
             LocalDate birthdate,
             String phoneNumber,
             String nickname,
-            List<Long> termIds
+            List<Long> termIds,
+            String signupToken
     ) {}
+
+    public record MusicianSignUpResponse(
+            String accessToken,
+            Long musicianId)
+    {}
 }

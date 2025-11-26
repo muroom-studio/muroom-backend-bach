@@ -1,11 +1,12 @@
 package kr.muroom.muroombackendbach.common.exception;
 
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+
+import java.util.List;
 
 /**
  * 유효성 검증 오류 세부 정보를 나타내는 클래스입니다.

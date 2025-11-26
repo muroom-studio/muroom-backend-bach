@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.common.exception;
 
-import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +7,8 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
 
 /**
  * 애플리케이션 전반에서 발생하는 예외를 처리하는 글로벌 예외 처리기 클래스입니다.

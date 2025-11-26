@@ -1,10 +1,10 @@
 package kr.muroom.muroombackendbach.terms.presentation;
 
+import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.terms.application.TermService;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import kr.muroom.muroombackendbach.terms.presentation.dto.TermDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,13 +21,13 @@ public class TermController {
     private final TermService termService;
 
     @GetMapping("/musician")
-    public ResponseEntity<List<TermDto.TermsWithContentDto>> getMusicianTerms(@RequestParam(required = false) List<TermsType> types) {
-        return ResponseEntity.ok().body(termService.getTermsMusicianByType(types));
+    public ApiResponse<List<TermDto.TermsWithContentDto>> getMusicianTerms(@RequestParam(required = false) List<TermsType> types) {
+        return ApiResponse.success(termService.getTermsMusicianByType(types));
     }
 
     @GetMapping("/owner")
-    public ResponseEntity<List<TermDto.TermsWithContentDto>> getOwnerTerms(@RequestParam(required = false) List<TermsType> types) {
-        return ResponseEntity.ok().body(termService.getTermsOwnerByType(types));
+    public ApiResponse<List<TermDto.TermsWithContentDto>> getOwnerTerms(@RequestParam(required = false) List<TermsType> types) {
+        return ApiResponse.success(termService.getTermsOwnerByType(types));
     }
 
 
