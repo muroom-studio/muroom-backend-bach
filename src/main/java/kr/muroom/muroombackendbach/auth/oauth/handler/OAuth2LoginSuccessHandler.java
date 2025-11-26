@@ -10,6 +10,7 @@ import kr.muroom.muroombackendbach.auth.oauth.handler.dto.OAuth2LoginSuccessResp
 import kr.muroom.muroombackendbach.auth.oauth.handler.dto.OAuth2SignupResponse;
 import kr.muroom.muroombackendbach.auth.oauth.user.CustomOAuth2User;
 import kr.muroom.muroombackendbach.auth.oauth.user.UnregisteredOAuth2User;
+import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -42,7 +43,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             );
 
             OAuth2SignupResponse body = OAuth2SignupResponse.of(signupToken, unregistered.provider());
-            writeJsonResponse(response, HttpServletResponse.SC_OK, body);
+            writeJsonResponse(response, HttpServletResponse.SC_OK, ApiResponse.success(body));
             return;
         }
 
@@ -53,7 +54,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
             OAuth2LoginSuccessResponse body =
                     OAuth2LoginSuccessResponse.of(token, musicianId, user.provider());
-            writeJsonResponse(response, HttpServletResponse.SC_OK, body);
+            writeJsonResponse(response, HttpServletResponse.SC_OK, ApiResponse.success(body));
             return;
         }
 
