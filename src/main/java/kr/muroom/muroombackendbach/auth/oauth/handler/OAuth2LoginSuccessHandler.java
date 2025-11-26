@@ -5,6 +5,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
+import kr.muroom.muroombackendbach.auth.oauth.handler.dto.LoginErrorResponse;
+import kr.muroom.muroombackendbach.auth.oauth.handler.dto.OAuth2LoginSuccessResponse;
+import kr.muroom.muroombackendbach.auth.oauth.handler.dto.OAuth2SignupResponse;
 import kr.muroom.muroombackendbach.auth.oauth.user.CustomOAuth2User;
 import kr.muroom.muroombackendbach.auth.oauth.user.UnregisteredOAuth2User;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +34,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         Object principal = authentication.getPrincipal();
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-        Map<String, Object> body = new HashMap<>();
-
         // 회원가입이 필요한 유저
         if (principal instanceof UnregisteredOAuth2User unregistered) {
             String signupToken = jwtTokenProvider.createSignupToken(
@@ -44,12 +41,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                     unregistered.providerId()
             );
 
-            body.put("status", "SIGNUP_REQUIRED");
-            body.put("token", signupToken);
-            body.put("provider", unregistered.provider());
-
-            response.getWriter().write(objectMapper.writeValueAsString(body));
-            response.getWriter().flush();
+            OAuth2SignupResponse body = OAuth2SignupResponse.of(signupToken, unregistered.provider());
+            writeJsonResponse(response, HttpServletResponse.SC_OK, body);
             return;
         }
 
@@ -58,19 +51,30 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             Long musicianId = user.musicianId();
             String token = jwtTokenProvider.createToken(musicianId);
 
-            body.put("status", "SUCCESS");
-            body.put("token", token);
-            body.put("musicianId", musicianId);
-            body.put("provider", user.provider());
-
-            response.getWriter().write(objectMapper.writeValueAsString(body));
-            response.getWriter().flush();
+            OAuth2LoginSuccessResponse body =
+                    OAuth2LoginSuccessResponse.of(token, musicianId, user.provider());
+            writeJsonResponse(response, HttpServletResponse.SC_OK, body);
             return;
         }
 
-        super.onAuthenticationSuccess(request, response, authentication);
+        LoginErrorResponse errorBody = LoginErrorResponse.of(
+                "UNEXPECTED_PRINCIPAL_TYPE",
+                "예상하지 못한 인증 주체 타입입니다."
+        );
+        writeJsonResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, errorBody);
+    }
+
+    private void writeJsonResponse(HttpServletResponse response, int status, Object body) throws IOException {
+        response.setStatus(status);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.getWriter().write(objectMapper.writeValueAsString(body));
+        response.getWriter().flush();
     }
 }
+
+
+
 
 
 

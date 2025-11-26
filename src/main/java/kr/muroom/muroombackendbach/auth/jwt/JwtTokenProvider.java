@@ -5,12 +5,14 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
     private final SecretKey key;
@@ -99,9 +101,9 @@ public class JwtTokenProvider {
             parseClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("JWT expired: " + e.getMessage());
+            log.warn("만료된 JWT 토큰입니다: {}", e.getMessage());
         } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("JWT invalid: " + e.getMessage());
+            log.warn("유효하지 않은 JWT 토큰입니다: {}", e.getMessage());
         }
         return false;
     }

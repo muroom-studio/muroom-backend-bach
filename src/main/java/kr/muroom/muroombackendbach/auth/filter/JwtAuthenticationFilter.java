@@ -33,10 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtTokenProvider.validateToken(token)) {
             Long musicianId = jwtTokenProvider.getMusicianId(token);
 
-            Musician musician = musicianRepository.findById(musicianId)
-                    .orElse(null);
-
-            if (musician != null) {
+            if (musicianRepository.existsById(musicianId)) {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 musicianId,
