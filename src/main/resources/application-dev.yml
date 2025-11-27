@@ -41,6 +41,10 @@ cloud:
     stack:
       auto: false
 
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  expiration-ms: 900000 #15분
+
 logging:
   level:
     org.springframework: INFO

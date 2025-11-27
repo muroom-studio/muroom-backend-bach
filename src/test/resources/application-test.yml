@@ -36,6 +36,7 @@ cloud:
 
 jwt:
   secret-key: some-very-very-very-very-very-very-very-long-secret-key
+  expiration-ms: 900000 #15분
 
 logging:
   level:
@@ -55,3 +56,12 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+
+oauth2:
+  kakao:
+    client-id: test-kakao-client-id
+    client-secret: test-kakao-client-secret
+  google:
+    client-id: test-google-client-id
+    client-secret: test-google-client-secret
