@@ -51,7 +51,7 @@ logging:
     kr.muroom.muroombackendbach: DEBUG
 
 server:
-  url: https://dev-api.muroom.kr
+  url: http://localhost:8080
 springdoc:
   api-docs:
     enabled: true

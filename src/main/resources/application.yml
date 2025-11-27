@@ -2,10 +2,6 @@ spring:
   application:
     name: muroom-backend-bach
 
-  # dev 로 실행
-  profiles:
-    active: dev
-
 cors:
   allowed-origins: "http://localhost:3000, https://muroom.kr, https://www.muroom.kr"
 

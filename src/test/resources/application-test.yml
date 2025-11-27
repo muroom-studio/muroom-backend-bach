@@ -51,6 +51,8 @@ kakao:
   api:
     rest-api-key: test-kakao-rest-api-key
 
+server:
+  url: http://localhost:8080
 springdoc:
   api-docs:
     enabled: false
