@@ -1,3 +1,6 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+SELECT PostGIS_full_version();
+
 INSERT INTO terms (term_id, type, target_role, version, is_mandatory, effective_at, created_at)
 VALUES (1, 'TERMS_OF_USE', 'MUSICIAN', 'v1.0', TRUE, NOW(), NOW()),
        (2, 'PRIVACY_COLLECTION', 'MUSICIAN', 'v1.0', TRUE, NOW(), NOW()),
@@ -20,9 +23,8 @@ VALUES (1, '뮤지션 이용약관 v1.0 내용입니다.'),
        (8, '오너 마케팅 수신 동의서 v1.0 내용입니다.');
 
 
-
 -- Studio Data
-    
+
 -- TRUNCATE TABLE studios RESTART IDENTITY;
 
 INSERT INTO studios (studio_id, name, address, location, view_count, introduction,
