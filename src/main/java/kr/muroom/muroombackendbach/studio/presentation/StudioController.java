@@ -55,9 +55,4 @@ public class StudioController {
     Page<MapList> response = studioService.searchStudiosForMapList(request, pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
-
-  @GetMapping("/{studioId}")
-  public ApiResponse<Void> getStudios(@PathVariable Long studioId) {
-    return studioService.getStudioDetail(studioId);
-  }
 }
