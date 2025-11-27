@@ -40,8 +40,8 @@ public class StudioController {
       parameters = {
           @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
           @Parameter(name = "size", description = "페이지 당 항목 수", example = "10"),
-          @Parameter(name = "sort", description = "정렬 기준 (예: price,asc 또는 latest,desc)",
-              example = "price,asc")
+          @Parameter(name = "sort", description = "정렬 기준 (예: 'price,asc', 'latest,desc'). 생략 시 기본값은 'latest,desc' (최신순) 입니다.",
+              example = "latest,desc")
       }
   )
   @GetMapping("/map-list")
