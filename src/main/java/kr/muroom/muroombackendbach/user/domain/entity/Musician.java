@@ -17,46 +17,52 @@ import java.time.OffsetDateTime;
 @Builder
 public class Musician extends AuditableEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "musician_id_seq_generator")
-    @SequenceGenerator(name = "musician_id_seq_generator", sequenceName = "musician_id_seq",  allocationSize = 1)
-    @Column(name = "musician_id")
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "musician_id_seq_generator")
+  @SequenceGenerator(name = "musician_id_seq_generator", sequenceName = "musician_id_seq",
+      allocationSize = 1)
+  @Column(name = "musician_id")
+  private Long id;
 
-    @Column(length = 50)
-    private String name;
+  @Column(length = 50)
+  private String name;
 
-    private LocalDate birthdate;
+  private LocalDate birthdate;
 
-    @Column(length = 16)
-    private String phoneNumber;
+  @Column(length = 16)
+  private String phoneNumber;
 
-    @Column(length = 10, unique = true)
-    private String nickname;
+  @Column(length = 10, unique = true)
+  private String nickname;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 50)
-    private UserStatus status;
+  @Enumerated(EnumType.STRING)
+  @Column(length = 50)
+  private UserStatus status;
 
-    private OffsetDateTime deletedAt;
+  @OneToOne(fetch = FetchType.LAZY)
+  private Instrument instrument;
 
-    public static Musician of(
-            String name,
-            LocalDate birthdate,
-            String phoneNumber,
-            String nickname
-    ) {
-        return Musician.builder()
-                .name(name)
-                .birthdate(birthdate)
-                .phoneNumber(phoneNumber)
-                .nickname(nickname)
-                .status(UserStatus.ACTIVE)
-                .build();
-    }
+  private OffsetDateTime deletedAt;
 
-    public void softDelete() {
-        this.deletedAt = OffsetDateTime.now();
-        this.status = UserStatus.INACTIVE; // enum 값에 맞게 수정
-    }
+  public static Musician of(
+      String name,
+      LocalDate birthdate,
+      String phoneNumber,
+      String nickname,
+      Instrument instrument
+  ) {
+    return Musician.builder()
+        .name(name)
+        .birthdate(birthdate)
+        .phoneNumber(phoneNumber)
+        .nickname(nickname)
+        .instrument(instrument)
+        .status(UserStatus.ACTIVE)
+        .build();
+  }
+
+  public void softDelete() {
+    this.deletedAt = OffsetDateTime.now();
+    this.status = UserStatus.INACTIVE; // enum 값에 맞게 수정
+  }
 }

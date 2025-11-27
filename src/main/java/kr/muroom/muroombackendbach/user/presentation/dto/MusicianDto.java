@@ -1,25 +1,28 @@
 package kr.muroom.muroombackendbach.user.presentation.dto;
 
-
 import java.time.LocalDate;
 import java.util.List;
 
 public final class MusicianDto {
 
-    private MusicianDto() {
-    }
+  private MusicianDto() {
+  }
 
-    public record MusicianSignUpDto(
-            String name,
-            LocalDate birthdate,
-            String phoneNumber,
-            String nickname,
-            List<Long> termIds,
-            String signupToken
-    ) {}
+  public record MusicianSignUpDto(
+      String name,
+      LocalDate birthdate,
+      String phoneNumber,
+      String nickname,
+      Long instrumentId,
+      List<Long> termIds,
+      String signupToken
+  ) {
 
-    public record MusicianSignUpResponse(
-            String accessToken,
-            Long musicianId)
-    {}
+  }
+
+  public record MusicianSignUpResponse(
+      String accessToken,
+      Long musicianId) {
+
+  }
 }
