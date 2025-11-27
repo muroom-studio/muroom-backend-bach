@@ -56,6 +56,7 @@ public class Musician extends AuditableEntity {
         .birthdate(birthdate)
         .phoneNumber(phoneNumber)
         .nickname(nickname)
+        .instrument(instrument)
         .status(UserStatus.ACTIVE)
         .build();
   }
