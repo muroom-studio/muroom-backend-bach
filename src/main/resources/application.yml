@@ -14,11 +14,11 @@ kakao:
     rest-api-key: ${KAKAO_REST_API_KEY}
 
 springdoc:
-  version: v1.0.0
+  version: v25.12.02
   title: Muroom API Docs
-  description: Muroom API 명세서입니다.
+  description: Muroom 프로젝트 API 명세서입니다. 'Authorize' 버튼을 눌러 JWT 토큰을 입력해주세요.
   swagger-ui:
-    path: /swagger-ui.html
+    path: /docs
     display-request-duration: true
     groups-order: DESC
   paths-to-match:

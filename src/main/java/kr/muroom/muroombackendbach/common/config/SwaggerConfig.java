@@ -15,11 +15,24 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class SwaggerConfig {
 
-  @Value("${server.url}")
-  private String serverUrl;
+  private final String serverUrl;
+  private final String springdocVersion;
+  private final String springdocTitle;
+  private final String springdocDescription;
+
+  public SwaggerConfig(
+      @Value("${server.url}") String serverUrl,
+      @Value("${springdoc.version}") String springdocVersion,
+      @Value("${springdoc.title}") String springdocTitle,
+      @Value("${springdoc.description}") String springdocDescription) {
+    this.serverUrl = serverUrl;
+    this.springdocVersion = springdocVersion;
+    this.springdocTitle = springdocTitle;
+    this.springdocDescription = springdocDescription;
+  }
 
   @Bean
-  public OpenAPI openAPI() {
+  public OpenAPI openApi() {
     final String securitySchemeName = "Authorization";
     SecurityScheme securityScheme = new SecurityScheme()
         .name(securitySchemeName)
@@ -32,9 +45,9 @@ public class SwaggerConfig {
     return new OpenAPI()
         .servers(List.of(new Server().url(serverUrl).description("Current Environment Server")))
         .info(new Info()
-            .title("Muroom Project API")
-            .description("Muroom 프로젝트 API 명세서입니다. 'Authorize' 버튼을 눌러 JWT 토큰을 입력해주세요.")
-            .version("1.0.0"))
+            .title(springdocTitle)
+            .description(springdocDescription)
+            .version(springdocVersion))
         .components(new Components().addSecuritySchemes(securitySchemeName, securityScheme));
   }
 }
