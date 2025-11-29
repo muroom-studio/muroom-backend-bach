@@ -2,8 +2,6 @@ package kr.muroom.muroombackendbach.studio.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import kr.muroom.muroombackendbach.studio.domain.enums.StudioOptionCategory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,10 +30,6 @@ public class StudioOption {
       allocationSize = 1)
   @Column(name = "studio_option_id")
   private Long id;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "category", nullable = false)
-  private StudioOptionCategory category;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "studio_id", nullable = false)
