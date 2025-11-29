@@ -9,13 +9,15 @@ public final class InstrumentDto {
 
   public record InstrumentResponse(
       Long id,
-      String name
+      String code,
+      String description
   ) {
 
     public static InstrumentResponse from(Instrument instrument) {
       return new InstrumentResponse(
           instrument.getId(),
-          instrument.getName()
+          instrument.getCode(),
+          instrument.getDescription()
       );
     }
   }

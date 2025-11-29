@@ -2,13 +2,17 @@ package kr.muroom.muroombackendbach.studio.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,8 +36,13 @@ public class StudioBuildingInfo {
   @JoinColumn(name = "studio_id")
   private Studio studio;
 
-  @Column(length = 100)
-  private String floor;
+  @Enumerated(EnumType.STRING)
+  @Column(length = 50)
+  private FloorType floorType;
+
+  @Enumerated(EnumType.STRING)
+  @Column(length = 50)
+  private RestroomType restroomType;
 
   @Column
   private Boolean isParkingAvailable;
