@@ -21,32 +21,32 @@ public record MapSearchRequest(
     Double maxLongitude,
 
     @Schema(description = "필터링할 시설 옵션 코드 목록. 선택된 모든 옵션을 포함하는 스튜디오를 조회합니다.",
-        example = "[\"PARKING\", \"ELEVATOR\"]")
+        example = "[\"WIFI\", \"AIR_CONDITIONER\"]")
     List<String> optionCodes,
 
-    @Schema(description = "검색할 최소 가격 (단위: 원)", example = "300000")
+    @Schema(description = "검색할 최소 가격 (단위: 원)", example = "250000")
     Integer minPrice,
 
-    @Schema(description = "검색할 최대 가격 (단위: 원)", example = "800000")
+    @Schema(description = "검색할 최대 가격 (단위: 원)", example = "700000")
     Integer maxPrice,
 
-    @Schema(description = "검색할 최소 방 너비 (단위: mm)", example = "2000")
+    @Schema(description = "검색할 최소 방 너비 (단위: mm)", example = "2500")
     Integer minRoomWidth,
 
-    @Schema(description = "검색할 최대 방 너비 (단위: mm)", example = "4000")
+    @Schema(description = "검색할 최대 방 너비 (단위: mm)", example = "5000")
     Integer maxRoomWidth,
 
     @Schema(description = "검색할 최소 방 높이 (단위: mm)", example = "2500")
     Integer minRoomHeight,
 
-    @Schema(description = "검색할 최대 방 높이 (단위: mm)", example = "3500")
+    @Schema(description = "검색할 최대 방 높이 (단위: mm)", example = "5500")
     Integer maxRoomHeight,
 
     @Schema(description = "층 유형 목록", example = "[\"GROUND\", \"BASEMENT\"]")
     List<FloorType> floorTypes,
 
     @Schema(description = "화장실 유형 목록",
-        example = "[\"INTERNAL\", \"EXTERNAL\", \"SHARED\", \"PRIVATE\"]")
+        example = "[\"INTERNAL\", \"EXTERNAL\", \"PRIVATE\"]")
     List<RestroomType> restroomTypes,
 
     @Schema(description = "주차 가능 여부", example = "true")
@@ -58,7 +58,7 @@ public record MapSearchRequest(
     @Schema(description = "화재 보험 가입 여부", example = "true")
     Boolean hasFireInsurance,
 
-    @Schema(description = "사용 불가능한 악기 코드 목록", example = "[\"DRUM\", \"PIANO\"]")
+    @Schema(description = "사용 불가능한 악기 코드 목록", example = "[\"BRASS_WIND\"]")
     List<String> forbiddenInstrumentCodes
 ) {
 

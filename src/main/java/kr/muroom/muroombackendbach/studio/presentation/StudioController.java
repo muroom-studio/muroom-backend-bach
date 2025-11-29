@@ -41,7 +41,7 @@ public class StudioController {
           @Parameter(name = "size", description = "페이지 당 항목 수", example = "10"),
           @Parameter(name = "sort", description = "정렬 기준 (예: 'price,asc', 'latest,desc'). 생략 시 "
               + "기본값은 'latest,desc' (최신순) 입니다.",
-              example = "latest,desc")
+              example = "price,desc")
       }
   )
   // @SecurityRequirement(name = "Authorization")
