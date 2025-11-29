@@ -2,6 +2,8 @@ package kr.muroom.muroombackendbach.studio.application;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
@@ -25,50 +27,37 @@ public class StudioOptionService {
 
   public StudioOptionResponse.GetAll getAllFilterOptions() {
     List<GetSingle> floorOptions = Arrays.stream(FloorType.values())
-        .map(floorType -> GetSingle.builder()
-            .code(floorType.getCode())
-            .description(floorType.getDescription())
-            .build()
-        ).toList();
+        .map(GetSingle::from)
+        .toList();
 
     List<GetSingle> restroomOptions = Arrays.stream(RestroomType.values())
-        .map(restroomType -> GetSingle.builder()
-            .code(restroomType.getCode())
-            .description(restroomType.getDescription())
-            .build()
-        ).toList();
+        .map(GetSingle::from)
+        .toList();
 
-    List<Option> studioCommonOptionEntityList = optionRepository.findAllByCategory(
-        OptionCategory.COMMON);
-    List<GetSingle> studioCommonOptions = studioCommonOptionEntityList.stream()
-        .map(optionEntity -> GetSingle.builder()
-            .code(optionEntity.getCode())
-            .description(optionEntity.getDescription())
-            .build()
-        ).toList();
+    Map<OptionCategory, List<Option>> optionsByCategory = optionRepository.findAll()
+        .stream()
+        .collect(Collectors.groupingBy(Option::getCategory));
 
-    List<Option> studioIndividualOptionEntityList = optionRepository.findAllByCategory(
-        OptionCategory.INDIVIDUAL);
-    List<GetSingle> studioIndividulOptions = studioIndividualOptionEntityList.stream()
-        .map(optionEntity -> GetSingle.builder()
-            .code(optionEntity.getCode())
-            .description(optionEntity.getDescription())
-            .build()
-        ).toList();
+    List<GetSingle> studioCommonOptions = optionsByCategory
+        .getOrDefault(OptionCategory.COMMON, List.of()).stream()
+        .map(GetSingle::from)
+        .toList();
+
+    List<GetSingle> studioIndividualOptions = optionsByCategory
+        .getOrDefault(OptionCategory.INDIVIDUAL, List.of()).stream()
+        .map(GetSingle::from)
+        .toList();
 
     List<Instrument> instrumentEntityList = instrumentRepository.findAll();
     List<GetSingle> unavailableInstrumentOptions = instrumentEntityList.stream()
-        .map(instrumentEntity -> GetSingle.builder()
-            .code(instrumentEntity.getCode())
-            .description(instrumentEntity.getDescription())
-            .build()
-        ).toList();
+        .map(GetSingle::from)
+        .toList();
 
     return StudioOptionResponse.GetAll.builder()
         .floorOptions(floorOptions)
         .restroomOptions(restroomOptions)
         .studioCommonOptions(studioCommonOptions)
-        .studioIndividualOptions(studioIndividulOptions)
+        .studioIndividualOptions(studioIndividualOptions)
         .unavailableInstrumentOptions(unavailableInstrumentOptions)
         .build();
   }

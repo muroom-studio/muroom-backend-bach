@@ -2,6 +2,9 @@ package kr.muroom.muroombackendbach.studio.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import kr.muroom.muroombackendbach.common.domain.EnumMapperType;
+import kr.muroom.muroombackendbach.studio.domain.entity.Option;
+import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
 import lombok.Builder;
 
 public final class StudioOptionResponse {
@@ -38,5 +41,25 @@ public final class StudioOptionResponse {
       String description
   ) {
 
+    public static GetSingle from(EnumMapperType item) {
+      return GetSingle.builder()
+          .code(item.getCode())
+          .description(item.getDescription())
+          .build();
+    }
+
+    public static GetSingle from(Option option) {
+      return GetSingle.builder()
+          .code(option.getCode())
+          .description(option.getDescription())
+          .build();
+    }
+
+    public static GetSingle from(Instrument instrument) {
+      return GetSingle.builder()
+          .code(instrument.getCode())
+          .description(instrument.getDescription())
+          .build();
+    }
   }
 }
