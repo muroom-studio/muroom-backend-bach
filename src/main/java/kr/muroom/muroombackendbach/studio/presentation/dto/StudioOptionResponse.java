@@ -35,9 +35,9 @@ public final class StudioOptionResponse {
   @Builder
   @Schema(description = "옵션 DTO")
   public record GetSingle(
-      @Schema(description = "옵션 코드", example = "BASEMENT")
+      @Schema(description = "옵션 코드", example = "GROUND")
       String code,
-      @Schema(description = "옵션 이름 및 표시값", example = "지하")
+      @Schema(description = "옵션 이름 및 표시값", example = "지상")
       String description
   ) {
 
