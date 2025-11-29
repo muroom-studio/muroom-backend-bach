@@ -72,12 +72,6 @@ public class Studio extends SoftDeletableEntity {
   @Column(length = 1024)
   private String blueprintImageKey;
 
-  @Column
-  private Integer minPrice;
-
-  @Column
-  private Integer maxPrice;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", nullable = false)
   private Owner owner;

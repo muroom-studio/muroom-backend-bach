@@ -7,6 +7,7 @@ import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioForbiddenI
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioOption.studioOption;
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioPrice.studioPrice;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -182,6 +183,17 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
       return null;
     }
 
+    BooleanBuilder studioPriceMatches = new BooleanBuilder();
+    studioPriceMatches.and(studioPrice.minPrice.isNotNull());
+    studioPriceMatches.and(studioPrice.maxPrice.isNotNull());
+
+    if (minPrice != null) {
+      studioPriceMatches.and(studioPrice.maxPrice.goe(minPrice));
+    }
+    if (maxPrice != null) {
+      studioPriceMatches.and(studioPrice.minPrice.loe(maxPrice));
+    }
+
     // 조건 1: 가격 범위에 맞는 Room이 하나라도 존재하는 스튜디오
     BooleanExpression hasRoomWithMatchingPrice = JPAExpressions.selectOne()
         .from(room)
@@ -192,11 +204,6 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
         ).exists();
 
     // 조건 2: Room에는 가격 정보가 전혀 없지만, Studio 자체의 가격이 범위에 맞는 스튜디오
-    BooleanExpression studioPriceMatches = studioPrice.minPrice.isNotNull()
-        .and(
-            studioPrice.minPrice.goe(maxPrice)
-                .and(studioPrice.maxPrice.loe(maxPrice))
-        );
     BooleanExpression noRoomPriceExists = JPAExpressions.selectOne()
         .from(room)
         .where(
