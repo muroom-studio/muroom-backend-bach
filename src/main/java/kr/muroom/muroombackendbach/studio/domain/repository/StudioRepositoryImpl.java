@@ -1,12 +1,19 @@
 package kr.muroom.muroombackendbach.studio.domain.repository;
 
+import static kr.muroom.muroombackendbach.room.domain.entity.QRoom.room;
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudio.studio;
+import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioBuildingInfo.studioBuildingInfo;
+import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioForbiddenInstrument.studioForbiddenInstrument;
+import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioOption.studioOption;
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioPrice.studioPrice;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
@@ -15,13 +22,16 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.studio.domain.entity.QStudio;
-import kr.muroom.muroombackendbach.studio.domain.entity.QStudioPrice;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
+import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
+import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
 @SuppressWarnings({"ClassCanBeRecord", "unused"})
@@ -30,37 +40,49 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public List<Studio> findStudiosWithinBounds(
-      Double minLatitude, Double maxLatitude,
-      Double minLongitude, Double maxLongitude
-  ) {
+  public List<Studio> findStudiosWithinBounds(MapSearchRequest request) {
     return queryFactory
         .selectFrom(studio)
         .where(
             studio.deletedAt.isNull(),
-            isWithinBounds(minLatitude, maxLatitude, minLongitude, maxLongitude)
+            isWithinBounds(request.minLatitude(), request.maxLatitude(), request.minLongitude(),
+                request.maxLongitude())
         )
         .fetch();
   }
 
   @Override
-  public Page<Studio> findStudiosForMapList(
-      Double minLatitude, Double maxLatitude,
-      Double minLongitude, Double maxLongitude,
-      Pageable pageable) {
+  public Page<Studio> findStudiosForMapList(MapSearchRequest request, Pageable pageable) {
     // 정렬 및 페이징을 적용하여 스튜디오 ID 목록을 먼저 조회
-    List<Long> studioIds = queryFactory
+    JPAQuery<Long> idsQuery = queryFactory
         .select(studio.id)
         .from(studio)
-        .leftJoin(studioPrice).on(studio.id.eq(studioPrice.studio.id))
-        .where(
+        .leftJoin(studio.studioBuildingInfo, studioBuildingInfo)
+        .leftJoin(studio.studioPrice, studioPrice)
+        .leftJoin(studio.rooms, room);
+
+    idsQuery.where(
             studio.deletedAt.isNull(),
-            isWithinBounds(minLatitude, maxLatitude, minLongitude, maxLongitude)
+            isWithinBounds(request.minLatitude(), request.maxLatitude(), request.minLongitude(),
+                request.maxLongitude()),
+            matchPriceRange(request.minPrice(), request.maxPrice()),
+            hasMatchingRoomSize(request.minRoomWidth(), request.maxRoomWidth(),
+                request.minRoomHeight(),
+                request.maxRoomHeight()),
+            hasAllOptions(request.optionCodes()),
+            inFloorTypes(request.floorTypes()),
+            inRestroomTypes(request.restroomTypes()),
+            isParkingAvailable(request.isParkingAvailable()),
+            isLodgingAvailable(request.isLodgingAvailable()),
+            hasFireInsurance(request.hasFireInsurance()),
+            notForbidsInstruments(request.forbiddenInstrumentCodes())
         )
-        .orderBy(getOrderSpecifiers(pageable))
+        .groupBy(studio.id, studioPrice.minPrice)
+        .orderBy(createOrderSpecifiers(pageable))
         .offset(pageable.getOffset())
-        .limit(pageable.getPageSize())
-        .fetch();
+        .limit(pageable.getPageSize());
+
+    List<Long> studioIds = idsQuery.fetch();
 
     if (studioIds.isEmpty()) {
       return Page.empty(pageable);
@@ -83,9 +105,23 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     JPAQuery<Long> countQuery = queryFactory
         .select(studio.count())
         .from(studio)
+        .leftJoin(studio.studioBuildingInfo, studioBuildingInfo)
+        .leftJoin(studio.studioPrice, studioPrice)
+        .leftJoin(studio.rooms, room)
         .where(
             studio.deletedAt.isNull(),
-            isWithinBounds(minLatitude, maxLatitude, minLongitude, maxLongitude)
+            isWithinBounds(request.minLatitude(), request.maxLatitude(), request.minLongitude(),
+                request.maxLongitude()),
+            matchPriceRange(request.minPrice(), request.maxPrice()),
+            hasMatchingRoomSize(request.minRoomWidth(), request.maxRoomWidth(),
+                request.minRoomHeight(), request.maxRoomHeight()),
+            hasAllOptions(request.optionCodes()),
+            inFloorTypes(request.floorTypes()),
+            inRestroomTypes(request.restroomTypes()),
+            isParkingAvailable(request.isParkingAvailable()),
+            isLodgingAvailable(request.isLodgingAvailable()),
+            hasFireInsurance(request.hasFireInsurance()),
+            notForbidsInstruments(request.forbiddenInstrumentCodes())
         );
 
     Long totalResult = countQuery.fetchOne();
@@ -94,7 +130,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     return new PageImpl<>(sortedContent, pageable, total);
   }
 
-  private OrderSpecifier<?>[] getOrderSpecifiers(Pageable pageable) {
+  private OrderSpecifier<?>[] createOrderSpecifiers(Pageable pageable) {
     List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
 
     if (pageable.getSort().isSorted()) {
@@ -107,9 +143,12 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
             orderSpecifiers.add(new OrderSpecifier<>(direction, QStudio.studio.createdAt));
             break;
           case "price":
-            orderSpecifiers.add(new OrderSpecifier<>(direction, QStudioPrice.studioPrice.minPrice,
+            NumberExpression<Integer> minRoomPrice = room.basePrice.min();
+            // coalesce를 사용하여 Room 가격이 없을 경우 Studio의 최소 가격을 사용
+            NumberExpression<Integer> effectiveMinPrice = minRoomPrice.coalesce(
+                studioPrice.minPrice);
+            orderSpecifiers.add(new OrderSpecifier<>(direction, effectiveMinPrice,
                 OrderSpecifier.NullHandling.NullsLast));
-            // 다른 정렬 기준이 필요하면 여기에 case 추가
             break;
           default:
             break;
@@ -119,7 +158,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
 
     // 정렬 조건이 없거나, 유효하지 않은 경우 기본 정렬(최신순) 적용
     if (orderSpecifiers.isEmpty()) {
-      orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, QStudio.studio.createdAt));
+      orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, studio.createdAt));
     }
 
     return orderSpecifiers.toArray(new OrderSpecifier[0]);
@@ -136,5 +175,121 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
         Expressions.constant(maxLongitude),
         Expressions.constant(maxLatitude)
     );
+  }
+
+  private BooleanExpression matchPriceRange(Integer minPrice, Integer maxPrice) {
+    if (minPrice == null && maxPrice == null) {
+      return null;
+    }
+
+    // 조건 1: 가격 범위에 맞는 Room이 하나라도 존재하는 스튜디오
+    BooleanExpression hasRoomWithMatchingPrice = JPAExpressions.selectOne()
+        .from(room)
+        .where(
+            room.studio.eq(studio),
+            room.basePrice.isNotNull(),
+            between(room.basePrice, minPrice, maxPrice)
+        ).exists();
+
+    // 조건 2: Room에는 가격 정보가 전혀 없지만, Studio 자체의 가격이 범위에 맞는 스튜디오
+    BooleanExpression studioPriceMatches = studioPrice.minPrice.isNotNull()
+        .and(
+            studioPrice.minPrice.goe(maxPrice)
+                .and(studioPrice.maxPrice.loe(maxPrice))
+        );
+    BooleanExpression noRoomPriceExists = JPAExpressions.selectOne()
+        .from(room)
+        .where(
+            room.studio.eq(studio),
+            room.basePrice.isNotNull()
+        ).notExists();
+
+    return hasRoomWithMatchingPrice.or(noRoomPriceExists.and(studioPriceMatches));
+  }
+
+  private BooleanExpression hasMatchingRoomSize(Integer minWidth, Integer maxWidth,
+      Integer minHeight, Integer maxHeight) {
+    if (minWidth == null && maxWidth == null && minHeight == null && maxHeight == null) {
+      return null;
+    }
+    return JPAExpressions.selectOne()
+        .from(room)
+        .where(
+            room.studio.eq(studio), // 메인 쿼리의 studio와 현재 서브쿼리의 room을 연결
+            between(room.width, minWidth, maxWidth),   // width 조건
+            between(room.height, minHeight, maxHeight) // height 조건
+        ).exists();
+  }
+
+  private BooleanExpression hasAllOptions(List<String> optionCodes) {
+    if (CollectionUtils.isEmpty(optionCodes)) {
+      return null;
+    }
+
+    return studio.id.in(JPAExpressions.select(studioOption.studio.id)
+        .from(studioOption)
+        .where(studioOption.option.code.in(optionCodes))
+        .groupBy(studioOption.studio.id)
+        .having(studioOption.option.code.count().eq((long) optionCodes.size()))
+    );
+  }
+
+  private BooleanExpression inFloorTypes(List<FloorType> floorTypes) {
+    if (CollectionUtils.isEmpty(floorTypes)) {
+      return null;
+    }
+    return studio.studioBuildingInfo.floorType.in(floorTypes);
+  }
+
+  private BooleanExpression isLodgingAvailable(Boolean isLodgingAvailable) {
+    if (isLodgingAvailable == null) {
+      return null;
+    }
+    return studio.studioBuildingInfo.isLodgingAvailable.eq(isLodgingAvailable);
+  }
+
+  private BooleanExpression inRestroomTypes(List<RestroomType> restroomTypes) {
+    if (CollectionUtils.isEmpty(restroomTypes)) {
+      return null;
+    }
+    return studio.studioBuildingInfo.restroomType.in(restroomTypes);
+  }
+
+  private BooleanExpression isParkingAvailable(Boolean isParkingAvailable) {
+    if (isParkingAvailable == null) {
+      return null;
+    }
+    return studio.studioBuildingInfo.isParkingAvailable.eq(isParkingAvailable);
+  }
+
+  private BooleanExpression hasFireInsurance(Boolean hasFireInsurance) {
+    if (hasFireInsurance == null) {
+      return null;
+    }
+    return studio.studioBuildingInfo.hasFireInsurance.eq(hasFireInsurance);
+  }
+
+  private BooleanExpression notForbidsInstruments(List<String> forbiddenInstrumentCodes) {
+    if (CollectionUtils.isEmpty(forbiddenInstrumentCodes)) {
+      return null;
+    }
+    return studio.id.notIn(JPAExpressions.select(studioForbiddenInstrument.studio.id)
+        .from(studioForbiddenInstrument)
+        .where(studioForbiddenInstrument.instrument.code.in(forbiddenInstrumentCodes))
+    );
+  }
+
+  /**
+   * 숫자 범위 조건을 생성하는 범용 헬퍼 메소드입니다.
+   */
+  private <T extends Number & Comparable<?>> BooleanExpression between(NumberPath<T> path, T min,
+      T max) {
+    if (min == null && max == null) {
+      return null;
+    }
+    if (min != null && max != null) {
+      return path.between(min, max);
+    }
+    return min != null ? path.goe(min) : path.loe(max);
   }
 }

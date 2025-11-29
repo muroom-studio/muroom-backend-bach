@@ -6,9 +6,9 @@ import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.MapBoundsSearch;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.MapList;
+import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,7 @@ public class StudioController {
 
   @GetMapping("/map-search")
   public ApiResponse<List<MapBoundsSearch>> searchStudiosInMapBounds(
-      @ParameterObject StudioRequest.MapBoundsSearch request
+      @ParameterObject MapSearchRequest request
   ) {
     List<MapBoundsSearch> response = studioService.searchStudiosInMapBounds(request);
     return ApiResponse.success(response);
@@ -46,12 +46,12 @@ public class StudioController {
   )
   // @SecurityRequirement(name = "Authorization")
   @GetMapping("/map-list")
-  public ApiResponse<PaginatedData<MapList>> searchStudiosForMapList(
-      @ParameterObject StudioRequest.MapBoundsSearch request,
+  public ApiResponse<PaginatedData<StudioListResponse>> searchStudiosForMapList(
+      @ParameterObject MapSearchRequest request,
       @Parameter(hidden = true)
       @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
   ) {
-    Page<MapList> response = studioService.searchStudiosForMapList(request, pageable);
+    Page<StudioListResponse> response = studioService.searchStudiosForMapList(request, pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
 }

@@ -1,13 +1,24 @@
 package kr.muroom.muroombackendbach.studio.domain.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
+import kr.muroom.muroombackendbach.room.domain.entity.Room;
+import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,12 +41,11 @@ public class Studio extends SoftDeletableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "studio_id_seq_gen")
-  @SequenceGenerator(name = "studio_id_seq_gen", sequenceName = "studio_id_seq",
-      allocationSize = 1)
+  @SequenceGenerator(name = "studio_id_seq_gen", sequenceName = "studio_id_seq", allocationSize = 1)
   @Column(name = "studio_id")
   private Long id;
 
-  @Column(nullable = false, length = 30)
+  @Column(nullable = false, length = 100)
   private String name;
 
   @Column
@@ -62,5 +72,30 @@ public class Studio extends SoftDeletableEntity {
   @Column(length = 1024)
   private String blueprintImageKey;
 
-//  private Owner owner;
+  @Column
+  private Integer minPrice;
+
+  @Column
+  private Integer maxPrice;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "owner_id", nullable = false)
+  private Owner owner;
+
+  @OneToOne(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true)
+  StudioBuildingInfo studioBuildingInfo;
+
+  @OneToOne(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true)
+  private StudioPrice studioPrice;
+
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  @OrderColumn(name = "sequence")
+  @Builder.Default
+  private List<Room> rooms = new ArrayList<>();
+
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
+      FetchType.LAZY)
+  @Builder.Default
+  private List<StudioForbiddenInstrument> forbiddenInstruments = new ArrayList<>();
 }
