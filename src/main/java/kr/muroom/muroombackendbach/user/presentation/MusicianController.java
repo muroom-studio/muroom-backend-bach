@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.user.presentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto;
@@ -18,13 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "뮤지션 API", description = "뮤지션 관련 API")
 public class MusicianController {
 
-    private final MusicianService musicianService;
+  private final MusicianService musicianService;
 
-    @Operation(summary = "뮤지션 회원가입", description = "뮤지션 회원 정보를 등록합니다." )
-    @PostMapping("/register")
-    public ApiResponse<MusicianDto.MusicianSignUpResponse> registerMusician(@RequestBody MusicianDto.MusicianSignUpDto musicianSignUpRequest) {
-        MusicianDto.MusicianSignUpResponse response =
-                musicianService.registerMusician(musicianSignUpRequest);
-        return ApiResponse.created(response);
-    }
+  @Operation(summary = "뮤지션 회원가입", description = "뮤지션 회원 정보를 등록합니다.")
+  @PostMapping("/register")
+  public ApiResponse<MusicianDto.MusicianSignUpResponse> registerMusician(
+      @Valid @RequestBody MusicianDto.MusicianSignUpDto musicianSignUpRequest) {
+    MusicianDto.MusicianSignUpResponse response =
+        musicianService.registerMusician(musicianSignUpRequest);
+    return ApiResponse.created(response);
+  }
 }

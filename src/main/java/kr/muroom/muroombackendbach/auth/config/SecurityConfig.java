@@ -18,33 +18,35 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+  private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    @Bean
-    public SecurityFilterChain apiSecurityfilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .anonymous(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers(
-                                "/api/beta/**",
-                                "/api/ping",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/api/v1/musician/register",
-                                "/oauth2/**"
-                        ).permitAll()
-                        .anyRequest().permitAll()
-                )
-                .oauth2Login(oauth -> oauth
-                        .successHandler(oAuth2LoginSuccessHandler)
-                );
-        return http.build();
-    }
+  @Bean
+  public SecurityFilterChain apiSecurityfilterChain(HttpSecurity http) throws Exception {
+    http
+        .cors(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement((session) -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .formLogin(AbstractHttpConfigurer::disable)
+        .httpBasic(AbstractHttpConfigurer::disable)
+        .anonymous(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests((auth) -> auth
+            .requestMatchers(
+                "/api/beta/**",
+                "/api/ping",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**",
+                "/api/v1/musician/register",
+                "/oauth2/**",
+                "/api/owner/signup",
+                "/api/owner/check-email"
+            ).permitAll()
+            .anyRequest().permitAll()
+        )
+        .oauth2Login(oauth -> oauth
+            .successHandler(oAuth2LoginSuccessHandler)
+        );
+    return http.build();
+  }
 }
