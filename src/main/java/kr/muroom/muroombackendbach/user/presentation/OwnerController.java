@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.OwnerAuthService;
 import kr.muroom.muroombackendbach.user.application.OwnerService;
-import kr.muroom.muroombackendbach.user.presentation.dto.OwnerDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

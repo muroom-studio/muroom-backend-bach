@@ -39,8 +39,8 @@ public class SecurityConfig {
                 "/v3/api-docs/**",
                 "/api/v1/musician/register",
                 "/oauth2/**",
-                "/api/owner/signup",
-                "/api/owner/check-email"
+                "/api/v1/owner/register",
+                "/api/v1/owner/check-email"
             ).permitAll()
             .anyRequest().permitAll()
         )

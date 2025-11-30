@@ -35,7 +35,7 @@ public class OwnerService {
       throw new BusinessException(UserErrorCode.ALREADY_EXIST_NICKNAME);
     }
 
-    if (ownerRepository.existsByNickname(request.nickname())) {
+    if (ownerRepository.existsByEmail(request.email())) {
       throw new BusinessException(UserErrorCode.ALREADY_EXIST_EMAIL);
     }
 
@@ -64,15 +64,12 @@ public class OwnerService {
   /**
    * 이메일 중복 확인 API
    */
-  @Transactional(readOnly = true)
   public EmailCheckResponse checkEmail(String email) {
-    boolean exists = ownerRepository.existsByEmail(email);
+    boolean isUnavailable = ownerRepository.existsByEmail(email);
+    String message = isUnavailable
+        ? "이미 사용 중인 이메일입니다."
+        : "사용 가능한 이메일입니다.";
 
-    boolean available = !exists;
-    String message = available
-        ? "사용 가능한 이메일입니다."
-        : "이미 사용 중인 이메일입니다.";
-
-    return new EmailCheckResponse(available, message);
+    return new EmailCheckResponse(!isUnavailable, message);
   }
 }
