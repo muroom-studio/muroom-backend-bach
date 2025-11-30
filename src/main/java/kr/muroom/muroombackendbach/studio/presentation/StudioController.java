@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
+import kr.muroom.muroombackendbach.studio.application.StudioFacadeService;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.MapBoundsSearch;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudioController {
 
   private final StudioService studioService;
+  private final StudioFacadeService studioFacadeService;
 
   @GetMapping("/map-search")
   public ApiResponse<List<MapBoundsSearch>> searchStudiosInMapBounds(
@@ -53,5 +57,10 @@ public class StudioController {
   ) {
     Page<StudioListResponse> response = studioService.searchStudiosForMapList(request, pageable);
     return ApiResponse.success(PaginatedData.from(response));
+  }
+
+  @GetMapping("/{studioId}")
+  public void getStudio(@PathVariable Long studioId) {
+    studioFacadeService.getStudioDetail(studioId);
   }
 }

@@ -1,5 +1,7 @@
 package kr.muroom.muroombackendbach.studio.application;
 
+import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.*;
+
 import java.util.Collections;
 import java.util.IntSummaryStatistics;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapDirectionService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
@@ -176,4 +179,10 @@ public class StudioService {
 
     return new PageImpl<>(responseContent, pageable, studioPage.getTotalElements());
   }
+
+  public Studio getStudio(Long studioId) {
+    return studioRepository.findById(studioId)
+        .orElseThrow(() -> new BusinessException(NOT_EXIST_STUDIO));
+  }
+
 }
