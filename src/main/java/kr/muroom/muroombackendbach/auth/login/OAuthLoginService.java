@@ -1,8 +1,12 @@
 package kr.muroom.muroombackendbach.auth.login;
 
+import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.NOT_EXIST_MUSICIAN;
+
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginResponse;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
@@ -21,22 +25,25 @@ public class OAuthLoginService {
   public OAuthLoginResponse login(OAuthLoginRequest request) {
     OAuthProvider provider = OAuthProvider.fromRegistrationId(request.provider());
 
-    SocialAccount socialAccount = socialAccountRepository
+    return socialAccountRepository
         .findByProviderAndProviderUserId(provider, request.providerId())
-        .orElse(null);
 
-    // 기존 정보가 없을 경우 → 회원가입 필요
-    if (socialAccount == null) {
-      String signupToken = jwtTokenProvider.createSignupToken(
-          provider.name(),
-          request.providerId()
-      );
+        // 로그인
+        .map(socialAccount -> {
+          Long userId = java.util.Optional.ofNullable(socialAccount.getMusician())
+              .map(Musician::getId)
+              .orElseThrow(() -> new BusinessException(NOT_EXIST_MUSICIAN));
+          String accessToken = jwtTokenProvider.createToken(userId);
+          return OAuthLoginResponse.login(accessToken, userId, provider);
+        })
 
-      return OAuthLoginResponse.signupRequired(signupToken, provider);
-    }
-
-    Long userId = socialAccount.getMusician().getId();
-    String accessToken = jwtTokenProvider.createToken(userId);
-    return OAuthLoginResponse.login(accessToken, userId, provider);
+        // 회원 가입
+        .orElseGet(() -> {
+          String signupToken = jwtTokenProvider.createSignupToken(
+              provider.name(),
+              request.providerId()
+          );
+          return OAuthLoginResponse.signupRequired(signupToken, provider);
+        });
   }
 }
