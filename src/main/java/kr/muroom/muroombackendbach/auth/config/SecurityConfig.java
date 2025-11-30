@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.auth.config;
 
-import kr.muroom.muroombackendbach.auth.oauth.handler.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-  private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
   @Bean
   public SecurityFilterChain apiSecurityfilterChain(HttpSecurity http) throws Exception {
@@ -43,9 +40,6 @@ public class SecurityConfig {
                 "/api/v1/owner/check-email"
             ).permitAll()
             .anyRequest().permitAll()
-        )
-        .oauth2Login(oauth -> oauth
-            .successHandler(oAuth2LoginSuccessHandler)
         );
     return http.build();
   }

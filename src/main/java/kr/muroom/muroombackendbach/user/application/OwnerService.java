@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.user.application;
 
+import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.*;
 import static kr.muroom.muroombackendbach.user.presentation.dto.OwnerDto.*;
 
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
@@ -32,11 +33,11 @@ public class OwnerService {
   @Transactional
   public Long registerOwner(OwnerSignUpDto request) {
     if (!userService.isNicknameAvailable(request.nickname())) {
-      throw new BusinessException(UserErrorCode.ALREADY_EXIST_NICKNAME);
+      throw new BusinessException(ALREADY_EXIST_NICKNAME);
     }
 
     if (ownerRepository.existsByEmail(request.email())) {
-      throw new BusinessException(UserErrorCode.ALREADY_EXIST_EMAIL);
+      throw new BusinessException(ALREADY_EXIST_EMAIL);
     }
 
     Owner owner = ownerMapper.toEntity(request);
