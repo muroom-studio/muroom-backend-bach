@@ -7,10 +7,9 @@ import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.studio.application.StudioFacadeService;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
-import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.MapBoundsSearch;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -32,10 +31,10 @@ public class StudioController {
   private final StudioFacadeService studioFacadeService;
 
   @GetMapping("/map-search")
-  public ApiResponse<List<MapBoundsSearch>> searchStudiosInMapBounds(
+  public ApiResponse<List<StudioMapResponse>> searchStudiosInMapBounds(
       @Validated @ParameterObject MapSearchRequest request
   ) {
-    List<MapBoundsSearch> response = studioService.searchStudiosInMapBounds(request);
+    List<StudioMapResponse> response = studioService.searchStudiosInMapBounds(request);
     return ApiResponse.success(response);
   }
 

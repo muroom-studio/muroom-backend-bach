@@ -1,7 +1,7 @@
 package kr.muroom.muroombackendbach.studio.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.SubwayStationInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import lombok.Builder;
 
 @Builder
@@ -20,7 +20,7 @@ public record StudioListResponse(
     Integer maxPrice,
 
     @Schema(description = "인근 지하철역 정보")
-    SubwayStationInfo nearbySubwayStationInfo,
+    StudioSubwayStationInfo nearbySubwayStationInfo,
 
     @Schema(description = "썸네일 이미지 Presigned URL")
     String thumbnailImageUrl,

@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.studio.application;
 
-import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.*;
+import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.NOT_EXIST_STUDIO;
 
 import java.util.Collections;
 import java.util.IntSummaryStatistics;
@@ -23,12 +23,12 @@ import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
 import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.LineInfo;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.MapBoundsSearch;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.SubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
@@ -54,14 +54,57 @@ public class StudioService {
   private final FileStorageService fileStorageService;
   private final MapDirectionService mapDirectionService;
 
-  public List<StudioResponse.MapBoundsSearch> searchStudiosInMapBounds(MapSearchRequest request) {
+  public List<StudioMapResponse> searchStudiosInMapBounds(MapSearchRequest request) {
     MapSearchRequest resolvedRequest = resolveOptionCodes(request);
 
     List<Studio> studiosWithinBounds = studioRepository.findStudiosWithinBounds(resolvedRequest);
 
     return studiosWithinBounds.stream()
-        .map(MapBoundsSearch::from)
+        .map(this::convertToStudioMapResponse)
         .toList();
+  }
+
+  private StudioPriceInfo calculatePrice(Studio studio) {
+    Integer minPrice = null;
+    Integer maxPrice = null;
+
+    if (studio.getRooms() != null && !studio.getRooms().isEmpty()) {
+      IntSummaryStatistics priceSummaryStats = studio.getRooms().stream()
+          .filter(room -> room != null && room.getBasePrice() != null)
+          .mapToInt(Room::getBasePrice)
+          .summaryStatistics();
+
+      if (priceSummaryStats.getCount() > 0) {
+        minPrice = priceSummaryStats.getMin();
+        maxPrice = priceSummaryStats.getMax();
+      }
+    }
+
+    if (minPrice == null) {
+      StudioPrice studioPrice = studio.getStudioPrice();
+      if (studioPrice != null) {
+        minPrice = studioPrice.getMinPrice();
+        maxPrice = studioPrice.getMaxPrice();
+      }
+    }
+
+    return StudioPriceInfo.builder()
+        .minPrice(minPrice)
+        .maxPrice(maxPrice)
+        .build();
+  }
+
+  private StudioMapResponse convertToStudioMapResponse(Studio studio) {
+    StudioPriceInfo studioPriceInfo = calculatePrice(studio);
+
+    return StudioMapResponse.builder()
+        .id(studio.getId())
+        .name(studio.getName())
+        .latitude(studio.getLocation().getX())
+        .longitude(studio.getLocation().getY())
+        .minPrice(studioPriceInfo.minPrice())
+        .maxPrice(studioPriceInfo.maxPrice())
+        .build();
   }
 
   public Page<StudioListResponse> searchStudiosForMapList(MapSearchRequest request,
@@ -106,12 +149,12 @@ public class StudioService {
     List<Long> stationIds = nearbySubwayStationsByStudioId.values().stream()
         .map(nearbySubwayStation -> nearbySubwayStation.getSubwayStation().getId())
         .toList();
-    Map<Long, List<StudioResponse.LineInfo>> lineInfosByStudioId =
+    Map<Long, List<StudioSubwayLineInfo>> lineInfosByStudioId =
         subwayStationLineRepository.findAllByStudioIdsWithLine(
                 stationIds).stream()
             .collect(Collectors.groupingBy(
                 subwayStationLine -> subwayStationLine.getStation().getId(),
-                Collectors.mapping(subwayStationLine -> StudioResponse.LineInfo.builder()
+                Collectors.mapping(subwayStationLine -> StudioSubwayLineInfo.builder()
                     .lineName(subwayStationLine.getLine().getName())
                     .lineColor(subwayStationLine.getLine().getColor())
                     .build(), Collectors.toList())
@@ -159,12 +202,13 @@ public class StudioService {
 
           SubwayStationNearbyStudio subwayStationNearbyStudio = nearbySubwayStationsByStudioId.get(
               studio.getId());
-          SubwayStationInfo subwayStationInfo = null;
+          StudioSubwayStationInfo subwayStationInfo = null;
           if (subwayStationNearbyStudio != null) {
             SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
-            List<LineInfo> lineInfos = lineInfosByStudioId.getOrDefault(subwayStation.getId(),
+            List<StudioSubwayLineInfo> lineInfos = lineInfosByStudioId.getOrDefault(
+                subwayStation.getId(),
                 Collections.emptyList());
-            subwayStationInfo = SubwayStationInfo.builder()
+            subwayStationInfo = StudioSubwayStationInfo.builder()
                 .stationName(subwayStation.getName())
                 .lines(lineInfos).build();
           }
@@ -228,7 +272,7 @@ public class StudioService {
         .forbiddenInstrumentCodes(request.forbiddenInstrumentCodes())
         .build();
   }
-  
+
   public Studio getStudio(Long studioId) {
     return studioRepository.findById(studioId)
         .orElseThrow(() -> new BusinessException(NOT_EXIST_STUDIO));
