@@ -16,36 +16,40 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TermQueryRepositoryImpl implements TermQueryRepository {
 
-    private final JPAQueryFactory queryFactory;
+  private final JPAQueryFactory queryFactory;
 
-    @Override
-    public List<TermDto.TermsWithContentDto> findLatestTermsByRoleAndTypes(String role, List<TermsType> types) {
-        QTerm t = QTerm.term;
-        QTerm t2 = new QTerm("t2");
-        QTermContent tc = QTermContent.termContent;
+  @Override
+  public List<TermDto.TermsWithContentDto> findLatestTermsByRoleAndTypes(
+      String role,
+      List<TermsType> types
+  ) {
+    QTerm t = QTerm.term;
+    QTerm t2 = new QTerm("t2");
 
-        return queryFactory
-                .select(Projections.constructor(
-                        TermDto.TermsWithContentDto.class,
-                        t.id,
-                        t.type,
-                        t.targetRole,
-                        t.version,
-                        t.isMandatory,
-                        t.effectiveAt,
-                        tc.content
-                ))
-                .from(t)
-                .join(tc).on(tc.term.eq(t))
-            .where(
-                t.targetRole.eq(role),
-                t.type.in(types),
-                t.effectiveAt.eq(JPAExpressions
+    return queryFactory
+        .select(Projections.constructor(
+            TermDto.TermsWithContentDto.class,
+            t.id,
+            t.code,
+            t.targetRole,
+            t.version,
+            t.isMandatory,
+            t.effectiveAt
+        ))
+        .from(t)
+        .where(
+            t.targetRole.eq(role),
+            t.code.in(types),
+            t.effectiveAt.eq(
+                JPAExpressions
                     .select(t2.effectiveAt.max())
                     .from(t2)
-                    .where(t2.targetRole.eq(t.targetRole), t2.type.eq(t.type))
-                )
+                    .where(
+                        t2.targetRole.eq(t.targetRole),
+                        t2.code.eq(t.code)
+                    )
             )
-            .fetch();
-    }
+        )
+        .fetch();
+  }
 }

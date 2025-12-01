@@ -18,27 +18,28 @@ import java.time.OffsetDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Term {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "term_id_seq_generator")
-    @SequenceGenerator(name = "term_id_seq_generator", sequenceName = "term_id_seq",allocationSize = 1)
-    @Column(name = "term_id")
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "term_id_seq_generator")
+  @SequenceGenerator(name = "term_id_seq_generator", sequenceName = "term_id_seq",
+      allocationSize = 1)
+  @Column(name = "term_id")
+  private Long id;
 
-    @Column(length = 50)
-    @Enumerated(EnumType.STRING)
-    private TermsType type;
+  @Column(length = 50)
+  @Enumerated(EnumType.STRING)
+  private TermsType code;
 
-    @Column(length = 50)
-    private String targetRole;
+  @Column(length = 50)
+  private String targetRole;
 
-    @Column(length = 50)
-    private String version;
+  @Column(length = 50)
+  private String version;
 
-    @Column(nullable = false)
-    private boolean isMandatory;
+  @Column(nullable = false)
+  private boolean isMandatory;
 
-    private OffsetDateTime effectiveAt;
+  private OffsetDateTime effectiveAt;
 
-    @CreatedDate
-    private  OffsetDateTime createdAt;
+  @CreatedDate
+  private OffsetDateTime createdAt;
 }
