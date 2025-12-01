@@ -63,7 +63,9 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     }
 
     return queryFactory
-        .selectFrom(studio)
+        .selectFrom(studio).distinct()
+        .leftJoin(studio.rooms, room).fetchJoin()
+        .leftJoin(studio.studioPrice, studioPrice).fetchJoin()
         .where(studio.id.in(studioIds))
         .fetch();
   }
@@ -95,7 +97,9 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
 
     // 조회된 ID 목록을 기반으로 실제 스튜디오 엔티티들을 다시 조회
     List<Studio> content = queryFactory
-        .selectFrom(studio)
+        .selectFrom(studio).distinct()
+        .leftJoin(studio.rooms, room).fetchJoin()
+        .leftJoin(studio.studioPrice, studioPrice).fetchJoin()
         .where(studio.id.in(studioIds))
         .fetch();
 

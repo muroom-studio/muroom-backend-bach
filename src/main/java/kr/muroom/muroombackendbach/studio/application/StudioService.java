@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.studio.application;
 
-import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.*;
+import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.NOT_EXIST_STUDIO;
 
 import java.util.Collections;
 import java.util.IntSummaryStatistics;
@@ -25,10 +25,10 @@ import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepositor
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.LineInfo;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.MapBoundsSearch;
 import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.SubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
@@ -54,14 +54,49 @@ public class StudioService {
   private final FileStorageService fileStorageService;
   private final MapDirectionService mapDirectionService;
 
-  public List<StudioResponse.MapBoundsSearch> searchStudiosInMapBounds(MapSearchRequest request) {
+  public List<StudioMapResponse> searchStudiosInMapBounds(MapSearchRequest request) {
     MapSearchRequest resolvedRequest = resolveOptionCodes(request);
 
     List<Studio> studiosWithinBounds = studioRepository.findStudiosWithinBounds(resolvedRequest);
 
     return studiosWithinBounds.stream()
-        .map(MapBoundsSearch::from)
+        .map(this::convertToStudioMapResponse)
         .toList();
+  }
+
+  private StudioMapResponse convertToStudioMapResponse(Studio studio) {
+    Integer minPrice = null;
+    Integer maxPrice = null;
+
+    if (studio.getRooms() != null && !studio.getRooms().isEmpty()) {
+      IntSummaryStatistics priceSummaryStats = studio.getRooms().stream()
+          .filter(Objects::nonNull)
+          .filter(room -> room.getBasePrice() != null)
+          .mapToInt(Room::getBasePrice)
+          .summaryStatistics();
+
+      if (priceSummaryStats.getCount() > 0) {
+        minPrice = priceSummaryStats.getMin();
+        maxPrice = priceSummaryStats.getMax();
+      }
+    }
+
+    if (minPrice == null) {
+      StudioPrice studioPrice = studio.getStudioPrice();
+      if (studioPrice != null) {
+        minPrice = studioPrice.getMinPrice();
+        maxPrice = studioPrice.getMaxPrice();
+      }
+    }
+
+    return StudioMapResponse.builder()
+        .id(studio.getId())
+        .name(studio.getName())
+        .latitude(studio.getLocation().getX())
+        .longitude(studio.getLocation().getY())
+        .minPrice(minPrice)
+        .maxPrice(maxPrice)
+        .build();
   }
 
   public Page<StudioListResponse> searchStudiosForMapList(MapSearchRequest request,
@@ -228,7 +263,7 @@ public class StudioService {
         .forbiddenInstrumentCodes(request.forbiddenInstrumentCodes())
         .build();
   }
-  
+
   public Studio getStudio(Long studioId) {
     return studioRepository.findById(studioId)
         .orElseThrow(() -> new BusinessException(NOT_EXIST_STUDIO));
