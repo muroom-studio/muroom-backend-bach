@@ -5,13 +5,11 @@ import lombok.Builder;
 
 @Builder
 public record RecentSearchResponse(
-    Long musicianId,
     String searchKeyword
 ) {
 
   public static RecentSearchResponse from(RecentSearch recentSearch) {
     return RecentSearchResponse.builder()
-        .musicianId(recentSearch.getMusician().getId())
         .searchKeyword(recentSearch.getKeyword())
         .build();
   }

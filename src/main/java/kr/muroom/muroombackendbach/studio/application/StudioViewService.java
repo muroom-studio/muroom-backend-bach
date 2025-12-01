@@ -27,6 +27,7 @@ public class StudioViewService {
   private final MusicianRepository musicianRepository;
 
   // TODO: 캐시 반영 고려
+  @Transactional
   public void incrementViewCount(Long musicianId, Long studioId) {
     Studio studio = studioRepository.findById(studioId)
         .orElseThrow(() -> new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND));
@@ -35,27 +36,30 @@ public class StudioViewService {
     OffsetDateTime startOfTodayUtc = OffsetDateTime.now(ZoneOffset.UTC).toLocalDate().atStartOfDay()
         .atOffset(ZoneOffset.UTC);
 
+    Musician musicianProxy = null;
+    String anonymousUserId = null;
+
     if (musicianId != null) {
-      Musician musicianProxy = musicianRepository.getReferenceById(musicianId);
-      alreadyViewedToday = studioViewLogRepository.findByStudioAndMusicianAndViewedAtAfter(
+      musicianProxy = musicianRepository.getReferenceById(musicianId);
+      alreadyViewedToday = studioViewLogRepository.existsByStudioAndMusicianAndViewedAtAfter(
           musicianProxy, studio, startOfTodayUtc);
     } else {
-      String anonymousUserId = AnonymousUserContext.getAnonymousUserId();
+      anonymousUserId = AnonymousUserContext.getAnonymousUserId();
+
       if (anonymousUserId == null || anonymousUserId.isBlank()) {
         log.warn("[# incrementViewCount] Anonymous user ID is missing. StudioId: {}", studioId);
         return;
       }
-      alreadyViewedToday = studioViewLogRepository.findByAnonymousUserIdAndStudioAndViewedAtAfter(
+
+      alreadyViewedToday = studioViewLogRepository.existsByAnonymousUserIdAndStudioAndViewedAtAfter(
           anonymousUserId, studio, startOfTodayUtc);
     }
 
     if (!alreadyViewedToday) {
       StudioViewLog studioViewLog;
       if (musicianId != null) {
-        Musician musicianProxy = musicianRepository.getReferenceById(musicianId);
         studioViewLog = StudioViewLog.byMusician(musicianProxy, studio);
       } else {
-        String anonymousUserId = AnonymousUserContext.getAnonymousUserId();
         studioViewLog = StudioViewLog.byAnonymousUser(anonymousUserId, studio);
       }
       studioViewLogRepository.save(studioViewLog);

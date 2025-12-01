@@ -31,11 +31,14 @@ public class SearchHistoryService {
     if (searchKeyword == null || searchKeyword.isBlank()) {
       return;
     }
+    Musician musicianProxy = null;
+    if (musicianId != null) {
+      musicianProxy = musicianRepository.getReferenceById(musicianId);
+    }
 
-    saveSearchLog(musicianId, searchKeyword);
+    saveSearchLog(musicianProxy, searchKeyword);
 
     if (musicianId != null) {
-      Musician musicianProxy = musicianRepository.getReferenceById(musicianId);
       managerRecentSearchForMusician(musicianProxy, searchKeyword);
     }
   }
@@ -48,11 +51,10 @@ public class SearchHistoryService {
         .toList();
   }
 
-  private void saveSearchLog(Long musicianId, String searchKeyword) {
+  private void saveSearchLog(Musician musician, String searchKeyword) {
     SearchLog searchLog;
-    if (musicianId != null) {
-      Musician musicianProxy = musicianRepository.getReferenceById(musicianId);
-      searchLog = SearchLog.byMusician(musicianProxy, searchKeyword);
+    if (musician != null) {
+      searchLog = SearchLog.byMusician(musician, searchKeyword);
     } else {
       String anonymousUserId = AnonymousUserContext.getAnonymousUserId();
       searchLog = SearchLog.byAnonymousUser(anonymousUserId, searchKeyword);
@@ -67,7 +69,6 @@ public class SearchHistoryService {
     if (existingRecentSearch.isPresent()) {
       RecentSearch recentSearch = existingRecentSearch.get();
       recentSearch.updateRecentlySearchedAt();
-      recentSearchRepository.save(existingRecentSearch.get());
     } else {
       RecentSearch newRecentSearch = RecentSearch.builder()
           .musician(musician)

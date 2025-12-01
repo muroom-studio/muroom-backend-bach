@@ -71,7 +71,7 @@ public class StudioController {
 
   @GetMapping("/{studioId}")
   public void getStudio(@PathVariable Long studioId, @AuthenticationPrincipal Long musicianId) {
-    studioViewService.incrementViewCount(studioId, musicianId);
+    studioViewService.incrementViewCount(musicianId, studioId);
 
     studioFacadeService.getStudioDetail(studioId);
   }

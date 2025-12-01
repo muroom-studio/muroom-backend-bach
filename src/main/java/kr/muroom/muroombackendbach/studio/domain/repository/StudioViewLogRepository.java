@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StudioViewLogRepository extends JpaRepository<StudioViewLog, Long> {
 
-  boolean findByStudioAndMusicianAndViewedAtAfter(Musician musicianProxy, Studio studio,
+  boolean existsByStudioAndMusicianAndViewedAtAfter(Musician musicianProxy, Studio studio,
       OffsetDateTime startOfTodayUtc);
 
-  boolean findByAnonymousUserIdAndStudioAndViewedAtAfter(String anonymousUserId, Studio studio,
+  boolean existsByAnonymousUserIdAndStudioAndViewedAtAfter(String anonymousUserId, Studio studio,
       OffsetDateTime startOfTodayUtc);
 }

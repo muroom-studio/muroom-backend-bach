@@ -5,7 +5,7 @@ package kr.muroom.muroombackendbach.common.context;
  *
  * <p>ThreadLocal을 사용하여 각 스레드별로 익명 사용자 ID를 저장하고 조회할 수 있습니다.
  */
-public class AnonymousUserContext {
+public final class AnonymousUserContext {
 
   private static final ThreadLocal<String> anonymousUserIdHolder = new ThreadLocal<>();
 
