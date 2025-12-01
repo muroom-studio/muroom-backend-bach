@@ -1,14 +1,14 @@
 package kr.muroom.muroombackendbach.common.exception;
 
+import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.List;
 
 /**
  * 애플리케이션 전반에서 발생하는 예외를 처리하는 글로벌 예외 처리기 클래스입니다.
@@ -29,6 +29,22 @@ public class GlobalExceptionHandler {
   protected ResponseEntity<ApiResponse<ErrorPayload>> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException e) {
     log.warn("[# MethodArgumentNotValidException] ", e);
+    final ErrorCode errorCode = CommonErrorCode.INVALID_INPUT;
+    final List<ValidationError> validationErrors = ValidationError.of(e.getBindingResult());
+    final ApiResponse<ErrorPayload> response = ApiResponse.fail(errorCode.getStatus(),
+        errorCode.getCode(), errorCode.getMessage(), validationErrors);
+    return new ResponseEntity<>(response, errorCode.getStatus());
+  }
+
+  /**
+   * 바인딩 실패 예외를 처리합니다.
+   *
+   * @param e BindException 바인딩 실패 예외
+   * @return {@code ResponseEntity<ApiResponse<ErrorPayload>>} 응답 엔티티
+   */
+  @ExceptionHandler(BindException.class)
+  protected ResponseEntity<ApiResponse<ErrorPayload>> handleBindException(BindException e) {
+    log.warn("[# BindException] ", e);
     final ErrorCode errorCode = CommonErrorCode.INVALID_INPUT;
     final List<ValidationError> validationErrors = ValidationError.of(e.getBindingResult());
     final ApiResponse<ErrorPayload> response = ApiResponse.fail(errorCode.getStatus(),
