@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.studio.application;
 
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudioFacadeService {
 
   private final StudioOptionService studioOptionService;
+  private final StudioRepository studioRepository;
   private final StudioService studioService;
 
   public void getStudioDetail(Long studioId) {
