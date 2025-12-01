@@ -1,5 +1,7 @@
 package kr.muroom.muroombackendbach.user.presentation;
 
+import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.*;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -27,9 +29,9 @@ public class MusicianController {
 
   @Operation(summary = "뮤지션 회원가입", description = "뮤지션 회원 정보를 등록합니다.")
   @PostMapping("/register")
-  public ApiResponse<MusicianDto.MusicianSignUpResponse> registerMusician(
-      @Valid @RequestBody MusicianDto.MusicianSignUpDto musicianSignUpRequest) {
-    MusicianDto.MusicianSignUpResponse response =
+  public ApiResponse<MusicianSignUpResponse> registerMusician(
+      @Valid @RequestBody MusicianSignUpDto musicianSignUpRequest) {
+    MusicianSignUpResponse response =
         musicianService.registerMusician(musicianSignUpRequest);
     return ApiResponse.created(response);
   }

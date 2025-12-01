@@ -10,10 +10,10 @@ import kr.muroom.muroombackendbach.terms.domain.repository.OwnerAgreementReposit
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
+import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
-import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
-import kr.muroom.muroombackendbach.user.presentation.dto.OwnerMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +24,9 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class OwnerService {
 
+  private final BCryptPasswordEncoder bCryptPasswordEncoder;
   private final OwnerRepository ownerRepository;
   private final UserService userService;
-  private final OwnerMapper ownerMapper;
   private final OwnerAgreementRepository ownerAgreementRepository;
   private final TermRepository termRepository;
 
@@ -40,7 +40,16 @@ public class OwnerService {
       throw new BusinessException(ALREADY_EXIST_EMAIL);
     }
 
-    Owner owner = ownerMapper.toEntity(request);
+    Owner owner = Owner.builder()
+        .name(request.name())
+        .birthdate(request.birthdate())
+        .phoneNumber(request.phoneNumber())
+        .email(request.email())
+        .status(UserStatus.ACTIVE)
+        .nickname(request.nickname())
+        .password(bCryptPasswordEncoder.encode(request.password()))
+        .build();
+    
     Owner saved = ownerRepository.save(owner);
 
     // 2. 약관 조회

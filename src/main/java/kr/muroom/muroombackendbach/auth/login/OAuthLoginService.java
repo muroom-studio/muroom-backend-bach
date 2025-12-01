@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.auth.login;
 
+import static java.util.Optional.*;
 import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.NOT_EXIST_MUSICIAN;
 
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
@@ -30,7 +31,7 @@ public class OAuthLoginService {
 
         // 로그인
         .map(socialAccount -> {
-          Long userId = java.util.Optional.ofNullable(socialAccount.getMusician())
+          Long userId = ofNullable(socialAccount.getMusician())
               .map(Musician::getId)
               .orElseThrow(() -> new BusinessException(NOT_EXIST_MUSICIAN));
           String accessToken = jwtTokenProvider.createToken(userId);

@@ -44,23 +44,6 @@ public class Musician extends AuditableEntity {
 
   private OffsetDateTime deletedAt;
 
-  public static Musician of(
-      String name,
-      LocalDate birthdate,
-      String phoneNumber,
-      String nickname,
-      Instrument instrument
-  ) {
-    return Musician.builder()
-        .name(name)
-        .birthdate(birthdate)
-        .phoneNumber(phoneNumber)
-        .nickname(nickname)
-        .instrument(instrument)
-        .status(UserStatus.ACTIVE)
-        .build();
-  }
-
   public void softDelete() {
     this.deletedAt = OffsetDateTime.now();
     this.status = UserStatus.INACTIVE; // enum 값에 맞게 수정

@@ -1,20 +1,26 @@
 package kr.muroom.muroombackendbach.user.application;
 
+import static kr.muroom.muroombackendbach.user.exception.InstrumentErrorCode.*;
+import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.*;
+
 import jakarta.transaction.Transactional;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
+import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.MusicianAgreementRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.user.domain.entity.MyStudio;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
+import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.user.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
+import kr.muroom.muroombackendbach.user.domain.repository.MyStudioRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,45 +31,68 @@ import java.util.List;
 public class MusicianService {
 
   private final MusicianRepository musicianRepository;
-  private final MusicianMapper musicianMapper;
   private final UserService userService;
   private final MusicianAgreementRepository musicianAgreementRepository;
   private final TermRepository termRepository;
   private final SocialAccountRepository socialAccountRepository;
   private final JwtTokenProvider jwtTokenProvider;
   private final InstrumentRepository instrumentRepository;
+  private final MyStudioRepository myStudioRepository;
 
   @Transactional
-  public MusicianDto.MusicianSignUpResponse registerMusician(
-      MusicianDto.MusicianSignUpDto request) {
-    JwtTokenProvider.SignupPayload signupPayload =
-        jwtTokenProvider.parseSignupToken(request.signupToken());
+  public MusicianSignUpResponse registerMusician(MusicianSignUpDto request) {
+    // 0. token 검증
+    SignupPayload signupPayload = jwtTokenProvider.parseSignupToken(request.signupToken());
 
     OAuthProvider provider = OAuthProvider.fromRegistrationId(signupPayload.provider());
     String providerUserId = signupPayload.providerId();
 
-    Long musicianId = musicianRepository.findByNameAndPhoneNumber(request.name(),
-            request.phoneNumber())
-        .map(existing -> {
-          linkSocialAccountIfNecessary(existing, provider, providerUserId);
-          return existing.getId();
-        })
-        .orElseGet(() -> {
-          Musician musician = registerNewMusician(request, provider, providerUserId);
-          return musician.getId();
-        });
+    // 1. 이름/전화번호로 기존 뮤지션 조회, 없으면 신규 생성
+    Musician musician = findOrRegisterMusician(request);
 
+    // 2. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
+    linkSocialAccountIfNecessary(musician, provider, providerUserId);
+
+    // 3. 나의 작업실 생성
+    createMyStudio(request, musician);
+
+    // 4. 토큰 발급
+    Long musicianId = musician.getId();
     String accessToken = jwtTokenProvider.createToken(musicianId);
-    return new MusicianDto.MusicianSignUpResponse(accessToken, musicianId);
+
+    return new MusicianSignUpResponse(accessToken, musicianId);
   }
 
   /**
-   * 기존 뮤지션에게 소셜 계정을 연결하는 흐름
+   * 이름 + 전화번호로 기존 뮤지션 조회, 없으면 신규 가입
    */
-  private void linkSocialAccountIfNecessary(Musician musician,
-      OAuthProvider provider,
-      String providerUserId) {
+  private Musician findOrRegisterMusician(MusicianSignUpDto request) {
+    return musicianRepository.findByNameAndPhoneNumber(request.name(), request.phoneNumber())
+        .orElseGet(() -> registerNewMusician(request));
+  }
 
+  /**
+   * 나의 작업실 생성
+   */
+  private void createMyStudio(MusicianSignUpDto request, Musician musician) {
+    MyStudio myStudio = MyStudio.builder()
+        .musician(musician)
+        .name(request.studioName())
+        .roadAddress(request.juso())
+        .detailAddress(request.detailJuso())
+        .build();
+
+    myStudioRepository.save(myStudio);
+  }
+
+  /**
+   * 기존 뮤지션에게 소셜 계정을 연결 (이미 연결된 경우 스킵)
+   */
+  private void linkSocialAccountIfNecessary(
+      Musician musician,
+      OAuthProvider provider,
+      String providerUserId
+  ) {
     boolean alreadyLinked = socialAccountRepository
         .existsByMusicianAndProviderAndProviderUserId(
             musician,
@@ -85,22 +114,24 @@ public class MusicianService {
   }
 
   /**
-   * 신규 뮤지션 가입 + 소셜 계정 연결 + 약관 동의 처리
+   * 신규 뮤지션 가입 + 약관 동의 처리 (소셜 계정 연결은 바깥에서 처리)
    */
-  private Musician registerNewMusician(MusicianDto.MusicianSignUpDto request,
-      OAuthProvider provider,
-      String providerUserId) {
-
+  private Musician registerNewMusician(MusicianSignUpDto request) {
     validateNickname(request.nickname());
     List<Term> terms = loadAndValidateTerms(request.termIds());
 
     Instrument instrument = instrumentRepository.findById(request.instrumentId())
-        .orElseThrow(() -> new IllegalArgumentException("instrument not found"));
+        .orElseThrow(() -> new BusinessException(NOT_EXIST_INSTRUMENT));
 
-    Musician musician = musicianMapper.toEntity(request, instrument);
+    Musician musician = Musician.builder()
+        .name(request.name())
+        .phoneNumber(request.phoneNumber())
+        .birthdate(request.birthdate())
+        .status(UserStatus.ACTIVE)
+        .instrument(instrument)
+        .build();
+
     musicianRepository.save(musician);
-
-    linkSocialAccount(musician, provider, providerUserId);
     saveAgreements(musician, terms);
 
     return musician;
@@ -126,22 +157,6 @@ public class MusicianService {
     }
 
     return terms;
-  }
-
-  /**
-   * 소셜 계정 생성/연결
-   */
-  private void linkSocialAccount(Musician musician,
-      OAuthProvider provider,
-      String providerUserId) {
-
-    SocialAccount socialAccount = SocialAccount.builder()
-        .musician(musician)
-        .provider(provider)
-        .providerUserId(providerUserId)
-        .build();
-
-    socialAccountRepository.save(socialAccount);
   }
 
   /**
