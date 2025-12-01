@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
-import lombok.Builder;
 
-@Builder
 public record MapSearchRequest(
     @Schema(description = "최소 위도", example = "37.4")
     Double minLatitude,
@@ -20,9 +18,13 @@ public record MapSearchRequest(
     @Schema(description = "최대 경도", example = "127.2")
     Double maxLongitude,
 
-    @Schema(description = "필터링할 시설 옵션 코드 목록. 선택된 모든 옵션을 포함하는 스튜디오를 조회합니다.",
-        example = "[\"WIFI\", \"AIR_CONDITIONER\"]")
-    List<String> optionCodes,
+    @Schema(description = "필터링할 공용 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 공용 옵션을 가진 스튜디오를 조회합니다.",
+        example = "[\"WIFI\", \"CCTV\"]")
+    List<String> commonOptionCodes,
+
+    @Schema(description = "필터링할 개인 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 개인 옵션을 가진 스튜디오를 조회합니다.",
+        example = "[\"AIR_CONDITIONER\"]")
+    List<String> individualOptionCodes,
 
     @Schema(description = "검색할 최소 가격 (단위: 원)", example = "250000")
     Integer minPrice,

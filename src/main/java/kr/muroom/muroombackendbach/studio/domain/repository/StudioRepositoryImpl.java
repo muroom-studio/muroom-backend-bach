@@ -22,9 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.entity.QStudio;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
+import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import lombok.RequiredArgsConstructor;
@@ -39,16 +41,30 @@ import org.springframework.util.CollectionUtils;
 public class StudioRepositoryImpl implements StudioQueryRepository {
 
   private final JPAQueryFactory queryFactory;
+  private final OptionRepository optionRepository;
 
   @Override
   public List<Studio> findStudiosWithinBounds(MapSearchRequest request) {
-    return queryFactory
-        .selectFrom(studio)
+    List<Long> studioIds = queryFactory
+        .select(studio.id)
+        .from(studio)
+        .leftJoin(studio.studioBuildingInfo, studioBuildingInfo)
+        .leftJoin(studio.studioPrice, studioPrice)
+        .leftJoin(studio.rooms, room)
         .where(
             studio.deletedAt.isNull(),
-            isWithinBounds(request.minLatitude(), request.maxLatitude(), request.minLongitude(),
-                request.maxLongitude())
+            studioFilteringWhereClause(request)
         )
+        .groupBy(studio.id)
+        .fetch();
+
+    if (studioIds.isEmpty()) {
+      return new ArrayList<>();
+    }
+
+    return queryFactory
+        .selectFrom(studio)
+        .where(studio.id.in(studioIds))
         .fetch();
   }
 
@@ -64,22 +80,10 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
 
     idsQuery.where(
             studio.deletedAt.isNull(),
-            isWithinBounds(request.minLatitude(), request.maxLatitude(), request.minLongitude(),
-                request.maxLongitude()),
-            matchPriceRange(request.minPrice(), request.maxPrice()),
-            hasMatchingRoomSize(request.minRoomWidth(), request.maxRoomWidth(),
-                request.minRoomHeight(),
-                request.maxRoomHeight()),
-            hasAllOptions(request.optionCodes()),
-            inFloorTypes(request.floorTypes()),
-            inRestroomTypes(request.restroomTypes()),
-            isParkingAvailable(request.isParkingAvailable()),
-            isLodgingAvailable(request.isLodgingAvailable()),
-            hasFireInsurance(request.hasFireInsurance()),
-            notForbidsInstruments(request.forbiddenInstrumentCodes())
+            studioFilteringWhereClause(request)
         )
         .groupBy(studio.id, studioPrice.minPrice)
-        .orderBy(createOrderSpecifiers(pageable))
+        .orderBy(studioOrderSpecifiers(pageable))
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize());
 
@@ -111,18 +115,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
         .leftJoin(studio.rooms, room)
         .where(
             studio.deletedAt.isNull(),
-            isWithinBounds(request.minLatitude(), request.maxLatitude(), request.minLongitude(),
-                request.maxLongitude()),
-            matchPriceRange(request.minPrice(), request.maxPrice()),
-            hasMatchingRoomSize(request.minRoomWidth(), request.maxRoomWidth(),
-                request.minRoomHeight(), request.maxRoomHeight()),
-            hasAllOptions(request.optionCodes()),
-            inFloorTypes(request.floorTypes()),
-            inRestroomTypes(request.restroomTypes()),
-            isParkingAvailable(request.isParkingAvailable()),
-            isLodgingAvailable(request.isLodgingAvailable()),
-            hasFireInsurance(request.hasFireInsurance()),
-            notForbidsInstruments(request.forbiddenInstrumentCodes())
+            studioFilteringWhereClause(request)
         );
 
     Long totalResult = countQuery.fetchOne();
@@ -131,7 +124,29 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     return new PageImpl<>(sortedContent, pageable, total);
   }
 
-  private OrderSpecifier<?>[] createOrderSpecifiers(Pageable pageable) {
+  private BooleanBuilder studioFilteringWhereClause(MapSearchRequest request) {
+    BooleanBuilder whereClause = new BooleanBuilder();
+
+    whereClause.and(
+        isWithinBounds(request.minLatitude(), request.maxLatitude(),
+            request.minLongitude(), request.maxLongitude()));
+    whereClause.and(matchPriceRange(request.minPrice(), request.maxPrice()));
+    whereClause.and(hasMatchingRoomSize(request.minRoomWidth(), request.maxRoomWidth(),
+        request.minRoomHeight(), request.maxRoomHeight()));
+    whereClause.and(hasAllOptionsInCategory(request.commonOptionCodes(), OptionCategory.COMMON));
+    whereClause.and(
+        hasAllOptionsInCategory(request.individualOptionCodes(), OptionCategory.INDIVIDUAL));
+    whereClause.and(inFloorTypes(request.floorTypes()));
+    whereClause.and(inRestroomTypes(request.restroomTypes()));
+    whereClause.and(isParkingAvailable(request.isParkingAvailable()));
+    whereClause.and(isLodgingAvailable(request.isLodgingAvailable()));
+    whereClause.and(hasFireInsurance(request.hasFireInsurance()));
+    whereClause.and(notForbidsInstruments(request.forbiddenInstrumentCodes()));
+
+    return whereClause;
+  }
+
+  private OrderSpecifier<?>[] studioOrderSpecifiers(Pageable pageable) {
     List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
 
     if (pageable.getSort().isSorted()) {
@@ -228,11 +243,19 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
         ).exists();
   }
 
-  private BooleanExpression hasAllOptions(List<String> optionCodes) {
-    if (CollectionUtils.isEmpty(optionCodes)) {
+  private BooleanExpression hasAllOptionsInCategory(List<String> optionCodesFromRequest,
+      OptionCategory optionCategory) {
+    if (CollectionUtils.isEmpty(optionCodesFromRequest)) {
       return null;
     }
 
+    List<String> optionCodes = optionCodesFromRequest;
+    if (optionCodesFromRequest.size() == 1 && "ALL".equalsIgnoreCase(
+        optionCodesFromRequest.getFirst())) {
+      optionCodes = optionRepository.findAllByCategory(optionCategory).stream()
+          .map(Option::getCode)
+          .toList();
+    }
     return studio.id.in(JPAExpressions.select(studioOption.studio.id)
         .from(studioOption)
         .where(studioOption.option.code.in(optionCodes))

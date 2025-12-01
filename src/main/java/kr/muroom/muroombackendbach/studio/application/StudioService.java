@@ -140,8 +140,7 @@ public class StudioService {
             maxPrice = roomPriceStats.getMax();
           } else {
             StudioPrice studioPrice = studioPricesByStudioId.get(studio.getId());
-            if (studioPrice != null && studioPrice.getMinPrice() != null
-                && studioPrice.getMaxPrice() != null) {
+            if (studioPrice != null) {
               minPrice = studioPrice.getMinPrice();
               maxPrice = studioPrice.getMaxPrice();
             }
