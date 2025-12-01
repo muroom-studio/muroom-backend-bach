@@ -2,10 +2,12 @@ package kr.muroom.muroombackendbach.terms.application;
 
 import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.*;
 
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermContent;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermContentRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
+import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +29,10 @@ public class TermService {
   }
 
   public TermContentDto getTermContent(Long termId) {
-    TermContent termContent = termContentRepository.findById(termId).orElseThrow();
-    return new TermContentDto(termContent.getTerm().getId(), termContent.getContent());
+    TermContent termContent = termContentRepository.findById(termId)
+        .orElseThrow(() -> new BusinessException(
+            TermErrorCode.NOT_EXIST_TERM));
+
+    return new TermContentDto(termId, termContent.getContent());
   }
 }

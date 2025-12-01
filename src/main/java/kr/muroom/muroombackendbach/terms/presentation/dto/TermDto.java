@@ -11,7 +11,7 @@ public final class TermDto {
 
   public record TermsWithContentDto(
       Long termId,
-      TermsType type,
+      TermsType code,
       String targetRole,
       String version,
       boolean isMandatory,
