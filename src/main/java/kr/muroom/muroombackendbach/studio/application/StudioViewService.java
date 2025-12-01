@@ -1,0 +1,64 @@
+package kr.muroom.muroombackendbach.studio.application;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import kr.muroom.muroombackendbach.common.context.AnonymousUserContext;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
+import kr.muroom.muroombackendbach.studio.domain.entity.StudioViewLog;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioViewLogRepository;
+import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
+import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class StudioViewService {
+
+  private final StudioViewLogRepository studioViewLogRepository;
+  private final StudioRepository studioRepository;
+  private final MusicianRepository musicianRepository;
+
+  // TODO: 캐시 반영 고려
+  public void incrementViewCount(Long musicianId, Long studioId) {
+    Studio studio = studioRepository.findById(studioId)
+        .orElseThrow(() -> new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND));
+
+    boolean alreadyViewedToday;
+    OffsetDateTime startOfTodayUtc = OffsetDateTime.now(ZoneOffset.UTC).toLocalDate().atStartOfDay()
+        .atOffset(ZoneOffset.UTC);
+
+    if (musicianId != null) {
+      Musician musicianProxy = musicianRepository.getReferenceById(musicianId);
+      alreadyViewedToday = studioViewLogRepository.findByStudioAndMusicianAndViewedAtAfter(
+          musicianProxy, studio, startOfTodayUtc);
+    } else {
+      String anonymousUserId = AnonymousUserContext.getAnonymousUserId();
+      if (anonymousUserId == null || anonymousUserId.isBlank()) {
+        log.warn("[# incrementViewCount] Anonymous user ID is missing. StudioId: {}", studioId);
+        return;
+      }
+      alreadyViewedToday = studioViewLogRepository.findByAnonymousUserIdAndStudioAndViewedAtAfter(
+          anonymousUserId, studio, startOfTodayUtc);
+    }
+
+    if (!alreadyViewedToday) {
+      StudioViewLog studioViewLog;
+      if (musicianId != null) {
+        Musician musicianProxy = musicianRepository.getReferenceById(musicianId);
+        studioViewLog = StudioViewLog.byMusician(musicianProxy, studio);
+      } else {
+        String anonymousUserId = AnonymousUserContext.getAnonymousUserId();
+        studioViewLog = StudioViewLog.byAnonymousUser(anonymousUserId, studio);
+      }
+      studioViewLogRepository.save(studioViewLog);
+    }
+  }
+}

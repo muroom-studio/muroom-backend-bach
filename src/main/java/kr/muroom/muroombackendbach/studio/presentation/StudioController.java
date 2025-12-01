@@ -5,8 +5,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
+import kr.muroom.muroombackendbach.search.application.SearchHistoryService;
 import kr.muroom.muroombackendbach.studio.application.StudioFacadeService;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
+import kr.muroom.muroombackendbach.studio.application.StudioViewService;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +31,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudioController {
 
   private final StudioService studioService;
+  private final SearchHistoryService searchHistoryService;
   private final StudioFacadeService studioFacadeService;
+  private final StudioViewService studioViewService;
 
   @GetMapping("/map-search")
   public ApiResponse<List<StudioMapResponse>> searchStudiosInMapBounds(
@@ -52,15 +57,22 @@ public class StudioController {
   @GetMapping("/map-list")
   public ApiResponse<PaginatedData<StudioListResponse>> searchStudiosForMapList(
       @Validated @ParameterObject MapSearchRequest request,
+      @AuthenticationPrincipal Long musicianId,
       @Parameter(hidden = true)
       @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
   ) {
+    if (request.keyword() != null && !request.keyword().isBlank()) {
+      searchHistoryService.addSearchKeyword(musicianId, request.keyword());
+    }
+
     Page<StudioListResponse> response = studioService.searchStudiosForMapList(request, pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
 
   @GetMapping("/{studioId}")
-  public void getStudio(@PathVariable Long studioId) {
+  public void getStudio(@PathVariable Long studioId, @AuthenticationPrincipal Long musicianId) {
+    studioViewService.incrementViewCount(studioId, musicianId);
+
     studioFacadeService.getStudioDetail(studioId);
   }
 }

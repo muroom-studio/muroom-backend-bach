@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum StudioErrorCode implements ErrorCode {
-  NOT_EXIST_STUDIO(HttpStatus.BAD_REQUEST, "ST-400-01", "존재하지않는 작업실입니다."),
-  ALREADY_EXIST_EMAIL(HttpStatus.BAD_REQUEST, "ST-400-02", "이미 존재하는 이메일 입니다.");
+  STUDIO_NOT_FOUND(HttpStatus.BAD_REQUEST, "ST-400-01", "해당 스튜디오를 찾을 수 없습니다."),
+  ;
 
   private final HttpStatus status;
   private final String code;

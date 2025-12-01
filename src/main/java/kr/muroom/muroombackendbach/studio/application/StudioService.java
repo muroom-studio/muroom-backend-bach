@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.studio.application;
 
-import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.NOT_EXIST_STUDIO;
+import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.STUDIO_NOT_FOUND;
 
 import java.util.Collections;
 import java.util.IntSummaryStatistics;
@@ -275,6 +275,6 @@ public class StudioService {
 
   public Studio getStudio(Long studioId) {
     return studioRepository.findById(studioId)
-        .orElseThrow(() -> new BusinessException(NOT_EXIST_STUDIO));
+        .orElseThrow(() -> new BusinessException(STUDIO_NOT_FOUND));
   }
 }
