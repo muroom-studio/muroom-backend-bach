@@ -1,28 +1,39 @@
 package kr.muroom.muroombackendbach.studio.presentation.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
 
 public record MapSearchRequest(
-    @Schema(description = "최소 위도", example = "37.4")
+    @Schema(description = "검색어 (스튜디오명 또는 지하철역명)", example = "강남")
+    String keyword,
+
+    @Schema(description = "최소 위도", example = "37.4", requiredMode = RequiredMode.REQUIRED)
+    @NotNull
     Double minLatitude,
 
-    @Schema(description = "최대 위도", example = "37.6")
+    @Schema(description = "최대 위도", example = "37.6", requiredMode = RequiredMode.REQUIRED)
+    @NotNull
     Double maxLatitude,
 
-    @Schema(description = "최소 경도", example = "126.9")
+    @Schema(description = "최소 경도", example = "126.9", requiredMode = RequiredMode.REQUIRED)
+    @NotNull
     Double minLongitude,
 
-    @Schema(description = "최대 경도", example = "127.2")
+    @Schema(description = "최대 경도", example = "127.2", requiredMode = RequiredMode.REQUIRED)
+    @NotNull
     Double maxLongitude,
 
-    @Schema(description = "필터링할 공용 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 공용 옵션을 가진 스튜디오를 조회합니다.",
+    @Schema(description = "필터링할 공용 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 공용 옵션을 "
+        + "가진 스튜디오를 조회합니다.",
         example = "[\"WIFI\", \"CCTV\"]")
     List<String> commonOptionCodes,
 
-    @Schema(description = "필터링할 개인 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 개인 옵션을 가진 스튜디오를 조회합니다.",
+    @Schema(description = "필터링할 개인 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 개인 옵션을 "
+        + "가진 스튜디오를 조회합니다.",
         example = "[\"AIR_CONDITIONER\"]")
     List<String> individualOptionCodes,
 
@@ -44,7 +55,8 @@ public record MapSearchRequest(
     @Schema(description = "검색할 최대 방 높이 (단위: mm)", example = "5500")
     Integer maxRoomHeight,
 
-    @Schema(description = "층 유형 목록", example = "[\"GROUND\", \"BASEMENT\"]")
+    @Schema(description = "층 유형 목록", example = "[\"GROUND\", "
+        + "\"BASEMENT\"]")
     List<FloorType> floorTypes,
 
     @Schema(description = "화장실 유형 목록",
@@ -60,7 +72,8 @@ public record MapSearchRequest(
     @Schema(description = "화재 보험 가입 여부", example = "true")
     Boolean hasFireInsurance,
 
-    @Schema(description = "사용 불가능한 악기 코드 목록", example = "[\"BRASS_WIND\"]")
+    @Schema(description = "사용 불가능한 악기 코드 목록", example = "[\"BRASS_WIND"
+        + "\"]")
     List<String> forbiddenInstrumentCodes
 ) {
 

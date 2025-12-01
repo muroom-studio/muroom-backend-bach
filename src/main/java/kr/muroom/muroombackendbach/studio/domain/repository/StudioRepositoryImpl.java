@@ -6,6 +6,8 @@ import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioBuildingIn
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioForbiddenInstrument.studioForbiddenInstrument;
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioOption.studioOption;
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioPrice.studioPrice;
+import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStation.subwayStation;
+import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStationNearbyStudio.subwayStationNearbyStudio;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -127,6 +129,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
   private BooleanBuilder studioFilteringWhereClause(MapSearchRequest request) {
     BooleanBuilder whereClause = new BooleanBuilder();
 
+    whereClause.and(matchKeyword(request.keyword()));
     whereClause.and(
         isWithinBounds(request.minLatitude(), request.maxLatitude(),
             request.minLongitude(), request.maxLongitude()));
@@ -178,6 +181,33 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     }
 
     return orderSpecifiers.toArray(new OrderSpecifier[0]);
+  }
+
+  private BooleanExpression matchKeyword(String keyword) {
+    if (keyword == null || keyword.isBlank()) {
+      return null;
+    }
+
+    // 조건 1: 스튜디오명에 키워드가 포함되는 경우
+    BooleanExpression studioNameMatches = studio.name.containsIgnoreCase(keyword);
+
+    // 조건 2: 인증 지하철역명에 키워드가 포함되는 경우
+    List<Long> subwayStationIds = queryFactory
+        .select(subwayStation.id)
+        .from(subwayStation)
+        .where(subwayStation.name.containsIgnoreCase(keyword))
+        .fetch();
+    if (subwayStationIds.isEmpty()) {
+      return studioNameMatches;
+    }
+
+    BooleanExpression studioLinkedToStation = studio.id.in(
+        JPAExpressions.select(subwayStationNearbyStudio.studio.id)
+            .from(subwayStationNearbyStudio)
+            .where(subwayStationNearbyStudio.subwayStation.id.in(subwayStationIds))
+    );
+
+    return studioNameMatches.or(studioLinkedToStation);
   }
 
   private BooleanExpression isWithinBounds(Double minLatitude, Double maxLatitude,

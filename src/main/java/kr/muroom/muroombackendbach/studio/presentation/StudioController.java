@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +29,7 @@ public class StudioController {
 
   @GetMapping("/map-search")
   public ApiResponse<List<MapBoundsSearch>> searchStudiosInMapBounds(
-      @ParameterObject MapSearchRequest request
+      @Validated @ParameterObject MapSearchRequest request
   ) {
     List<MapBoundsSearch> response = studioService.searchStudiosInMapBounds(request);
     return ApiResponse.success(response);
@@ -47,7 +48,7 @@ public class StudioController {
   // @SecurityRequirement(name = "Authorization")
   @GetMapping("/map-list")
   public ApiResponse<PaginatedData<StudioListResponse>> searchStudiosForMapList(
-      @ParameterObject MapSearchRequest request,
+      @Validated @ParameterObject MapSearchRequest request,
       @Parameter(hidden = true)
       @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
   ) {
