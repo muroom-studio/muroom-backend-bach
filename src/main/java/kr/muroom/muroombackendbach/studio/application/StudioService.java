@@ -24,10 +24,11 @@ import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioSubwayLineInfo;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
@@ -63,14 +64,13 @@ public class StudioService {
         .toList();
   }
 
-  private StudioMapResponse convertToStudioMapResponse(Studio studio) {
+  private StudioPriceInfo calculatePrice(Studio studio) {
     Integer minPrice = null;
     Integer maxPrice = null;
 
     if (studio.getRooms() != null && !studio.getRooms().isEmpty()) {
       IntSummaryStatistics priceSummaryStats = studio.getRooms().stream()
-          .filter(Objects::nonNull)
-          .filter(room -> room.getBasePrice() != null)
+          .filter(room -> room != null && room.getBasePrice() != null)
           .mapToInt(Room::getBasePrice)
           .summaryStatistics();
 
@@ -88,13 +88,22 @@ public class StudioService {
       }
     }
 
+    return StudioPriceInfo.builder()
+        .minPrice(minPrice)
+        .maxPrice(maxPrice)
+        .build();
+  }
+
+  private StudioMapResponse convertToStudioMapResponse(Studio studio) {
+    StudioPriceInfo studioPriceInfo = calculatePrice(studio);
+
     return StudioMapResponse.builder()
         .id(studio.getId())
         .name(studio.getName())
         .latitude(studio.getLocation().getX())
         .longitude(studio.getLocation().getY())
-        .minPrice(minPrice)
-        .maxPrice(maxPrice)
+        .minPrice(studioPriceInfo.minPrice())
+        .maxPrice(studioPriceInfo.maxPrice())
         .build();
   }
 

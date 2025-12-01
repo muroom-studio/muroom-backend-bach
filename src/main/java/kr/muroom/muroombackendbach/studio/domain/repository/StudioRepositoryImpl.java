@@ -45,9 +45,8 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
 
   @Override
   public List<Studio> findStudiosWithinBounds(MapSearchRequest request) {
-    List<Long> studioIds = queryFactory
-        .select(studio.id)
-        .from(studio)
+    return queryFactory
+        .selectFrom(studio).distinct()
         .leftJoin(studio.studioBuildingInfo, studioBuildingInfo)
         .leftJoin(studio.studioPrice, studioPrice)
         .leftJoin(studio.rooms, room)
@@ -55,18 +54,6 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
             studio.deletedAt.isNull(),
             studioFilteringWhereClause(request)
         )
-        .groupBy(studio.id)
-        .fetch();
-
-    if (studioIds.isEmpty()) {
-      return new ArrayList<>();
-    }
-
-    return queryFactory
-        .selectFrom(studio).distinct()
-        .leftJoin(studio.rooms, room).fetchJoin()
-        .leftJoin(studio.studioPrice, studioPrice).fetchJoin()
-        .where(studio.id.in(studioIds))
         .fetch();
   }
 

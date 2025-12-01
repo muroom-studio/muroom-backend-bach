@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.studio.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import lombok.Builder;
 
 @Builder
