@@ -23,12 +23,11 @@ import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
 import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.LineInfo;
-import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse.SubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioSubwayLineInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
@@ -141,12 +140,12 @@ public class StudioService {
     List<Long> stationIds = nearbySubwayStationsByStudioId.values().stream()
         .map(nearbySubwayStation -> nearbySubwayStation.getSubwayStation().getId())
         .toList();
-    Map<Long, List<StudioResponse.LineInfo>> lineInfosByStudioId =
+    Map<Long, List<StudioSubwayLineInfo>> lineInfosByStudioId =
         subwayStationLineRepository.findAllByStudioIdsWithLine(
                 stationIds).stream()
             .collect(Collectors.groupingBy(
                 subwayStationLine -> subwayStationLine.getStation().getId(),
-                Collectors.mapping(subwayStationLine -> StudioResponse.LineInfo.builder()
+                Collectors.mapping(subwayStationLine -> StudioSubwayLineInfo.builder()
                     .lineName(subwayStationLine.getLine().getName())
                     .lineColor(subwayStationLine.getLine().getColor())
                     .build(), Collectors.toList())
@@ -194,12 +193,13 @@ public class StudioService {
 
           SubwayStationNearbyStudio subwayStationNearbyStudio = nearbySubwayStationsByStudioId.get(
               studio.getId());
-          SubwayStationInfo subwayStationInfo = null;
+          StudioSubwayStationInfo subwayStationInfo = null;
           if (subwayStationNearbyStudio != null) {
             SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
-            List<LineInfo> lineInfos = lineInfosByStudioId.getOrDefault(subwayStation.getId(),
+            List<StudioSubwayLineInfo> lineInfos = lineInfosByStudioId.getOrDefault(
+                subwayStation.getId(),
                 Collections.emptyList());
-            subwayStationInfo = SubwayStationInfo.builder()
+            subwayStationInfo = StudioSubwayStationInfo.builder()
                 .stationName(subwayStation.getName())
                 .lines(lineInfos).build();
           }
