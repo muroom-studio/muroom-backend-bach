@@ -100,8 +100,8 @@ public class StudioService {
     return StudioMapResponse.builder()
         .id(studio.getId())
         .name(studio.getName())
-        .latitude(studio.getLocation().getX())
-        .longitude(studio.getLocation().getY())
+        .longitude(studio.getLocation().getX())
+        .latitude(studio.getLocation().getY())
         .minPrice(studioPriceInfo.minPrice())
         .maxPrice(studioPriceInfo.maxPrice())
         .build();
