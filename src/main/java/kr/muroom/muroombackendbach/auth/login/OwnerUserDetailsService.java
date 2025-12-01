@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.auth.login;
 
-import kr.muroom.muroombackendbach.user.application.UserService;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +7,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service

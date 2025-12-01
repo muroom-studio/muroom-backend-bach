@@ -26,7 +26,7 @@ public class Instrument extends AuditableEntity {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "instrument_id_seq_generator")
   @SequenceGenerator(name = "instrument_id_seq_generator", sequenceName = "instrument_id_seq",
       allocationSize = 1)
-  @Column(name = "instrument_id")
+  @Column(name = "instruments_id")
   private Long id;
 
   @Column(nullable = false, length = 50, unique = true)

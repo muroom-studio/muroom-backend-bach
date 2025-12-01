@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class OwnerController {
 
   private final OwnerService ownerService;
-  private final OwnerAuthService ownerAuthService;
 
   @GetMapping("/check-email")
   public ApiResponse<EmailCheckResponse> checkEmail(@Valid EmailCheckRequest request) {
