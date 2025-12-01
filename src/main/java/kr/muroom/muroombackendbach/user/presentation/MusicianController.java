@@ -4,9 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
+import kr.muroom.muroombackendbach.auth.login.OAuthLoginService;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto;
+import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginRequest;
+import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MusicianController {
 
   private final MusicianService musicianService;
+  private final OAuthLoginService oAuthLoginService;
 
   @Operation(summary = "뮤지션 회원가입", description = "뮤지션 회원 정보를 등록합니다.")
   @PostMapping("/register")
@@ -28,5 +32,11 @@ public class MusicianController {
     MusicianDto.MusicianSignUpResponse response =
         musicianService.registerMusician(musicianSignUpRequest);
     return ApiResponse.created(response);
+  }
+
+  @Operation(summary = "뮤지션 로그인", description = "인가코드를 기반으로 로그인 시도")
+  @PostMapping("/login")
+  public ApiResponse<OAuthLoginResponse> oauthLogin(@RequestBody OAuthLoginRequest request) {
+    return ApiResponse.success(oAuthLoginService.login(request));
   }
 }

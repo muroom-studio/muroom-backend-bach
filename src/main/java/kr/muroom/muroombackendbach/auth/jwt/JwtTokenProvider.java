@@ -108,15 +108,23 @@ public class JwtTokenProvider {
     return false;
   }
 
-  /**
-   * 내부용 Claims 파싱
+  /*** 내부용 Claims 파싱
    */
+
   private Claims parseClaims(String token) {
-    return Jwts.parser()
-        .verifyWith(key)
-        .build()
-        .parseSignedClaims(token)
-        .getPayload();
+    try {
+      return Jwts.parser()
+          .verifyWith(key)    // 서명 검증
+          .build()
+          .parseSignedClaims(token)  // 여기서 자동으로 exp 등 검증됨
+          .getPayload();
+    } catch (ExpiredJwtException e) {
+      log.warn("만료된 JWT 토큰입니다: {}", e.getMessage());
+      throw e;
+    } catch (JwtException | IllegalArgumentException e) {
+      log.warn("유효하지 않은 JWT 토큰입니다: {}", e.getMessage());
+      throw e;
+    }
   }
 
   /**
