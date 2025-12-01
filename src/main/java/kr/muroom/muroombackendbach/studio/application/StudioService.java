@@ -13,8 +13,11 @@ import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapDirectionService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.room.domain.repository.RoomRepository;
+import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
+import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
+import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.StudioResponse;
@@ -44,11 +47,14 @@ public class StudioService {
   private final StudioPriceRepository studioPriceRepository;
   private final SubwayStationsNearbyStudioRepository subwayStationsNearbyStudioRepository;
   private final SubwayStationLineRepository subwayStationLineRepository;
+  private final OptionRepository optionRepository;
   private final FileStorageService fileStorageService;
   private final MapDirectionService mapDirectionService;
 
   public List<StudioResponse.MapBoundsSearch> searchStudiosInMapBounds(MapSearchRequest request) {
-    List<Studio> studiosWithinBounds = studioRepository.findStudiosWithinBounds(request);
+    MapSearchRequest resolvedRequest = resolveOptionCodes(request);
+
+    List<Studio> studiosWithinBounds = studioRepository.findStudiosWithinBounds(resolvedRequest);
 
     return studiosWithinBounds.stream()
         .map(MapBoundsSearch::from)
@@ -57,7 +63,9 @@ public class StudioService {
 
   public Page<StudioListResponse> searchStudiosForMapList(MapSearchRequest request,
       Pageable pageable) {
-    Page<Studio> studioPage = studioRepository.findStudiosForMapList(request, pageable);
+    MapSearchRequest resolvedRequest = resolveOptionCodes(request);
+
+    Page<Studio> studioPage = studioRepository.findStudiosForMapList(resolvedRequest, pageable);
 
     List<Studio> studios = studioPage.getContent();
     if (studios.isEmpty()) {
@@ -174,5 +182,47 @@ public class StudioService {
         }).toList();
 
     return new PageImpl<>(responseContent, pageable, studioPage.getTotalElements());
+  }
+
+  private MapSearchRequest resolveOptionCodes(MapSearchRequest request) {
+    List<String> resolvedCommonOptionsCodes = request.commonOptionCodes();
+    if (request.commonOptionCodes() != null && request.commonOptionCodes().size() == 1
+        && "ALL".equalsIgnoreCase(request.commonOptionCodes().getFirst())) {
+      resolvedCommonOptionsCodes = optionRepository.findAllByCategory(OptionCategory.COMMON)
+          .stream()
+          .map(Option::getCode)
+          .toList();
+    }
+
+    List<String> resolvedIndividualOptionsCodes = request.individualOptionCodes();
+    if (request.individualOptionCodes() != null && request.individualOptionCodes().size() == 1
+        && "ALL".equalsIgnoreCase(request.individualOptionCodes().getFirst())) {
+      resolvedIndividualOptionsCodes = optionRepository.findAllByCategory(OptionCategory.INDIVIDUAL)
+          .stream()
+          .map(Option::getCode)
+          .toList();
+    }
+
+    return MapSearchRequest.builder()
+        .keyword(request.keyword())
+        .minLatitude(request.minLatitude())
+        .maxLatitude(request.maxLatitude())
+        .minLongitude(request.minLongitude())
+        .maxLongitude(request.maxLongitude())
+        .commonOptionCodes(resolvedCommonOptionsCodes)
+        .individualOptionCodes(resolvedIndividualOptionsCodes)
+        .minPrice(request.minPrice())
+        .maxPrice(request.maxPrice())
+        .minRoomWidth(request.minRoomWidth())
+        .maxRoomWidth(request.maxRoomWidth())
+        .minRoomHeight(request.minRoomHeight())
+        .maxRoomHeight(request.maxRoomHeight())
+        .floorTypes(request.floorTypes())
+        .restroomTypes(request.restroomTypes())
+        .isParkingAvailable(request.isParkingAvailable())
+        .isLodgingAvailable(request.isLodgingAvailable())
+        .hasFireInsurance(request.hasFireInsurance())
+        .forbiddenInstrumentCodes(request.forbiddenInstrumentCodes())
+        .build();
   }
 }

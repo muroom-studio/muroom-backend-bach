@@ -6,7 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
+import lombok.Builder;
 
+@Builder
 public record MapSearchRequest(
     @Schema(description = "검색어 (스튜디오명 또는 지하철역명)", example = "강남")
     String keyword,

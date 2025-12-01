@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.entity.QStudio;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
@@ -43,7 +42,6 @@ import org.springframework.util.CollectionUtils;
 public class StudioRepositoryImpl implements StudioQueryRepository {
 
   private final JPAQueryFactory queryFactory;
-  private final OptionRepository optionRepository;
 
   @Override
   public List<Studio> findStudiosWithinBounds(MapSearchRequest request) {
@@ -192,20 +190,13 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     BooleanExpression studioNameMatches = studio.name.containsIgnoreCase(keyword);
 
     // 조건 2: 인증 지하철역명에 키워드가 포함되는 경우
-    List<Long> subwayStationIds = queryFactory
-        .select(subwayStation.id)
-        .from(subwayStation)
-        .where(subwayStation.name.containsIgnoreCase(keyword))
-        .fetch();
-    if (subwayStationIds.isEmpty()) {
-      return studioNameMatches;
-    }
-
-    BooleanExpression studioLinkedToStation = studio.id.in(
-        JPAExpressions.select(subwayStationNearbyStudio.studio.id)
-            .from(subwayStationNearbyStudio)
-            .where(subwayStationNearbyStudio.subwayStation.id.in(subwayStationIds))
-    );
+    BooleanExpression studioLinkedToStation = JPAExpressions.selectOne()
+        .from(subwayStationNearbyStudio)
+        .join(subwayStationNearbyStudio.subwayStation, subwayStation)
+        .where(
+            subwayStationNearbyStudio.studio.eq(studio),
+            subwayStation.name.containsIgnoreCase(keyword)
+        ).exists();
 
     return studioNameMatches.or(studioLinkedToStation);
   }
@@ -273,22 +264,15 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
         ).exists();
   }
 
-  private BooleanExpression hasAllOptionsInCategory(List<String> optionCodesFromRequest,
+  private BooleanExpression hasAllOptionsInCategory(List<String> optionCodes,
       OptionCategory optionCategory) {
-    if (CollectionUtils.isEmpty(optionCodesFromRequest)) {
+    if (CollectionUtils.isEmpty(optionCodes)) {
       return null;
-    }
-
-    List<String> optionCodes = optionCodesFromRequest;
-    if (optionCodesFromRequest.size() == 1 && "ALL".equalsIgnoreCase(
-        optionCodesFromRequest.getFirst())) {
-      optionCodes = optionRepository.findAllByCategory(optionCategory).stream()
-          .map(Option::getCode)
-          .toList();
     }
     return studio.id.in(JPAExpressions.select(studioOption.studio.id)
         .from(studioOption)
-        .where(studioOption.option.code.in(optionCodes))
+        .where(studioOption.option.category.eq(optionCategory)
+            .and(studioOption.option.code.in(optionCodes)))
         .groupBy(studioOption.studio.id)
         .having(studioOption.option.code.count().eq((long) optionCodes.size()))
     );
