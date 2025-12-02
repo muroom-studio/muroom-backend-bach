@@ -4,6 +4,7 @@ import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.Musi
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.login.OAuthLoginService;
@@ -44,7 +45,8 @@ public class MusicianController {
     return ApiResponse.success(oAuthLoginService.login(request));
   }
 
-  //내 간략 정보(프로필 이미지, 닉네임) 조회
+  @Operation(summary = "내 간략 정보(프로필 이미지, 닉네임) 조회", description = "내 간략 정보(프로필 이미지, 닉네임)를 조회합니다.")
+  @SecurityRequirement(name = "Bearer Authentication")
   @GetMapping("/me")
   public ApiResponse<MusicianDto.MusicianSimpleProfileResponse> getNickname(@AuthenticationPrincipal Long musicianId) {
     MusicianDto.MusicianSimpleProfileResponse response = musicianService.getMusicianSimpleProfile(musicianId);
