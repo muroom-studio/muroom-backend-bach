@@ -126,7 +126,6 @@ public class MusicianService {
     Musician musician = Musician.builder()
         .name(request.name())
         .phoneNumber(request.phoneNumber())
-        .birthdate(request.birthdate())
         .status(UserStatus.ACTIVE)
         .instrument(instrument)
         .build();

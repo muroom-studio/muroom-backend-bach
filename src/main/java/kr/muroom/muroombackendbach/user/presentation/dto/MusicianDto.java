@@ -15,19 +15,14 @@ public final class MusicianDto {
       @NotBlank(message = "이름을 입력해주세요.")
       String name,
 
-      @NotNull(message = "생년월일을 입력해주세요.")
-      LocalDate birthdate,
-
       @NotBlank(message = "전화번호를 입력해주세요.")
       String phoneNumber,
 
-      @NotBlank(message = "상세 주소를 입력해주세요.")
       String detailJuso,
 
       @NotBlank(message = "도로명 주소를 입력해주세요.")
       String juso,
 
-      @NotBlank(message = "작업실 이름을 입력해주세요.")
       String studioName,
 
       @NotBlank(message = "닉네임을 입력해주세요.")
@@ -42,6 +37,14 @@ public final class MusicianDto {
       @NotBlank(message = "회원가입 토큰이 없습니다.")
       String signupToken
 
+  ) {
+
+  }
+
+  // TODO 약관 조회 유효성 검사를 위한 DTO 변경 필요
+  public record TermRequest(
+      Long termId,
+      Boolean agreed
   ) {
 
   }
