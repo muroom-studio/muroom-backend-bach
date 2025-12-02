@@ -38,6 +38,12 @@ public record StudioDetailResponse(
       @Schema(description = "스튜디오 주소", example = "서울특별시 강남구 테헤란로 427 위워크타워 5층")
       String address,
 
+      @Schema(description = "스튜디오 경도", example = "127.027610")
+      Double studioLongitude,
+
+      @Schema(description = "스튜디오 위도", example = "37.499122")
+      Double studioLatitude,
+
       @Schema(description = "스튜디오 최저 가격", example = "150000")
       Integer studioMinPrice,
 
@@ -91,11 +97,18 @@ public record StudioDetailResponse(
 
       @Schema(description = "주차 가능 대수", example = "6")
       Integer parkingSpots,
+
       @Schema(description = "주차 위치 이름", example = "위워크타워 지하 주차장")
       String parkingLocationName,
 
       @Schema(description = "주차 위치 주소", example = "서울특별시 강남구 테헤란로 427 위워크타워 지하 1층")
       String parkingLocationAddress,
+
+      @Schema(description = "주차 위치 경도", example = "127.027610")
+      Double parkingLocationLongitude,
+
+      @Schema(description = "주차 위치 위도", example = "37.499122")
+      Double parkingLocationLatitude,
 
       @Schema(description = "숙식 가능 여부", example = "true")
       Boolean isLodgingAvailable,
