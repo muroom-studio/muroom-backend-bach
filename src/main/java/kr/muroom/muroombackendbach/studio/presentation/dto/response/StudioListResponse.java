@@ -26,7 +26,13 @@ public record StudioListResponse(
     String thumbnailImageUrl,
 
     @Schema(description = "인근 지하철역까지 도보 소요 시간 (분)", example = "8")
-    Integer walkingTimeMinutes
+    Integer walkingTimeMinutes,
+
+    @Schema(description = "경도", example = "126.9780")
+    Double longitude,
+
+    @Schema(description = "위도", example = "37.5665")
+    Double latitude
 ) {
 
 }

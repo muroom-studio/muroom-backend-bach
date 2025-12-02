@@ -217,6 +217,9 @@ public class StudioService {
               ? presignedUrls.get(studio.getThumbnailImageKey())
               : null;
 
+          Double longitude = studio.getLocation() != null ? studio.getLocation().getX() : null;
+          Double latitude = studio.getLocation() != null ? studio.getLocation().getY() : null;
+
           return StudioListResponse.builder()
               .studioId(studio.getId())
               .studioName(studio.getName())
@@ -225,6 +228,8 @@ public class StudioService {
               .thumbnailImageUrl(presignedThumbnailImageUrl)
               .nearbySubwayStationInfo(subwayStationInfo)
               .walkingTimeMinutes(walkingTime)
+              .longitude(longitude)
+              .latitude(latitude)
               .build();
         }).toList();
 

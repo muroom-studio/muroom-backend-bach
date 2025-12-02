@@ -99,7 +99,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
 
     // 전체 카운트를 조회하여 Page 객체 생성
     JPAQuery<Long> countQuery = queryFactory
-        .select(studio.count())
+        .select(studio.countDistinct())
         .from(studio)
         .leftJoin(studio.studioBuildingInfo, studioBuildingInfo)
         .leftJoin(studio.studioPrice, studioPrice)
