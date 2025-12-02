@@ -10,6 +10,7 @@ import kr.muroom.muroombackendbach.search.application.SearchHistoryService;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studio.application.StudioViewService;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
+import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo;
@@ -113,12 +114,12 @@ public class StudioController {
     var studioBuildingInfo = StudioDetailResponse.StudioBuildingInfoDto.builder()
         .floorType(FloorType.GROUND)
         .floorNumber(5)
-        .isParkingAvailable("true")
-        .parkingFeeType("FREE")
+        .isParkingAvailable(true)
+        .parkingFeeType(ParkingFeeType.PAID)
         .parkingFeeInfo("매월 3만원")
         .parkingSpots(6)
+        .parkingLocationName("위워크타워 지하 주차장")
         .parkingLocationAddress("서울특별시 강남구 테헤란로 427 위워크타워 지하 1층")
-        .parkingLocationInfo("빌딩 지하 주차장 이용")
         .isLodgingAvailable(true)
         .hasFireInsurance(true)
         .depositAmount(50000)

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.List;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
+import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import lombok.Builder;
 
@@ -80,22 +81,21 @@ public record StudioDetailResponse(
       Integer floorNumber,
 
       @Schema(description = "주차 가능 여부", example = "true")
-      String isParkingAvailable,
+      Boolean isParkingAvailable,
 
       @Schema(description = "주차 요금 유형", example = "FREE")
-      String parkingFeeType,
+      ParkingFeeType parkingFeeType,
 
       @Schema(description = "주차 요금 정보", example = "매월 3만원")
       String parkingFeeInfo,
 
       @Schema(description = "주차 가능 대수", example = "6")
       Integer parkingSpots,
+      @Schema(description = "주차 위치 이름", example = "위워크타워 지하 주차장")
+      String parkingLocationName,
 
       @Schema(description = "주차 위치 주소", example = "서울특별시 강남구 테헤란로 427 위워크타워 지하 1층")
       String parkingLocationAddress,
-
-      @Schema(description = "주차 위치 추가 정보", example = "빌딩 지하 주차장 이용")
-      String parkingLocationInfo,
 
       @Schema(description = "숙식 가능 여부", example = "true")
       Boolean isLodgingAvailable,
