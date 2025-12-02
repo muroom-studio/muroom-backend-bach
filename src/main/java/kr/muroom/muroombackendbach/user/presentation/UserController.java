@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @GetMapping("/nickname/check")
-    public ApiResponse<UserDto.NicknameCheckResponse> checkNickname(@RequestParam String nickname) {
-        boolean available = userService.isNicknameAvailable(nickname);
-        return ApiResponse.success(new UserDto.NicknameCheckResponse(available));
-    }
+  @GetMapping("/nickname/check")
+  public ApiResponse<UserDto.NicknameCheckResponse> checkNickname(@RequestParam String nickname) {
+    boolean available = userService.isNicknameAvailable(nickname);
+    return ApiResponse.success(new UserDto.NicknameCheckResponse(available));
+  }
+
 }

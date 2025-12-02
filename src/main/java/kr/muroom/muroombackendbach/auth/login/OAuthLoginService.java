@@ -1,7 +1,7 @@
 package kr.muroom.muroombackendbach.auth.login;
 
-import static java.util.Optional.*;
-import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.NOT_EXIST_MUSICIAN;
+import static java.util.Optional.ofNullable;
+import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginRequest;
@@ -9,7 +9,6 @@ import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
-import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ public class OAuthLoginService {
         .map(socialAccount -> {
           Long userId = ofNullable(socialAccount.getMusician())
               .map(Musician::getId)
-              .orElseThrow(() -> new BusinessException(NOT_EXIST_MUSICIAN));
+              .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
           String accessToken = jwtTokenProvider.createToken(userId);
           return OAuthLoginResponse.login(accessToken, userId, provider);
         })

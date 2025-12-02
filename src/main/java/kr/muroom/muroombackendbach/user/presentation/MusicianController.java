@@ -1,18 +1,20 @@
 package kr.muroom.muroombackendbach.user.presentation;
 
-import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.*;
+import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpDto;
+import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.login.OAuthLoginService;
+import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginRequest;
+import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto;
-import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginRequest;
-import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,5 +42,12 @@ public class MusicianController {
   @PostMapping("/login")
   public ApiResponse<OAuthLoginResponse> oauthLogin(@RequestBody OAuthLoginRequest request) {
     return ApiResponse.success(oAuthLoginService.login(request));
+  }
+
+  //내 간략 정보(프로필 이미지, 닉네임) 조회
+  @GetMapping("/me")
+  public ApiResponse<MusicianDto.MusicianSimpleProfileResponse> getNickname(@AuthenticationPrincipal Long musicianId) {
+    MusicianDto.MusicianSimpleProfileResponse response = musicianService.getMusicianSimpleProfile(musicianId);
+    return ApiResponse.success(response);
   }
 }

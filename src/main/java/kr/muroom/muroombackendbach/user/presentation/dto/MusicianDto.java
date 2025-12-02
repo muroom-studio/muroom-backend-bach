@@ -1,9 +1,11 @@
 package kr.muroom.muroombackendbach.user.presentation.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import lombok.Builder;
 
 public final class MusicianDto {
 
@@ -50,6 +52,20 @@ public final class MusicianDto {
   public record MusicianSignUpResponse(
       String accessToken,
       Long musicianId) {
+
+  }
+
+  @Builder
+  public record MusicianSimpleProfileResponse(
+      @Schema(description = "뮤지션 ID", example = "1")
+      Long musicianId,
+
+      @Schema(description = "닉네임", example = "뮤루뮤루")
+      String nickname,
+
+      @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
+      String profileImageUrl
+  ) {
 
   }
 }

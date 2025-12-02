@@ -1,9 +1,12 @@
 package kr.muroom.muroombackendbach.user.application;
 
-import static kr.muroom.muroombackendbach.user.exception.InstrumentErrorCode.*;
-import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.*;
+import static kr.muroom.muroombackendbach.user.exception.InstrumentErrorCode.NOT_EXIST_INSTRUMENT;
+import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpDto;
+import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
+import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
@@ -21,10 +24,9 @@ import kr.muroom.muroombackendbach.user.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MyStudioRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
+import kr.muroom.muroombackendbach.user.exception.MusicianErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -126,6 +128,7 @@ public class MusicianService {
     Musician musician = Musician.builder()
         .name(request.name())
         .phoneNumber(request.phoneNumber())
+        .nickname(request.nickname())
         .status(UserStatus.ACTIVE)
         .instrument(instrument)
         .build();
@@ -167,5 +170,16 @@ public class MusicianService {
         .toList();
 
     musicianAgreementRepository.saveAll(agreements);
+  }
+
+  public MusicianSimpleProfileResponse getMusicianSimpleProfile(Long musicianId) {
+    Musician musician = musicianRepository.findById(musicianId)
+        .orElseThrow(() -> new BusinessException(MusicianErrorCode.MUSICIAN_NOT_FOUND));
+
+    return MusicianSimpleProfileResponse.builder()
+        .musicianId(musician.getId())
+        .nickname(musician.getNickname())
+        // .profileImageUrl()
+        .build();
   }
 }
