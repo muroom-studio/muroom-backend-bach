@@ -21,7 +21,8 @@ public final class StudioInfo {
   @Builder
   public record StudioSubwayStationInfo(
       String stationName,
-      List<StudioSubwayLineInfo> lines
+      List<StudioSubwayLineInfo> lines,
+      Integer walkingTimeMinutes
   ) {
 
   }

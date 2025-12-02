@@ -11,11 +11,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.OrderColumn;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
@@ -72,6 +74,11 @@ public class Studio extends SoftDeletableEntity {
   @Column(length = 1024)
   private String blueprintImageKey;
 
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OrderBy("category ASC, sequence ASC")
+  @Builder.Default
+  private List<StudioImage> studioImages = new ArrayList<>();
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", nullable = false)
   private Owner owner;
@@ -82,14 +89,13 @@ public class Studio extends SoftDeletableEntity {
   @OneToOne(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true)
   private StudioPrice studioPrice;
 
-  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true,
-      fetch = FetchType.LAZY)
-  @OrderColumn(name = "sequence")
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OrderBy("sequence ASC")
   @Builder.Default
-  private List<Room> rooms = new ArrayList<>();
+  private Set<Room> rooms = new LinkedHashSet<>();
 
-  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-      FetchType.LAZY)
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OrderBy("id ASC")
   @Builder.Default
-  private List<StudioForbiddenInstrument> forbiddenInstruments = new ArrayList<>();
+  private Set<StudioForbiddenInstrument> forbiddenInstruments = new LinkedHashSet<>();
 }

@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import lombok.AccessLevel;
@@ -46,6 +47,9 @@ public class Room extends SoftDeletableEntity {
 
   @Column(name = "is_available", nullable = false)
   private Boolean isAvailable;
+
+  @Column(name = "available_at")
+  private LocalDate availableAt;
 
   @Column
   private Integer basePrice;

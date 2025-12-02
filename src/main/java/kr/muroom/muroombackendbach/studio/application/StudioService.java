@@ -1,7 +1,5 @@
 package kr.muroom.muroombackendbach.studio.application;
 
-import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.STUDIO_NOT_FOUND;
-
 import java.util.Collections;
 import java.util.IntSummaryStatistics;
 import java.util.List;
@@ -11,11 +9,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapDirectionService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.room.domain.repository.RoomRepository;
+import kr.muroom.muroombackendbach.search.application.SearchHistoryService;
 import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
@@ -24,7 +22,6 @@ import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
@@ -44,7 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class StudioService {
 
   private final StudioRepository studioRepository;
@@ -53,8 +50,10 @@ public class StudioService {
   private final SubwayStationsNearbyStudioRepository subwayStationsNearbyStudioRepository;
   private final SubwayStationLineRepository subwayStationLineRepository;
   private final OptionRepository optionRepository;
+
   private final FileStorageService fileStorageService;
   private final MapDirectionService mapDirectionService;
+  private final SearchHistoryService searchHistoryService;
 
   public List<StudioMapResponse> searchStudiosInMapBounds(MapSearchRequest request) {
     MapSearchRequest resolvedRequest = resolveOptionCodes(request);
@@ -109,7 +108,11 @@ public class StudioService {
         .build();
   }
 
-  public Page<StudioListResponse> searchStudiosForMapList(MapSearchRequest request, Pageable pageable) {
+  public Page<StudioListResponse> searchStudiosForMapList(MapSearchRequest request, Long musicianId, Pageable pageable) {
+    if (request.keyword() != null && !request.keyword().isBlank()) {
+      searchHistoryService.addSearchKeyword(musicianId, request.keyword());
+    }
+
     MapSearchRequest resolvedRequest = resolveOptionCodes(request);
 
     Page<Studio> studioPage = studioRepository.findStudiosForMapList(resolvedRequest, pageable);
@@ -151,7 +154,7 @@ public class StudioService {
         .map(nearbySubwayStation -> nearbySubwayStation.getSubwayStation().getId())
         .toList();
     Map<Long, List<StudioSubwayLineInfo>> lineInfosByStudioId =
-        subwayStationLineRepository.findAllByStudioIdsWithLine(
+        subwayStationLineRepository.findAllByStudioIdsInWithLine(
                 stationIds).stream()
             .collect(Collectors.groupingBy(
                 subwayStationLine -> subwayStationLine.getStation().getId(),
@@ -280,10 +283,4 @@ public class StudioService {
         .build();
   }
 
-  public StudioDetailResponse getStudio(Long studioId) {
-    Studio studio = studioRepository.findById(studioId)
-        .orElseThrow(() -> new BusinessException(STUDIO_NOT_FOUND));
-
-    return null;
-  }
 }

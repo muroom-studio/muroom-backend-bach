@@ -66,8 +66,17 @@ public class StudioBuildingInfo {
   private String parkingLocationAddress;
 
   @Column
+  private Double parkingLocationLatitude;
+
+  @Column
+  private Double parkingLocationLongitude;
+
+  @Column
   private Boolean isLodgingAvailable;
 
   @Column
   private Boolean hasFireInsurance;
+
+  @Column
+  private Integer depositAmount;
 }

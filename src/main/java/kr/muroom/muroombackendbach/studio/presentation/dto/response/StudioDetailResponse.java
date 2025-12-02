@@ -3,9 +3,16 @@ package kr.muroom.muroombackendbach.studio.presentation.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import kr.muroom.muroombackendbach.room.domain.entity.Room;
+import kr.muroom.muroombackendbach.studio.domain.entity.Option;
+import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
+import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
+import kr.muroom.muroombackendbach.user.domain.entity.Owner;
+import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
 import lombok.Builder;
 
 @Builder
@@ -20,11 +27,14 @@ public record StudioDetailResponse(
     @Schema(description = "스튜디오 안내사항")
     StudioNoticeDto studioNotice,
 
+    @Schema(description = "스튜디오 금지 악기 정보")
+    StudioForbiddenInstrumentsDto studioForbiddenInstruments,
+
     @Schema(description = "스튜디오 방 정보")
     StudioRoomsDto studioRooms,
 
     @Schema(description = "스튜디오 옵션 정보")
-    OptionsDto studioOptions
+    StudioOptionsDto studioOptions
 ) {
 
   @Builder
@@ -52,24 +62,34 @@ public record StudioDetailResponse(
 
       @Schema(description = "인근 지하철역 정보", implementation = StudioSubwayStationInfo.class,
           example = """
-              {
-                "stationName": "강남역",
-                "lines": [
-                  {
-                    "lineName": "2호선",
-                    "lineColor": "#1DB446"
-                  },
-                  {
-                    "lineName": "신분당선",
-                    "lineColor": "#FF3300"
-                  }
-                ]
-              }
+              [
+                {
+                  "stationName": "강남역",
+                  "lines": [
+                    {
+                      "lineName": "2호선",
+                      "lineColor": "#1DB446"
+                    },
+                    {
+                      "lineName": "신분당선",
+                      "lineColor": "#FF3300"
+                    }
+                  ],
+                  "walkingTimeMinutes": 8
+                },
+                {
+                  "stationName": "역삼역",
+                  "lines": [
+                    {
+                      "lineName": "2호선",
+                      "lineColor": "#1DB446"
+                    }
+                  ],
+                  "walkingTimeMinutes": 12
+                }
+              ]
               """)
-      StudioSubwayStationInfo nearbySubwayStationInfo,
-
-      @Schema(description = "인근 지하철역까지 도보 소요 시간 (분)", example = "8")
-      Integer walkingTimeMinutesToSubwayStation,
+      List<StudioSubwayStationInfo> nearbySubwayStations,
 
       @Schema(description = "스튜디오 메인 이미지 URL 목록", example = "[\"https://example.com/studio_main1.jpg\", \"https://example"
           + ".com/studio_main2.jpg\"]")
@@ -124,6 +144,24 @@ public record StudioDetailResponse(
       List<String> studioBuildingImageUrls
   ) {
 
+    public static StudioBuildingInfoDto from(StudioBuildingInfo studioBuildingInfo, List<String> studioBuildingImageUrls) {
+      return StudioBuildingInfoDto.builder()
+          .floorType(studioBuildingInfo.getFloorType())
+          .floorNumber(studioBuildingInfo.getFloorNumber())
+          .isParkingAvailable(studioBuildingInfo.getIsParkingAvailable())
+          .parkingFeeType(studioBuildingInfo.getParkingFeeType())
+          .parkingFeeInfo(studioBuildingInfo.getParkingFeeInfo())
+          .parkingSpots(studioBuildingInfo.getParkingSpots())
+          .parkingLocationName(studioBuildingInfo.getParkingLocationName())
+          .parkingLocationAddress(studioBuildingInfo.getParkingLocationAddress())
+          .parkingLocationLongitude(studioBuildingInfo.getParkingLocationLongitude())
+          .parkingLocationLatitude(studioBuildingInfo.getParkingLocationLatitude())
+          .isLodgingAvailable(studioBuildingInfo.getIsLodgingAvailable())
+          .hasFireInsurance(studioBuildingInfo.getHasFireInsurance())
+          .depositAmount(studioBuildingInfo.getDepositAmount())
+          .studioBuildingImageUrls(studioBuildingImageUrls)
+          .build();
+    }
   }
 
   @Builder
@@ -141,13 +179,34 @@ public record StudioDetailResponse(
       String introduction
   ) {
 
+    public static StudioNoticeDto from(Owner owner, Studio studio) {
+      return StudioNoticeDto.builder()
+          .ownerNickname(owner.getNickname())
+          .experienceYears(owner.getExperienceYears())
+          .isIdentityVerified(owner.getStatus() != UserStatus.UNVERIFIED)
+          .introduction(studio.getIntroduction())
+          .build();
+    }
+  }
+
+  @Builder
+  public record StudioForbiddenInstrumentsDto(
+      @Schema(description = "금지 악기 목록", example = "[\"드럼\", \"금관\"]")
+      List<String> forbiddenInstruments
+  ) {
+
+    public static StudioForbiddenInstrumentsDto from(Studio studio) {
+      return StudioForbiddenInstrumentsDto.builder()
+          .forbiddenInstruments(studio.getForbiddenInstruments()
+              .stream()
+              .map(forbiddenInstrument -> forbiddenInstrument.getInstrument().getDescription())
+              .toList())
+          .build();
+    }
   }
 
   @Builder
   public record StudioRoomsDto(
-      @Schema(description = "금지 악기 목록", example = "[\"드럼\", \"금관\"]")
-      List<String> forbiddenInstruments,
-
       @Schema(description = "방 이미지 URL 목록", example = "[\"https://example.com/room1.jpg\", \"https://example.com/room2.jpg\"]")
       List<String> roomImageUrls,
 
@@ -177,6 +236,12 @@ public record StudioDetailResponse(
       List<RoomInfoDto> rooms
   ) {
 
+    public static StudioRoomsDto from(Set<Room> rooms, List<String> roomImageUrls) {
+      return StudioRoomsDto.builder()
+          .roomImageUrls(roomImageUrls)
+          .rooms(rooms.stream().map(RoomInfoDto::from).toList())
+          .build();
+    }
   }
 
   @Builder
@@ -203,10 +268,21 @@ public record StudioDetailResponse(
       Integer roomBasePrice
   ) {
 
+    public static RoomInfoDto from(Room room) {
+      return RoomInfoDto.builder()
+          .roomId(room.getId())
+          .roomName(room.getName())
+          .isAvailable(room.getIsAvailable())
+          .availableAt(room.getAvailableAt())
+          .roomBasePrice(room.getBasePrice())
+          .widthMm(room.getWidth())
+          .heightMm(room.getHeight())
+          .build();
+    }
   }
 
   @Builder
-  public record OptionsDto(
+  public record StudioOptionsDto(
       @Schema(description = "공통 옵션 목록", implementation = OptionDto.class,
           example = """
               [
@@ -244,6 +320,7 @@ public record StudioDetailResponse(
 
   }
 
+  @Builder
   public record OptionDto(
       @Schema(description = "옵션 코드", example = "WATER_PURIFIER")
       String code,
@@ -255,5 +332,12 @@ public record StudioDetailResponse(
       String iconImageUrl
   ) {
 
+    public static OptionDto from(Option option) {
+      return OptionDto.builder()
+          .code(option.getCode())
+          .description(option.getDescription())
+          .iconImageUrl(option.getIconImageUrl())
+          .build();
+    }
   }
 }

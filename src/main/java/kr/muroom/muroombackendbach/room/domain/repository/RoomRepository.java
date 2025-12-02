@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
   List<Room> findAllByStudioIdIn(List<Long> studioIds);
+
+  List<Room> findAllByStudioId(Long studioId);
 }
