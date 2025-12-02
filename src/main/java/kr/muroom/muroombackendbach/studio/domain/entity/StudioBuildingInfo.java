@@ -40,6 +40,9 @@ public class StudioBuildingInfo {
   @Column(length = 50)
   private FloorType floorType;
 
+  @Column
+  private Integer floorNumber;
+
   @Enumerated(EnumType.STRING)
   @Column(length = 50)
   private RestroomType restroomType;
@@ -50,14 +53,17 @@ public class StudioBuildingInfo {
   @Column(length = 50)
   private ParkingFeeType parkingFeeType;
 
+  @Column(length = 50)
+  private String parkingFeeInfo; // 매월 3만원
+
   @Column
   private Integer parkingSpots;
 
+  @Column(length = 50)
+  private String parkingLocationName;
+
   @Column
   private String parkingLocationAddress;
-
-  @Column(columnDefinition = "TEXT")
-  private String parkingLocationInfo;
 
   @Column
   private Boolean isLodgingAvailable;
