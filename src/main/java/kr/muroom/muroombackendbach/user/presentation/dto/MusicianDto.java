@@ -3,7 +3,6 @@ package kr.muroom.muroombackendbach.user.presentation.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.List;
 
 public final class MusicianDto {
@@ -20,7 +19,6 @@ public final class MusicianDto {
 
       String detailJuso,
 
-      @NotBlank(message = "도로명 주소를 입력해주세요.")
       String juso,
 
       String studioName,
