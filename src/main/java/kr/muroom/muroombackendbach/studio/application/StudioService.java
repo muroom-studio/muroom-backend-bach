@@ -34,6 +34,7 @@ import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudi
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationsNearbyStudioRepository;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -217,6 +218,10 @@ public class StudioService {
               ? presignedUrls.get(studio.getThumbnailImageKey())
               : null;
 
+          Point location = studio.getLocation();
+          Double longitude = location != null ? location.getX() : null;
+          Double latitude = location != null ? location.getY() : null;
+
           return StudioListResponse.builder()
               .studioId(studio.getId())
               .studioName(studio.getName())
@@ -225,6 +230,8 @@ public class StudioService {
               .thumbnailImageUrl(presignedThumbnailImageUrl)
               .nearbySubwayStationInfo(subwayStationInfo)
               .walkingTimeMinutes(walkingTime)
+              .longitude(longitude)
+              .latitude(latitude)
               .build();
         }).toList();
 
