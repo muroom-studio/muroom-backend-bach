@@ -34,7 +34,7 @@ public class TermController {
 
   @GetMapping("/owner")
   public ApiResponse<List<TermsWithContentDto>> getOwnerTerms(
-      @RequestParam(required = false) List<TermsType> types) {
+      @RequestParam List<TermsType> types) {
     return ApiResponse.success(termService.getTermsOwnerByType(types));
   }
 
