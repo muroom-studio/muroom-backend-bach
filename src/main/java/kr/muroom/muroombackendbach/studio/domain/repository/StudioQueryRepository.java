@@ -11,4 +11,5 @@ public interface StudioQueryRepository {
   List<Studio> findStudiosWithinBounds(MapSearchRequest request);
 
   Page<Studio> findStudiosForMapList(MapSearchRequest request, Pageable pageable);
+
 }

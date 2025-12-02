@@ -24,6 +24,7 @@ import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
@@ -107,8 +108,7 @@ public class StudioService {
         .build();
   }
 
-  public Page<StudioListResponse> searchStudiosForMapList(MapSearchRequest request,
-      Pageable pageable) {
+  public Page<StudioListResponse> searchStudiosForMapList(MapSearchRequest request, Pageable pageable) {
     MapSearchRequest resolvedRequest = resolveOptionCodes(request);
 
     Page<Studio> studioPage = studioRepository.findStudiosForMapList(resolvedRequest, pageable);
@@ -273,8 +273,10 @@ public class StudioService {
         .build();
   }
 
-  public Studio getStudio(Long studioId) {
-    return studioRepository.findById(studioId)
+  public StudioDetailResponse getStudio(Long studioId) {
+    Studio studio = studioRepository.findById(studioId)
         .orElseThrow(() -> new BusinessException(STUDIO_NOT_FOUND));
+
+    return null;
   }
 }
