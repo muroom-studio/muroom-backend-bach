@@ -2,17 +2,18 @@ package kr.muroom.muroombackendbach.user.presentation;
 
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpDto;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
+import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.login.OAuthLoginService;
 import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/v1/musician")
@@ -33,23 +35,46 @@ public class MusicianController {
   @Operation(summary = "뮤지션 회원가입", description = "뮤지션 회원 정보를 등록합니다.")
   @PostMapping("/register")
   public ApiResponse<MusicianSignUpResponse> registerMusician(
-      @Valid @RequestBody MusicianSignUpDto musicianSignUpRequest) {
-    MusicianSignUpResponse response =
-        musicianService.registerMusician(musicianSignUpRequest);
+      @Valid @RequestBody MusicianSignUpDto request,
+      HttpServletRequest httpRequest
+  ) {
+    String baseUrl = resolveBaseUrl(httpRequest);
+    MusicianSignUpResponse response = musicianService.registerMusician(request, baseUrl);
     return ApiResponse.created(response);
   }
 
   @Operation(summary = "뮤지션 로그인", description = "인가코드를 기반으로 로그인 시도")
   @PostMapping("/login")
-  public ApiResponse<OAuthLoginResponse> oauthLogin(@RequestBody OAuthLoginRequest request) {
-    return ApiResponse.success(oAuthLoginService.login(request));
+  public ApiResponse<OAuthLoginResponse> oauthLogin(
+      @Valid @RequestBody OAuthLoginRequest request,
+      HttpServletRequest httpRequest
+  ) {
+    String baseUrl = resolveBaseUrl(httpRequest);
+    OAuthLoginResponse response = oAuthLoginService.login(request, baseUrl);
+    return ApiResponse.success(response);
   }
 
-  @Operation(summary = "내 간략 정보(프로필 이미지, 닉네임) 조회", description = "내 간략 정보(프로필 이미지, 닉네임)를 조회합니다.")
+  @Operation(
+      summary = "내 간략 정보(프로필 이미지, 닉네임) 조회",
+      description = "내 간략 정보(프로필 이미지, 닉네임)를 조회합니다."
+  )
   @SecurityRequirement(name = "Bearer Authentication")
   @GetMapping("/me")
-  public ApiResponse<MusicianDto.MusicianSimpleProfileResponse> getNickname(@AuthenticationPrincipal Long musicianId) {
-    MusicianDto.MusicianSimpleProfileResponse response = musicianService.getMusicianSimpleProfile(musicianId);
+  public ApiResponse<MusicianSimpleProfileResponse> getMySimpleProfile(
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    MusicianSimpleProfileResponse response = musicianService.getMusicianSimpleProfile(musicianId);
     return ApiResponse.success(response);
+  }
+
+  /**
+   * 요청으로부터 base URL 추출 (scheme + host [+ port])
+   */
+  private String resolveBaseUrl(HttpServletRequest request) {
+    return ServletUriComponentsBuilder
+        .fromRequestUri(request)
+        .replacePath(null)
+        .build()
+        .toUriString();
   }
 }

@@ -42,7 +42,7 @@ public class MusicianService {
   private final MyStudioRepository myStudioRepository;
 
   @Transactional
-  public MusicianSignUpResponse registerMusician(MusicianSignUpDto request) {
+  public MusicianSignUpResponse registerMusician(MusicianSignUpDto request, String baseUrl) {
     // 0. token 검증
     SignupPayload signupPayload = jwtTokenProvider.parseSignupToken(request.signupToken());
 
