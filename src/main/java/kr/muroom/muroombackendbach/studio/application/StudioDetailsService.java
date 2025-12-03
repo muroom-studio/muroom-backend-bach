@@ -17,7 +17,6 @@ import kr.muroom.muroombackendbach.map.application.MapDirectionService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
-import kr.muroom.muroombackendbach.studio.domain.entity.StudioForbiddenInstrument;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioImage;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioOption;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
@@ -82,7 +81,6 @@ public class StudioDetailsService {
     StudioBuildingInfo studioBuildingInfo = studio.getStudioBuildingInfo();
     StudioPrice studioPrice = studio.getStudioPrice();
     Set<Room> rooms = studio.getRooms();
-    Set<StudioForbiddenInstrument> forbiddenInstruments = studio.getForbiddenInstruments();
 
     PriceRange priceRange = calculateStudioPriceRange(studioPrice, rooms);
     List<StudioSubwayStationInfo> nearbySubwayStations = getNearbySubwayStations(studio);
@@ -91,8 +89,11 @@ public class StudioDetailsService {
         .studioId(studio.getId())
         .studioName(studio.getName())
         .address(studio.getAddress())
+        .studioLongitude(studio.getLocation() != null ? studio.getLocation().getX() : null)
+        .studioLatitude(studio.getLocation() != null ? studio.getLocation().getY() : null)
         .studioMinPrice(priceRange.minPrice())
         .studioMaxPrice(priceRange.maxPrice())
+        .depositAmount(studio.getDepositAmount())
         .nearbySubwayStations(nearbySubwayStations)
         .studioMainImageUrls(getPresignedUrlsForType(studioImages, StudioImageCategory.MAIN))
         .build();

@@ -33,6 +33,7 @@ public class MapGeocodingService {
     // 1단계: 도로명주소 검색 API 호출로 주소 식별 코드 획득
     JusoSearchResponse searchResponse = jusoApiClient.searchAddress(jusoSearchKey, address, "json", 1, 1);
 
+    // TODO: 중복 코드
     if (searchResponse == null || !"0".equals(searchResponse.results().common().errorCode()) || searchResponse.results().juso() == null
         || searchResponse.results().juso().isEmpty()) {
       throw new ExternalApiException("도로명주소 검색 API 호출에 실패했습니다: " + address, "JUSO.GO.KR/SEARCH");
@@ -57,7 +58,7 @@ public class MapGeocodingService {
     }
 
     // 3단계: GRS80 좌표를 WGS84(위도/경도)로 변환
-    JusoCoordResponse.Juso coordResult = coordResponse.results().juso().get(0);
+    JusoCoordResponse.Juso coordResult = coordResponse.results().juso().getFirst();
     CoordinateTransformService.Coordinate coordinate = coordinateTransformService.transformGRS80toWGS84(
         Double.parseDouble(coordResult.entX()),
         Double.parseDouble(coordResult.entY())

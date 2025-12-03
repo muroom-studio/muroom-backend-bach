@@ -72,6 +72,9 @@ public class Studio extends SoftDeletableEntity {
   @Column(columnDefinition = "TEXT")
   private String introduction;
 
+  @Column
+  private Integer depositAmount;
+
   @Column(length = 1024)
   private String thumbnailImageKey;
 
@@ -111,7 +114,7 @@ public class Studio extends SoftDeletableEntity {
   @OrderBy("sequence ASC")
   @Builder.Default
   private List<SubwayStationNearbyStudio> nearbyStations = new ArrayList<>();
-  
+
   public void specifyBuildingInfo(StudioBuildingInfo buildingInfo) {
     this.studioBuildingInfo = buildingInfo;
     if (buildingInfo != null) {
@@ -127,9 +130,6 @@ public class Studio extends SoftDeletableEntity {
   }
 
   public void updateRooms(Set<Room> rooms) {
-    if (this.rooms == null) {
-      this.rooms = new LinkedHashSet<>();
-    }
     this.rooms.clear();
     if (rooms != null) {
       this.rooms.addAll(rooms);
@@ -138,9 +138,6 @@ public class Studio extends SoftDeletableEntity {
   }
 
   public void applyOptions(Set<StudioOption> options) {
-    if (this.options == null) {
-      this.options = new LinkedHashSet<>();
-    }
     this.options.clear();
     if (options != null) {
       this.options.addAll(options);
@@ -149,9 +146,6 @@ public class Studio extends SoftDeletableEntity {
   }
 
   public void updateForbiddenInstruments(Set<StudioForbiddenInstrument> instruments) {
-    if (this.forbiddenInstruments == null) {
-      this.forbiddenInstruments = new LinkedHashSet<>();
-    }
     this.forbiddenInstruments.clear();
     if (instruments != null) {
       this.forbiddenInstruments.addAll(instruments);
@@ -160,9 +154,6 @@ public class Studio extends SoftDeletableEntity {
   }
 
   public void updateImages(List<StudioImage> images) {
-    if (this.studioImages == null) {
-      this.studioImages = new ArrayList<>();
-    }
     this.studioImages.clear();
     if (images != null) {
       this.studioImages.addAll(images);
@@ -171,10 +162,6 @@ public class Studio extends SoftDeletableEntity {
   }
 
   public void updateNearbyStations(List<SubwayStationNearbyStudio> stations) {
-    // Studio 엔티티에 nearbyStations 필드를 추가해야 함 (아래 참고)
-    if (this.nearbyStations == null) {
-      this.nearbyStations = new ArrayList<>();
-    }
     this.nearbyStations.clear();
     if (stations != null) {
       this.nearbyStations.addAll(stations);

@@ -86,19 +86,14 @@ public class AdminStudioService {
         : request.addressInfo().jibunAddress();
     Point location = mapGeocodingService.getPointFromAddress(effectiveAddress);
 
-    String addressToStore = null;
-    if (isRoadAddress) {
-      addressToStore = request.addressInfo().roadAddress();
-    } else if (request.addressInfo().jibunAddress() != null && !request.addressInfo().jibunAddress().isBlank()) {
-      addressToStore = request.addressInfo().jibunAddress();
-    }
     Studio studio = Studio.builder()
         .owner(owner)
         .name(request.studioName())
-        .address(addressToStore)
+        .address(effectiveAddress)
         .detailedAddress(request.addressInfo().detailedAddress())
         .location(location)
         .introduction(request.introduction())
+        .depositAmount(request.depositAmount())
         .thumbnailImageKey(request.imageKeys().mainImageKeys().getFirst())
         .blueprintImageKey(request.imageKeys().blueprintImageKey())
         .build();

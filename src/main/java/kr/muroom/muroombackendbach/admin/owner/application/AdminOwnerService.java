@@ -1,13 +1,12 @@
 package kr.muroom.muroombackendbach.admin.owner.application;
 
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import kr.muroom.muroombackendbach.admin.owner.presentation.request.OwnerCreateRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.user.application.UserService;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
-import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
 import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminOwnerService {
 
   private final OwnerRepository ownerRepository;
-  private final MusicianRepository musicianRepository;
   private final UserService userService;
 
   private static final List<String> ADJECTIVES = List.of(
@@ -32,8 +30,6 @@ public class AdminOwnerService {
       "야무진", "여유로운", "우아한", "자유로운", "작은", "조용한",
       "책읽는", "총명한", "춤추는", "포근한", "새로운", "다정한"
   );
-
-  private static final Random RANDOM = new Random();
 
   private static final String NICKNAME_POSTFIX = "뮤즈";
 
@@ -61,8 +57,8 @@ public class AdminOwnerService {
     String nickname;
 
     do {
-      String adjective = ADJECTIVES.get(RANDOM.nextInt(ADJECTIVES.size()));
-      int random4DigitNumber = 1000 + RANDOM.nextInt(9000);
+      String adjective = ADJECTIVES.get(ThreadLocalRandom.current().nextInt(ADJECTIVES.size()));
+      int random4DigitNumber = 100000 + ThreadLocalRandom.current().nextInt(900000);
       nickname = adjective + " " + NICKNAME_POSTFIX + " " + random4DigitNumber;
     } while (!userService.isNicknameAvailable(nickname));
 

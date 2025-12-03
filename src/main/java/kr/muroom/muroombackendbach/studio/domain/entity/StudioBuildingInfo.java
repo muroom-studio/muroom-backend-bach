@@ -71,9 +71,6 @@ public class StudioBuildingInfo {
   @Column
   private Boolean hasFireInsurance;
 
-  @Column
-  private Integer depositAmount;
-
   public void assignStudio(Studio studio) {
     this.studio = studio;
   }

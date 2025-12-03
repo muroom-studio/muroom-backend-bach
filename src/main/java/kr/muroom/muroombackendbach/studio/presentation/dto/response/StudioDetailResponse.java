@@ -60,6 +60,9 @@ public record StudioDetailResponse(
       @Schema(description = "스튜디오 최고 가격", example = "430000")
       Integer studioMaxPrice,
 
+      @Schema(description = "보증금 금액", example = "50000")
+      Integer depositAmount,
+
       @Schema(description = "인근 지하철역 정보", implementation = StudioSubwayStationInfo.class,
           example = """
               [
@@ -124,20 +127,11 @@ public record StudioDetailResponse(
       @Schema(description = "주차 위치 주소", example = "서울특별시 강남구 테헤란로 427 위워크타워 지하 1층")
       String parkingLocationAddress,
 
-      @Schema(description = "주차 위치 경도", example = "127.027610")
-      Double parkingLocationLongitude,
-
-      @Schema(description = "주차 위치 위도", example = "37.499122")
-      Double parkingLocationLatitude,
-
       @Schema(description = "숙식 가능 여부", example = "true")
       Boolean isLodgingAvailable,
 
       @Schema(description = "화재 보험 가입 여부", example = "true")
       Boolean hasFireInsurance,
-
-      @Schema(description = "보증금 금액", example = "50000")
-      Integer depositAmount,
 
       @Schema(description = "스튜디오 건물 이미지 URL 목록",
           example = "[\"https://example.com/building1.jpg\", \"https://example.com/building2.jpg\"]")
@@ -156,7 +150,6 @@ public record StudioDetailResponse(
           .parkingLocationAddress(studioBuildingInfo.getParkingLocationAddress())
           .isLodgingAvailable(studioBuildingInfo.getIsLodgingAvailable())
           .hasFireInsurance(studioBuildingInfo.getHasFireInsurance())
-          .depositAmount(studioBuildingInfo.getDepositAmount())
           .studioBuildingImageUrls(studioBuildingImageUrls)
           .build();
     }
@@ -194,12 +187,12 @@ public record StudioDetailResponse(
   @Builder
   public record StudioForbiddenInstrumentsDto(
       @Schema(description = "금지 악기 목록", example = "[\"드럼\", \"금관\"]")
-      List<String> forbiddenInstruments
+      List<String> instruments
   ) {
 
     public static StudioForbiddenInstrumentsDto from(Studio studio) {
       return StudioForbiddenInstrumentsDto.builder()
-          .forbiddenInstruments(studio.getForbiddenInstruments()
+          .instruments(studio.getForbiddenInstruments()
               .stream()
               .map(forbiddenInstrument -> forbiddenInstrument.getInstrument().getDescription())
               .toList())
