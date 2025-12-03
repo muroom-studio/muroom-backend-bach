@@ -9,10 +9,6 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
-import kr.muroom.muroombackendbach.auth.oauth.KakaoIdTokenDecoder;
-import kr.muroom.muroombackendbach.auth.oauth.KakaoIdTokenPayload;
-import kr.muroom.muroombackendbach.auth.oauth.KakaoOAuthClient;
-import kr.muroom.muroombackendbach.auth.oauth.KakaoTokenResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
@@ -44,8 +40,6 @@ public class MusicianService {
   private final JwtTokenProvider jwtTokenProvider;
   private final InstrumentRepository instrumentRepository;
   private final MyStudioRepository myStudioRepository;
-  private final KakaoOAuthClient kakaoOAuthClient;
-  private final KakaoIdTokenDecoder kakaoIdTokenDecoder;
 
   @Transactional
   public MusicianSignUpResponse registerMusician(MusicianSignUpDto request, String baseUrl) {
@@ -55,21 +49,11 @@ public class MusicianService {
     OAuthProvider provider = OAuthProvider.fromRegistrationId(signupPayload.provider());
     String providerUserId = signupPayload.providerId();
 
-    KakaoTokenResponse tokenResponse = kakaoOAuthClient.exchangeCodeForToken(providerUserId,
-        baseUrl + "/redirect/oauth/kakao");
-
-    String idToken = tokenResponse.getIdToken();
-    if (idToken == null) {
-      throw new IllegalStateException("카카오 ID Token 이 존재하지 않습니다.");
-    }
-
     // 1. 이름/전화번호로 기존 뮤지션 조회, 없으면 신규 생성
     Musician musician = findOrRegisterMusician(request);
-    KakaoIdTokenPayload payload = kakaoIdTokenDecoder.decode(idToken);
-    String kakaoUserId = payload.getSub();
 
     // 2. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
-    linkSocialAccountIfNecessary(musician, provider, kakaoUserId);
+    linkSocialAccountIfNecessary(musician, provider, providerUserId);
 
     // 3. 나의 작업실 생성
     createMyStudio(request, musician);
