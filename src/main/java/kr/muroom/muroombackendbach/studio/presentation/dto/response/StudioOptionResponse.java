@@ -20,6 +20,9 @@ public final class StudioOptionResponse {
       @Schema(description = "건물 유형 - 화장실 옵션")
       List<GetSingle> restroomOptions,
 
+      @Schema(description = "건물 유형 - 주차 요금 옵션")
+      List<GetSingle> parkingFeeOptions,
+
       @Schema(description = "스튜디오 공용 옵션")
       List<GetSingle> studioCommonOptions,
 
@@ -35,10 +38,14 @@ public final class StudioOptionResponse {
   @Builder
   @Schema(description = "옵션 DTO")
   public record GetSingle(
+      @Schema(description = "옵션 ID", example = "29")
+      Long id,
       @Schema(description = "옵션 코드", example = "GROUND")
       String code,
       @Schema(description = "옵션 이름 및 표시값", example = "지상")
-      String description
+      String description,
+      @Schema(description = "아이콘 이미지 URL", example = "https://muroom-xyz/....png")
+      String iconImageUrl
   ) {
 
     public static GetSingle from(EnumMapperType item) {
@@ -50,13 +57,16 @@ public final class StudioOptionResponse {
 
     public static GetSingle from(Option option) {
       return GetSingle.builder()
+          .id(option.getId())
           .code(option.getCode())
           .description(option.getDescription())
+          .iconImageUrl(option.getIconImageUrl())
           .build();
     }
 
     public static GetSingle from(Instrument instrument) {
       return GetSingle.builder()
+          .id(instrument.getId())
           .code(instrument.getCode())
           .description(instrument.getDescription())
           .build();
