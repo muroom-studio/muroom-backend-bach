@@ -13,7 +13,7 @@ public class KakaoIdTokenDecoder {
     KakaoIdTokenPayload payload = new KakaoIdTokenPayload();
     payload.setAud(jwt.getClaim("aud").asString());
     payload.setSub(jwt.getSubject());
-    payload.setAuth_time(jwt.getClaim("auth_time").asLong());
+    payload.setAuthTime(jwt.getClaim("auth_time").asLong());
     payload.setIss(jwt.getIssuer());
     payload.setExp(jwt.getExpiresAt().getTime());
     payload.setIat(jwt.getIssuedAt().getTime());
