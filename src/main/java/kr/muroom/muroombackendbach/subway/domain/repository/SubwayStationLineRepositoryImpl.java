@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.subway.domain.repository;
 
+import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayLine.subwayLine;
 import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStationLine.subwayStationLine;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,12 +15,21 @@ public class SubwayStationLineRepositoryImpl implements SubwayStationLineQueryRe
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public List<SubwayStationLine> findAllByStudioIdsWithLine(Collection<Long> studioIds) {
+  public List<SubwayStationLine> findAllByStudioIdsInWithLine(Collection<Long> studioIds) {
     return queryFactory
         .select(subwayStationLine)
         .from(subwayStationLine)
         .join(subwayStationLine.line).fetchJoin()
         .where(subwayStationLine.station.id.in(studioIds))
+        .fetch();
+  }
+
+  @Override
+  public List<SubwayStationLine> findAllByStationIdInWithLine(List<Long> stationIds) {
+    return queryFactory
+        .selectFrom(subwayStationLine)
+        .join(subwayStationLine.line, subwayLine).fetchJoin()
+        .where(subwayStationLine.station.id.in(stationIds))
         .fetch();
   }
 }

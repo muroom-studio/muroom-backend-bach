@@ -70,4 +70,8 @@ public class StudioBuildingInfo {
 
   @Column
   private Boolean hasFireInsurance;
+
+  public void assignStudio(Studio studio) {
+    this.studio = studio;
+  }
 }

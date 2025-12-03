@@ -6,5 +6,7 @@ import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationLine;
 
 public interface SubwayStationLineQueryRepository {
 
-  List<SubwayStationLine> findAllByStudioIdsWithLine(Collection<Long> studioIds);
+  List<SubwayStationLine> findAllByStudioIdsInWithLine(Collection<Long> studioIds);
+
+  List<SubwayStationLine> findAllByStationIdInWithLine(List<Long> stationIds);
 }

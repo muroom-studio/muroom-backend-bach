@@ -11,13 +11,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.OrderColumn;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
+import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -51,6 +54,9 @@ public class Studio extends SoftDeletableEntity {
   @Column
   private String address;
 
+  @Column
+  private String detailedAddress;
+
   /**
    * PostGIS의 GEOGRAPHY(POINT, 4326) 매핑 - Hibernate Spatial를 이용해 Point 객체로 바로 매핑됩니다.
    *
@@ -66,11 +72,19 @@ public class Studio extends SoftDeletableEntity {
   @Column(columnDefinition = "TEXT")
   private String introduction;
 
+  @Column
+  private Integer depositAmount;
+
   @Column(length = 1024)
   private String thumbnailImageKey;
 
   @Column(length = 1024)
   private String blueprintImageKey;
+
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OrderBy("category ASC, sequence ASC")
+  @Builder.Default
+  private List<StudioImage> studioImages = new ArrayList<>();
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", nullable = false)
@@ -82,14 +96,76 @@ public class Studio extends SoftDeletableEntity {
   @OneToOne(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true)
   private StudioPrice studioPrice;
 
-  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true,
-      fetch = FetchType.LAZY)
-  @OrderColumn(name = "sequence")
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   @Builder.Default
-  private List<Room> rooms = new ArrayList<>();
+  private Set<StudioOption> options = new LinkedHashSet<>();
 
-  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-      FetchType.LAZY)
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OrderBy("sequence ASC")
   @Builder.Default
-  private List<StudioForbiddenInstrument> forbiddenInstruments = new ArrayList<>();
+  private Set<Room> rooms = new LinkedHashSet<>();
+
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OrderBy("id ASC")
+  @Builder.Default
+  private Set<StudioForbiddenInstrument> forbiddenInstruments = new LinkedHashSet<>();
+
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OrderBy("sequence ASC")
+  @Builder.Default
+  private List<SubwayStationNearbyStudio> nearbyStations = new ArrayList<>();
+
+  public void specifyBuildingInfo(StudioBuildingInfo buildingInfo) {
+    this.studioBuildingInfo = buildingInfo;
+    if (buildingInfo != null) {
+      buildingInfo.assignStudio(this);
+    }
+  }
+
+  public void specifyPrice(StudioPrice price) {
+    this.studioPrice = price;
+    if (price != null) {
+      price.assignStudio(this);
+    }
+  }
+
+  public void updateRooms(Set<Room> rooms) {
+    this.rooms.clear();
+    if (rooms != null) {
+      this.rooms.addAll(rooms);
+      rooms.forEach(room -> room.assignStudio(this));
+    }
+  }
+
+  public void applyOptions(Set<StudioOption> options) {
+    this.options.clear();
+    if (options != null) {
+      this.options.addAll(options);
+      options.forEach(option -> option.assignStudio(this));
+    }
+  }
+
+  public void updateForbiddenInstruments(Set<StudioForbiddenInstrument> instruments) {
+    this.forbiddenInstruments.clear();
+    if (instruments != null) {
+      this.forbiddenInstruments.addAll(instruments);
+      instruments.forEach(instrument -> instrument.assignStudio(this));
+    }
+  }
+
+  public void updateImages(List<StudioImage> images) {
+    this.studioImages.clear();
+    if (images != null) {
+      this.studioImages.addAll(images);
+      images.forEach(image -> image.assignStudio(this));
+    }
+  }
+
+  public void updateNearbyStations(List<SubwayStationNearbyStudio> stations) {
+    this.nearbyStations.clear();
+    if (stations != null) {
+      this.nearbyStations.addAll(stations);
+      stations.forEach(station -> station.assignStudio(this));
+    }
+  }
 }

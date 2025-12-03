@@ -38,4 +38,8 @@ public class StudioOption {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "option_id", nullable = false)
   private Option option;
+
+  public void assignStudio(Studio studio) {
+    this.studio = studio;
+  }
 }

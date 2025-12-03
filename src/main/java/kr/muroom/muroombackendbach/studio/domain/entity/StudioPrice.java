@@ -36,4 +36,8 @@ public class StudioPrice {
 
   @Column
   private Integer maxPrice;
+
+  public void assignStudio(Studio studio) {
+    this.studio = studio;
+  }
 }

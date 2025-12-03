@@ -8,6 +8,7 @@ import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioOption.stu
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioPrice.studioPrice;
 import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStation.subwayStation;
 import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStationNearbyStudio.subwayStationNearbyStudio;
+import static kr.muroom.muroombackendbach.user.domain.entity.QInstrument.instrument;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -22,6 +23,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.studio.domain.entity.QStudio;
@@ -113,6 +115,21 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     long total = totalResult != null ? totalResult : 0L;
 
     return new PageImpl<>(sortedContent, pageable, total);
+  }
+
+  @Override
+  public Optional<Studio> findStudioDetailsById(Long studioId) {
+    Studio result = queryFactory.selectFrom(studio).distinct()
+        .leftJoin(studio.owner).fetchJoin()
+        .leftJoin(studio.studioBuildingInfo).fetchJoin()
+        .leftJoin(studio.studioPrice).fetchJoin()
+        .leftJoin(studio.rooms).fetchJoin()
+        .leftJoin(studio.forbiddenInstruments, studioForbiddenInstrument).fetchJoin()
+        .leftJoin(studioForbiddenInstrument.instrument, instrument).fetchJoin()
+        .where(studio.id.eq(studioId))
+        .fetchOne();
+
+    return Optional.ofNullable(result);
   }
 
   private BooleanBuilder studioFilteringWhereClause(MapSearchRequest request) {

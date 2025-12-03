@@ -47,4 +47,8 @@ public class StudioImage {
 
   @Column
   private Integer sequence;
+
+  public void assignStudio(Studio studio) {
+    this.studio = studio;
+  }
 }

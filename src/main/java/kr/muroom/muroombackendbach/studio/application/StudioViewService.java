@@ -13,6 +13,7 @@ import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +28,9 @@ public class StudioViewService {
   private final MusicianRepository musicianRepository;
 
   // TODO: 캐시 반영 고려
+  @Async
   @Transactional
-  public void incrementViewCount(Long musicianId, Long studioId) {
+  public void incrementViewCount(Long studioId, Long musicianId) {
     Studio studio = studioRepository.findById(studioId)
         .orElseThrow(() -> new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND));
 

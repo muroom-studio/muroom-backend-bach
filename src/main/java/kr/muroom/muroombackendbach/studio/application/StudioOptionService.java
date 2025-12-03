@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
+import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
 import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioOptionResponse;
@@ -34,6 +35,10 @@ public class StudioOptionService {
         .map(GetSingle::from)
         .toList();
 
+    List<GetSingle> parkingFeeOptions = Arrays.stream(ParkingFeeType.values())
+        .map(GetSingle::from)
+        .toList();
+
     Map<OptionCategory, List<Option>> optionsByCategory = optionRepository.findAll()
         .stream()
         .collect(Collectors.groupingBy(Option::getCategory));
@@ -56,6 +61,7 @@ public class StudioOptionService {
     return StudioOptionResponse.GetAll.builder()
         .floorOptions(floorOptions)
         .restroomOptions(restroomOptions)
+        .parkingFeeOptions(parkingFeeOptions)
         .studioCommonOptions(studioCommonOptions)
         .studioIndividualOptions(studioIndividualOptions)
         .unavailableInstrumentOptions(unavailableInstrumentOptions)

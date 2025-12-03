@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.studio.domain.repository;
 
 import java.util.List;
+import java.util.Optional;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import org.springframework.data.domain.Page;
@@ -12,4 +13,5 @@ public interface StudioQueryRepository {
 
   Page<Studio> findStudiosForMapList(MapSearchRequest request, Pageable pageable);
 
+  Optional<Studio> findStudioDetailsById(Long studioId);
 }

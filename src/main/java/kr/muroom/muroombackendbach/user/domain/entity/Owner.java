@@ -1,6 +1,17 @@
 package kr.muroom.muroombackendbach.user.domain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -8,9 +19,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
 
 @Entity
 @Getter
@@ -48,6 +56,9 @@ public class Owner extends AuditableEntity {
   @Enumerated(EnumType.STRING)
   @Column(length = 50)
   private UserStatus status;
+
+  @Column
+  private Integer experienceYears;
 
   private OffsetDateTime deletedAt;
 

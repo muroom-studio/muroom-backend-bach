@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum FileUploadType {
   BETA_PROPERTY("beta-property"),
+  STUDIO("studio"),
   ;
 
   private final String domain;

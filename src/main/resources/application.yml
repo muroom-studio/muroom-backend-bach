@@ -3,11 +3,16 @@ spring:
     name: muroom-backend-bach
 
 cors:
-  allowed-origins: "http://localhost:3001, https://muroom.kr, https://www.muroom.kr"
+  allowed-origins: "http://localhost:3000, http://localhost:3001, https://muroom.kr, https://www.muroom.kr"
 
 seoul:
   api:
     key: ${SEOUL_API_KEY}
+
+juso:
+  api:
+    search-key: ${JUSO_SEARCH_API_KEY}
+    coord-key: ${JUSO_COORD_API_KEY}
 
 kakao:
   api:
