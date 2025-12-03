@@ -6,6 +6,10 @@ import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSIC
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginResponse;
+import kr.muroom.muroombackendbach.auth.oauth.KakaoIdTokenDecoder;
+import kr.muroom.muroombackendbach.auth.oauth.KakaoIdTokenPayload;
+import kr.muroom.muroombackendbach.auth.oauth.KakaoOAuthClient;
+import kr.muroom.muroombackendbach.auth.oauth.KakaoTokenResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
@@ -20,13 +24,25 @@ public class OAuthLoginService {
 
   private final SocialAccountRepository socialAccountRepository;
   private final JwtTokenProvider jwtTokenProvider;
+  private final KakaoOAuthClient kakaoOAuthClient;
+  private final KakaoIdTokenDecoder kakaoIdTokenDecoder;
 
   @Transactional(readOnly = true)
-  public OAuthLoginResponse login(OAuthLoginRequest request) {
+  public OAuthLoginResponse login(OAuthLoginRequest request, String baseUrl) {
     OAuthProvider provider = OAuthProvider.fromRegistrationId(request.provider());
 
+    KakaoTokenResponse tokenResponse =
+        kakaoOAuthClient.exchangeCodeForToken(request.providerId(),
+            baseUrl + "/redirect/oauth/kakao");
+
+    String idToken = tokenResponse.getIdToken();
+    if (idToken == null) {
+      throw new IllegalStateException("카카오 ID Token 이 존재하지 않습니다.");
+    }
+    KakaoIdTokenPayload payload = kakaoIdTokenDecoder.decode(idToken);
+
     return socialAccountRepository
-        .findByProviderAndProviderUserId(provider, request.providerId())
+        .findByProviderAndProviderUserId(provider, payload.getSub())
 
         // 로그인
         .map(socialAccount -> {

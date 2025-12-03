@@ -47,6 +47,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+    implementation 'com.auth0:java-jwt:4.4.0'
 
     // SQL Logging
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
