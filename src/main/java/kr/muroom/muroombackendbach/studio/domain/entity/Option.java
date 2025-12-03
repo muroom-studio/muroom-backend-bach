@@ -41,6 +41,6 @@ public class Option extends AuditableEntity {
   @Column(nullable = false, length = 50)
   private String description;
 
-  @Column(name = "icon_image_url", nullable = false)
-  private String iconImageUrl;
+  @Column(name = "icon_image_key", nullable = false)
+  private String iconImageKey;
 }
