@@ -30,6 +30,7 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetail
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioBaseInfoDto;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioBuildingInfoDto;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioForbiddenInstrumentsDto;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioImagesDto;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioNoticeDto;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioOptionsDto;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioRoomsDto;
@@ -95,18 +96,15 @@ public class StudioDetailsService {
         .studioMaxPrice(priceRange.maxPrice())
         .depositAmount(studio.getDepositAmount())
         .nearbySubwayStations(nearbySubwayStations)
-        .studioMainImageUrls(getPresignedUrlsForType(studioImages, StudioImageCategory.MAIN))
         .build();
 
-    List<String> studioBuildingImageUrls = getPresignedUrlsForType(studioImages, StudioImageCategory.BUILDING);
-    StudioBuildingInfoDto studioBuildingInfoDto = StudioBuildingInfoDto.from(studioBuildingInfo, studioBuildingImageUrls);
+    StudioBuildingInfoDto studioBuildingInfoDto = StudioBuildingInfoDto.from(studioBuildingInfo);
 
     StudioNoticeDto studioNoticeDto = StudioNoticeDto.from(owner, studio);
 
     StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto = StudioForbiddenInstrumentsDto.from(studio);
 
-    List<String> roomImageUrls = getPresignedUrlsForType(studioImages, StudioImageCategory.ROOM);
-    StudioRoomsDto studioRoomsDto = StudioRoomsDto.from(rooms, roomImageUrls);
+    StudioRoomsDto studioRoomsDto = StudioRoomsDto.from(rooms);
 
     StudioOptionsDto studioOptionsDto = StudioOptionsDto.builder()
         .commonOptions(studioOptions.stream()
@@ -119,6 +117,21 @@ public class StudioDetailsService {
             .toList())
         .build();
 
+    List<String> studioMainImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.MAIN);
+    List<String> studioBuildingImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.BUILDING);
+    List<String> studioRoomImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.ROOM);
+    String studioBlueprintImageKey = getPresignedUrlsForType(studioImages, StudioImageCategory.BLUEPRINT).getFirst();
+    List<String> studioCommonOptionImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.COMMON_OPTION);
+    List<String> studioIndividualOptionImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.INDIVIDUAL_OPTION);
+    StudioImagesDto studioImagesDto = StudioImagesDto.builder()
+        .mainImageKeys(studioMainImageKeys)
+        .buildingImageKeys(studioBuildingImageKeys)
+        .roomImageKeys(studioRoomImageKeys)
+        .blueprintImageKey(studioBlueprintImageKey)
+        .commonOptionImageKeys(studioCommonOptionImageKeys)
+        .individualOptionImageKeys(studioIndividualOptionImageKeys)
+        .build();
+
     return StudioDetailResponse.builder()
         .studioBaseInfo(studioBaseInfoDto)
         .studioBuildingInfo(studioBuildingInfoDto)
@@ -126,6 +139,7 @@ public class StudioDetailsService {
         .studioForbiddenInstruments(studioForbiddenInstrumentsDto)
         .studioRooms(studioRoomsDto)
         .studioOptions(studioOptionsDto)
+        .studioImages(studioImagesDto)
         .build();
   }
 

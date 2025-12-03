@@ -212,6 +212,26 @@ public class AdminStudioService {
         .sequence(1)
         .build());
 
+    sequence.set(1);
+    if (request.commonOptionImageKeys() != null) {
+      request.commonOptionImageKeys()
+          .forEach(key -> images.add(StudioImage.builder()
+              .category(StudioImageCategory.COMMON_OPTION)
+              .imageKey(key)
+              .sequence(sequence.getAndIncrement())
+              .build()));
+    }
+
+    sequence.set(1);
+    if (request.individualOptionImageKeys() != null) {
+      request.individualOptionImageKeys()
+          .forEach(key -> images.add(StudioImage.builder()
+              .category(StudioImageCategory.INDIVIDUAL_OPTION)
+              .imageKey(key)
+              .sequence(sequence.getAndIncrement())
+              .build()));
+    }
+
     return images;
   }
 

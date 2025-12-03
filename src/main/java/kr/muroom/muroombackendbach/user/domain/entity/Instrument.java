@@ -23,8 +23,8 @@ import lombok.NoArgsConstructor;
 public class Instrument extends AuditableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "instrument_id_seq_generator")
-  @SequenceGenerator(name = "instrument_id_seq_generator", sequenceName = "instrument_id_seq",
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "instrument_id_seq_gen")
+  @SequenceGenerator(name = "instrument_id_seq_gen", sequenceName = "instrument_id_seq",
       allocationSize = 1)
   @Column(name = "instrument_id")
   private Long id;

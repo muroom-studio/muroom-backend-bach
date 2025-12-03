@@ -34,7 +34,10 @@ public record StudioDetailResponse(
     StudioRoomsDto studioRooms,
 
     @Schema(description = "스튜디오 옵션 정보")
-    StudioOptionsDto studioOptions
+    StudioOptionsDto studioOptions,
+
+    @Schema(description = "스튜디오 이미지 정보 [메인, 건물, 방, 도면, 공용 옵션, 개인 옵션]")
+    StudioImagesDto studioImages
 ) {
 
   @Builder
@@ -92,11 +95,7 @@ public record StudioDetailResponse(
                 }
               ]
               """)
-      List<StudioSubwayStationInfo> nearbySubwayStations,
-
-      @Schema(description = "스튜디오 메인 이미지 URL 목록", example = "[\"https://example.com/studio_main1.jpg\", \"https://example"
-          + ".com/studio_main2.jpg\"]")
-      List<String> studioMainImageUrls
+      List<StudioSubwayStationInfo> nearbySubwayStations
   ) {
 
   }
@@ -131,14 +130,10 @@ public record StudioDetailResponse(
       Boolean isLodgingAvailable,
 
       @Schema(description = "화재 보험 가입 여부", example = "true")
-      Boolean hasFireInsurance,
-
-      @Schema(description = "스튜디오 건물 이미지 URL 목록",
-          example = "[\"https://example.com/building1.jpg\", \"https://example.com/building2.jpg\"]")
-      List<String> studioBuildingImageUrls
+      Boolean hasFireInsurance
   ) {
 
-    public static StudioBuildingInfoDto from(StudioBuildingInfo studioBuildingInfo, List<String> studioBuildingImageUrls) {
+    public static StudioBuildingInfoDto from(StudioBuildingInfo studioBuildingInfo) {
       return StudioBuildingInfoDto.builder()
           .floorType(studioBuildingInfo.getFloorType())
           .floorNumber(studioBuildingInfo.getFloorNumber())
@@ -150,7 +145,6 @@ public record StudioDetailResponse(
           .parkingLocationAddress(studioBuildingInfo.getParkingLocationAddress())
           .isLodgingAvailable(studioBuildingInfo.getIsLodgingAvailable())
           .hasFireInsurance(studioBuildingInfo.getHasFireInsurance())
-          .studioBuildingImageUrls(studioBuildingImageUrls)
           .build();
     }
   }
@@ -202,8 +196,6 @@ public record StudioDetailResponse(
 
   @Builder
   public record StudioRoomsDto(
-      @Schema(description = "방 이미지 URL 목록", example = "[\"https://example.com/room1.jpg\", \"https://example.com/room2.jpg\"]")
-      List<String> roomImageUrls,
 
       @Schema(description = "방 정보 목록", implementation = RoomInfoDto.class,
           example = """
@@ -231,9 +223,8 @@ public record StudioDetailResponse(
       List<RoomInfoDto> rooms
   ) {
 
-    public static StudioRoomsDto from(Set<Room> rooms, List<String> roomImageUrls) {
+    public static StudioRoomsDto from(Set<Room> rooms) {
       return StudioRoomsDto.builder()
-          .roomImageUrls(roomImageUrls)
           .rooms(rooms.stream().map(RoomInfoDto::from).toList())
           .build();
     }
@@ -284,12 +275,12 @@ public record StudioDetailResponse(
                 {
                   "code": "WATER_PURIFIER",
                   "description": "정수기",
-                  "iconImageKey": "https://example.com/icons/water_purifier.png"
+                  "iconImageKey": "
                 },
                 {
                   "code": "AIR_CONDITIONER",
                   "description": "에어컨",
-                  "iconImageKey": "https://example.com/icons/air_conditioner.png"
+                  "iconImageKey": "
                 }
               ]
               """)
@@ -301,12 +292,12 @@ public record StudioDetailResponse(
                 {
                   "code": "AIR_CONDITIONER",
                   "description": "에어컨",
-                  "iconImageKey": "https://example.com/icons/air_conditioner.png"
+                  "iconImageKey": "
                 },
                 {
                   "code": "WINDOW",
                   "description": "창문",
-                  "iconImageKey": "https://example.com/icons/window.png"
+                  "iconImageKey": "
                 }
               ]
               """)
@@ -323,7 +314,7 @@ public record StudioDetailResponse(
       @Schema(description = "옵션 설명", example = "정수기")
       String description,
 
-      @Schema(description = "옵션 아이콘 이미지 URL", example = "https://example.com/icons/water_purifier.png")
+      @Schema(description = "옵션 아이콘 이미지 URL", example = "/systems/icons/WATER_PURIFIER.svg")
       String iconImageKey
   ) {
 
@@ -334,5 +325,33 @@ public record StudioDetailResponse(
           .iconImageKey(option.getIconImageKey())
           .build();
     }
+  }
+
+  @Builder
+  public record StudioImagesDto(
+      @Schema(description = "스튜디오 메인 이미지 URL 목록",
+          example = "[\"/studios/main/image1.jpg\", \"/studios/main/image2.jpg\"]")
+      List<String> mainImageKeys,
+
+      @Schema(description = "건물 이미지 URL 목록",
+          example = "[\"/studios/building/image1.jpg\", \"/studios/building/image2.jpg\"]")
+      List<String> buildingImageKeys,
+
+      @Schema(description = "방 이미지 URL 목록",
+          example = "[\"/studios/room/image1.jpg\", \"/studios/room/image2.jpg\"]")
+      List<String> roomImageKeys,
+
+      @Schema(description = "도면 이미지 URL",
+          example = "/studios/blueprint/blueprint_image.jpg")
+      String blueprintImageKey,
+
+      @Schema(description = "공용 옵션(시설) 이미지 URL 목록",
+          example = "[\"/studios/common_options/image1.jpg\", \"/studios/common_options/image2.jpg\"]")
+      List<String> commonOptionImageKeys,
+
+      @Schema(description = "개인 옵션(시설) 이미지 URL 목록",
+          example = "[\"/studios/individual_options/image1.jpg\", \"/studios/individual_options/image2.jpg\"]")
+      List<String> individualOptionImageKeys) {
+
   }
 }

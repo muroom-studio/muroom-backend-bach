@@ -39,7 +39,7 @@ public class SubwayStationLine extends AuditableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "subway_line_id", nullable = false)
   private SubwayLine line;
-  
+
   public static SubwayStationLine create(SubwayStation station, SubwayLine line) {
     return SubwayStationLine.builder()
         .station(station)

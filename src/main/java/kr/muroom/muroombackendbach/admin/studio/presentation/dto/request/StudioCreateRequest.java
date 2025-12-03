@@ -49,7 +49,7 @@ public record StudioCreateRequest(
 
     @Schema(description = "금지 악기 코드 목록")
     List<String> forbiddenInstrumentCodes,
-    
+
     @Schema(description = "룸 정보 목록")
     List<RoomInfoRequest> rooms,
 
@@ -139,7 +139,13 @@ public record StudioCreateRequest(
       List<String> roomImageKeys,
 
       @NotBlank
-      String blueprintImageKey
+      String blueprintImageKey,
+
+      @Size(max = 10)
+      List<String> commonOptionImageKeys,
+
+      @Size(max = 10)
+      List<String> individualOptionImageKeys
   ) {
 
   }

@@ -1,8 +1,18 @@
 package kr.muroom.muroombackendbach.beta.inquiry.domain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
@@ -13,8 +23,8 @@ import lombok.*;
 public class BetaInquiry extends CreatedDateEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beta_inquiry_seq_generator")
-  @SequenceGenerator(name = "beta_inquiry_seq_generator", sequenceName =
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beta_inquiry_seq_gen")
+  @SequenceGenerator(name = "beta_inquiry_seq_gen", sequenceName =
       "beta_inquiries_inquiry_id_seq", allocationSize = 1)
   @Column(name = "inquiry_id")
   private Long id;

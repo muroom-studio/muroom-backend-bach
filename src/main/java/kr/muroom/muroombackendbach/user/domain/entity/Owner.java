@@ -30,8 +30,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Owner extends AuditableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "owner_id_seq_generator")
-  @SequenceGenerator(name = "owner_id_seq_generator", sequenceName = "owner_id_seq",
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "owner_id_seq_gen")
+  @SequenceGenerator(name = "owner_id_seq_gen", sequenceName = "owner_id_seq",
       allocationSize = 1)
   @Column(name = "owner_id")
   private Long id;

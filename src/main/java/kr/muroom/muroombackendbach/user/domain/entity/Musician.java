@@ -33,8 +33,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Musician extends AuditableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "musician_id_seq_generator")
-  @SequenceGenerator(name = "musician_id_seq_generator", sequenceName = "musician_id_seq",
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "musician_id_seq_gen")
+  @SequenceGenerator(name = "musician_id_seq_gen", sequenceName = "musician_id_seq",
       allocationSize = 1)
   @Column(name = "musician_id")
   private Long id;

@@ -13,7 +13,7 @@ public enum StudioImageCategory implements EnumMapperType {
   BUILDING("건물"),
   ROOM("방"),
   BLUEPRINT("도면"),
-  COMMON_OPTIONS("공용 옵션"),
+  COMMON_OPTION("공용 옵션"),
   INDIVIDUAL_OPTION("개인 옵션");
 
   private final String description;

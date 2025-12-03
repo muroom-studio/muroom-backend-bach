@@ -29,8 +29,8 @@ public class StudioViewLog {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
-      "studio_view_log_id_seq_generator")
-  @SequenceGenerator(name = "studio_view_log_id_seq_generator", sequenceName =
+      "studio_view_log_id_seq_gen")
+  @SequenceGenerator(name = "studio_view_log_id_seq_gen", sequenceName =
       "studio_view_log_id_seq", allocationSize = 1)
   @Column(name = "studio_view_log_id")
   private Long id;

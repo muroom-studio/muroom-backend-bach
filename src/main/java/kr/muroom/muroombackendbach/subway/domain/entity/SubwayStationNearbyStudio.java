@@ -27,8 +27,8 @@ import lombok.NoArgsConstructor;
 public class SubwayStationNearbyStudio extends CreatedDateEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subway_nearby_id_seq_gen")
-  @SequenceGenerator(name = "subway_nearby_id_seq_gen", sequenceName = "subway_nearby_id_seq",
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subway_stations_nearby_studio_id_seq_gen")
+  @SequenceGenerator(name = "subway_stations_nearby_studio_id_seq_gen", sequenceName = "subway_stations_nearby_studio_id_seq",
       allocationSize = 1)
   @Column(name = "subway_station_nearby_studio_id")
   private Long id;

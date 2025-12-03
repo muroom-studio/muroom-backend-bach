@@ -25,13 +25,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "search_logs")
-@AttributeOverride(name = "createdAt", column = @jakarta.persistence.Column(name = "searched_at",
+@AttributeOverride(name = "createdAt", column = @Column(name = "searched_at",
     nullable = false))
 public class SearchLog extends CreatedDateEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "search_log_id_seq_generator")
-  @SequenceGenerator(name = "search_log_id_seq_generator", sequenceName = "search_log_id_seq",
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "search_log_id_seq_gen")
+  @SequenceGenerator(name = "search_log_id_seq_gen", sequenceName = "search_log_id_seq",
       allocationSize = 1)
   @Column(name = "search_log_id")
   private Long id;
