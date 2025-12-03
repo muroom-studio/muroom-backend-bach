@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapDirectionService;
+import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
@@ -43,6 +44,7 @@ import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRep
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationsNearbyStudioRepository;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +62,7 @@ public class StudioDetailsService {
   private final FileStorageService fileStorageService;
   private final MapDirectionService mapDirectionService;
   private final StudioViewService studioViewService;
+  private final MapGeocodingService mapGeocodingService;
 
   private record PriceRange(Integer minPrice, Integer maxPrice) {
 
@@ -98,7 +101,12 @@ public class StudioDetailsService {
         .nearbySubwayStations(nearbySubwayStations)
         .build();
 
-    StudioBuildingInfoDto studioBuildingInfoDto = StudioBuildingInfoDto.from(studioBuildingInfo);
+    Point parkingLocation = null;
+    if (studioBuildingInfo.getIsParkingAvailable()) {
+      String parkingLocationAddress = studioBuildingInfo.getParkingLocationAddress();
+      parkingLocation = mapGeocodingService.getPointFromAddress(parkingLocationAddress);
+    }
+    StudioBuildingInfoDto studioBuildingInfoDto = StudioBuildingInfoDto.from(studioBuildingInfo, parkingLocation);
 
     StudioNoticeDto studioNoticeDto = StudioNoticeDto.from(owner, studio);
 
