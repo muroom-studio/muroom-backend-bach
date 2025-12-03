@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class KakaoIdTokenDecoder {
 
   public KakaoIdTokenPayload decode(String idToken) {
-    DecodedJWT jwt = JWT.decode(idToken); // signature 검증 필요시 추가
+    DecodedJWT jwt = JWT.decode(idToken);
 
     KakaoIdTokenPayload payload = new KakaoIdTokenPayload();
     payload.setAud(jwt.getClaim("aud").asString());
