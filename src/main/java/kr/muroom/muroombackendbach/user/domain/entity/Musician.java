@@ -10,7 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -47,7 +47,7 @@ public class Musician extends AuditableEntity {
   @Column(length = 16)
   private String phoneNumber;
 
-  @Column(length = 10, unique = true)
+  @Column(length = 20, unique = true)
   private String nickname;
 
   @Column
@@ -57,7 +57,7 @@ public class Musician extends AuditableEntity {
   @Column(length = 50)
   private UserStatus status;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "instrument_id", nullable = false)
   private Instrument instrument;
 

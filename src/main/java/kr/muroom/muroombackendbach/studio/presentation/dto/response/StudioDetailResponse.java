@@ -154,8 +154,6 @@ public record StudioDetailResponse(
           .parkingSpots(studioBuildingInfo.getParkingSpots())
           .parkingLocationName(studioBuildingInfo.getParkingLocationName())
           .parkingLocationAddress(studioBuildingInfo.getParkingLocationAddress())
-          .parkingLocationLongitude(studioBuildingInfo.getParkingLocationLongitude())
-          .parkingLocationLatitude(studioBuildingInfo.getParkingLocationLatitude())
           .isLodgingAvailable(studioBuildingInfo.getIsLodgingAvailable())
           .hasFireInsurance(studioBuildingInfo.getHasFireInsurance())
           .depositAmount(studioBuildingInfo.getDepositAmount())
@@ -168,6 +166,9 @@ public record StudioDetailResponse(
   public record StudioNoticeDto(
       @Schema(description = "소유자 닉네임", example = "뮤루뮤루")
       String ownerNickname,
+
+      @Schema(description = "소유자 전화번호", example = "010-1234-5678")
+      String ownerPhoneNumber,
 
       @Schema(description = "운영 경력(년)", example = "5")
       Integer experienceYears,
@@ -182,6 +183,7 @@ public record StudioDetailResponse(
     public static StudioNoticeDto from(Owner owner, Studio studio) {
       return StudioNoticeDto.builder()
           .ownerNickname(owner.getNickname())
+          .ownerPhoneNumber(owner.getPhoneNumber())
           .experienceYears(owner.getExperienceYears())
           .isIdentityVerified(owner.getStatus() != UserStatus.UNVERIFIED)
           .introduction(studio.getIntroduction())

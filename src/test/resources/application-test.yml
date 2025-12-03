@@ -47,6 +47,11 @@ seoul:
   api:
     key: test-seoul-api-key
 
+juso:
+  api:
+    search-key: test-juso-search-api-key
+    coord-key: test-juso-coord-api-key
+
 kakao:
   api:
     rest-api-key: test-kakao-rest-api-key

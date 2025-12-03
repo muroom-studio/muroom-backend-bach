@@ -57,6 +57,7 @@ dependencies {
     // Spatial (GIS)
     implementation 'org.hibernate.orm:hibernate-spatial'
     implementation 'com.bedatadriven:jackson-datatype-jts:2.4'
+    implementation 'org.locationtech.proj4j:proj4j:1.3.0'
 
     //Redis
 //    implementation 'org.springframework.boot:spring-boot-starter-data-redis'

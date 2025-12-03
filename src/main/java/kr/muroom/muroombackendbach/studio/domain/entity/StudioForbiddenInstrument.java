@@ -40,4 +40,8 @@ public class StudioForbiddenInstrument {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "instrument_id", nullable = false)
   private Instrument instrument;
+
+  public void assignStudio(Studio studio) {
+    this.studio = studio;
+  }
 }

@@ -57,4 +57,8 @@ public class Room extends SoftDeletableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "studio_id", nullable = false)
   private Studio studio;
+
+  public void assignStudio(Studio studio) {
+    this.studio = studio;
+  }
 }

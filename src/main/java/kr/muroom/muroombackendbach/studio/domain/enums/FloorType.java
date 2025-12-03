@@ -8,6 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum FloorType implements BuildingType {
+  ALL("여러 층"),
   GROUND("지상"),
   BASEMENT("지하");
 

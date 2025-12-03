@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
+import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -52,6 +53,9 @@ public class Studio extends SoftDeletableEntity {
 
   @Column
   private String address;
+
+  @Column
+  private String detailedAddress;
 
   /**
    * PostGIS의 GEOGRAPHY(POINT, 4326) 매핑 - Hibernate Spatial를 이용해 Point 객체로 바로 매핑됩니다.
@@ -90,6 +94,10 @@ public class Studio extends SoftDeletableEntity {
   private StudioPrice studioPrice;
 
   @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @Builder.Default
+  private Set<StudioOption> options = new LinkedHashSet<>();
+
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   @OrderBy("sequence ASC")
   @Builder.Default
   private Set<Room> rooms = new LinkedHashSet<>();
@@ -98,4 +106,79 @@ public class Studio extends SoftDeletableEntity {
   @OrderBy("id ASC")
   @Builder.Default
   private Set<StudioForbiddenInstrument> forbiddenInstruments = new LinkedHashSet<>();
+
+  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OrderBy("sequence ASC")
+  @Builder.Default
+  private List<SubwayStationNearbyStudio> nearbyStations = new ArrayList<>();
+  
+  public void specifyBuildingInfo(StudioBuildingInfo buildingInfo) {
+    this.studioBuildingInfo = buildingInfo;
+    if (buildingInfo != null) {
+      buildingInfo.assignStudio(this);
+    }
+  }
+
+  public void specifyPrice(StudioPrice price) {
+    this.studioPrice = price;
+    if (price != null) {
+      price.assignStudio(this);
+    }
+  }
+
+  public void updateRooms(Set<Room> rooms) {
+    if (this.rooms == null) {
+      this.rooms = new LinkedHashSet<>();
+    }
+    this.rooms.clear();
+    if (rooms != null) {
+      this.rooms.addAll(rooms);
+      rooms.forEach(room -> room.assignStudio(this));
+    }
+  }
+
+  public void applyOptions(Set<StudioOption> options) {
+    if (this.options == null) {
+      this.options = new LinkedHashSet<>();
+    }
+    this.options.clear();
+    if (options != null) {
+      this.options.addAll(options);
+      options.forEach(option -> option.assignStudio(this));
+    }
+  }
+
+  public void updateForbiddenInstruments(Set<StudioForbiddenInstrument> instruments) {
+    if (this.forbiddenInstruments == null) {
+      this.forbiddenInstruments = new LinkedHashSet<>();
+    }
+    this.forbiddenInstruments.clear();
+    if (instruments != null) {
+      this.forbiddenInstruments.addAll(instruments);
+      instruments.forEach(instrument -> instrument.assignStudio(this));
+    }
+  }
+
+  public void updateImages(List<StudioImage> images) {
+    if (this.studioImages == null) {
+      this.studioImages = new ArrayList<>();
+    }
+    this.studioImages.clear();
+    if (images != null) {
+      this.studioImages.addAll(images);
+      images.forEach(image -> image.assignStudio(this));
+    }
+  }
+
+  public void updateNearbyStations(List<SubwayStationNearbyStudio> stations) {
+    // Studio 엔티티에 nearbyStations 필드를 추가해야 함 (아래 참고)
+    if (this.nearbyStations == null) {
+      this.nearbyStations = new ArrayList<>();
+    }
+    this.nearbyStations.clear();
+    if (stations != null) {
+      this.nearbyStations.addAll(stations);
+      stations.forEach(station -> station.assignStudio(this));
+    }
+  }
 }

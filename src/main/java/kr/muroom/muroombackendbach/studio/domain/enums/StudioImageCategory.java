@@ -12,6 +12,7 @@ public enum StudioImageCategory implements EnumMapperType {
   MAIN("대표"),
   BUILDING("건물"),
   ROOM("방"),
+  BLUEPRINT("도면"),
   COMMON_OPTIONS("공용 옵션"),
   INDIVIDUAL_OPTION("개인 옵션");
 

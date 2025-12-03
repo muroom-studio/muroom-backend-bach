@@ -66,12 +66,6 @@ public class StudioBuildingInfo {
   private String parkingLocationAddress;
 
   @Column
-  private Double parkingLocationLatitude;
-
-  @Column
-  private Double parkingLocationLongitude;
-
-  @Column
   private Boolean isLodgingAvailable;
 
   @Column
@@ -79,4 +73,8 @@ public class StudioBuildingInfo {
 
   @Column
   private Integer depositAmount;
+
+  public void assignStudio(Studio studio) {
+    this.studio = studio;
+  }
 }
