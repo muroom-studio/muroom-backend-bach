@@ -26,7 +26,7 @@ spring:
 cloud:
   aws:
     region:
-      static: ap-northeast-2
+      static: test-region
     s3:
       bucket: test-bucket
       presign:

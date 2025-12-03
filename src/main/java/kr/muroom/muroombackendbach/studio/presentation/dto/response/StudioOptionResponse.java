@@ -45,7 +45,7 @@ public final class StudioOptionResponse {
       @Schema(description = "옵션 이름 및 표시값", example = "지상")
       String description,
       @Schema(description = "아이콘 이미지 URL", example = "https://muroom-xyz/....png")
-      String iconImageUrl
+      String iconImageKey
   ) {
 
     public static GetSingle from(EnumMapperType item) {
@@ -60,7 +60,7 @@ public final class StudioOptionResponse {
           .id(option.getId())
           .code(option.getCode())
           .description(option.getDescription())
-          .iconImageUrl(option.getIconImageUrl())
+          .iconImageKey(option.getIconImageKey())
           .build();
     }
 

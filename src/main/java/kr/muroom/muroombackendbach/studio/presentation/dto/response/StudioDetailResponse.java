@@ -284,12 +284,12 @@ public record StudioDetailResponse(
                 {
                   "code": "WATER_PURIFIER",
                   "description": "정수기",
-                  "iconImageUrl": "https://example.com/icons/water_purifier.png"
+                  "iconImageKey": "https://example.com/icons/water_purifier.png"
                 },
                 {
                   "code": "AIR_CONDITIONER",
                   "description": "에어컨",
-                  "iconImageUrl": "https://example.com/icons/air_conditioner.png"
+                  "iconImageKey": "https://example.com/icons/air_conditioner.png"
                 }
               ]
               """)
@@ -301,12 +301,12 @@ public record StudioDetailResponse(
                 {
                   "code": "AIR_CONDITIONER",
                   "description": "에어컨",
-                  "iconImageUrl": "https://example.com/icons/air_conditioner.png"
+                  "iconImageKey": "https://example.com/icons/air_conditioner.png"
                 },
                 {
                   "code": "WINDOW",
                   "description": "창문",
-                  "iconImageUrl": "https://example.com/icons/window.png"
+                  "iconImageKey": "https://example.com/icons/window.png"
                 }
               ]
               """)
@@ -324,14 +324,14 @@ public record StudioDetailResponse(
       String description,
 
       @Schema(description = "옵션 아이콘 이미지 URL", example = "https://example.com/icons/water_purifier.png")
-      String iconImageUrl
+      String iconImageKey
   ) {
 
     public static OptionDto from(Option option) {
       return OptionDto.builder()
           .code(option.getCode())
           .description(option.getDescription())
-          .iconImageUrl(option.getIconImageUrl())
+          .iconImageKey(option.getIconImageKey())
           .build();
     }
   }
