@@ -3,7 +3,7 @@ spring:
     name: muroom-backend-bach
 
 cors:
-  allowed-origins: "http://localhost:3000, http://localhost:3001, https://muroom.kr, https://www.muroom.kr, https://admin.muroom.kr, https://muroom-frontend-handel-web.vercel.app"
+  allowed-origins: "http://localhost:3000,http://localhost:3001,https://muroom.kr,https://www.muroom.kr,https://admin.muroom.kr,https://muroom-frontend-handel-web.vercel.app"
 
 seoul:
   api:
