@@ -43,7 +43,7 @@ jwt:
 logging:
   level:
     org.springframework: INFO
-    com.moty.solarserver: DEBUG
+    kr.muroom.muroombackendbach: DEBUG
 
 springdoc:
   api-docs:
