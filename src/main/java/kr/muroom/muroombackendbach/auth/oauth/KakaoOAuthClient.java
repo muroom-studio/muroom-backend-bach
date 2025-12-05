@@ -30,7 +30,7 @@ public class KakaoOAuthClient {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-    log.info("[카카오 토큰 요청] redirect url : {}", redirectUri);
+    log.debug("[카카오 토큰 요청] redirect url : {}", redirectUri);
 
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
