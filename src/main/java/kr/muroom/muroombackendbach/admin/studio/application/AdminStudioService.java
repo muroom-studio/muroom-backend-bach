@@ -24,9 +24,12 @@ import kr.muroom.muroombackendbach.studio.domain.entity.StudioForbiddenInstrumen
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioImage;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioOption;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import kr.muroom.muroombackendbach.studio.domain.enums.StudioImageCategory;
 import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
+import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationRepository;
@@ -80,16 +83,15 @@ public class AdminStudioService {
     Owner owner = ownerRepository.findByPhoneNumber(request.ownerPhoneNumber())
         .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
 
-    boolean isRoadAddress = request.addressInfo().roadAddress() != null && !request.addressInfo().roadAddress().isBlank();
-    String effectiveAddress = isRoadAddress
-        ? request.addressInfo().roadAddress()
-        : request.addressInfo().jibunAddress();
-    Point location = mapGeocodingService.getPointFromAddress(effectiveAddress);
+    String roadNameAddress = request.addressInfo().roadNameAddress();
+    String lotNumberAddress = request.addressInfo().lotNumberAddress();
+    Point location = mapGeocodingService.getPointFromAddress(roadNameAddress);
 
     Studio studio = Studio.builder()
         .owner(owner)
         .name(request.studioName())
-        .address(effectiveAddress)
+        .roadNameAddress(roadNameAddress)
+        .lotNumberAddress(lotNumberAddress)
         .detailedAddress(request.addressInfo().detailedAddress())
         .location(location)
         .introduction(request.introduction())
@@ -98,8 +100,19 @@ public class AdminStudioService {
         .blueprintImageKey(request.imageKeys().blueprintImageKey())
         .build();
 
+    if (request.studioMinPrice() != null || request.studioMaxPrice() != null) {
+      if (request.studioMinPrice() != null && request.studioMaxPrice() != null
+          && request.studioMinPrice() > request.studioMaxPrice()) {
+        throw new BusinessException(StudioErrorCode.INVALID_PRICE_RANGE);
+      }
+      StudioPrice studioPrice = StudioPrice.builder()
+          .minPrice(request.studioMinPrice())
+          .maxPrice(request.studioMaxPrice())
+          .build();
+      studio.specifyPrice(studioPrice);
+    }
+    
     studio.specifyBuildingInfo(buildStudioBuildingInfo(request.buildingInfo()));
-    studio.specifyPrice(buildStudioPrice(request));
     studio.updateRooms(buildRooms(request.rooms()));
     studio.applyOptions(buildStudioOptions(request.optionCodes()));
     studio.updateForbiddenInstruments(buildForbiddenInstruments(request.forbiddenInstrumentCodes()));
@@ -112,11 +125,25 @@ public class AdminStudioService {
   }
 
   private StudioBuildingInfo buildStudioBuildingInfo(StudioCreateRequest.BuildingInfoRequest request) {
+    Boolean hasRestroom = request.hasRestroom();
+    RestroomLocation restroomLocation = null;
+    RestroomGender restroomGender = null;
+
+    if (Boolean.TRUE.equals(hasRestroom)) {
+      if (request.restroomLocation() == null && request.restroomGender() == null) {
+        throw new BusinessException(StudioErrorCode.RESTROOM_DETAIL_IS_EMPTY);
+      }
+
+      restroomLocation = request.restroomLocation();
+      restroomGender = request.restroomGender();
+    }
+
     return StudioBuildingInfo.builder()
         .floorType(request.floorType())
         .floorNumber(request.floorNumber())
-        .restroomType(request.restroomType())
-        .isParkingAvailable(request.isParkingAvailable())
+        .hasRestroom(hasRestroom)
+        .restroomLocation(restroomLocation)
+        .restroomGender(restroomGender)
         .parkingFeeType(request.parkingFeeType())
         .parkingFeeInfo(request.parkingFeeInfo())
         .parkingSpots(request.parkingSpots())
@@ -124,13 +151,6 @@ public class AdminStudioService {
         .parkingLocationName(request.parkingLocationName())
         .isLodgingAvailable(request.isLodgingAvailable())
         .hasFireInsurance(request.hasFireInsurance())
-        .build();
-  }
-
-  private StudioPrice buildStudioPrice(StudioCreateRequest request) {
-    return StudioPrice.builder()
-        .minPrice(request.studioMinPrice())
-        .maxPrice(request.studioMaxPrice())
         .build();
   }
 

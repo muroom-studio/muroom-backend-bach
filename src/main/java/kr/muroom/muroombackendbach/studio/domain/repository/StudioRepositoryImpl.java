@@ -30,7 +30,9 @@ import kr.muroom.muroombackendbach.studio.domain.entity.QStudio;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
-import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
+import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -146,7 +148,8 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     whereClause.and(
         hasAllOptionsInCategory(request.individualOptionCodes(), OptionCategory.INDIVIDUAL));
     whereClause.and(inFloorTypes(request.floorTypes()));
-    whereClause.and(inRestroomTypes(request.restroomTypes()));
+    whereClause.and(inRestroomLocations(request.restroomLocations()));
+    whereClause.and(inRestroomGenders(request.restroomGenders()));
     whereClause.and(isParkingAvailable(request.isParkingAvailable()));
     whereClause.and(isLodgingAvailable(request.isLodgingAvailable()));
     whereClause.and(hasFireInsurance(request.hasFireInsurance()));
@@ -300,18 +303,27 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     return studio.studioBuildingInfo.isLodgingAvailable.eq(isLodgingAvailable);
   }
 
-  private BooleanExpression inRestroomTypes(List<RestroomType> restroomTypes) {
-    if (CollectionUtils.isEmpty(restroomTypes)) {
+  private BooleanExpression inRestroomLocations(List<RestroomLocation> restroomLocations) {
+    if (CollectionUtils.isEmpty(restroomLocations)) {
       return null;
     }
-    return studio.studioBuildingInfo.restroomType.in(restroomTypes);
+    return studio.studioBuildingInfo.restroomLocation.in(restroomLocations);
+  }
+
+  private BooleanExpression inRestroomGenders(List<RestroomGender> restroomGenders) {
+    if (CollectionUtils.isEmpty(restroomGenders)) {
+      return null;
+    }
+    return studio.studioBuildingInfo.restroomGender.in(restroomGenders);
   }
 
   private BooleanExpression isParkingAvailable(Boolean isParkingAvailable) {
     if (isParkingAvailable == null) {
       return null;
+    } else if (isParkingAvailable) {
+      return studio.studioBuildingInfo.parkingFeeType.in(ParkingFeeType.FREE, ParkingFeeType.PAID);
     }
-    return studio.studioBuildingInfo.isParkingAvailable.eq(isParkingAvailable);
+    return studio.studioBuildingInfo.parkingFeeType.eq(ParkingFeeType.NONE);
   }
 
   private BooleanExpression hasFireInsurance(Boolean hasFireInsurance) {

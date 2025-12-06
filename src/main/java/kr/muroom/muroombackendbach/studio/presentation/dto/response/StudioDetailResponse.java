@@ -11,6 +11,8 @@ import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
@@ -50,8 +52,14 @@ public record StudioDetailResponse(
       @Schema(description = "스튜디오 이름", example = "뮤룸 스튜디오", requiredMode = Schema.RequiredMode.REQUIRED)
       String studioName,
 
-      @Schema(description = "스튜디오 주소", example = "서울특별시 강남구 테헤란로 427 위워크타워 5층", requiredMode = Schema.RequiredMode.REQUIRED)
-      String address,
+      @Schema(description = "스튜디오 도로명 주소", example = "서울특별시 강남구 테헤란로 427 위워크타워 5층", requiredMode = Schema.RequiredMode.REQUIRED)
+      String roadNameAddress,
+
+      @Schema(description = "스튜디오 지번 주소", example = "서울특별시 강남구 역삼동 701-21 위워크타워 5층", requiredMode = Schema.RequiredMode.REQUIRED)
+      String lotNumberAddress,
+
+      @Schema(description = "스튜디오 상세 주소", example = "5층", requiredMode = Schema.RequiredMode.REQUIRED)
+      String detailedAddress,
 
       @Schema(description = "스튜디오 경도", example = "127.027610", requiredMode = Schema.RequiredMode.REQUIRED)
       Double studioLongitude,
@@ -110,10 +118,17 @@ public record StudioDetailResponse(
       @Schema(description = "층 번호", example = "5", requiredMode = Schema.RequiredMode.REQUIRED)
       Integer floorNumber,
 
-      @Schema(description = "주차 가능 여부", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
-      Boolean isParkingAvailable,
+      @Schema(description = "화장실 보유 여부 (true라면, restoomLocation, restroomGender 중 1개는 반드시 null이 아님",
+          example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+      Boolean hasRestroom,
 
-      @Schema(description = "주차 요금 유형", example = "FREE", nullable = true)
+      @Schema(description = "화장실 위치 (hasRestroom이 true일 때만)", example = "SHARED_RESTROOM", nullable = true)
+      RestroomLocation restroomLocation,
+
+      @Schema(description = "화장실 성별 구분 (hasRestroom이 true일 때만)", example = "SEPARATE", nullable = true)
+      RestroomGender restroomGender,
+
+      @Schema(description = "주차 요금 유형 (FREE/PAID/NONE)", example = "FREE", nullable = true)
       ParkingFeeType parkingFeeType,
 
       @Schema(description = "주차 요금 정보", example = "매월 3만원", nullable = true)
@@ -146,7 +161,9 @@ public record StudioDetailResponse(
       return StudioBuildingInfoDto.builder()
           .floorType(studioBuildingInfo.getFloorType())
           .floorNumber(studioBuildingInfo.getFloorNumber())
-          .isParkingAvailable(studioBuildingInfo.getIsParkingAvailable())
+          .hasRestroom(studioBuildingInfo.getHasRestroom())
+          .restroomLocation(studioBuildingInfo.getRestroomLocation())
+          .restroomGender(studioBuildingInfo.getRestroomGender())
           .parkingFeeType(studioBuildingInfo.getParkingFeeType())
           .parkingFeeInfo(studioBuildingInfo.getParkingFeeInfo())
           .parkingSpots(studioBuildingInfo.getParkingSpots())

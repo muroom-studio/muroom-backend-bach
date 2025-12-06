@@ -10,7 +10,8 @@ import lombok.Getter;
 public enum ParkingFeeType implements BuildingType {
   FREE("무료"),
   PAID("유료"),
-  NONE("제공 안함");
+  NONE("주차불가"),
+  ;
 
   private final String description;
 

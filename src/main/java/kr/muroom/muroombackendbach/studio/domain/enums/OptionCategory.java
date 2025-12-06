@@ -10,7 +10,8 @@ import lombok.Getter;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum OptionCategory implements EnumMapperType {
   COMMON("공용"),
-  INDIVIDUAL("개인");
+  INDIVIDUAL("개인"),
+  ;
 
   private final String description;
 

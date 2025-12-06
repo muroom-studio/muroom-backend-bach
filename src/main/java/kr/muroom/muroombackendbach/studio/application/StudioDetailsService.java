@@ -22,6 +22,7 @@ import kr.muroom.muroombackendbach.studio.domain.entity.StudioImage;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioOption;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
+import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.domain.enums.StudioImageCategory;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioImageRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioOptionRepository;
@@ -92,7 +93,9 @@ public class StudioDetailsService {
     StudioBaseInfoDto studioBaseInfoDto = StudioBaseInfoDto.builder()
         .studioId(studio.getId())
         .studioName(studio.getName())
-        .address(studio.getAddress())
+        .roadNameAddress(studio.getRoadNameAddress())
+        .lotNumberAddress(studio.getLotNumberAddress())
+        .detailedAddress(studio.getDetailedAddress())
         .studioLongitude(studio.getLocation() != null ? studio.getLocation().getX() : null)
         .studioLatitude(studio.getLocation() != null ? studio.getLocation().getY() : null)
         .studioMinPrice(priceRange.minPrice())
@@ -102,7 +105,7 @@ public class StudioDetailsService {
         .build();
 
     Point parkingLocation = null;
-    if (studioBuildingInfo.getIsParkingAvailable()) {
+    if (studioBuildingInfo.getParkingFeeType() != null && !ParkingFeeType.NONE.equals(studioBuildingInfo.getParkingFeeType())) {
       String parkingLocationAddress = studioBuildingInfo.getParkingLocationAddress();
       parkingLocation = mapGeocodingService.getPointFromAddress(parkingLocationAddress);
     }

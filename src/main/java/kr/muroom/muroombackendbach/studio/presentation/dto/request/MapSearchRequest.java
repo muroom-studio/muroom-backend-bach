@@ -5,7 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
-import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import lombok.Builder;
 
 @Builder
@@ -29,13 +30,11 @@ public record MapSearchRequest(
     @NotNull
     Double maxLongitude,
 
-    @Schema(description = "필터링할 공용 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 공용 옵션을 "
-        + "가진 스튜디오를 조회합니다.",
+    @Schema(description = "필터링할 공용 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 공용 옵션을 가진 스튜디오를 조회합니다.",
         example = "[\"WIFI\", \"CCTV\"]")
     List<String> commonOptionCodes,
 
-    @Schema(description = "필터링할 개인 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 개인 옵션을 "
-        + "가진 스튜디오를 조회합니다.",
+    @Schema(description = "필터링할 개인 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 개인 옵션을 가진 스튜디오를 조회합니다.",
         example = "[\"AIR_CONDITIONER\"]")
     List<String> individualOptionCodes,
 
@@ -57,13 +56,14 @@ public record MapSearchRequest(
     @Schema(description = "검색할 최대 방 높이 (단위: mm)", example = "5500")
     Integer maxRoomHeight,
 
-    @Schema(description = "층 유형 목록", example = "[\"GROUND\", "
-        + "\"BASEMENT\"]")
+    @Schema(description = "층 유형 목록", example = "[\"GROUND\", \"BASEMENT\"]")
     List<FloorType> floorTypes,
 
-    @Schema(description = "화장실 유형 목록",
-        example = "[\"INTERNAL\", \"EXTERNAL\", \"PRIVATE\"]")
-    List<RestroomType> restroomTypes,
+    @Schema(description = "화장실 위치 목록", example = "[\"INTERNAL\", \"EXTERNAL\"]", nullable = true)
+    List<RestroomLocation> restroomLocations,
+
+    @Schema(description = "화장실 성별 목록", example = "[\"SEPARATE\", \"UNISEX\"]", nullable = true)
+    List<RestroomGender> restroomGenders,
 
     @Schema(description = "주차 가능 여부", example = "true")
     Boolean isParkingAvailable,

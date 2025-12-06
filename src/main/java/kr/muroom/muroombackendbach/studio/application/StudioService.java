@@ -56,7 +56,7 @@ public class StudioService {
   private final SearchHistoryService searchHistoryService;
 
   public List<StudioMapResponse> searchStudiosInMapBounds(MapSearchRequest request) {
-    MapSearchRequest resolvedRequest = resolveOptionCodes(request);
+    MapSearchRequest resolvedRequest = resolveOptions(request);
 
     List<Studio> studiosWithinBounds = studioRepository.findStudiosWithinBounds(resolvedRequest);
 
@@ -113,7 +113,7 @@ public class StudioService {
       searchHistoryService.addSearchKeyword(musicianId, request.keyword());
     }
 
-    MapSearchRequest resolvedRequest = resolveOptionCodes(request);
+    MapSearchRequest resolvedRequest = resolveOptions(request);
 
     Page<Studio> studioPage = studioRepository.findStudiosForMapList(resolvedRequest, pageable);
 
@@ -241,7 +241,7 @@ public class StudioService {
     return new PageImpl<>(responseContent, pageable, studioPage.getTotalElements());
   }
 
-  private MapSearchRequest resolveOptionCodes(MapSearchRequest request) {
+  private MapSearchRequest resolveOptions(MapSearchRequest request) {
     List<String> resolvedCommonOptionsCodes = request.commonOptionCodes();
     if (request.commonOptionCodes() != null && request.commonOptionCodes().size() == 1
         && "ALL".equalsIgnoreCase(request.commonOptionCodes().getFirst())) {
@@ -275,7 +275,8 @@ public class StudioService {
         .minRoomHeight(request.minRoomHeight())
         .maxRoomHeight(request.maxRoomHeight())
         .floorTypes(request.floorTypes())
-        .restroomTypes(request.restroomTypes())
+        .restroomLocations(request.restroomLocations())
+        .restroomGenders(request.restroomGenders())
         .isParkingAvailable(request.isParkingAvailable())
         .isLodgingAvailable(request.isLodgingAvailable())
         .hasFireInsurance(request.hasFireInsurance())
