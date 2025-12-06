@@ -15,11 +15,13 @@ import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OAuthLoginService {
 
   private final SocialAccountRepository socialAccountRepository;
@@ -47,6 +49,8 @@ public class OAuthLoginService {
    */
   private String getKakaoUserIdFromAuthorizationCode(String authorizationCode, String baseUrl) {
     String redirectUri = baseUrl + "/redirect/oauth/kakao";
+
+    log.info("redirect url : {}", redirectUri);
 
     KakaoTokenResponse tokenResponse =
         kakaoOAuthClient.exchangeCodeForToken(authorizationCode, redirectUri);

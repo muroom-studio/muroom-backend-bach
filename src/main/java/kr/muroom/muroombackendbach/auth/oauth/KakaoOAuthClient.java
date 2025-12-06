@@ -27,10 +27,13 @@ public class KakaoOAuthClient {
 
   public KakaoTokenResponse exchangeCodeForToken(String authorizationCode, String redirectUri) {
     String url = "https://kauth.kakao.com/oauth/token";
+    redirectUri = "https://muroom-frontend-handel-web.vercel.app/redirect/oauth/kakao";
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
     log.info("[카카오 토큰 요청] redirect url : {}", redirectUri);
+    log.error("[카카오 토큰 요청] redirect url : {}", redirectUri);
+    System.out.println("[카카오 토큰 요청] redirect url " + redirectUri);
 
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
