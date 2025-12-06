@@ -30,7 +30,7 @@ public final class StudioOptionResponse {
       List<GetSingle> studioIndividualOptions,
 
       @Schema(description = "이용 불가 악기 옵션")
-      List<GetSingle> unavailableInstrumentOptions
+      List<GetSingle> forbiddenInstrumentOptions
   ) {
 
   }

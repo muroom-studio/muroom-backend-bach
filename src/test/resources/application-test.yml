@@ -4,24 +4,17 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
-
-  sql:
-    init:
-      mode: never
-  #  data:
-  #    redis:
-  #      host: localhost
-  #      port: 6379
-
   jpa:
     open-in-view: false
     hibernate:
       # ddl-auto: update
-      ddl-auto: none
+      ddl-auto: create-drop
     properties:
       hibernate:
         #show-sql: true
         format_sql: true
+  flyway:
+    enabled: false
 
 cloud:
   aws:
@@ -41,7 +34,7 @@ jwt:
 logging:
   level:
     org.springframework: INFO
-    com.moty.solarserver: DEBUG
+    kr.muroom.muroombackendbach: DEBUG
 
 seoul:
   api:

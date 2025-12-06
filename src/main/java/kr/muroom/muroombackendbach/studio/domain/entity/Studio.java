@@ -52,7 +52,10 @@ public class Studio extends SoftDeletableEntity {
   private String name;
 
   @Column
-  private String address;
+  private String roadNameAddress;
+
+  @Column
+  private String lotNumberAddress;
 
   @Column
   private String detailedAddress;

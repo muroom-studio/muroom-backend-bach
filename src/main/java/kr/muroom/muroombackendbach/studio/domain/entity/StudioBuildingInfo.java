@@ -12,7 +12,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
-import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,12 +44,16 @@ public class StudioBuildingInfo {
   @Column
   private Integer floorNumber;
 
+  @Column
+  private Boolean hasRestroom;
+
   @Enumerated(EnumType.STRING)
   @Column(length = 50)
-  private RestroomType restroomType;
+  private RestroomLocation restroomLocation;
 
-  @Column
-  private Boolean isParkingAvailable;
+  @Enumerated(EnumType.STRING)
+  @Column(length = 50)
+  private RestroomGender restroomGender;
 
   @Column(length = 50)
   private ParkingFeeType parkingFeeType;

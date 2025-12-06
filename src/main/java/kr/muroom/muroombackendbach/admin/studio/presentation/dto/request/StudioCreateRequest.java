@@ -9,7 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
-import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 
 public record StudioCreateRequest(
     @NotBlank
@@ -29,7 +30,7 @@ public record StudioCreateRequest(
     @Schema(description = "보증금")
     Integer depositAmount,
 
-    @Size(max = 3)
+    @Size(min = 1, max = 3)
     @Schema(description = "인근 지하철역 목록")
     List<NearbyStationRequest> nearbyStations,
 
@@ -60,11 +61,11 @@ public record StudioCreateRequest(
   public record AddressInfoRequest(
       @NotBlank
       @Schema(description = "도로명 주소")
-      String roadAddress,
+      String roadNameAddress,
 
       @NotBlank
       @Schema(description = "지번 주소")
-      String jibunAddress,
+      String lotNumberAddress,
 
       @NotBlank
       @Schema(description = "상세 주소")
@@ -93,17 +94,18 @@ public record StudioCreateRequest(
       @NotNull FloorType floorType,
       @NotNull Integer floorNumber,
 
-      @NotNull RestroomType restroomType,
+      Boolean hasRestroom,
+      RestroomGender restroomGender,
+      RestroomLocation restroomLocation,
 
-      @NotNull Boolean isParkingAvailable,
-      @NotNull ParkingFeeType parkingFeeType,
+      ParkingFeeType parkingFeeType,
       String parkingFeeInfo,
       Integer parkingSpots,
       String parkingLocationName,
       String parkingLocationAddress,
 
-      @NotNull Boolean isLodgingAvailable,
-      @NotNull Boolean hasFireInsurance
+      Boolean isLodgingAvailable,
+      Boolean hasFireInsurance
   ) {
 
   }
@@ -122,7 +124,6 @@ public record StudioCreateRequest(
 
       Integer heightMm,
 
-      @NotNull
       Integer roomBasePrice
   ) {
 
