@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.studio.application;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,17 +32,10 @@ public class StudioOptionService {
         .map(GetSingle::from)
         .toList();
 
-    List<GetSingle> restroomLocationOptions = Arrays.stream(RestroomLocation.values())
-        .map(GetSingle::from)
-        .toList();
-
-    List<GetSingle> restroomGenderOptions = Arrays.stream(RestroomGender.values())
-        .map(GetSingle::from)
-        .toList();
-
-    List<GetSingle> restroomOptions = new ArrayList<>();
-    restroomOptions.addAll(restroomLocationOptions);
-    restroomOptions.addAll(restroomGenderOptions);
+    List<GetSingle> restroomOptions = java.util.stream.Stream.concat(
+        Arrays.stream(RestroomLocation.values()).map(GetSingle::from),
+        Arrays.stream(RestroomGender.values()).map(GetSingle::from)
+    ).toList();
 
     List<GetSingle> parkingFeeOptions = Arrays.stream(ParkingFeeType.values())
         .map(GetSingle::from)

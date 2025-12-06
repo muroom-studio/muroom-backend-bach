@@ -101,13 +101,17 @@ public class AdminStudioService {
         .build();
 
     if (request.studioMinPrice() != null || request.studioMaxPrice() != null) {
+      if (request.studioMinPrice() != null && request.studioMaxPrice() != null
+          && request.studioMinPrice() > request.studioMaxPrice()) {
+        throw new BusinessException(StudioErrorCode.INVALID_PRICE_RANGE);
+      }
       StudioPrice studioPrice = StudioPrice.builder()
           .minPrice(request.studioMinPrice())
           .maxPrice(request.studioMaxPrice())
           .build();
       studio.specifyPrice(studioPrice);
     }
-
+    
     studio.specifyBuildingInfo(buildStudioBuildingInfo(request.buildingInfo()));
     studio.updateRooms(buildRooms(request.rooms()));
     studio.applyOptions(buildStudioOptions(request.optionCodes()));
