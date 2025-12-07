@@ -1,10 +1,15 @@
 package kr.muroom.muroombackendbach.common.sms;
 
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 public class NcpSensSignatureUtil {
+
+  private static final String HMAC_SHA256 = "HmacSHA256";
 
   public static String makeSignature(
       String method,
@@ -13,22 +18,24 @@ public class NcpSensSignatureUtil {
       String accessKey,
       String secretKey
   ) {
+    String space = " ";
+    String newLine = "\n";
+
+    String message = method + space + uri + newLine + timestamp + newLine + accessKey;
+
     try {
-      String space = " ";
-      String newLine = "\n";
-
-      String message = method + space + uri + newLine + timestamp + newLine + accessKey;
-
       SecretKeySpec signingKey =
-          new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
-      Mac mac = Mac.getInstance("HmacSHA256");
+          new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), HMAC_SHA256);
+
+      Mac mac = Mac.getInstance(HMAC_SHA256);
       mac.init(signingKey);
 
-      byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
+      byte[] rawHmac = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
 
       return Base64.getEncoder().encodeToString(rawHmac);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to make NCP SENS signature", e);
+
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+      throw new IllegalStateException("Failed to create HMAC-SHA256 signature", e);
     }
   }
 }

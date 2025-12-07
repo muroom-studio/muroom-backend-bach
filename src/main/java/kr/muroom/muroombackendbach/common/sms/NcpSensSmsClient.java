@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,19 +17,26 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class NcpSensSmsClient implements SmsSender {
 
-  private final RestTemplate restTemplate = new RestTemplate();
+  private final RestTemplate restTemplate;
 
-  @Value("${ncp.sens.access-key}")
-  private String accessKey;
+  private final String accessKey;
+  private final String secretKey;
+  private final String serviceId;
+  private final String from;
 
-  @Value("${ncp.sens.secret-key}")
-  private String secretKey;
-
-  @Value("${ncp.sens.service-id}")
-  private String serviceId;
-
-  @Value("${ncp.sens.from}")
-  private String from;
+  public NcpSensSmsClient(
+      RestTemplateBuilder restTemplateBuilder,
+      @Value("${ncp.sens.access-key}") String accessKey,
+      @Value("${ncp.sens.secret-key}") String secretKey,
+      @Value("${ncp.sens.service-id}") String serviceId,
+      @Value("${ncp.sens.from}") String from
+  ) {
+    this.restTemplate = restTemplateBuilder.build();
+    this.accessKey = accessKey;
+    this.secretKey = secretKey;
+    this.serviceId = serviceId;
+    this.from = from;
+  }
 
   @Override
   public void sendSms(String phone, String content) {
@@ -56,7 +64,6 @@ public class NcpSensSmsClient implements SmsSender {
     Map<String, String> msg = new HashMap<>();
     msg.put("to", phone);
     msg.put("content", content);
-
     body.put("messages", Collections.singletonList(msg));
 
     HttpHeaders headers = new HttpHeaders();
