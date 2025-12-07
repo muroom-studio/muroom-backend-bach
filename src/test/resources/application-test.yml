@@ -66,3 +66,11 @@ oauth2:
     client-id: test-google-client-id
     client-secret: test-google-client-secret
   redirect-uri-base: https://muroom-frontend-handel-web.vercel.app
+
+
+ncp:
+  sens:
+    access-key: test
+    secret-key: test
+    service-id: test
+    from: test
