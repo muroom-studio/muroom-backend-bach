@@ -14,6 +14,7 @@ public class SmsVerificationService {
 
   private final SmsSender smsSender;
   private final SmsVerificationCodeStore codeStore;
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
   private static final int CODE_LENGTH = 6;
   private static final Duration CODE_TTL = Duration.ofMinutes(3);
 
@@ -45,11 +46,9 @@ public class SmsVerificationService {
    * 🔐 0~9 숫자로 이루어진 6자리 랜덤 코드 생성
    */
   private String generateCode() {
-    SecureRandom random = new SecureRandom();
-    StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder(CODE_LENGTH);
     for (int i = 0; i < CODE_LENGTH; i++) {
-      int digit = random.nextInt(10); // 0 ~ 9
-      sb.append(digit);
+      sb.append(SECURE_RANDOM.nextInt(10)); // 0~9
     }
     return sb.toString();
   }
