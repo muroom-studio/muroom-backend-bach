@@ -1,8 +1,12 @@
-# 프로젝트 전반에 걸친 공통 무시 규칙
+# 쿼리 파일
+**/src/main/resources/queries/
+
+# 환경 설정 파일
 *.env
 *.log
-*.sql
 
+
+# 자동 설정
 HELP.md
 .gradle
 build/

@@ -1,7 +1,5 @@
 package kr.muroom.muroombackendbach.admin.owner.application;
 
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import kr.muroom.muroombackendbach.admin.owner.presentation.request.OwnerCreateRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.user.application.UserService;
@@ -20,21 +18,16 @@ public class AdminOwnerService {
 
   private final OwnerRepository ownerRepository;
   private final UserService userService;
+  private final UniqueNicknameCodeGenerator uniqueNicknameCodeGenerator;
 
-  private static final List<String> ADJECTIVES = List.of(
-      "행복한", "즐거운", "빛나는", "용감한", "슬기로운", "신비로운",
-      "엉뚱한", "씩씩한", "친절한", "고요한", "날으는", "수줍은",
-      "호기심많은", "명랑한", "산책하는", "생각하는", "꿈꾸는", "기분좋은",
-      "동글동글", "따뜻한", "똑똑한", "멋있는",
-      "반짝이는", "상큼한", "성실한", "솔직한", "신나는", "여유로운",
-      "자유로운", "작은", "조용한", "책읽는", "총명한",
-      "춤추는", "포근한", "다정한"
-  );
-
-  private static final String NICKNAME_POSTFIX = "뮤즈";
+  private static final String OWNER_NICKNAME_PREFIX = "사장님";
 
   public String generateOwnerUniqueNickname() {
-    return generateRandomNickname();
+    // 1. 번호표(Sequence) 하나 소모 (동시성 문제 없이 유니크함 보장)
+    Long nextSeq = ownerRepository.getNextNicknameSequence();
+
+    // 2. 번호표를 닉네임으로 변환하여 반환
+    return uniqueNicknameCodeGenerator.generate(nextSeq);
   }
 
   public void createOwner(OwnerCreateRequest request) {
@@ -52,17 +45,4 @@ public class AdminOwnerService {
 
     ownerRepository.save(newOwner);
   }
-
-  private String generateRandomNickname() {
-    String nickname;
-
-    do {
-      String adjective = ADJECTIVES.get(ThreadLocalRandom.current().nextInt(ADJECTIVES.size()));
-      int random4DigitNumber = 100000 + ThreadLocalRandom.current().nextInt(900000);
-      nickname = adjective + " " + NICKNAME_POSTFIX + " " + random4DigitNumber;
-    } while (!userService.isNicknameAvailable(nickname));
-
-    return nickname;
-  }
-
 }

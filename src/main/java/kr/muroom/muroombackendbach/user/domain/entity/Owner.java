@@ -70,4 +70,8 @@ public class Owner extends AuditableEntity {
   public boolean isActive() {
     return this.status == UserStatus.ACTIVE && this.deletedAt == null;
   }
+
+  public void changeNickname(String newNickname) {
+    this.nickname = newNickname;
+  }
 }
