@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.common.sms;
+package kr.muroom.muroombackendbach.common.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;

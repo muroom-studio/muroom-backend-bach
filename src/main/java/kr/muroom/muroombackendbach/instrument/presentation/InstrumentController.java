@@ -1,9 +1,9 @@
-package kr.muroom.muroombackendbach.user.presentation;
+package kr.muroom.muroombackendbach.instrument.presentation;
 
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.user.application.InstrumentService;
-import kr.muroom.muroombackendbach.user.presentation.dto.InstrumentDto.InstrumentResponse;
+import kr.muroom.muroombackendbach.instrument.application.InstrumentService;
+import kr.muroom.muroombackendbach.instrument.presentation.dto.InstrumentDto.InstrumentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,10 +1,8 @@
-package kr.muroom.muroombackendbach.auth.login;
+package kr.muroom.muroombackendbach.common.sms;
 
 import java.security.SecureRandom;
 import java.time.Duration;
-import kr.muroom.muroombackendbach.common.sms.SmsSender;
-import kr.muroom.muroombackendbach.common.sms.SmsVerificationCodeStore;
-import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.VerifyResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +28,7 @@ public class SmsVerificationService {
     smsSender.sendSms(phone, content);
   }
 
-  public VerifyResponse verifyCode(String phone, String code) {
+  public SmsVerifyResponse verifyCode(String phone, String code) {
     String saved = codeStore.getCode(phone);
 
     boolean success = saved != null && saved.equals(code);
@@ -39,7 +37,7 @@ public class SmsVerificationService {
       codeStore.deleteCode(phone);
     }
 
-    return new VerifyResponse(success);
+    return new SmsVerifyResponse(success);
   }
 
   /**

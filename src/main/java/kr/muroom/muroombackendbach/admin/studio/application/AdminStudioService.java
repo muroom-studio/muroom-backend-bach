@@ -35,7 +35,7 @@ import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudi
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationRepository;
 import kr.muroom.muroombackendbach.subway.exception.SubwayErrorCode;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
-import kr.muroom.muroombackendbach.user.domain.repository.InstrumentRepository;
+import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
 import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +56,8 @@ public class AdminStudioService {
   private final SubwayStationRepository subwayStationRepository;
   private final FileStorageService fileStorageService;
 
-  public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(StudioImagePresignedUrlRequest request) {
+  public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(
+      StudioImagePresignedUrlRequest request) {
     List<PresignedUrlInfo> presignedUrlInfos = request.studioImages().stream()
         .map((studioImageInfo) -> {
           validateContentType(studioImageInfo.contentType());
@@ -111,11 +112,12 @@ public class AdminStudioService {
           .build();
       studio.specifyPrice(studioPrice);
     }
-    
+
     studio.specifyBuildingInfo(buildStudioBuildingInfo(request.buildingInfo()));
     studio.updateRooms(buildRooms(request.rooms()));
     studio.applyOptions(buildStudioOptions(request.optionCodes()));
-    studio.updateForbiddenInstruments(buildForbiddenInstruments(request.forbiddenInstrumentCodes()));
+    studio.updateForbiddenInstruments(
+        buildForbiddenInstruments(request.forbiddenInstrumentCodes()));
     studio.updateImages(buildStudioImages(request.imageKeys()));
     studio.updateNearbyStations(buildNearbyStations(request.nearbyStations()));
 
@@ -124,7 +126,8 @@ public class AdminStudioService {
     return savedStudio.getId();
   }
 
-  private StudioBuildingInfo buildStudioBuildingInfo(StudioCreateRequest.BuildingInfoRequest request) {
+  private StudioBuildingInfo buildStudioBuildingInfo(
+      StudioCreateRequest.BuildingInfoRequest request) {
     Boolean hasRestroom = request.hasRestroom();
     RestroomLocation restroomLocation = null;
     RestroomGender restroomGender = null;
@@ -255,7 +258,8 @@ public class AdminStudioService {
     return images;
   }
 
-  private List<SubwayStationNearbyStudio> buildNearbyStations(List<StudioCreateRequest.NearbyStationRequest> request) {
+  private List<SubwayStationNearbyStudio> buildNearbyStations(
+      List<StudioCreateRequest.NearbyStationRequest> request) {
     if (request == null) {
       return new ArrayList<>();
     }

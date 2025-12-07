@@ -1,10 +1,9 @@
-package kr.muroom.muroombackendbach.user.application;
+package kr.muroom.muroombackendbach.instrument.application;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
-import kr.muroom.muroombackendbach.user.domain.repository.InstrumentRepository;
-import kr.muroom.muroombackendbach.user.presentation.dto.InstrumentDto.InstrumentResponse;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
+import kr.muroom.muroombackendbach.instrument.presentation.dto.InstrumentDto.InstrumentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

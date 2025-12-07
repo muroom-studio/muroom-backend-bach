@@ -1,6 +1,6 @@
-package kr.muroom.muroombackendbach.user.presentation.dto;
+package kr.muroom.muroombackendbach.instrument.presentation.dto;
 
-import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 
 public final class InstrumentDto {
 

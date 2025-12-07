@@ -14,9 +14,9 @@ public class UserDto {
 
   }
 
-  public record VerifyRequest(
+  public record SmsVerifyRequest(
       @NotBlank
-      String phoneNumber,
+      String phone,
 
       @NotBlank
       String code
@@ -24,7 +24,7 @@ public class UserDto {
 
   }
 
-  public record VerifyResponse(
+  public record SmsVerifyResponse(
       boolean success
   ) {
 

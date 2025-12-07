@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,6 +21,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "terms")
@@ -38,7 +40,8 @@ public class Term {
   private TermsType code;
 
   @Column(length = 50)
-  private String targetRole;
+  @Enumerated(EnumType.STRING)
+  private TargetRole targetRole;
 
   @Column(length = 50)
   private String version;
@@ -50,4 +53,10 @@ public class Term {
 
   @CreatedDate
   private OffsetDateTime createdAt;
+
+  public void updateTerm(TermsType code, TargetRole targetRole, OffsetDateTime effectiveAt) {
+    this.code = code;
+    this.targetRole = targetRole;
+    this.effectiveAt = effectiveAt;
+  }
 }

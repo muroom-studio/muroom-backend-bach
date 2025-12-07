@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.user.application;
 
-import static kr.muroom.muroombackendbach.user.exception.InstrumentErrorCode.NOT_EXIST_INSTRUMENT;
+import static kr.muroom.muroombackendbach.instrument.exception.InstrumentErrorCode.NOT_EXIST_INSTRUMENT;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpDto;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
@@ -15,13 +15,13 @@ import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.MusicianAgreementRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
-import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.MyStudio;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
-import kr.muroom.muroombackendbach.user.domain.repository.InstrumentRepository;
+import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MyStudioRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
