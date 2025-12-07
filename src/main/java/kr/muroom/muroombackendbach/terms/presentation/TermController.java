@@ -35,16 +35,11 @@ public class TermController {
     return ApiResponse.success(termService.getTermsMusicianByType(types));
   }
 
-  @GetMapping("/musician/all")
+  @GetMapping("/{targetRole}/all")
   public ApiResponse<List<TermAllByCodeResponse>> getAllMusicianTermsByCode(
-      @RequestParam TermsType code) {
-    return ApiResponse.success(termService.getAllTermByCode(code, TargetRole.MUSICIAN));
-  }
-
-  @GetMapping("/owner/all")
-  public ApiResponse<List<TermAllByCodeResponse>> getAllOwnerTermsByCode(
-      @RequestParam TermsType code) {
-    return ApiResponse.success(termService.getAllTermByCode(code, TargetRole.MUSICIAN));
+      @RequestParam TermsType code, @PathVariable String targetRole) {
+    TargetRole role = TargetRole.valueOf(targetRole.toUpperCase());
+    return ApiResponse.success(termService.getAllTermByCode(code, role));
   }
 
   @GetMapping("/{termId}")

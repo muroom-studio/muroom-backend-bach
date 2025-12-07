@@ -90,14 +90,7 @@ public class TermService {
         targetRole);
 
     return terms.stream()
-        .map(term -> new TermAllByCodeResponse(
-            term.getId(),
-            term.getCode(),
-            term.getTargetRole(),
-            term.getVersion(),
-            term.isMandatory(),        // boolean 필드라 isMandatory() getter
-            term.getEffectiveAt()
-        ))
+        .map(TermAllByCodeResponse::from)
         .toList();
   }
 }
