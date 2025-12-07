@@ -30,7 +30,7 @@ public class OAuthLoginService {
   private final KakaoIdTokenDecoder kakaoIdTokenDecoder;
 
   @Transactional(readOnly = true)
-  public OAuthLoginResponse login(OAuthLoginRequest request, String baseUrl) {
+  public OAuthLoginResponse login(OAuthLoginRequest request) {
     OAuthProvider provider = OAuthProvider.fromRegistrationId(request.provider());
 
     if (provider != OAuthProvider.KAKAO) {
@@ -38,7 +38,7 @@ public class OAuthLoginService {
     }
 
     // 1. 인가 코드로 카카오 회원 ID(sub) 조회
-    String providerUserId = getKakaoUserIdFromAuthorizationCode(request.providerId(), baseUrl);
+    String providerUserId = getKakaoUserIdFromAuthorizationCode(request.providerId());
 
     // 2. 기존 계정 로그인 or 회원가입 필요 응답
     return loginOrPrepareSignup(provider, providerUserId);
@@ -47,13 +47,9 @@ public class OAuthLoginService {
   /**
    * 인가 코드와 baseUrl을 사용하여 카카오 ID 토큰을 얻고, ID 토큰의 sub(카카오 회원 번호)를 가져온다.
    */
-  private String getKakaoUserIdFromAuthorizationCode(String authorizationCode, String baseUrl) {
-    String redirectUri = baseUrl + "/redirect/oauth/kakao";
-
-    log.info("redirect url : {}", redirectUri);
-
+  private String getKakaoUserIdFromAuthorizationCode(String authorizationCode) {
     KakaoTokenResponse tokenResponse =
-        kakaoOAuthClient.exchangeCodeForToken(authorizationCode, redirectUri);
+        kakaoOAuthClient.exchangeCodeForToken(authorizationCode);
 
     String idToken = tokenResponse.getIdToken();
     if (idToken == null) {
