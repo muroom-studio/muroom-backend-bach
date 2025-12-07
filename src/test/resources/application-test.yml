@@ -65,3 +65,4 @@ oauth2:
   google:
     client-id: test-google-client-id
     client-secret: test-google-client-secret
+  redirect-uri-base: https://muroom-frontend-handel-web.vercel.app

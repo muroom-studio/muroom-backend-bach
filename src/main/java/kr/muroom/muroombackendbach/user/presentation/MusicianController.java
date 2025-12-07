@@ -35,23 +35,18 @@ public class MusicianController {
   @Operation(summary = "뮤지션 회원가입", description = "뮤지션 회원 정보를 등록합니다.")
   @PostMapping("/register")
   public ApiResponse<MusicianSignUpResponse> registerMusician(
-      @Valid @RequestBody MusicianSignUpDto request,
-      HttpServletRequest httpRequest
+      @Valid @RequestBody MusicianSignUpDto request
   ) {
-    String baseUrl = resolveBaseUrl(httpRequest);
-    MusicianSignUpResponse response = musicianService.registerMusician(request, baseUrl);
+    MusicianSignUpResponse response = musicianService.registerMusician(request);
     return ApiResponse.created(response);
   }
 
   @Operation(summary = "뮤지션 로그인", description = "인가코드를 기반으로 로그인 시도")
   @PostMapping("/login")
   public ApiResponse<OAuthLoginResponse> oauthLogin(
-      @Valid @RequestBody OAuthLoginRequest request,
-      HttpServletRequest httpRequest
+      @Valid @RequestBody OAuthLoginRequest request
   ) {
-    String baseUrl = resolveBaseUrl(httpRequest);
-    OAuthLoginResponse response = oAuthLoginService.login(request, baseUrl);
-    return ApiResponse.success(response);
+    return ApiResponse.success(oAuthLoginService.login(request));
   }
 
   @Operation(
@@ -65,16 +60,5 @@ public class MusicianController {
   ) {
     MusicianSimpleProfileResponse response = musicianService.getMusicianSimpleProfile(musicianId);
     return ApiResponse.success(response);
-  }
-
-  /**
-   * 요청으로부터 base URL 추출 (scheme + host [+ port])
-   */
-  private String resolveBaseUrl(HttpServletRequest request) {
-    return ServletUriComponentsBuilder
-        .fromRequestUri(request)
-        .replacePath(null)
-        .build()
-        .toUriString();
   }
 }

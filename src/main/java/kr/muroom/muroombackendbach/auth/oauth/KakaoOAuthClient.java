@@ -1,7 +1,6 @@
 package kr.muroom.muroombackendbach.auth.oauth;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +12,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
 public class KakaoOAuthClient {
 
@@ -23,22 +21,24 @@ public class KakaoOAuthClient {
   @Value("${oauth2.kakao.client-secret}")
   private String clientSecret;
 
+  @Value("${oauth2.redirect-uri-base}")
+  private String baseUri;
+
+  private static final String REDIRECT_URI = "/redirect/oauth/kakao";
+  private static final String TOKEN_URI = "https://kauth.kakao.com/oauth/token";
+
   private final RestTemplate restTemplate = new RestTemplate();
 
-  public KakaoTokenResponse exchangeCodeForToken(String authorizationCode, String redirectUri) {
-    String url = "https://kauth.kakao.com/oauth/token";
-    redirectUri = "https://muroom-frontend-handel-web.vercel.app/redirect/oauth/kakao";
+  public KakaoTokenResponse exchangeCodeForToken(String authorizationCode) {
+
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-    log.info("[카카오 토큰 요청] redirect url : {}", redirectUri);
-    log.error("[카카오 토큰 요청] redirect url : {}", redirectUri);
-    System.out.println("[카카오 토큰 요청] redirect url " + redirectUri);
 
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
     body.add("client_id", clientId);
-    body.add("redirect_uri", redirectUri);
+
+    body.add("redirect_uri", baseUri + REDIRECT_URI);
     body.add("code", authorizationCode);
 
     if (clientSecret != null && !clientSecret.isBlank()) {
@@ -49,7 +49,7 @@ public class KakaoOAuthClient {
         new HttpEntity<>(body, headers);
 
     ResponseEntity<KakaoTokenResponse> response =
-        restTemplate.postForEntity(url, request, KakaoTokenResponse.class);
+        restTemplate.postForEntity(TOKEN_URI, request, KakaoTokenResponse.class);
 
     return response.getBody();
   }
