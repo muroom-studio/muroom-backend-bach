@@ -34,7 +34,7 @@ public class TermContent {
   @JoinColumn(name = "term_id")
   private Term term;
 
-  @Column(columnDefinition = "TEXT")
+  @Column(columnDefinition = "TEXT", nullable = false)
   private String content;
 
   public void updateContent(String content) {

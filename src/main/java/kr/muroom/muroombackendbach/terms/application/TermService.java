@@ -58,6 +58,7 @@ public class TermService {
     Term term = Term.builder()
         .effectiveAt(request.effectiveAt())
         .targetRole(request.targetRole())
+        .isMandatory(request.isMandatory())
         .version(nextVersion)
         .code(request.code()).build();
     Term save = termRepository.save(term);

@@ -13,6 +13,7 @@ public record TermRegisterRequest(
     @NotNull
     TargetRole targetRole,
 
+    @NotNull
     Boolean isMandatory,
 
     @NotNull
