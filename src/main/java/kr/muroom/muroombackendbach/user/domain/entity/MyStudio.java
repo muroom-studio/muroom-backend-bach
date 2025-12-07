@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "my_studio")
+@Table(name = "my_studios")
 public class MyStudio extends SoftDeletableEntity {
 
   @Id
@@ -32,6 +33,7 @@ public class MyStudio extends SoftDeletableEntity {
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "musician_id")
   private Musician musician;
 
   @Column
@@ -39,9 +41,6 @@ public class MyStudio extends SoftDeletableEntity {
 
   @Column
   private String detailAddress;
-
-  @Column
-  private String postalCode;
 
   @Column
   private String roadAddress;

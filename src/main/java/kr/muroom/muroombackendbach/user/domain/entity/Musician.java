@@ -47,7 +47,7 @@ public class Musician extends AuditableEntity {
   @Column(length = 16)
   private String phoneNumber;
 
-  @Column(length = 20, unique = true)
+  @Column(length = 10, unique = true)
   private String nickname;
 
   @Column
