@@ -55,6 +55,7 @@ public class StudioBuildingInfo {
   @Column(length = 50)
   private RestroomGender restroomGender;
 
+  @Enumerated(EnumType.STRING)
   @Column(length = 50)
   private ParkingFeeType parkingFeeType;
 
