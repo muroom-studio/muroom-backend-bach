@@ -6,6 +6,7 @@ import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.Musi
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
 
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
@@ -130,6 +131,8 @@ public class MusicianService {
         .phoneNumber(request.phoneNumber())
         .nickname(request.nickname())
         .status(UserStatus.ACTIVE)
+        // TODO: 카카오 Biz 인증 후 생일 정보 받아서 입력받도록 수정 필요
+        .birthdate(LocalDate.parse("1999-04-13"))
         .instrument(instrument)
         .build();
 

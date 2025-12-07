@@ -14,10 +14,12 @@ spring:
     init:
       mode: never
 
-  #  data:
-  #    redis:
-  #      host: localhost
-  #      port: 6379
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD}
+
 
   jpa:
     open-in-view: false
@@ -70,3 +72,12 @@ oauth2:
     client-id: ${GOOGLE_CLIENT_ID}
     client-secret: ${GOOGLE_CLIENT_SECRET}
   redirect-uri-base: https://muroom.kr
+
+
+ncp:
+  sens:
+    access-key: ${NAVER_ACCESS_KEY_ID}
+    secret-key: ${NAVER_SECRET_KEY}
+    service-id: ${NAVER_SENS_SERVICE_ID}
+    from: ${NAVER_SENS_FROM}
+
