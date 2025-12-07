@@ -26,7 +26,7 @@ CREATE TABLE owners
     name             VARCHAR(50) NULL,
     birthdate        DATE NULL,
     phone_number     VARCHAR(16) NOT NULL,
-    nickname         VARCHAR(20) NOT NULL,
+    nickname         VARCHAR(10) NOT NULL,
     status           VARCHAR(50) NOT NULL,
     email            VARCHAR(255) NULL,
     password         VARCHAR(255) NULL,
@@ -36,6 +36,7 @@ CREATE TABLE owners
     deleted_at       TIMESTAMPTZ NULL,
 
     CONSTRAINT pk_owners PRIMARY KEY (owner_id),
+    CONSTRAINT unq_owners_nickname UNIQUE (nickname),
     CONSTRAINT unq_owners_email UNIQUE (email),
     CONSTRAINT unq_owners_phone_number UNIQUE (phone_number)
 );
@@ -69,7 +70,8 @@ CREATE TABLE musicians
     deleted_at        TIMESTAMPTZ NULL,
 
     CONSTRAINT pk_musicians PRIMARY KEY (musician_id),
-    CONSTRAINT unq_musicians_name_phone UNIQUE (name, phone_number),
+    CONSTRAINT unq_musicians_nickname UNIQUE (nickname),
+    CONSTRAINT unq_musicians_phone_number UNIQUE (phone_number),
     CONSTRAINT fk_musicians_on_instrument FOREIGN KEY (instrument_id) REFERENCES instruments (instrument_id)
 );
 

@@ -16,7 +16,7 @@ public interface OwnerRepository extends JpaRepository<Owner, Long> {
   Optional<Owner> findByPhoneNumber(String phoneNumber);
 
   @Query(value = "SELECT nextval('owner_id_seq')", nativeQuery = true)
-  Long getNextNicknameSequence();
+  Long getNextIdSequence();
 
   Boolean existsByPhoneNumber(String phoneNumber);
 }

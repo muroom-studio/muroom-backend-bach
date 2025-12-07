@@ -15,12 +15,15 @@ public class UniqueNicknameCodeGenerator {
   // 서비스 런칭 후에는 절대 변경하면 안 됩니다!
   private static final int[] KEYS = {123, 456, 789, 101};
 
+  // 닉네임 접두사
+  private static final String OWNER_NICKNAME_PREFIX = "사장님";
+
   /**
    * DB의 Sequence ID (0 ~ 999,999)를 입력받아 중복 없는 랜덤한 6자리 숫자 문자열을 반환합니다.
    */
   public String generate(long seqId) {
     if (seqId < 0 || seqId >= 1_000_000) {
-      throw new IllegalArgumentException("ID must be between 0 and 999,999");
+      throw new IllegalArgumentException("ID는 0 이상 999,999 이하이어야 합니다.");
     }
 
     // 1. 숫자를 좌우로 쪼갭니다 (예: 123456 -> L:123, R:456)
@@ -35,7 +38,7 @@ public class UniqueNicknameCodeGenerator {
     }
 
     // 3. 다시 합쳐서 6자리 문자열로 반환 (빈 자리는 0으로 채움)
-    return String.format("사장님%06d", left * DOMAIN + right);
+    return String.format("%s%06d", OWNER_NICKNAME_PREFIX, left * DOMAIN + right);
   }
 
   /**

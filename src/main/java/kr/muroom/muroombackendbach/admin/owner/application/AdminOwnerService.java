@@ -2,7 +2,6 @@ package kr.muroom.muroombackendbach.admin.owner.application;
 
 import kr.muroom.muroombackendbach.admin.owner.presentation.request.OwnerCreateRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
-import kr.muroom.muroombackendbach.user.application.UserService;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
@@ -17,14 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminOwnerService {
 
   private final OwnerRepository ownerRepository;
-  private final UserService userService;
   private final UniqueNicknameCodeGenerator uniqueNicknameCodeGenerator;
-
-  private static final String OWNER_NICKNAME_PREFIX = "사장님";
 
   public String generateOwnerUniqueNickname() {
     // 1. 번호표(Sequence) 하나 소모 (동시성 문제 없이 유니크함 보장)
-    Long nextSeq = ownerRepository.getNextNicknameSequence();
+    Long nextSeq = ownerRepository.getNextIdSequence();
 
     // 2. 번호표를 닉네임으로 변환하여 반환
     return uniqueNicknameCodeGenerator.generate(nextSeq);
