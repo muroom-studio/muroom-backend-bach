@@ -4,7 +4,9 @@ import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.*;
 
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.terms.application.TermService;
+import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
+import kr.muroom.muroombackendbach.terms.presentation.dto.TermAllByCodeResponse;
 import kr.muroom.muroombackendbach.terms.presentation.dto.TermRegisterRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.TermUpdateRequest;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,13 @@ public class TermController {
   public ApiResponse<List<TermsWithContentDto>> getMusicianTerms(
       @RequestParam List<TermsType> types) {
     return ApiResponse.success(termService.getTermsMusicianByType(types));
+  }
+
+  @GetMapping("/{targetRole}/all")
+  public ApiResponse<List<TermAllByCodeResponse>> getAllMusicianTermsByCode(
+      @RequestParam TermsType code, @PathVariable String targetRole) {
+    TargetRole role = TargetRole.valueOf(targetRole.toUpperCase());
+    return ApiResponse.success(termService.getAllTermByCode(code, role));
   }
 
   @GetMapping("/{termId}")
