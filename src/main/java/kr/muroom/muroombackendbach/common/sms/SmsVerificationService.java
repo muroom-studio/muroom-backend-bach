@@ -1,9 +1,7 @@
-package kr.muroom.muroombackendbach.auth.login;
+package kr.muroom.muroombackendbach.common.sms;
 
 import java.security.SecureRandom;
 import java.time.Duration;
-import kr.muroom.muroombackendbach.common.sms.SmsSender;
-import kr.muroom.muroombackendbach.common.sms.SmsVerificationCodeStore;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

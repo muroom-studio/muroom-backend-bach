@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.user.presentation;
 
-import kr.muroom.muroombackendbach.auth.login.SmsVerificationService;
+import kr.muroom.muroombackendbach.common.sms.SmsVerificationService;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.UserService;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto;
