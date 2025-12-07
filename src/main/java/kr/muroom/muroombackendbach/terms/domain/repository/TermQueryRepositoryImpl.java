@@ -1,12 +1,13 @@
 package kr.muroom.muroombackendbach.terms.domain.repository;
 
+import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.*;
+
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.muroom.muroombackendbach.terms.domain.entity.QTerm;
-import kr.muroom.muroombackendbach.terms.domain.entity.QTermContent;
+import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -19,8 +20,8 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public List<TermDto.TermsWithContentDto> findLatestTermsByRoleAndTypes(
-      String role,
+  public List<TermsWithContentDto> findLatestTermsByRoleAndTypes(
+      TargetRole role,
       List<TermsType> types
   ) {
     QTerm t = QTerm.term;
@@ -28,7 +29,7 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
 
     return queryFactory
         .select(Projections.constructor(
-            TermDto.TermsWithContentDto.class,
+            TermsWithContentDto.class,
             t.id,
             t.code,
             t.targetRole,

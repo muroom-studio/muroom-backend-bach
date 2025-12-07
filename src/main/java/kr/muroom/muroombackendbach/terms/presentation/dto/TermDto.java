@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.terms.presentation.dto;
 
+import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 
 import java.time.OffsetDateTime;
@@ -12,7 +13,7 @@ public final class TermDto {
   public record TermsWithContentDto(
       Long termId,
       TermsType code,
-      String targetRole,
+      TargetRole targetRole,
       String version,
       boolean isMandatory,
       OffsetDateTime effectiveAt

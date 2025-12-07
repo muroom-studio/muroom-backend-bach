@@ -2,18 +2,27 @@ package kr.muroom.muroombackendbach.terms.application;
 
 import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.common.util.VersionUtil;
+import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
+import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermContent;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermContentRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
+import kr.muroom.muroombackendbach.terms.presentation.dto.TermRegisterRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.TermUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class TermService {
 
@@ -21,11 +30,11 @@ public class TermService {
   private final TermContentRepository termContentRepository;
 
   public List<TermsWithContentDto> getTermsMusicianByType(List<TermsType> types) {
-    return termRepository.findLatestTermsByRoleAndTypes("MUSICIAN", types);
+    return termRepository.findLatestTermsByRoleAndTypes(TargetRole.MUSICIAN, types);
   }
 
   public List<TermsWithContentDto> getTermsOwnerByType(List<TermsType> types) {
-    return termRepository.findLatestTermsByRoleAndTypes("OWNER", types);
+    return termRepository.findLatestTermsByRoleAndTypes(TargetRole.OWNER, types);
   }
 
   public TermContentDto getTermContent(Long termId) {
@@ -34,5 +43,43 @@ public class TermService {
             TermErrorCode.NOT_EXIST_TERM));
 
     return new TermContentDto(termId, termContent.getContent());
+  }
+
+  @Transactional
+  public void registerMusicianTerms(TermRegisterRequest request) {
+    List<TermsWithContentDto> latestTerm = termRepository.findLatestTermsByRoleAndTypes(
+        request.targetRole(),
+        Collections.singletonList(request.code()));
+
+    String nextVersion = latestTerm.isEmpty()
+        ? "0.0.1"
+        : VersionUtil.nextVersion(latestTerm.getFirst().version());
+
+    Term term = Term.builder()
+        .effectiveAt(request.effectiveAt())
+        .targetRole(request.targetRole())
+        .version(nextVersion)
+        .code(request.code()).build();
+    Term save = termRepository.save(term);
+
+    TermContent termContent = TermContent.builder()
+        .term(save)
+        .content(request.content()).build();
+    termContentRepository.save(termContent);
+  }
+
+  @Transactional
+  public void updateMusicianTerms(Long termId, TermUpdateRequest request) {
+    TermContent termContent = termContentRepository.findById(termId)
+        .orElseThrow(() -> new BusinessException(
+            TermErrorCode.NOT_EXIST_TERM));
+
+    termContent.updateContent(request.content());
+
+    Term term = termContent.getTerm();
+    term.updateTerm(request.code()
+        , request.targetRole()
+        , request.effectiveAt()
+    );
   }
 }

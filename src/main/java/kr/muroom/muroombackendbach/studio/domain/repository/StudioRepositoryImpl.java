@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.studio.domain.repository;
 
+import static kr.muroom.muroombackendbach.instrument.domain.entity.QInstrument.instrument;
 import static kr.muroom.muroombackendbach.room.domain.entity.QRoom.room;
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudio.studio;
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioBuildingInfo.studioBuildingInfo;
@@ -8,7 +9,6 @@ import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioOption.stu
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioPrice.studioPrice;
 import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStation.subwayStation;
 import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStationNearbyStudio.subwayStationNearbyStudio;
-import static kr.muroom.muroombackendbach.user.domain.entity.QInstrument.instrument;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
