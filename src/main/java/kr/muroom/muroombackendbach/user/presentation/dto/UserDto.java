@@ -7,7 +7,7 @@ public class UserDto {
   private UserDto() {
   }
 
-  public record SmsSendReuqest(
+  public record SmsSendRequest(
       @NotBlank
       String phone
   ) {
