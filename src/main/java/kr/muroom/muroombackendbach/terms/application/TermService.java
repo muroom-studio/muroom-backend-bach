@@ -13,6 +13,7 @@ import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermContentRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
+import kr.muroom.muroombackendbach.terms.presentation.dto.TermAllByCodeResponse;
 import kr.muroom.muroombackendbach.terms.presentation.dto.TermRegisterRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.TermUpdateRequest;
 import lombok.RequiredArgsConstructor;
@@ -82,5 +83,21 @@ public class TermService {
         , request.targetRole()
         , request.effectiveAt()
     );
+  }
+
+  public List<TermAllByCodeResponse> getAllTermByCode(TermsType code, TargetRole targetRole) {
+    List<Term> terms = termRepository.findByCodeAndTargetRoleOrderByVersionAsc(code,
+        targetRole);
+
+    return terms.stream()
+        .map(term -> new TermAllByCodeResponse(
+            term.getId(),
+            term.getCode(),
+            term.getTargetRole(),
+            term.getVersion(),
+            term.isMandatory(),        // boolean 필드라 isMandatory() getter
+            term.getEffectiveAt()
+        ))
+        .toList();
   }
 }
