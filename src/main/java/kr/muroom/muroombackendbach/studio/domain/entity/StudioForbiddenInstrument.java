@@ -10,7 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

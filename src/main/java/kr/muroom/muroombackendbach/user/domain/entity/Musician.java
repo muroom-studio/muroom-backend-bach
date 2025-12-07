@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

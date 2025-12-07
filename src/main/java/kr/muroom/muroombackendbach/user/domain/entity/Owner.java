@@ -62,11 +62,6 @@ public class Owner extends AuditableEntity {
 
   private OffsetDateTime deletedAt;
 
-  public void softDelete() {
-    this.deletedAt = OffsetDateTime.now();
-    this.status = UserStatus.INACTIVE;
-  }
-
   public boolean isActive() {
     return this.status == UserStatus.ACTIVE && this.deletedAt == null;
   }

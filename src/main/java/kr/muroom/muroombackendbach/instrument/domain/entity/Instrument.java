@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.user.domain.entity;
+package kr.muroom.muroombackendbach.instrument.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

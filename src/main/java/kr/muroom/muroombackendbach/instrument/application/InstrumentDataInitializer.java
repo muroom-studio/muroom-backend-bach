@@ -1,8 +1,8 @@
 package kr.muroom.muroombackendbach.instrument.application;
 
 import java.util.List;
-import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
-import kr.muroom.muroombackendbach.user.domain.repository.InstrumentRepository;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;

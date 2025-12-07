@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.user.exception;
+package kr.muroom.muroombackendbach.instrument.exception;
 
 import kr.muroom.muroombackendbach.common.exception.ErrorCode;
 import lombok.Getter;
