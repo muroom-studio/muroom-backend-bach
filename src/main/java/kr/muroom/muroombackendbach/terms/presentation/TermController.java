@@ -29,10 +29,9 @@ public class TermController {
 
   private final TermService termService;
 
-  @GetMapping("/musician")
-  public ApiResponse<List<TermsWithContentDto>> getMusicianTerms(
-      @RequestParam List<TermsType> types) {
-    return ApiResponse.success(termService.getTermsMusicianByType(types));
+  @GetMapping("/musician/signup")
+  public ApiResponse<List<TermsWithContentDto>> getMusicianTerms() {
+    return ApiResponse.success(termService.getTermsMusicianByType());
   }
 
   @GetMapping("/{targetRole}/all")

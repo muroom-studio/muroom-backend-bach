@@ -1,5 +1,6 @@
-package kr.muroom.muroombackendbach.auth.oauth;
+package kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao;
 
+import kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao.dto.KakaoTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

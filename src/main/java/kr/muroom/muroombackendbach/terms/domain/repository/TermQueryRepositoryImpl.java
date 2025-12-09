@@ -9,7 +9,6 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.muroom.muroombackendbach.terms.domain.entity.QTerm;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
-import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -22,10 +21,7 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public List<TermsWithContentDto> findLatestTermsByRoleAndTypes(
-      TargetRole role,
-      List<TermsType> types
-  ) {
+  public List<TermsWithContentDto> findLatestTermsByRoleAndTypes(TargetRole role) {
     QTerm t = QTerm.term;
     QTerm t2 = new QTerm("t2");
 
@@ -61,8 +57,11 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
         ))
         .from(t)
         .where(
+            // 0) 대상 role + 최종적으로 선택된 row가 isVisible = true 여야 함
             t.targetRole.eq(role),
-            t.code.in(types),
+            t.isActive.isTrue(),
+
+            // 1) code별 최댓 버전 (major, minor, patch)
             major.eq(
                 JPAExpressions.select(major2.max())
                     .from(t2)
@@ -103,6 +102,7 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
                     )
             ),
 
+            // 3) 같은 effectiveAt 내에서는 id 가장 큰 것
             t.id.eq(
                 JPAExpressions
                     .select(t2.id.max())
@@ -117,5 +117,4 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
         )
         .fetch();
   }
-
 }

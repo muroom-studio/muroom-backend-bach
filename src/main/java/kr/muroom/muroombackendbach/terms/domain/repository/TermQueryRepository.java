@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface TermQueryRepository {
 
-  List<TermsWithContentDto> findLatestTermsByRoleAndTypes(TargetRole role, List<TermsType> types);
+  List<TermsWithContentDto> findLatestTermsByRoleAndTypes(TargetRole role);
 }

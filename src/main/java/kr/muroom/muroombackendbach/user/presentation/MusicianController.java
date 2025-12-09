@@ -7,11 +7,10 @@ import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.Musi
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import kr.muroom.muroombackendbach.auth.login.OAuthLoginService;
-import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginRequest;
-import kr.muroom.muroombackendbach.auth.login.dto.OAuthLoginResponse;
+import kr.muroom.muroombackendbach.auth.oauth.login.application.OAuthLoginService;
+import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
+import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +45,20 @@ public class MusicianController {
       @Valid @RequestBody OAuthLoginRequest request
   ) {
     return ApiResponse.success(oAuthLoginService.login(request));
+  }
+
+  @Operation(
+      summary = "로그아웃",
+      description = "현재 로그인한 뮤지션의 소셜 토큰을 만료(삭제)합니다. 클라이언트는 JWT를 로컬에서 삭제해야 합니다."
+  )
+  @SecurityRequirement(name = "Bearer Authentication")
+  @PostMapping("/logout")
+  public ApiResponse<Void> logout(
+      // @AuthenticationPrincipal
+      Long musicianId
+  ) {
+    oAuthLoginService.logout(musicianId);
+    return ApiResponse.success();
   }
 
   @Operation(
