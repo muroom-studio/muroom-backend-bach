@@ -22,13 +22,14 @@ public class SmsVerificationService {
 
   public void sendVerificationCode(String phone) {
     String code = generateCode();
-    
+
     String normalizedPhone = PhoneNumberUtil.normalize(phone);
     codeStore.saveCode(normalizedPhone, code, CODE_TTL);
 
     String content = """
-        [MUROOM] 인증번호: %s
-        타인 유출로 인한 피해 주의
+        [Muroom]
+        인증번호 [%s]를 입력해 주세요.
+        타인에게 절대 알려주지 마세요.
         """.formatted(code);
     smsSender.sendSms(normalizedPhone, content);
   }

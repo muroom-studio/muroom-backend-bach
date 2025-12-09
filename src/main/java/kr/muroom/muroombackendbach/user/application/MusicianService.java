@@ -26,6 +26,7 @@ import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MyStudioRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
 import kr.muroom.muroombackendbach.user.exception.MusicianErrorCode;
+import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.InstrumentSimpleInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -182,6 +183,7 @@ public class MusicianService {
     return MusicianSimpleProfileResponse.builder()
         .musicianId(musician.getId())
         .nickname(musician.getNickname())
+        .musicianInstrument(InstrumentSimpleInfo.from(musician.getInstrument()))
         // .profileImageUrl()
         .build();
   }
