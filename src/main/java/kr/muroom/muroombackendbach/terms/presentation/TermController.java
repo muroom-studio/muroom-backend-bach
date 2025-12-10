@@ -39,6 +39,7 @@ public class TermController {
     return ApiResponse.success(termService.getTermsMusicianByType());
   }
 
+  // TODO: 이건 안 쓸 것 같습니다!
   @GetMapping("/{targetRole}/all")
   public ApiResponse<List<TermAllByCodeResponse>> getAllMusicianTermsByCode(
       @RequestParam TermsType code, @PathVariable String targetRole) {

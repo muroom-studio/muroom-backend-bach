@@ -1,9 +1,9 @@
 package kr.muroom.muroombackendbach.terms.application;
 
-import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.*;
+import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermContentDto;
+import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermsWithContentDto;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.VersionUtil;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
@@ -18,8 +18,6 @@ import kr.muroom.muroombackendbach.terms.presentation.dto.TermRegisterRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.TermUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -43,7 +41,11 @@ public class TermService {
         .orElseThrow(() -> new BusinessException(
             TermErrorCode.NOT_EXIST_TERM));
 
-    return new TermContentDto(termId, termContent.getContent());
+    return TermContentDto.builder()
+        .termId(termId)
+        .title(termContent.getTitle())
+        .content(termContent.getContent())
+        .build();
   }
 
   @Transactional
@@ -70,6 +72,7 @@ public class TermService {
 
     TermContent termContent = TermContent.builder()
         .term(save)
+        .title(request.title())
         .content(request.content()).build();
     termContentRepository.save(termContent);
   }
@@ -83,9 +86,10 @@ public class TermService {
     termContent.updateContent(request.content());
 
     Term term = termContent.getTerm();
-    term.updateTerm(request.code()
-        , request.targetRole()
-        , request.effectiveAt()
+    term.updateTerm(
+        request.code(),
+        request.targetRole(),
+        request.effectiveAt()
     );
   }
 

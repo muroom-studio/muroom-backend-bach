@@ -34,6 +34,9 @@ public class TermContent {
   @JoinColumn(name = "term_id")
   private Term term;
 
+  @Column(nullable = false)
+  private String title;
+
   @Column(columnDefinition = "TEXT", nullable = false)
   private String content;
 

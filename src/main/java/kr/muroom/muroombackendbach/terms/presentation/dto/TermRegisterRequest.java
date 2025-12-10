@@ -19,6 +19,9 @@ public record TermRegisterRequest(
     @NotNull
     OffsetDateTime effectiveAt,
 
+    @NotBlank(message = "약관 제목을 채워주세요")
+    String title,
+
     @NotBlank(message = "약관 내용을 채워주세요")
     String content
 ) {

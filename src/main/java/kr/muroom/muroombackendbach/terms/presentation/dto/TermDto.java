@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
+import lombok.Builder;
 
 public final class TermDto {
 
@@ -33,9 +34,13 @@ public final class TermDto {
 
   }
 
+  @Builder
   public record TermContentDto(
       @Schema(description = "약관 ID", requiredMode = Schema.RequiredMode.REQUIRED)
       Long termId,
+
+      @Schema(description = "약관 제목", requiredMode = Schema.RequiredMode.REQUIRED)
+      String title,
 
       @Schema(description = "약관 내용", requiredMode = Schema.RequiredMode.REQUIRED)
       String content
