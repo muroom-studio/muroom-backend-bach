@@ -57,7 +57,6 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
         ))
         .from(t)
         .where(
-            // 0) 대상 role + 최종적으로 선택된 row가 isVisible = true 여야 함
             t.targetRole.eq(role),
             t.isActive.isTrue(),
 
@@ -87,31 +86,6 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
                         t2.code.eq(t.code),
                         major2.eq(major),
                         minor2.eq(minor)
-                    )
-            ),
-
-            // 2) 같은 version 내에서는 effectiveAt 최신
-            t.effectiveAt.eq(
-                JPAExpressions
-                    .select(t2.effectiveAt.max())
-                    .from(t2)
-                    .where(
-                        t2.targetRole.eq(t.targetRole),
-                        t2.code.eq(t.code),
-                        t2.version.eq(t.version)
-                    )
-            ),
-
-            // 3) 같은 effectiveAt 내에서는 id 가장 큰 것
-            t.id.eq(
-                JPAExpressions
-                    .select(t2.id.max())
-                    .from(t2)
-                    .where(
-                        t2.targetRole.eq(t.targetRole),
-                        t2.code.eq(t.code),
-                        t2.version.eq(t.version),
-                        t2.effectiveAt.eq(t.effectiveAt)
                     )
             )
         )

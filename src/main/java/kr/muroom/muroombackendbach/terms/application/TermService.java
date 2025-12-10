@@ -51,9 +51,14 @@ public class TermService {
     List<TermsWithContentDto> latestTerm = termRepository.findLatestTermsByRoleAndTypes(
         request.targetRole());
 
-    String nextVersion = latestTerm.isEmpty()
+    TermsWithContentDto latestForCode = latestTerm.stream()
+        .filter(t -> t.code() == request.code()) // code가 enum이면 '==' 가능, 아니면 equals() 사용
+        .findFirst()
+        .orElse(null);
+
+    String nextVersion = (latestForCode == null)
         ? "0.0.1"
-        : VersionUtil.nextVersion(latestTerm.getFirst().version());
+        : VersionUtil.nextVersion(latestForCode.version());
 
     Term term = Term.builder()
         .effectiveAt(request.effectiveAt())
