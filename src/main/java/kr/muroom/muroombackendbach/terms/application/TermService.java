@@ -30,12 +30,12 @@ public class TermService {
   private final TermRepository termRepository;
   private final TermContentRepository termContentRepository;
 
-  public List<TermsWithContentDto> getTermsMusicianByType(List<TermsType> types) {
-    return termRepository.findLatestTermsByRoleAndTypes(TargetRole.MUSICIAN, types);
+  public List<TermsWithContentDto> getTermsMusicianByType() {
+    return termRepository.findLatestTermsByRoleAndTypes(TargetRole.MUSICIAN);
   }
 
   public List<TermsWithContentDto> getTermsOwnerByType(List<TermsType> types) {
-    return termRepository.findLatestTermsByRoleAndTypes(TargetRole.OWNER, types);
+    return termRepository.findLatestTermsByRoleAndTypes(TargetRole.OWNER);
   }
 
   public TermContentDto getTermContent(Long termId) {
@@ -49,8 +49,7 @@ public class TermService {
   @Transactional
   public void registerMusicianTerms(TermRegisterRequest request) {
     List<TermsWithContentDto> latestTerm = termRepository.findLatestTermsByRoleAndTypes(
-        request.targetRole(),
-        Collections.singletonList(request.code()));
+        request.targetRole());
 
     String nextVersion = latestTerm.isEmpty()
         ? "0.0.1"

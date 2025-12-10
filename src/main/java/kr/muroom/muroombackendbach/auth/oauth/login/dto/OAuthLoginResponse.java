@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.auth.login.dto;
+package kr.muroom.muroombackendbach.auth.oauth.login.dto;
 
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 

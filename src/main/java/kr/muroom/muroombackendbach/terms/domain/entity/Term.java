@@ -11,12 +11,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -26,7 +26,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "terms")
 @EntityListeners(AuditingEntityListener.class)
-public class Term {
+public class Term extends CreatedDateEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "term_id_seq_gen")
@@ -49,10 +49,10 @@ public class Term {
   @Column(nullable = false)
   private boolean isMandatory;
 
-  private OffsetDateTime effectiveAt;
+  @Column
+  private boolean isActive;
 
-  @CreatedDate
-  private OffsetDateTime createdAt;
+  private OffsetDateTime effectiveAt;
 
   public void updateTerm(TermsType code, TargetRole targetRole, OffsetDateTime effectiveAt) {
     this.code = code;

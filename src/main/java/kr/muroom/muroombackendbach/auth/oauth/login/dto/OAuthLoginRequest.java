@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.auth.login.dto;
+package kr.muroom.muroombackendbach.auth.oauth.login.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

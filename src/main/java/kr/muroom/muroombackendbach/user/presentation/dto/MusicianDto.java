@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import lombok.Builder;
 
 public final class MusicianDto {
@@ -64,8 +65,27 @@ public final class MusicianDto {
       String nickname,
 
       @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
-      String profileImageUrl
+      String profileImageUrl,
+
+      @Schema(description = "나의 악기 정보")
+      InstrumentSimpleInfo musicianInstrument
   ) {
 
+  }
+
+  @Builder
+  public record InstrumentSimpleInfo(
+      @Schema(description = "악기 코드", example = "VOCAL")
+      String code,
+      @Schema(description = "악기 이름", example = "보컬")
+      String description
+  ) {
+
+    public static InstrumentSimpleInfo from(Instrument instrument) {
+      return InstrumentSimpleInfo.builder()
+          .code(instrument.getCode())
+          .description(instrument.getDescription())
+          .build();
+    }
   }
 }
