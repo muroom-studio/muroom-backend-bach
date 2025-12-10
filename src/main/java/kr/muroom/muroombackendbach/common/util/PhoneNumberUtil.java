@@ -6,6 +6,8 @@ import kr.muroom.muroombackendbach.common.exception.BusinessException;
 
 public final class PhoneNumberUtil {
 
+  private static final String PHONE_REGEX = "^(01[016789])[0-9]{7,8}$";
+
   // 인스턴스 생성 방지
   private PhoneNumberUtil() {
     throw new UnsupportedOperationException("Utility class");
@@ -27,9 +29,7 @@ public final class PhoneNumberUtil {
 
     String digits = removeHyphens(phone);
 
-    String regex = "^(01[016789])[0-9]{7,8}$";
-
-    return digits.matches(regex);
+    return digits.matches(PHONE_REGEX);
   }
 
   // 정규화(하이픈 제거 + 유효성)

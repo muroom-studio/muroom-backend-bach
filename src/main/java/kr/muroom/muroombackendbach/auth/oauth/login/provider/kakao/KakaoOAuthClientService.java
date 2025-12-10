@@ -44,7 +44,7 @@ public class KakaoOAuthClientService implements OAuthClientService {
     return payload.getSub();
   }
 
-  public KakaoIdTokenPayload decode(String idToken) {
+  private KakaoIdTokenPayload decode(String idToken) {
     DecodedJWT jwt = JWT.decode(idToken);
 
     KakaoIdTokenPayload payload = new KakaoIdTokenPayload();

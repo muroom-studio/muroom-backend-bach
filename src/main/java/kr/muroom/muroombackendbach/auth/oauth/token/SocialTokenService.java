@@ -13,8 +13,8 @@ public class SocialTokenService {
   public void save(
       Long userId,
       OAuthProvider provider,
-      String refreshToken,
       String accessToken,
+      String refreshToken,
       Long accessTokenExpireTime,
       Long refreshTokenExpiresIn
   ) {
