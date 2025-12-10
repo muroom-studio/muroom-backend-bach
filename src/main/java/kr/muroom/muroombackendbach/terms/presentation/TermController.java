@@ -1,7 +1,10 @@
 package kr.muroom.muroombackendbach.terms.presentation;
 
-import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.*;
+import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermContentDto;
+import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermsWithContentDto;
 
+import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.terms.application.TermService;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
@@ -20,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/terms")
 @RequiredArgsConstructor
@@ -29,6 +30,10 @@ public class TermController {
 
   private final TermService termService;
 
+  @Operation(
+      summary = "뮤지션 회원가입 약관 조회",
+      description = "뮤지션 회원가입 시 필요한 약관들을 조회합니다."
+  )
   @GetMapping("/musician/signup")
   public ApiResponse<List<TermsWithContentDto>> getMusicianTerms() {
     return ApiResponse.success(termService.getTermsMusicianByType());
@@ -41,6 +46,10 @@ public class TermController {
     return ApiResponse.success(termService.getAllTermByCode(code, role));
   }
 
+  @Operation(
+      summary = "약관 상세 조회",
+      description = "약관 ID로 약관의 상세 내용을 조회합니다."
+  )
   @GetMapping("/{termId}")
   public ApiResponse<TermContentDto> getTermById(@PathVariable Long termId) {
     return ApiResponse.success(termService.getTermContent(termId));
