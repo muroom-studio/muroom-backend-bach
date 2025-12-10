@@ -8,8 +8,8 @@ import lombok.Getter;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum TermsType implements EnumMapperType {
   TERMS_OF_USE("이용약관", true),
-  PRIVACY_COLLECTION("개인정보 수집", true),
-  PRIVACY_PROCESSING("개인정보 처리", true),
+  PRIVACY_COLLECTION("개인정보 수집 및 이용", true),
+  PRIVACY_PROCESSING("개인정보 처리방침", true),
   MARKETING_RECEIVE("마케팅 수신", false);
 
   private final String description;
