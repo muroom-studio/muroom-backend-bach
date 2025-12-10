@@ -35,12 +35,14 @@ public class SmsVerificationService {
   }
 
   public SmsVerifyResponse verifyCode(String phone, String code) {
-    String saved = codeStore.getCode(phone);
+    String normalizedPhone = PhoneNumberUtil.normalize(phone);
+
+    String saved = codeStore.getCode(normalizedPhone);
 
     boolean success = saved != null && saved.equals(code);
 
     if (success) {
-      codeStore.deleteCode(phone);
+      codeStore.deleteCode(normalizedPhone);
     }
 
     return new SmsVerifyResponse(success);
