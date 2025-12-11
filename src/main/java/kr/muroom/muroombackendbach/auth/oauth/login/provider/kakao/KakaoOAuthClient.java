@@ -22,15 +22,12 @@ public class KakaoOAuthClient {
   @Value("${oauth2.kakao.client-secret}")
   private String clientSecret;
 
-  @Value("${oauth2.redirect-uri-base}")
-  private String baseUri;
-
   private static final String REDIRECT_URI = "/redirect/oauth/kakao";
   private static final String TOKEN_URI = "https://kauth.kakao.com/oauth/token";
 
   private final RestTemplate restTemplate = new RestTemplate();
 
-  public KakaoTokenResponse exchangeCodeForToken(String authorizationCode) {
+  public KakaoTokenResponse exchangeCodeForToken(String authorizationCode, String origin) {
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -39,7 +36,7 @@ public class KakaoOAuthClient {
     body.add("grant_type", "authorization_code");
     body.add("client_id", clientId);
 
-    body.add("redirect_uri", baseUri + REDIRECT_URI);
+    body.add("redirect_uri", origin + REDIRECT_URI);
     body.add("code", authorizationCode);
 
     if (clientSecret != null && !clientSecret.isBlank()) {

@@ -22,9 +22,9 @@ public class KakaoOAuthClientService implements OAuthClientService {
   }
 
   @Override
-  public OAuthTokenResult exchangeCode(String authorizationCode) {
+  public OAuthTokenResult exchangeCode(String authorizationCode, String origin) {
     KakaoTokenResponse response =
-        kakaoOAuthClient.exchangeCodeForToken(authorizationCode);
+        kakaoOAuthClient.exchangeCodeForToken(authorizationCode, origin);
 
     return OAuthTokenResult.builder()
         .accessToken(response.getAccessToken())

@@ -18,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,9 +43,10 @@ public class MusicianController {
   @Operation(summary = "뮤지션 로그인", description = "인가코드를 기반으로 로그인 시도")
   @PostMapping("/login")
   public ApiResponse<OAuthLoginResponse> oauthLogin(
-      @Valid @RequestBody OAuthLoginRequest request
+      @Valid @RequestBody OAuthLoginRequest request,
+      @RequestHeader(value = "Origin", required = true) String origin
   ) {
-    return ApiResponse.success(oAuthLoginService.login(request));
+    return ApiResponse.success(oAuthLoginService.login(request, origin));
   }
 
   @Operation(
