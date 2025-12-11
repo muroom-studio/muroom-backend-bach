@@ -19,8 +19,7 @@ public class SmsVerificationService {
 
   public void sendVerificationCode(String phone) {
     String code = generateCode();
-
-    String normalizedPhone = PhoneNumberUtil.normalize(phone);
+    String normalizedPhone = PhoneNumberUtil.removeHyphens(phone);
     codeStore.saveCode(normalizedPhone, code, CODE_TTL);
 
     String content = """
@@ -28,12 +27,12 @@ public class SmsVerificationService {
         인증번호 [%s]를 입력해 주세요.
         타인에게 절대 알려주지 마세요.
         """.formatted(code);
-    
+
     smsSender.sendSms(normalizedPhone, content);
   }
 
   public SmsVerifyResponse verifyCode(String phone, String code) {
-    String normalizedPhone = PhoneNumberUtil.normalize(phone);
+    String normalizedPhone = PhoneNumberUtil.removeHyphens(phone);
 
     String saved = codeStore.getCode(normalizedPhone);
 

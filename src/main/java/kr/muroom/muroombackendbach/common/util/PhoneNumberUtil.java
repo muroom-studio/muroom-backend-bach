@@ -6,37 +6,20 @@ import kr.muroom.muroombackendbach.common.exception.BusinessException;
 
 public final class PhoneNumberUtil {
 
-  private static final String PHONE_REGEX = "^(01[016789])[0-9]{7,8}$";
+  private static final String HYPHEN_PHONE_REGEX = "^(01[016789])-(\\d{3}|\\d{4})-\\d{4}$";
 
-  // 인스턴스 생성 방지
   private PhoneNumberUtil() {
     throw new UnsupportedOperationException("Utility class");
   }
 
-  // 하이픈 제거
   public static String removeHyphens(String phone) {
-    if (phone == null) {
-      return null;
-    }
+    isValidHyphenPhoneNumber(phone);
     return phone.replaceAll("-", "");
   }
 
-  // 휴대폰 번호 형식 검사
-  public static boolean isValidPhoneNumber(String phone) {
-    if (phone == null) {
-      return false;
-    }
-
-    String digits = removeHyphens(phone);
-
-    return digits.matches(PHONE_REGEX);
-  }
-
-  // 정규화(하이픈 제거 + 유효성)
-  public static String normalize(String phone) {
-    if (!isValidPhoneNumber(phone)) {
+  public static void isValidHyphenPhoneNumber(String phone) {
+    if (phone == null || !phone.matches(HYPHEN_PHONE_REGEX)) {
       throw new BusinessException(INVALID_PHONE_NUMBER);
     }
-    return removeHyphens(phone);
   }
 }
