@@ -44,7 +44,7 @@ public class MusicianController {
   @PostMapping("/login")
   public ApiResponse<OAuthLoginResponse> oauthLogin(
       @Valid @RequestBody OAuthLoginRequest request,
-      @RequestHeader(value = "Origin", required = true) String origin
+      @RequestHeader(value = "Origin") String origin
   ) {
     return ApiResponse.success(oAuthLoginService.login(request, origin));
   }

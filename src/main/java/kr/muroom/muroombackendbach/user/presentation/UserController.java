@@ -1,5 +1,7 @@
 package kr.muroom.muroombackendbach.user.presentation;
 
+import static kr.muroom.muroombackendbach.user.presentation.dto.UserDto.*;
+
 import kr.muroom.muroombackendbach.common.sms.SmsVerificationService;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.UserService;
@@ -25,9 +27,9 @@ public class UserController {
   private final SmsVerificationService smsVerificationService;
 
   @GetMapping("/nickname/check")
-  public ApiResponse<UserDto.NicknameCheckResponse> checkNickname(@RequestParam String nickname) {
+  public ApiResponse<NicknameCheckResponse> checkNickname(@RequestParam String nickname) {
     boolean available = userService.isNicknameAvailable(nickname);
-    return ApiResponse.success(new UserDto.NicknameCheckResponse(available));
+    return ApiResponse.success(new NicknameCheckResponse(available));
   }
 
   @PostMapping("/sms/auth")

@@ -1,10 +1,7 @@
 package kr.muroom.muroombackendbach.common.sms;
 
-import static kr.muroom.muroombackendbach.common.sms.SmsErrorCode.INVALID_PHONE_NUMBER;
-
 import java.security.SecureRandom;
 import java.time.Duration;
-import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +28,7 @@ public class SmsVerificationService {
         인증번호 [%s]를 입력해 주세요.
         타인에게 절대 알려주지 마세요.
         """.formatted(code);
+    
     smsSender.sendSms(normalizedPhone, content);
   }
 
