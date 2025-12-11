@@ -41,7 +41,8 @@ public class SocialAccount extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "social_account_id_seq_gen")
-  @SequenceGenerator(name = "social_account_id_seq_gen", sequenceName = "social_account_id_seq", allocationSize = 1)
+  @SequenceGenerator(name = "social_account_id_seq_gen", sequenceName = "social_account_id_seq",
+      allocationSize = 1)
   @Column(name = "social_account_id")
   private Long id;
 
@@ -53,6 +54,9 @@ public class SocialAccount extends AuditableEntity {
   @Column(nullable = false, length = 20)
   private OAuthProvider provider;
 
-  @Column(name = "provider_user_id", nullable = false, length = 255)
+  private String accessToken;
+  private String refreshToken;
+
+  @Column(name = "provider_user_id", nullable = false)
   private String providerUserId;
 }

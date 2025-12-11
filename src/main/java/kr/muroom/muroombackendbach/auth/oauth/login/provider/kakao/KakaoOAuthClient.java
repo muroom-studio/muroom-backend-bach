@@ -2,6 +2,7 @@ package kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao;
 
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao.dto.KakaoTokenResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class KakaoOAuthClient {
 
   @Value("${oauth2.kakao.client-id}")
@@ -39,6 +41,7 @@ public class KakaoOAuthClient {
     body.add("redirect_uri", origin + REDIRECT_URI);
     body.add("code", authorizationCode);
 
+    log.info("[소셜 로그인 시도] RedirectURL : {}", origin + REDIRECT_URI);
     if (clientSecret != null && !clientSecret.isBlank()) {
       body.add("client_secret", clientSecret);
     }
