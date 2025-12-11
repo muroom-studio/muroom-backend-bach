@@ -4,6 +4,7 @@ import static kr.muroom.muroombackendbach.user.presentation.dto.UserDto.*;
 
 import kr.muroom.muroombackendbach.common.sms.application.SmsVerificationService;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
+import kr.muroom.muroombackendbach.common.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.user.application.UserService;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsSendRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyRequest;
@@ -32,9 +33,8 @@ public class UserController {
   }
 
   @PostMapping("/sms/auth")
-  public ApiResponse<Void> authSend(@Validated @RequestBody SmsSendRequest request) {
-    smsVerificationService.sendVerificationCode(request.phone());
-    return ApiResponse.success();
+  public ApiResponse<SmsAuthResponse> authSend(@Validated @RequestBody SmsSendRequest request) {
+    return ApiResponse.success(smsVerificationService.sendVerificationCode(request.phone()));
   }
 
   @PostMapping("/sms/verify")
