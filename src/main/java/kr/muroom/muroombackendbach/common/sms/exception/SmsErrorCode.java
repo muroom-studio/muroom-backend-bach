@@ -31,7 +31,13 @@ public enum SmsErrorCode implements ErrorCode {
       HttpStatus.BAD_REQUEST,
       "SM-400-04",
       "인증 실패 횟수를 초과했습니다. 새로운 인증번호를 다시 요청해주세요."
-  );
+  ),
+
+  SMS_CODE_NOT_REQUESTED(
+      HttpStatus.BAD_REQUEST,
+      "SM-400-05",
+      "인증번호가 요청되지 않았습니다. 먼저 인증번호를 요청해주세요."
+  );;
 
   private final HttpStatus status;
   private final String code;

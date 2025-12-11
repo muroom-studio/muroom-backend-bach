@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.common.sms.application;
 
+import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_CODE_NOT_REQUESTED;
 import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_DAILY_LIMIT_EXCEEDED;
 import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_RESEND_TOO_FAST;
 import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_VERIFICATION_FAIL_LIMIT_EXCEEDED;
@@ -73,7 +74,7 @@ public class SmsVerificationService {
     // 2. 코드 검증
     String saved = codeStore.getCode(normalizedPhone);
     if (saved == null) {
-      return new SmsVerifyResponse(false);
+      throw new BusinessException(SMS_CODE_NOT_REQUESTED);
     }
 
     boolean success = saved.equals(code);
