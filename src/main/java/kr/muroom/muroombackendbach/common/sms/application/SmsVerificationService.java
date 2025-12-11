@@ -1,7 +1,9 @@
-package kr.muroom.muroombackendbach.common.sms;
+package kr.muroom.muroombackendbach.common.sms.application;
 
 import java.security.SecureRandom;
 import java.time.Duration;
+import kr.muroom.muroombackendbach.common.sms.SmsSender;
+import kr.muroom.muroombackendbach.common.sms.domain.repository.SmsVerificationCodeStore;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyResponse;
 import lombok.RequiredArgsConstructor;

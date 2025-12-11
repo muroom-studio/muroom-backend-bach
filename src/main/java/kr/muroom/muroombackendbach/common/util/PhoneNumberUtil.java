@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.common.util;
 
-import static kr.muroom.muroombackendbach.common.sms.SmsErrorCode.INVALID_PHONE_NUMBER;
+import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.INVALID_PHONE_NUMBER;
 
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 

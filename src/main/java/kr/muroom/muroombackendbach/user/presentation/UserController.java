@@ -2,10 +2,9 @@ package kr.muroom.muroombackendbach.user.presentation;
 
 import static kr.muroom.muroombackendbach.user.presentation.dto.UserDto.*;
 
-import kr.muroom.muroombackendbach.common.sms.SmsVerificationService;
+import kr.muroom.muroombackendbach.common.sms.application.SmsVerificationService;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.UserService;
-import kr.muroom.muroombackendbach.user.presentation.dto.UserDto;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsSendRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyResponse;

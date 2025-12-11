@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.common.sms;
+package kr.muroom.muroombackendbach.common.sms.exception;
 
 import kr.muroom.muroombackendbach.common.exception.ErrorCode;
 import lombok.Getter;
