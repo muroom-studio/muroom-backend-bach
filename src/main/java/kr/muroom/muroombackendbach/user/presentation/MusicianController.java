@@ -18,7 +18,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,19 +44,30 @@ public class MusicianController {
   @Operation(summary = "뮤지션 로그인", description = "인가코드를 기반으로 로그인 시도")
   @PostMapping("/login")
   public ApiResponse<OAuthLoginResponse> oauthLogin(
-      @Valid @RequestBody OAuthLoginRequest request
+      @Valid @RequestBody OAuthLoginRequest request,
+      @RequestHeader(value = "Origin") String origin
   ) {
-    return ApiResponse.success(oAuthLoginService.login(request));
+    return ApiResponse.success(oAuthLoginService.login(request, origin));
+  }
+
+  @Operation(summary = "뮤지션 로그인(swagger)확인 용도", description = "인가코드를 기반으로 로그인 시도 / 토큰이 사용되면 절대 "
+      + "안됨! (redirect로 운영/개발로 이미 요청하면 안됨")
+  @PostMapping("/login/swagger")
+  public ApiResponse<OAuthLoginResponse> oauthLoginForSwagger(
+      @Valid @RequestBody OAuthLoginRequest request,
+      @RequestParam String origin
+  ) {
+    return ApiResponse.success(oAuthLoginService.login(request, origin));
   }
 
   @Operation(
       summary = "로그아웃",
       description = "현재 로그인한 뮤지션의 소셜 토큰을 만료(삭제)합니다. 클라이언트는 JWT를 로컬에서 삭제해야 합니다."
   )
-  @SecurityRequirement(name = "Bearer Authentication")
+  @SecurityRequirement(name = "Authentication")
   @PostMapping("/logout")
   public ApiResponse<Void> logout(
-      // @AuthenticationPrincipal
+      @AuthenticationPrincipal
       Long musicianId
   ) {
     oAuthLoginService.logout(musicianId);
@@ -65,7 +78,7 @@ public class MusicianController {
       summary = "내 간략 정보(프로필 이미지, 닉네임) 조회",
       description = "내 간략 정보(프로필 이미지, 닉네임)를 조회합니다."
   )
-  @SecurityRequirement(name = "Bearer Authentication")
+  @SecurityRequirement(name = "Authentication")
   @GetMapping("/me")
   public ApiResponse<MusicianSimpleProfileResponse> getMySimpleProfile(
       @AuthenticationPrincipal Long musicianId

@@ -9,7 +9,7 @@ public interface OAuthClientService {
   /**
    * 인가 코드 → 외부 토큰 응답
    */
-  OAuthTokenResult exchangeCode(String authorizationCode);
+  OAuthTokenResult exchangeCode(String authorizationCode, String origin);
 
   /**
    * 외부 토큰에서 소셜 고유 유저 ID 추출 (sub, id 등)

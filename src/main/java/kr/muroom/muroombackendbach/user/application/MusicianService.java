@@ -5,7 +5,6 @@ import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.Musi
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
 
-import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
@@ -29,6 +28,7 @@ import kr.muroom.muroombackendbach.user.exception.MusicianErrorCode;
 import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.InstrumentSimpleInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -54,15 +54,16 @@ public class MusicianService {
     // 1. 이름/전화번호로 기존 뮤지션 조회, 없으면 신규 생성
     Musician musician = findOrRegisterMusician(request);
 
-    // 2. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
-    linkSocialAccountIfNecessary(musician, provider, providerUserId);
-
-    // 3. 나의 작업실 생성
-    createMyStudio(request, musician);
-
-    // 4. 토큰 발급
+    // 2. 토큰 발급
     Long musicianId = musician.getId();
     String accessToken = jwtTokenProvider.createToken(musicianId);
+
+    // 3. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
+    linkSocialAccountIfNecessary(musician, provider, providerUserId,
+        signupPayload.socialAccessToken());
+
+    // 4. 나의 작업실 생성
+    createMyStudio(request, musician);
 
     return new MusicianSignUpResponse(accessToken, musicianId);
   }
@@ -95,8 +96,8 @@ public class MusicianService {
   private void linkSocialAccountIfNecessary(
       Musician musician,
       OAuthProvider provider,
-      String providerUserId
-  ) {
+      String providerUserId,
+      String accessToken) {
     boolean alreadyLinked = socialAccountRepository
         .existsByMusicianAndProviderAndProviderUserId(
             musician,
@@ -112,6 +113,7 @@ public class MusicianService {
         .musician(musician)
         .provider(provider)
         .providerUserId(providerUserId)
+        .accessToken(accessToken)
         .build();
 
     socialAccountRepository.save(socialAccount);
@@ -176,6 +178,7 @@ public class MusicianService {
     musicianAgreementRepository.saveAll(agreements);
   }
 
+  @Transactional(readOnly = true)
   public MusicianSimpleProfileResponse getMusicianSimpleProfile(Long musicianId) {
     Musician musician = musicianRepository.findById(musicianId)
         .orElseThrow(() -> new BusinessException(MusicianErrorCode.MUSICIAN_NOT_FOUND));

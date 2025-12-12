@@ -4,6 +4,7 @@ import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.*;
 import static kr.muroom.muroombackendbach.user.presentation.dto.OwnerDto.*;
 
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.terms.domain.entity.OwnerAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.OwnerAgreementRepository;
@@ -49,7 +50,7 @@ public class OwnerService {
         .nickname(request.nickname())
         .password(bCryptPasswordEncoder.encode(request.password()))
         .build();
-    
+
     Owner saved = ownerRepository.save(owner);
 
     // 2. 약관 조회

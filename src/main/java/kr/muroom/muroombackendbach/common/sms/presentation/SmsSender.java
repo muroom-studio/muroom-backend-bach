@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.common.sms;
+package kr.muroom.muroombackendbach.common.sms.presentation;
 
 public interface SmsSender {
 

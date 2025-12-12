@@ -24,7 +24,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final MusicianRepository musicianRepository;
 
   @Override
-  protected void doFilterInternal(@NonNull HttpServletRequest request,
+  protected void doFilterInternal(
+      @NonNull HttpServletRequest request,
       @NonNull HttpServletResponse response,
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {

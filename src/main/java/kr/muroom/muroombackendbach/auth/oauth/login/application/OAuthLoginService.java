@@ -44,14 +44,14 @@ public class OAuthLoginService {
   }
 
   @Transactional(readOnly = true)
-  public OAuthLoginResponse login(OAuthLoginRequest request) {
+  public OAuthLoginResponse login(OAuthLoginRequest request, String origin) {
 
     // 1. provider 파싱 및 OAuthClient 조회
     OAuthProvider provider = OAuthProvider.fromRegistrationId(request.provider());
     OAuthClientService client = clientMap.get(provider);
 
     // 2. 인가 코드로 외부 토큰 교환 + 소셜 유저 ID 추출
-    OAuthTokenResult tokenResult = client.exchangeCode(request.providerId());
+    OAuthTokenResult tokenResult = client.exchangeCode(request.providerId(), origin);
     String providerUserId = client.extractProviderUserId(tokenResult);
 
     // 3. 기존 소셜 계정 조회
