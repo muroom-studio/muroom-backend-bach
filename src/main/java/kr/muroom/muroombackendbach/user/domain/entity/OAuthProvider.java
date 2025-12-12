@@ -1,5 +1,9 @@
 package kr.muroom.muroombackendbach.user.domain.entity;
 
+import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.*;
+
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
+
 public enum OAuthProvider {
   KAKAO, NAVER, GOOGLE;
 
@@ -8,7 +12,7 @@ public enum OAuthProvider {
       case "KAKAO" -> KAKAO;
       case "GOOGLE" -> GOOGLE;
       case "NAVER" -> NAVER;
-      default -> throw new IllegalArgumentException("Unsupported provider: " + registrationId);
+      default -> throw new BusinessException(UNSUPPORTED_OAUTH_PROVIDER);
     };
   }
 }

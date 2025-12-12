@@ -1,5 +1,8 @@
 package kr.muroom.muroombackendbach.auth.jwt;
 
+import static kr.muroom.muroombackendbach.auth.jwt.exception.JwtErrorCode.INVALID_SIGNUP_TOKEN;
+import static kr.muroom.muroombackendbach.auth.jwt.exception.JwtErrorCode.MISSING_SIGNUP_TOKEN_CLAIMS;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -7,6 +10,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import javax.crypto.SecretKey;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -80,14 +84,14 @@ public class JwtTokenProvider {
     // 선택: type 검증 (SIGNUP 토큰인지 체크)
     Object type = claims.get("type");
     if (!"SIGNUP".equals(type)) {
-      throw new IllegalArgumentException("유효하지 않은 회원가입 토큰입니다.");
+      throw new BusinessException(INVALID_SIGNUP_TOKEN);
     }
 
     String provider = (String) claims.get("provider");
     String providerId = (String) claims.get("providerId");
 
     if (provider == null || providerId == null) {
-      throw new IllegalArgumentException("회원가입 토큰에 필수 정보가 없습니다.");
+      throw new BusinessException(MISSING_SIGNUP_TOKEN_CLAIMS);
     }
 
     return new SignupPayload(provider, providerId);
