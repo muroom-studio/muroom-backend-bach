@@ -37,7 +37,13 @@ public enum SmsErrorCode implements ErrorCode {
       HttpStatus.BAD_REQUEST,
       "SM-400-05",
       "인증번호가 요청되지 않았습니다. 먼저 인증번호를 요청해주세요."
-  );;
+  ),
+  
+  SMS_VERIFICATION_CODE_MISMATCH(
+      HttpStatus.BAD_REQUEST,
+      "SM-400-06",
+      "인증번호가 일치하지 않습니다."
+  );
 
   private final HttpStatus status;
   private final String code;

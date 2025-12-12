@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.common.sms.application;
 import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_CODE_NOT_REQUESTED;
 import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_DAILY_LIMIT_EXCEEDED;
 import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_RESEND_TOO_FAST;
+import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_VERIFICATION_CODE_MISMATCH;
 import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_VERIFICATION_FAIL_LIMIT_EXCEEDED;
 
 import java.security.SecureRandom;
@@ -67,7 +68,7 @@ public class SmsVerificationService {
   }
 
   @Transactional
-  public SmsVerifyResponse verifyCode(String phone, String code) {
+  public void verifyCode(String phone, String code) {
     // 1. 전화번호 - 하이픈 제거
     String normalizedPhone = normalizePhone(phone);
 
@@ -84,7 +85,7 @@ public class SmsVerificationService {
       // 3.1 저장된 인증 코드 삭제 / 실패 횟수 초기화
       codeStore.deleteCode(normalizedPhone);
       codeStore.resetFailCount(normalizedPhone);
-      return new SmsVerifyResponse(true);
+      return;
     }
 
     // 4. 실패 실패 횟수 증가
@@ -93,7 +94,7 @@ public class SmsVerificationService {
     // 4.1 최대 인증 횟수 초과 검증
     expireIfExceededFailCount(normalizedPhone, failCount);
 
-    return new SmsVerifyResponse(false);
+    throw new BusinessException(SMS_VERIFICATION_CODE_MISMATCH);
   }
 
   private String generateCode() {
