@@ -5,7 +5,6 @@ import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.Musi
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
 
-import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
@@ -29,6 +28,7 @@ import kr.muroom.muroombackendbach.user.exception.MusicianErrorCode;
 import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.InstrumentSimpleInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +59,8 @@ public class MusicianService {
     String accessToken = jwtTokenProvider.createToken(musicianId);
 
     // 3. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
-    linkSocialAccountIfNecessary(musician, provider, providerUserId, accessToken);
+    linkSocialAccountIfNecessary(musician, provider, providerUserId,
+        signupPayload.socialAccessToken());
 
     // 4. 나의 작업실 생성
     createMyStudio(request, musician);
@@ -177,6 +178,7 @@ public class MusicianService {
     musicianAgreementRepository.saveAll(agreements);
   }
 
+  @Transactional(readOnly = true)
   public MusicianSimpleProfileResponse getMusicianSimpleProfile(Long musicianId) {
     Musician musician = musicianRepository.findById(musicianId)
         .orElseThrow(() -> new BusinessException(MusicianErrorCode.MUSICIAN_NOT_FOUND));
