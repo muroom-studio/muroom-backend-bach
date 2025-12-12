@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.common.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
@@ -33,14 +34,15 @@ public class SwaggerConfig {
 
   @Bean
   public OpenAPI openApi() {
-    final String securitySchemeName = "Authorization";
+    final String securitySchemeName = "Authentication";
     SecurityScheme securityScheme = new SecurityScheme()
         .name(securitySchemeName)
         .type(SecurityScheme.Type.HTTP)
         .scheme("bearer")
         .bearerFormat("JWT")
-        .in(SecurityScheme.In.HEADER)
-        .name("Authorization");
+        .in(SecurityScheme.In.HEADER);
+
+    SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
 
     return new OpenAPI()
         .servers(List.of(new Server().url(serverUrl).description("Current Environment Server")))
@@ -48,6 +50,8 @@ public class SwaggerConfig {
             .title(springdocTitle)
             .description(springdocDescription)
             .version(springdocVersion))
+        .addSecurityItem(securityRequirement)
+        .schemaRequirement("BearerAuth", securityScheme)
         .components(new Components().addSecuritySchemes(securitySchemeName, securityScheme));
   }
 }
