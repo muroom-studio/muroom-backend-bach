@@ -59,8 +59,7 @@ public class MusicianService {
     String accessToken = jwtTokenProvider.createToken(musicianId);
 
     // 3. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
-    linkSocialAccountIfNecessary(musician, provider, providerUserId,
-        signupPayload.socialAccessToken());
+    linkSocialAccountIfNecessary(musician, provider, providerUserId);
 
     // 4. 나의 작업실 생성
     createMyStudio(request, musician);
@@ -96,8 +95,7 @@ public class MusicianService {
   private void linkSocialAccountIfNecessary(
       Musician musician,
       OAuthProvider provider,
-      String providerUserId,
-      String accessToken) {
+      String providerUserId) {
     boolean alreadyLinked = socialAccountRepository
         .existsByMusicianAndProviderAndProviderUserId(
             musician,
@@ -113,7 +111,7 @@ public class MusicianService {
         .musician(musician)
         .provider(provider)
         .providerUserId(providerUserId)
-        .accessToken(accessToken)
+        .accessToken(providerUserId)
         .build();
 
     socialAccountRepository.save(socialAccount);
