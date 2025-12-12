@@ -63,10 +63,8 @@ public class OAuthLoginService {
 
   @Transactional
   public void logout(Long musicianId) {
-    // 1. 유저의 모든 소셜 토큰 삭제 (KAKAO, GOOGLE 등)
-    socialTokenService.deleteAllByUser(musicianId);
-
-    // TODO: @2-say JWT, REFRESH 관련 처리 필요.
+    // TO DO: redis에 토큰 삭제
+    return;
   }
 
   /**
