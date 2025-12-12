@@ -6,6 +6,7 @@ import kr.muroom.muroombackendbach.common.sms.application.SmsVerificationService
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.user.application.UserService;
+import kr.muroom.muroombackendbach.user.presentation.docs.UserControllerDocs;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsSendRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyResponse;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserControllerDocs {
 
   private final UserService userService;
   private final SmsVerificationService smsVerificationService;
@@ -38,8 +39,8 @@ public class UserController {
   }
 
   @PostMapping("/sms/verify")
-  public ApiResponse<SmsVerifyResponse> verify(@Validated @RequestBody SmsVerifyRequest request) {
-    return ApiResponse.success(
-        smsVerificationService.verifyCode(request.phone(), request.code()));
+  public ApiResponse<Void> verify(@Validated @RequestBody SmsVerifyRequest request) {
+    smsVerificationService.verifyCode(request.phone(), request.code());
+    return ApiResponse.success();
   }
 }
