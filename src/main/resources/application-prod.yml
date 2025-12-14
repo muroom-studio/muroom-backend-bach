@@ -45,7 +45,9 @@ cloud:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
-  expiration-ms: 900000 #15분
+  access-expiration-ms: 900000 #15분
+  refresh-expiration-ms: 3600000 # 1시간
+  signup-expiration-ms: 900000
 
 logging:
   level:

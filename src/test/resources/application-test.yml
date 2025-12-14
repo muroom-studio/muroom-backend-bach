@@ -29,7 +29,9 @@ cloud:
 
 jwt:
   secret-key: some-very-very-very-very-very-very-very-long-secret-key
-  expiration-ms: 900000 #15분
+  access-expiration-ms: 900000 #15분
+  refresh-expiration-ms: 3600000 # 1시간
+  signup-expiration-ms: 900000
 
 logging:
   level:
@@ -65,7 +67,6 @@ oauth2:
   google:
     client-id: test-google-client-id
     client-secret: test-google-client-secret
-  redirect-uri-base: https://muroom-frontend-handel-web.vercel.app
 
 
 ncp:

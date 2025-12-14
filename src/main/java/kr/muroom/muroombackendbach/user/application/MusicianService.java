@@ -8,7 +8,9 @@ import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.Musi
 import java.time.LocalDate;
 import java.util.List;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
+import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
+import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
@@ -42,6 +44,7 @@ public class MusicianService {
   private final JwtTokenProvider jwtTokenProvider;
   private final InstrumentRepository instrumentRepository;
   private final MyStudioRepository myStudioRepository;
+  private final RefreshTokenService refreshTokenService;
 
   @Transactional
   public MusicianSignUpResponse registerMusician(MusicianSignUpDto request) {
@@ -56,7 +59,11 @@ public class MusicianService {
 
     // 2. 토큰 발급
     Long musicianId = musician.getId();
-    String accessToken = jwtTokenProvider.createToken(musicianId);
+    String accessToken = jwtTokenProvider.createAccessToken(musicianId);
+    RefreshIssue refreshToken = jwtTokenProvider.createRefreshToken(musicianId);
+
+    // 2.1 Redis 토큰 저장
+    refreshTokenService.save(musicianId, refreshToken.jti(), refreshToken.expiresAt());
 
     // 3. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
     linkSocialAccountIfNecessary(musician, provider, providerUserId);
@@ -64,7 +71,7 @@ public class MusicianService {
     // 4. 나의 작업실 생성
     createMyStudio(request, musician);
 
-    return new MusicianSignUpResponse(accessToken, musicianId);
+    return new MusicianSignUpResponse(accessToken, refreshToken.token(), musicianId);
   }
 
   /**
@@ -111,7 +118,6 @@ public class MusicianService {
         .musician(musician)
         .provider(provider)
         .providerUserId(providerUserId)
-        .accessToken(providerUserId)
         .build();
 
     socialAccountRepository.save(socialAccount);

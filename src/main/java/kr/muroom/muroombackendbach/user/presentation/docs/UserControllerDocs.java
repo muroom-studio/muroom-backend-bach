@@ -1,19 +1,26 @@
 package kr.muroom.muroombackendbach.user.presentation.docs;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.NicknameCheckResponse;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyRequest;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
+@Tag(name = "유저 API", description = "뮤지션/사장님 공통 관련 API")
 public interface UserControllerDocs {
 
   @Operation(
@@ -91,4 +98,89 @@ public interface UserControllerDocs {
       )
   })
   ApiResponse<Void> verify(@RequestBody SmsVerifyRequest request);
+
+  @SecurityRequirement(name = "refreshToken")
+  @Operation(
+      summary = "Access Token 재발급 (Refresh Token Rotation)",
+      description =
+          """
+              Refresh Token을 이용해 Access Token을 재발급합니다.
+              
+              본 API는 **Refresh Token Rotation 방식**을 사용합니다.
+              - 요청에 사용된 Refresh Token은 즉시 폐기됩니다.
+              - 새로운 Access Token과 새로운 Refresh Token을 함께 발급합니다.
+              - 이미 사용되었거나 폐기된 Refresh Token을 다시 사용하면 요청이 거부됩니다.
+              
+              요청 헤더:
+              - refreshToken: Refresh Token 문자열
+              """
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "200",
+          description = "토큰 재발급 성공 (새 Access Token + 새 Refresh Token 반환)"
+      ),
+
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "401",
+          description = "리프레시 토큰 인증 실패",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = {
+
+                  @ExampleObject(
+                      name = "유효하지 않은 Refresh Token",
+                      value = """
+                          {
+                            "code": "JWT-401-01",
+                            "message": "유효하지 않은 리프레시 토큰입니다."
+                          }
+                          """,
+                      description =
+                          """
+                              - refreshToken 헤더가 없거나 빈 값인 경우
+                              - 토큰 형식이 올바르지 않은 경우
+                              - JWT 서명 검증 실패 또는 변조된 토큰
+                              """
+                  ),
+
+                  @ExampleObject(
+                      name = "만료된 Refresh Token",
+                      value = """
+                          {
+                            "code": "JWT-401-02",
+                            "message": "만료된 리프레시 토큰입니다."
+                          }
+                          """,
+                      description =
+                          """
+                              - Refresh Token의 만료 시간(exp)이 지난 경우
+                              """
+                  ),
+
+                  @ExampleObject(
+                      name = "이미 사용(폐기)된 Refresh Token",
+                      value = """
+                          {
+                            "code": "JWT-401-03",
+                            "message": "이미 사용(폐기)된 리프레시 토큰입니다."
+                          }
+                          """,
+                      description =
+                          """
+                              - 이미 rotation으로 폐기된 Refresh Token을 다시 사용한 경우
+                              - Redis에 해당 jti가 존재하지 않는 경우
+                              - 중복 요청 또는 재사용 공격으로 판단되는 경우
+                              """
+                  )
+              }
+          )
+      )
+  })
+  @PostMapping("/refresh")
+  ApiResponse<TokenPair> refresh(
+      @Parameter(hidden = true)
+      @RequestHeader("refreshToken") String refreshToken
+  );
 }
