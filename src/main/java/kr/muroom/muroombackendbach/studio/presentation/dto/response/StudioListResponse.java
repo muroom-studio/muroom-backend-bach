@@ -1,8 +1,7 @@
 package kr.muroom.muroombackendbach.studio.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.List;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import lombok.Builder;
 
 @Builder
@@ -21,7 +20,7 @@ public record StudioListResponse(
     Integer maxPrice,
 
     @Schema(description = "인근 지하철역 정보", requiredMode = Schema.RequiredMode.REQUIRED)
-    NearbyStudioSubwayStationInfo nearbySubwayStationInfo,
+    StudioSubwayStationInfo nearbySubwayStationInfo,
 
     @Schema(description = "썸네일 이미지 Presigned URL", requiredMode = Schema.RequiredMode.REQUIRED)
     String thumbnailImageUrl,
@@ -33,17 +32,4 @@ public record StudioListResponse(
     Double latitude
 ) {
 
-  @Builder
-  public record NearbyStudioSubwayStationInfo(
-      @Schema(description = "지하철역 이름", example = "홍대입구역", requiredMode = Schema.RequiredMode.REQUIRED)
-      String stationName,
-
-      @Schema(description = "지하철역까지의 직선 거리 (m)", example = "1200", requiredMode = Schema.RequiredMode.REQUIRED)
-      List<StudioSubwayLineInfo> lines,
-
-      @Schema(description = "지하철역까지의 직선 거리 (m)", example = "1200", requiredMode = Schema.RequiredMode.REQUIRED)
-      Integer distanceMeters
-  ) {
-
-  }
 }

@@ -29,25 +29,32 @@ public class MapGeocodingService {
   @Value("${juso.api.coord-key}")
   private String jusoCoordKey;
 
+  private final static double EARTH_RADIUS_KM = 6371.0;
+
   public Integer calculateDistanceInMeters(Point pointA, Point pointB) {
+    if (pointA == null || pointB == null) {
+      return null;
+    }
     double lon1 = pointA.getX();
     double lat1 = pointA.getY();
     double lon2 = pointB.getX();
     double lat2 = pointB.getY();
 
-    final int R = 6371; // 지구 반경 (km)
     double latDistance = Math.toRadians(lat2 - lat1);
     double lonDistance = Math.toRadians(lon2 - lon1);
     double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
         + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
         * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
     double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    double distance = R * c * 1000; // 미터(m) 단위로 변환
+    double distance = EARTH_RADIUS_KM * c * 1000; // Convert to meters
 
     return (int) Math.round(distance);
   }
 
   public Point getPointFromAddress(String address) {
+    if (address == null || address.isBlank()) {
+      throw new IllegalArgumentException("주소는 null 또는 빈 문자열일 수 없습니다.");
+    }
     // 1단계: 도로명주소 검색 API 호출로 주소 식별 코드 획득
     JusoSearchResponse searchResponse = jusoApiClient.searchAddress(jusoSearchKey, address, "json", 1, 1);
 

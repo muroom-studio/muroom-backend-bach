@@ -22,8 +22,8 @@ import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse.NearbyStudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
@@ -187,7 +187,7 @@ public class StudioService {
 
       SubwayStationNearbyStudio subwayStationNearbyStudio = nearbySubwayStationsByStudioId.get(studio.getId());
 
-      NearbyStudioSubwayStationInfo subwayStationInfo = null;
+      StudioSubwayStationInfo subwayStationInfo = null;
 
       if (subwayStationNearbyStudio != null) {
         SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
@@ -197,10 +197,10 @@ public class StudioService {
         List<StudioSubwayLineInfo> lineInfos = lineInfosByStudioId.getOrDefault(
             subwayStation.getId(),
             Collections.emptyList());
-        subwayStationInfo = NearbyStudioSubwayStationInfo.builder()
+        subwayStationInfo = StudioSubwayStationInfo.builder()
             .stationName(subwayStation.getName())
             .lines(lineInfos)
-            .distanceMeters(distanceMeters)
+            .distanceInMeters(distanceMeters)
             .build();
       }
 

@@ -202,12 +202,12 @@ public class StudioDetailsService {
     return nearbyStations.stream()
         .map(nearby -> {
           SubwayStation subwayStation = nearby.getSubwayStation();
-          int distance = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
+          Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
 
           return StudioSubwayStationInfo.builder()
               .stationName(subwayStation.getName())
               .lines(linesByStationId.getOrDefault(subwayStation.getId(), Collections.emptyList()))
-              .distanceMeters(distance)
+              .distanceInMeters(distanceInMeters)
               .build();
         })
         .toList();
