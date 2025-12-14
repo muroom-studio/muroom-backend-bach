@@ -5,12 +5,10 @@ import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
-import kr.muroom.muroombackendbach.map.application.MapDirectionService;
+import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.room.domain.repository.RoomRepository;
 import kr.muroom.muroombackendbach.search.application.SearchHistoryService;
@@ -24,8 +22,8 @@ import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse.NearbyStudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
@@ -52,8 +50,8 @@ public class StudioService {
   private final OptionRepository optionRepository;
 
   private final FileStorageService fileStorageService;
-  private final MapDirectionService mapDirectionService;
   private final SearchHistoryService searchHistoryService;
+  private final MapGeocodingService mapGeocodingService;
 
   public List<StudioMapResponse> searchStudiosInMapBounds(MapSearchRequest request) {
     MapSearchRequest resolvedRequest = resolveOptions(request);
@@ -164,19 +162,6 @@ public class StudioService {
                     .build(), Collectors.toList())
             ));
 
-    // 도보 시간 일괄 조회 (외부 API 호출 병렬 처리)
-    List<CompletableFuture<Integer>> walkingTimeFutures = studios.stream().map(studio -> {
-      SubwayStationNearbyStudio subwayStationNearbyStudio = nearbySubwayStationsByStudioId.get(
-          studio.getId());
-      if (subwayStationNearbyStudio == null) {
-        return CompletableFuture.<Integer>completedFuture(null);
-      } else {
-        return mapDirectionService.getWalkingTimeMinutes(studio.getLocation(),
-            subwayStationNearbyStudio.getSubwayStation().getLocation());
-      }
-    }).toList();
-    CompletableFuture.allOf(walkingTimeFutures.toArray(new CompletableFuture[0])).join();
-
     // Presigned URL 일괄 생성
     List<String> studioThumbnailImageKeys = studios.stream().map(Studio::getThumbnailImageKey)
         .filter(Objects::nonNull).toList();
@@ -185,58 +170,59 @@ public class StudioService {
             fileStorageService::generatePresignedGetUrl));
 
     // 정보 조합
-    List<StudioListResponse> responseContent = IntStream.range(0, studios.size())
-        .mapToObj(index -> {
-          Studio studio = studios.get(index);
-          Integer walkingTime = walkingTimeFutures.get(index).join();
+    List<StudioListResponse> responseContent = studios.stream().map(studio -> {
+      Integer minPrice = null;
+      Integer maxPrice = null;
+      IntSummaryStatistics roomPriceStats = roomPriceStatsByStudioId.get(studio.getId());
+      if (roomPriceStats != null && roomPriceStats.getCount() > 0) {
+        minPrice = roomPriceStats.getMin();
+        maxPrice = roomPriceStats.getMax();
+      } else {
+        StudioPrice studioPrice = studioPricesByStudioId.get(studio.getId());
+        if (studioPrice != null) {
+          minPrice = studioPrice.getMinPrice();
+          maxPrice = studioPrice.getMaxPrice();
+        }
+      }
 
-          Integer minPrice = null;
-          Integer maxPrice = null;
-          IntSummaryStatistics roomPriceStats = roomPriceStatsByStudioId.get(studio.getId());
-          if (roomPriceStats != null && roomPriceStats.getCount() > 0) {
-            minPrice = roomPriceStats.getMin();
-            maxPrice = roomPriceStats.getMax();
-          } else {
-            StudioPrice studioPrice = studioPricesByStudioId.get(studio.getId());
-            if (studioPrice != null) {
-              minPrice = studioPrice.getMinPrice();
-              maxPrice = studioPrice.getMaxPrice();
-            }
-          }
+      SubwayStationNearbyStudio subwayStationNearbyStudio = nearbySubwayStationsByStudioId.get(studio.getId());
 
-          SubwayStationNearbyStudio subwayStationNearbyStudio = nearbySubwayStationsByStudioId.get(
-              studio.getId());
-          StudioSubwayStationInfo subwayStationInfo = null;
-          if (subwayStationNearbyStudio != null) {
-            SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
-            List<StudioSubwayLineInfo> lineInfos = lineInfosByStudioId.getOrDefault(
-                subwayStation.getId(),
-                Collections.emptyList());
-            subwayStationInfo = StudioSubwayStationInfo.builder()
-                .stationName(subwayStation.getName())
-                .lines(lineInfos).build();
-          }
+      NearbyStudioSubwayStationInfo subwayStationInfo = null;
 
-          String presignedThumbnailImageUrl = studio.getThumbnailImageKey() != null
-              ? presignedUrls.get(studio.getThumbnailImageKey())
-              : null;
+      if (subwayStationNearbyStudio != null) {
+        SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
 
-          Point location = studio.getLocation();
-          Double longitude = location != null ? location.getX() : null;
-          Double latitude = location != null ? location.getY() : null;
+        Integer distanceMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
 
-          return StudioListResponse.builder()
-              .studioId(studio.getId())
-              .studioName(studio.getName())
-              .minPrice(minPrice)
-              .maxPrice(maxPrice)
-              .thumbnailImageUrl(presignedThumbnailImageUrl)
-              .nearbySubwayStationInfo(subwayStationInfo)
-              .walkingTimeMinutes(walkingTime)
-              .longitude(longitude)
-              .latitude(latitude)
-              .build();
-        }).toList();
+        List<StudioSubwayLineInfo> lineInfos = lineInfosByStudioId.getOrDefault(
+            subwayStation.getId(),
+            Collections.emptyList());
+        subwayStationInfo = NearbyStudioSubwayStationInfo.builder()
+            .stationName(subwayStation.getName())
+            .lines(lineInfos)
+            .distanceMeters(distanceMeters)
+            .build();
+      }
+
+      String presignedThumbnailImageUrl = studio.getThumbnailImageKey() != null
+          ? presignedUrls.get(studio.getThumbnailImageKey())
+          : null;
+
+      Point location = studio.getLocation();
+      Double longitude = location != null ? location.getX() : null;
+      Double latitude = location != null ? location.getY() : null;
+
+      return StudioListResponse.builder()
+          .studioId(studio.getId())
+          .studioName(studio.getName())
+          .minPrice(minPrice)
+          .maxPrice(maxPrice)
+          .thumbnailImageUrl(presignedThumbnailImageUrl)
+          .nearbySubwayStationInfo(subwayStationInfo)
+          .longitude(longitude)
+          .latitude(latitude)
+          .build();
+    }).toList();
 
     return new PageImpl<>(responseContent, pageable, studioPage.getTotalElements());
   }

@@ -7,13 +7,10 @@ import java.util.Comparator;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
-import kr.muroom.muroombackendbach.map.application.MapDirectionService;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
@@ -61,7 +58,6 @@ public class StudioDetailsService {
   private final StudioOptionRepository studioOptionRepository;
 
   private final FileStorageService fileStorageService;
-  private final MapDirectionService mapDirectionService;
   private final StudioViewService studioViewService;
   private final MapGeocodingService mapGeocodingService;
 
@@ -187,7 +183,7 @@ public class StudioDetailsService {
       return Collections.emptyList();
     }
 
-    // 2. 지하철역들의 노선 정보를 한번의 쿼리로 모두 가져옵니다.
+    // 2. 지하철역들의 노선 정보를 한번의 쿼리로 모두 조회
     List<Long> stationIds = nearbyStations.stream()
         .map(nearby -> nearby.getSubwayStation().getId())
         .toList();
@@ -202,30 +198,19 @@ public class StudioDetailsService {
                     .build(), Collectors.toList())
             ));
 
-    // 3. 각 지하철역까지의 도보 시간을 병렬로 조회합니다. (API 동시 호출)
-    List<CompletableFuture<StudioSubwayStationInfo>> futures = nearbyStations.stream()
+    // 3. 각 지하철역까지의 직선 거리를 계산
+    return nearbyStations.stream()
         .map(nearby -> {
-          SubwayStation station = nearby.getSubwayStation();
-          // 위치 정보가 없으면 계산 불가
-          if (studio.getLocation() == null) {
-            return CompletableFuture.<StudioSubwayStationInfo>completedFuture(null);
-          }
+          SubwayStation subwayStation = nearby.getSubwayStation();
+          int distance = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
 
-          // 각 역까지의 도보 시간을 비동기로 계산
-          return mapDirectionService.getWalkingTimeMinutes(studio.getLocation(), station.getLocation())
-              .thenApply(walkingTime -> StudioSubwayStationInfo.builder()
-                  .stationName(station.getName())
-                  .lines(linesByStationId.getOrDefault(station.getId(), Collections.emptyList()))
-                  .walkingTimeMinutes(walkingTime)
-                  .build());
+          return StudioSubwayStationInfo.builder()
+              .stationName(subwayStation.getName())
+              .lines(linesByStationId.getOrDefault(subwayStation.getId(), Collections.emptyList()))
+              .distanceMeters(distance)
+              .build();
         })
         .toList();
-
-    // 4. 모든 도보 시간 계산이 완료될 때까지 기다린 후, 최종 리스트를 만듭니다.
-    return futures.stream()
-        .map(CompletableFuture::join)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
   }
 
   private List<String> getPresignedUrlsForType(List<StudioImage> images, StudioImageCategory category) {

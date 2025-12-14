@@ -1,38 +1,49 @@
 package kr.muroom.muroombackendbach.studio.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
+import java.util.List;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
 import lombok.Builder;
 
 @Builder
 @Schema(description = "지도 스튜디오 목록")
 public record StudioListResponse(
-    @Schema(description = "스튜디오 ID")
+    @Schema(description = "스튜디오 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     Long studioId,
 
-    @Schema(description = "스튜디오 이름")
+    @Schema(description = "스튜디오 이름", example = "뮤룸 스튜디오 홍대점", requiredMode = Schema.RequiredMode.REQUIRED)
     String studioName,
 
-    @Schema(description = "최소 가격", example = "150000")
+    @Schema(description = "최소 가격", example = "150000", nullable = true)
     Integer minPrice,
 
-    @Schema(description = "최대 가격", example = "430000")
+    @Schema(description = "최대 가격", example = "430000", nullable = true)
     Integer maxPrice,
 
-    @Schema(description = "인근 지하철역 정보")
-    StudioSubwayStationInfo nearbySubwayStationInfo,
+    @Schema(description = "인근 지하철역 정보", requiredMode = Schema.RequiredMode.REQUIRED)
+    NearbyStudioSubwayStationInfo nearbySubwayStationInfo,
 
-    @Schema(description = "썸네일 이미지 Presigned URL")
+    @Schema(description = "썸네일 이미지 Presigned URL", requiredMode = Schema.RequiredMode.REQUIRED)
     String thumbnailImageUrl,
 
-    @Schema(description = "인근 지하철역까지 도보 소요 시간 (분)", example = "8")
-    Integer walkingTimeMinutes,
-
-    @Schema(description = "경도", example = "126.9780")
+    @Schema(description = "경도", example = "126.9780", requiredMode = Schema.RequiredMode.REQUIRED)
     Double longitude,
 
-    @Schema(description = "위도", example = "37.5665")
+    @Schema(description = "위도", example = "37.5665", requiredMode = Schema.RequiredMode.REQUIRED)
     Double latitude
 ) {
 
+  @Builder
+  public record NearbyStudioSubwayStationInfo(
+      @Schema(description = "지하철역 이름", example = "홍대입구역", requiredMode = Schema.RequiredMode.REQUIRED)
+      String stationName,
+
+      @Schema(description = "지하철역까지의 직선 거리 (m)", example = "1200", requiredMode = Schema.RequiredMode.REQUIRED)
+      List<StudioSubwayLineInfo> lines,
+
+      @Schema(description = "지하철역까지의 직선 거리 (m)", example = "1200", requiredMode = Schema.RequiredMode.REQUIRED)
+      Integer distanceMeters
+  ) {
+
+  }
 }

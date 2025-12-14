@@ -29,6 +29,24 @@ public class MapGeocodingService {
   @Value("${juso.api.coord-key}")
   private String jusoCoordKey;
 
+  public Integer calculateDistanceInMeters(Point pointA, Point pointB) {
+    double lon1 = pointA.getX();
+    double lat1 = pointA.getY();
+    double lon2 = pointB.getX();
+    double lat2 = pointB.getY();
+
+    final int R = 6371; // 지구 반경 (km)
+    double latDistance = Math.toRadians(lat2 - lat1);
+    double lonDistance = Math.toRadians(lon2 - lon1);
+    double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+        * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    double distance = R * c * 1000; // 미터(m) 단위로 변환
+
+    return (int) Math.round(distance);
+  }
+
   public Point getPointFromAddress(String address) {
     // 1단계: 도로명주소 검색 API 호출로 주소 식별 코드 획득
     JusoSearchResponse searchResponse = jusoApiClient.searchAddress(jusoSearchKey, address, "json", 1, 1);

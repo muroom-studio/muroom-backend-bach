@@ -22,7 +22,7 @@ public final class StudioInfo {
   public record StudioSubwayStationInfo(
       String stationName,
       List<StudioSubwayLineInfo> lines,
-      Integer walkingTimeMinutes
+      Integer distanceMeters
   ) {
 
   }
