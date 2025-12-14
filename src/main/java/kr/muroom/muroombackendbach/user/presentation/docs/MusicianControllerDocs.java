@@ -96,7 +96,7 @@ public interface MusicianControllerDocs {
   @SecurityRequirement(name = "Authentication")
   ApiResponse<Void> logout(
       @AuthenticationPrincipal Long musicianId,
-      @CookieValue(name = "refresh", required = false) String refreshToken
+      @RequestHeader(name = "refreshToken", required = false) String refreshToken
   );
 
   @Operation(

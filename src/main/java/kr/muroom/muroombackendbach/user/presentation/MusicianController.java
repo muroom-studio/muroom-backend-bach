@@ -56,7 +56,7 @@ public class MusicianController implements MusicianControllerDocs {
   @PostMapping("/logout")
   public ApiResponse<Void> logout(
       @AuthenticationPrincipal Long musicianId,
-      @RequestHeader("refreshToken") String refreshToken
+      @RequestHeader(name = "refreshToken", required = false) String refreshToken
   ) {
     oAuthLoginService.logout(musicianId, refreshToken);
     return ApiResponse.success();

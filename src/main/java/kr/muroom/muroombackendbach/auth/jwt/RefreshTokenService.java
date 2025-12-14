@@ -9,6 +9,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Set;
+import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -67,12 +68,15 @@ public class RefreshTokenService {
     String userSetKey = USER_JTI_SET_KEY_PREFIX + musicianId;
 
     Set<String> jtis = redisTemplate.opsForSet().members(userSetKey);
+
     if (jtis != null && !jtis.isEmpty()) {
-      // refresh:{jti} 들 삭제
-      jtis.forEach(jti -> redisTemplate.delete(REFRESH_JTI_KEY_PREFIX + jti));
+      redisTemplate.delete(
+          jtis.stream()
+              .map(jti -> REFRESH_JTI_KEY_PREFIX + jti)
+              .toList()
+      );
     }
 
-    // 유저 set 자체 삭제
     redisTemplate.delete(userSetKey);
   }
 
@@ -80,7 +84,6 @@ public class RefreshTokenService {
    * ✅ Refresh 재발급(회전, Rotation) - refreshToken 검증 - Redis에 jti 유효성 확인 - 기존 jti 폐기 - 새 access + 새
    * refresh 발급 - 새 refresh 저장
    */
-  @Transactional
   public TokenPair rotate(String refreshToken) {
     if (refreshToken == null || refreshToken.isBlank()) {
       throw new BusinessException(INVALID_REFRESH_TOKEN);
