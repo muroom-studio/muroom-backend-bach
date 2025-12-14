@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.user.presentation.docs;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -96,6 +97,7 @@ public interface MusicianControllerDocs {
   @SecurityRequirement(name = "Authentication")
   ApiResponse<Void> logout(
       @AuthenticationPrincipal Long musicianId,
+      @Parameter(hidden = true)
       @RequestHeader(name = "refreshToken", required = false) String refreshToken
   );
 
