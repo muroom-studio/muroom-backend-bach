@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.terms.application;
 import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermContentDto;
 import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermsWithContentDto;
 
+import java.util.Comparator;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.VersionUtil;
@@ -29,7 +30,11 @@ public class TermService {
   private final TermContentRepository termContentRepository;
 
   public List<TermsWithContentDto> getTermsMusicianByType() {
-    return termRepository.findLatestTermsByRoleAndTypes(TargetRole.MUSICIAN);
+    List<TermsWithContentDto> terms = termRepository.findLatestTermsByRoleAndTypes(TargetRole.MUSICIAN);
+    List<TermsType> desiredOrder = List.of(TermsType.TERMS_OF_USE, TermsType.PRIVACY_COLLECTION,
+        TermsType.MARKETING_RECEIVE);
+    terms.sort(Comparator.comparingInt(term -> desiredOrder.indexOf(term.code())));
+    return terms;
   }
 
   public List<TermsWithContentDto> getTermsOwnerByType(List<TermsType> types) {
