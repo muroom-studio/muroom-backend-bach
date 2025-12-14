@@ -25,7 +25,8 @@ public class SwaggerConfig {
       @Value("${server.url}") String serverUrl,
       @Value("${springdoc.version}") String springdocVersion,
       @Value("${springdoc.title}") String springdocTitle,
-      @Value("${springdoc.description}") String springdocDescription) {
+      @Value("${springdoc.description}") String springdocDescription
+  ) {
     this.serverUrl = serverUrl;
     this.springdocVersion = springdocVersion;
     this.springdocTitle = springdocTitle;
@@ -34,15 +35,25 @@ public class SwaggerConfig {
 
   @Bean
   public OpenAPI openApi() {
-    final String securitySchemeName = "Authentication";
-    SecurityScheme securityScheme = new SecurityScheme()
-        .name(securitySchemeName)
+    // ✅ 1) AccessToken (Bearer)
+    final String bearerSchemeName = "Authentication";
+    SecurityScheme bearerScheme = new SecurityScheme()
+        .name(bearerSchemeName)
         .type(SecurityScheme.Type.HTTP)
         .scheme("bearer")
         .bearerFormat("JWT")
         .in(SecurityScheme.In.HEADER);
 
-    SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
+    // ✅ 2) RefreshToken (Cookie: refresh)
+    final String refreshCookieSchemeName = "refreshToken";
+    SecurityScheme refreshCookieScheme = new SecurityScheme()
+        .name("refreshToken")
+        .type(SecurityScheme.Type.APIKEY)
+        .in(SecurityScheme.In.HEADER);
+
+    // 전역으로 BearerAuth를 기본 적용(필요 없다면 제거 가능)
+    SecurityRequirement securityRequirement = new SecurityRequirement()
+        .addList(bearerSchemeName);
 
     return new OpenAPI()
         .servers(List.of(new Server().url(serverUrl).description("Current Environment Server")))
@@ -51,7 +62,8 @@ public class SwaggerConfig {
             .description(springdocDescription)
             .version(springdocVersion))
         .addSecurityItem(securityRequirement)
-        .schemaRequirement("BearerAuth", securityScheme)
-        .components(new Components().addSecuritySchemes(securitySchemeName, securityScheme));
+        .components(new Components()
+            .addSecuritySchemes(bearerSchemeName, bearerScheme)
+            .addSecuritySchemes(refreshCookieSchemeName, refreshCookieScheme));
   }
 }

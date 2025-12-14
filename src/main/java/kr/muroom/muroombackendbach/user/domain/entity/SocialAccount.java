@@ -54,9 +54,6 @@ public class SocialAccount extends AuditableEntity {
   @Column(nullable = false, length = 20)
   private OAuthProvider provider;
 
-  private String accessToken;
-  private String refreshToken;
-
   @Column(name = "provider_user_id", nullable = false)
   private String providerUserId;
 }

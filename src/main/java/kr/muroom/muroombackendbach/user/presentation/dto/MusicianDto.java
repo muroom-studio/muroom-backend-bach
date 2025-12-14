@@ -52,6 +52,7 @@ public final class MusicianDto {
 
   public record MusicianSignUpResponse(
       String accessToken,
+      String refreshToken,
       Long musicianId) {
 
   }

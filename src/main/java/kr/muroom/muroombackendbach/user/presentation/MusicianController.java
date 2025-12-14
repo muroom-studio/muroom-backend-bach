@@ -4,7 +4,6 @@ import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.Musi
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.oauth.login.application.OAuthLoginService;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
@@ -56,10 +55,10 @@ public class MusicianController implements MusicianControllerDocs {
 
   @PostMapping("/logout")
   public ApiResponse<Void> logout(
-      @AuthenticationPrincipal
-      Long musicianId
+      @AuthenticationPrincipal Long musicianId,
+      @RequestHeader("refreshToken") String refreshToken
   ) {
-    oAuthLoginService.logout(musicianId);
+    oAuthLoginService.logout(musicianId, refreshToken);
     return ApiResponse.success();
   }
 

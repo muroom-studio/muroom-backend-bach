@@ -26,31 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/terms")
 @RequiredArgsConstructor
-public class TermController {
+public class TermController implements TermControllerDocs {
 
   private final TermService termService;
 
-  @Operation(
-      summary = "뮤지션 회원가입 약관 조회",
-      description = "뮤지션 회원가입 시 필요한 약관들을 조회합니다."
-  )
   @GetMapping("/musician/signup")
   public ApiResponse<List<TermsWithContentDto>> getMusicianTerms() {
     return ApiResponse.success(termService.getTermsMusicianByType());
   }
 
-  // TODO: 이건 안 쓸 것 같습니다!
-  @GetMapping("/{targetRole}/all")
-  public ApiResponse<List<TermAllByCodeResponse>> getAllMusicianTermsByCode(
-      @RequestParam TermsType code, @PathVariable String targetRole) {
-    TargetRole role = TargetRole.valueOf(targetRole.toUpperCase());
-    return ApiResponse.success(termService.getAllTermByCode(code, role));
-  }
-
-  @Operation(
-      summary = "약관 상세 조회",
-      description = "약관 ID로 약관의 상세 내용을 조회합니다."
-  )
   @GetMapping("/{termId}")
   public ApiResponse<TermContentDto> getTermById(@PathVariable Long termId) {
     return ApiResponse.success(termService.getTermContent(termId));

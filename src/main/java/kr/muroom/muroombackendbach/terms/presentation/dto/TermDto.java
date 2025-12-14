@@ -22,7 +22,7 @@ public final class TermDto {
       @Schema(description = "대상 역할", nullable = true)
       TargetRole targetRole,
 
-      @Schema(description = "약관 버전", nullable = true)
+      @Schema(example = "0.0.1", description = "약관 버전 3자리 관리", nullable = true)
       String version,
 
       @Schema(description = "약관 내용", requiredMode = Schema.RequiredMode.REQUIRED)

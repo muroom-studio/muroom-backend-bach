@@ -1,13 +1,15 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.application;
 
-import static java.util.Optional.ofNullable;
+import static kr.muroom.muroombackendbach.auth.jwt.exception.JwtErrorCode.MISMATCH_REFRESH_TOKEN_OWNER;
 import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
-import kr.muroom.muroombackendbach.auth.oauth.token.SocialTokenService;
+import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthClientService;
@@ -17,35 +19,31 @@ import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class OAuthLoginService {
 
-  private final SocialTokenService socialTokenService;
   private final SocialAccountRepository socialAccountRepository;
   private final JwtTokenProvider jwtTokenProvider;
-  private final Map<OAuthProvider, OAuthClientService> clientMap;
+  private final RefreshTokenService refreshTokenService;
+  private final List<OAuthClientService> clients;
 
-  public OAuthLoginService(
-      SocialAccountRepository socialAccountRepository,
-      JwtTokenProvider jwtTokenProvider,
-      SocialTokenService socialTokenService,
-      List<OAuthClientService> clients
-  ) {
-    this.socialAccountRepository = socialAccountRepository;
-    this.jwtTokenProvider = jwtTokenProvider;
-    this.socialTokenService = socialTokenService;
+  private Map<OAuthProvider, OAuthClientService> clientMap;
+
+  @PostConstruct
+  void initClientMap() {
     this.clientMap = clients.stream()
         .collect(Collectors.toMap(OAuthClientService::getProvider, c -> c));
   }
 
   @Transactional(readOnly = true)
   public OAuthLoginResponse login(OAuthLoginRequest request, String origin) {
-
     // 1. provider 파싱 및 OAuthClient 조회
     OAuthProvider provider = OAuthProvider.fromRegistrationId(request.provider());
     OAuthClientService client = clientMap.get(provider);
@@ -57,14 +55,28 @@ public class OAuthLoginService {
     // 3. 기존 소셜 계정 조회
     return socialAccountRepository
         .findByProviderAndProviderUserId(provider, providerUserId)
-        .map(account -> loginExistingUser(account, provider, tokenResult))
+        .map(account -> loginExistingUser(account, provider))
         .orElseGet(() -> prepareSignup(provider, providerUserId));
   }
 
   @Transactional
-  public void logout(Long musicianId) {
-    // TO DO: redis에 토큰 삭제
-    return;
+  public void logout(Long musicianId, String refreshToken) {
+    if (musicianId == null || refreshToken == null || refreshToken.isBlank()) {
+      return;
+    }
+
+    var payload = jwtTokenProvider.parseRefreshToken(refreshToken);
+
+    if (!payload.musicianId().equals(musicianId)) {
+      throw new BusinessException(MISMATCH_REFRESH_TOKEN_OWNER);
+    }
+
+    // Redis Refresh Token 삭제
+    refreshTokenService.revoke(musicianId, payload.jti());
+  }
+
+  public void logoutAll(Long musicianId) {
+    refreshTokenService.revokeAll(musicianId);
   }
 
   /**
@@ -72,26 +84,20 @@ public class OAuthLoginService {
    */
   private OAuthLoginResponse loginExistingUser(
       SocialAccount socialAccount,
-      OAuthProvider provider,
-      OAuthTokenResult tokenResult
+      OAuthProvider provider
   ) {
-    Long userId = ofNullable(socialAccount.getMusician())
+    Long userId = Optional.ofNullable(socialAccount.getMusician())
         .map(Musician::getId)
         .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
 
-    // 소셜 토큰 Redis에 저장
-    socialTokenService.save(
-        userId,
-        provider,
-        tokenResult.accessToken(),
-        tokenResult.refreshToken(),
-        tokenResult.accessTokenExpiresIn(),
-        tokenResult.refreshTokenExpiresIn());
+    // Jwt 토큰 발급
+    String accessToken = jwtTokenProvider.createAccessToken(userId);
+    JwtTokenProvider.RefreshIssue refreshIssue = jwtTokenProvider.createRefreshToken(userId);
 
-    // 우리 서비스 접근 토큰 발급
-    String accessToken = jwtTokenProvider.createToken(userId);
+    // refresh redis 저장
+    refreshTokenService.save(userId, refreshIssue.jti(), refreshIssue.expiresAt());
 
-    return OAuthLoginResponse.login(accessToken, userId, provider);
+    return OAuthLoginResponse.login(accessToken, refreshIssue.token(), userId, provider);
   }
 
   /**
