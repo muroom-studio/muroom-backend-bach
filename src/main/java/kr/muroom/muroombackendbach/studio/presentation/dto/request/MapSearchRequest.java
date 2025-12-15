@@ -1,13 +1,16 @@
 package kr.muroom.muroombackendbach.studio.presentation.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import lombok.Builder;
+import org.springframework.util.CollectionUtils;
 
 @Builder
 public record MapSearchRequest(
@@ -32,11 +35,11 @@ public record MapSearchRequest(
 
     @Schema(description = "필터링할 공용 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 공용 옵션을 가진 스튜디오를 조회합니다.",
         example = "[\"WIFI\", \"CCTV\"]")
-    List<String> commonOptionCodes,
+    Set<String> commonOptionCodes,
 
     @Schema(description = "필터링할 개인 시설 옵션 코드 목록. 'ALL'을 전달하면 모든 개인 옵션을 가진 스튜디오를 조회합니다.",
         example = "[\"AIR_CONDITIONER\"]")
-    List<String> individualOptionCodes,
+    Set<String> individualOptionCodes,
 
     @Schema(description = "검색할 최소 가격 (단위: 원)", example = "250000")
     Integer minPrice,
@@ -57,13 +60,16 @@ public record MapSearchRequest(
     Integer maxRoomHeight,
 
     @Schema(description = "층 유형 목록", example = "[\"GROUND\", \"BASEMENT\"]")
-    List<FloorType> floorTypes,
+    Set<FloorType> floorTypes,
 
-    @Schema(description = "화장실 위치 목록", example = "[\"INTERNAL\", \"EXTERNAL\"]", nullable = true)
-    List<RestroomLocation> restroomLocations,
+    @Schema(description = "화장실 유형 목록", example = "[\"INTERNAL\", \"EXTERNAL\", \"SEPARATE\", \"UNISEX\"]", nullable = true)
+    Set<String> restroomTypes,
 
-    @Schema(description = "화장실 성별 목록", example = "[\"SEPARATE\", \"UNISEX\"]", nullable = true)
-    List<RestroomGender> restroomGenders,
+    @Schema(description = "화장실 위치 목록", hidden = true)
+    Set<RestroomLocation> restroomLocations,
+
+    @Schema(description = "화장실 성별 목록", hidden = true)
+    Set<RestroomGender> restroomGenders,
 
     @Schema(description = "주차 가능 여부", example = "true")
     Boolean isParkingAvailable,
@@ -74,9 +80,79 @@ public record MapSearchRequest(
     @Schema(description = "화재 보험 가입 여부", example = "true")
     Boolean hasFireInsurance,
 
-    @Schema(description = "사용 불가능한 악기 코드 목록", example = "[\"BRASS_WIND"
-        + "\"]")
-    List<String> forbiddenInstrumentCodes
+    @Schema(description = "사용 불가능한 악기 코드 목록", example = "[\"BRASS_WIND" + "\"]")
+    Set<String> forbiddenInstrumentCodes
 ) {
 
+  @JsonCreator
+  public MapSearchRequest(
+      String keyword,
+      @NotNull Double minLatitude,
+      @NotNull Double maxLatitude,
+      @NotNull Double minLongitude,
+      @NotNull Double maxLongitude,
+      Set<String> commonOptionCodes,
+      Set<String> individualOptionCodes,
+      Integer minPrice,
+      Integer maxPrice,
+      Integer minRoomWidth,
+      Integer maxRoomWidth,
+      Integer minRoomHeight,
+      Integer maxRoomHeight,
+      Set<FloorType> floorTypes,
+      Set<String> restroomTypes,
+      Set<RestroomLocation> restroomLocations,
+      Set<RestroomGender> restroomGenders,
+      Boolean isParkingAvailable,
+      Boolean isLodgingAvailable,
+      Boolean hasFireInsurance,
+      Set<String> forbiddenInstrumentCodes
+  ) {
+    this.keyword = keyword;
+    this.minLatitude = minLatitude;
+    this.maxLatitude = maxLatitude;
+    this.minLongitude = minLongitude;
+    this.maxLongitude = maxLongitude;
+    this.commonOptionCodes = commonOptionCodes;
+    this.individualOptionCodes = individualOptionCodes;
+    this.minPrice = minPrice;
+    this.maxPrice = maxPrice;
+    this.minRoomWidth = minRoomWidth;
+    this.maxRoomWidth = maxRoomWidth;
+    this.minRoomHeight = minRoomHeight;
+    this.maxRoomHeight = maxRoomHeight;
+    this.floorTypes = floorTypes;
+    this.restroomTypes = restroomTypes;
+
+    Set<RestroomLocation> derivedLocations = new HashSet<>();
+    Set<RestroomGender> derivedGenders = new HashSet<>();
+    if (!CollectionUtils.isEmpty(restroomTypes)) {
+      for (String restroomType : restroomTypes) {
+        if (restroomType == null || restroomType.isBlank()) {
+          continue;
+        }
+
+        String upperType = restroomType.toUpperCase(java.util.Locale.ROOT);
+        try {
+          derivedLocations.add(RestroomLocation.valueOf(upperType));
+          continue;
+        } catch (IllegalArgumentException ignored) {
+          // Not a valid restroom location, ignore.
+        }
+
+        try {
+          derivedGenders.add(RestroomGender.valueOf(upperType));
+        } catch (IllegalArgumentException ignored) {
+          // Invalid restroom type, ignore.
+        }
+      }
+    }
+
+    this.restroomLocations = derivedLocations.isEmpty() ? null : derivedLocations;
+    this.restroomGenders = derivedGenders.isEmpty() ? null : derivedGenders;
+    this.isParkingAvailable = isParkingAvailable;
+    this.isLodgingAvailable = isLodgingAvailable;
+    this.hasFireInsurance = hasFireInsurance;
+    this.forbiddenInstrumentCodes = forbiddenInstrumentCodes;
+  }
 }
