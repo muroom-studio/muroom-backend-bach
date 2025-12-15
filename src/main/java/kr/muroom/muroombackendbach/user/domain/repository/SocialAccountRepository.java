@@ -10,10 +10,15 @@ import java.util.Optional;
 
 @Repository
 public interface SocialAccountRepository extends JpaRepository<SocialAccount, Long> {
-    Optional<SocialAccount> findByProviderAndProviderUserId(OAuthProvider provider, String providerId);
-    boolean existsByMusicianAndProviderAndProviderUserId(
-            Musician musician,
-            OAuthProvider provider,
-            String providerId
-    );
+
+  Optional<SocialAccount> findByProviderAndProviderUserId(OAuthProvider provider,
+      String providerId);
+
+  boolean existsByMusicianAndProviderAndProviderUserId(
+      Musician musician,
+      OAuthProvider provider,
+      String providerId
+  );
+
+  Optional<SocialAccount> findByMusicianId(Long musicianId);
 }

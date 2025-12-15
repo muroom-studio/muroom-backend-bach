@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.user.domain.entity.MyStudio;
+import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import lombok.Builder;
 
 public final class MusicianDto {
@@ -58,15 +60,38 @@ public final class MusicianDto {
   }
 
   @Builder
-  public record MusicianSimpleProfileResponse(
+  public record MusicianProfileResponse(
       @Schema(description = "뮤지션 ID", example = "1")
       Long musicianId,
 
       @Schema(description = "닉네임", example = "뮤루뮤루")
       String nickname,
 
-      @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
-      String profileImageUrl,
+      @Schema(description = "나의 악기 정보")
+      InstrumentSimpleInfo musicianInstrument,
+
+      @Schema(description = "나의 작업실 정보")
+      MyStudioInfo myStudio,
+
+      @Schema(
+          name = "snsAccount",
+          description = "소셜 로그인 제공자 (code + description 형태로 응답됩니다.)",
+          example = """
+              { "code": "KAKAO", "description": "카카오" }
+              """
+      )
+      OAuthProvider snsAccount
+  ) {
+
+  }
+
+  @Builder
+  public record MusicianSimpleProfileResponse(
+      @Schema(description = "뮤지션 ID", example = "1")
+      Long musicianId,
+
+      @Schema(description = "닉네임", example = "뮤루뮤루")
+      String nickname,
 
       @Schema(description = "나의 악기 정보")
       InstrumentSimpleInfo musicianInstrument
@@ -86,6 +111,27 @@ public final class MusicianDto {
       return InstrumentSimpleInfo.builder()
           .code(instrument.getCode())
           .description(instrument.getDescription())
+          .build();
+    }
+  }
+
+  @Builder
+  public record MyStudioInfo(
+      @Schema(description = "작업실 이름", example = "연습실")
+      String name,
+
+      @Schema(description = "도로명 주소", example = "서울 관악구 남부순환로218길 32 (봉천동, 우남하우정Ⅱ)")
+      String roadAddress,
+
+      @Schema(description = "상세 주소", example = "209호")
+      String detailAddress
+  ) {
+
+    public static MyStudioInfo from(MyStudio myStudio) {
+      return MyStudioInfo.builder()
+          .name(myStudio.getName())
+          .roadAddress(myStudio.getRoadAddress())
+          .detailAddress(myStudio.getDetailAddress())
           .build();
     }
   }
