@@ -83,10 +83,9 @@ public class MusicianController implements MusicianControllerDocs {
   @PatchMapping("/me/detail")
   public ApiResponse<Void> updateMyProfile(
       @AuthenticationPrincipal Long musicianId,
-      @RequestBody UpdateMusicianProfileRequest request
+      @Valid @RequestBody UpdateMusicianProfileRequest request
   ) {
     musicianService.updateMyProfile(musicianId, request);
     return ApiResponse.success();
   }
-
 }

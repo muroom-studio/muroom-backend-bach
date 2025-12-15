@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.user.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @Builder
@@ -10,6 +11,7 @@ public record UpdateMusicianProfileRequest(
         description = "닉네임 (변경 시에만 전달)",
         example = "뮤루뮤루"
     )
+    @Size(max = 10, message = "닉네임은 최대 10자까지 가능합니다.")
     String nickname,
 
     @Schema(
@@ -19,13 +21,17 @@ public record UpdateMusicianProfileRequest(
     Long instrumentId,
 
     @Schema(example = "010-1234-6071", description = "변경할 전화번호")
+    @Size(max = 16, message = "전화번호는 최대 16자까지 가능합니다.")
     String phone,
 
     @Schema(example = "뮤룸 스튜디오")
+    @Size(max = 255, message = "작업실 이름은 최대 255자까지 가능합니다.")
     String studioName,
 
+    @Size(max = 255, message = "도로명 주소는 최대 255자까지 가능합니다.")
     String roadAddress,
-
+    
+    @Size(max = 255, message = "상세 주소는 최대 255자까지 가능합니다.")
     String detailAddress
 ) {
 
