@@ -43,16 +43,11 @@ public class Musician extends AuditableEntity {
   @Column(length = 50)
   private String name;
 
-  private LocalDate birthdate;
-
   @Column(length = 16)
   private String phoneNumber;
 
   @Column(length = 10, unique = true)
   private String nickname;
-
-  @Column
-  private String profileImageKey;
 
   @Enumerated(EnumType.STRING)
   @Column(length = 50)
@@ -64,8 +59,15 @@ public class Musician extends AuditableEntity {
 
   private OffsetDateTime deletedAt;
 
-  public void softDelete() {
-    this.deletedAt = OffsetDateTime.now();
-    this.status = UserStatus.INACTIVE; // enum 값에 맞게 수정
+  public void changeNickname(String nickname) {
+    this.nickname = nickname;
+  }
+
+  public void changeInstrument(Instrument instrument) {
+    this.instrument = instrument;
+  }
+
+  public void changePhone(String phone) {
+    this.phoneNumber = phone;
   }
 }

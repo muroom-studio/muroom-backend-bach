@@ -8,6 +8,11 @@ import java.util.Optional;
 
 @Repository
 public interface MusicianRepository extends JpaRepository<Musician, Long> {
-    boolean existsByNickname(String nickname);
-    Optional<Musician> findByNameAndPhoneNumber(String name,  String phoneNumber);
+
+  boolean existsByNickname(String nickname);
+
+  Optional<Musician> findByNameAndPhoneNumber(String name, String phoneNumber);
+
+  boolean existsByPhoneNumber(String phone);
+
 }

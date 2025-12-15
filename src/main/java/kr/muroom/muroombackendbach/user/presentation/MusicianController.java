@@ -11,9 +11,12 @@ import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.presentation.docs.MusicianControllerDocs;
+import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianProfileResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.UpdateMusicianProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -68,5 +71,21 @@ public class MusicianController implements MusicianControllerDocs {
   ) {
     MusicianSimpleProfileResponse response = musicianService.getMusicianSimpleProfile(musicianId);
     return ApiResponse.success(response);
+  }
+
+  @GetMapping("/me/detail")
+  public ApiResponse<MusicianProfileResponse> getMyProfile(
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    return ApiResponse.success(musicianService.getMusicianProfile(musicianId));
+  }
+
+  @PatchMapping("/me/detail")
+  public ApiResponse<Void> updateMyProfile(
+      @AuthenticationPrincipal Long musicianId,
+      @Valid @RequestBody UpdateMusicianProfileRequest request
+  ) {
+    musicianService.updateMyProfile(musicianId, request);
+    return ApiResponse.success();
   }
 }

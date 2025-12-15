@@ -1,12 +1,17 @@
 package kr.muroom.muroombackendbach.user.application;
 
 import static kr.muroom.muroombackendbach.instrument.exception.InstrumentErrorCode.NOT_EXIST_INSTRUMENT;
+import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.DUPLICATE_PHONE_NUMBER;
+import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
+import static kr.muroom.muroombackendbach.user.exception.MyStudioErrorCode.MY_STUDIO_NOT_FOUND;
+import static kr.muroom.muroombackendbach.user.exception.SocialAccountErrorCode.SOCIAL_ACCOUNT_NOT_FOUND;
+import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpDto;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
@@ -26,8 +31,10 @@ import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentReposi
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MyStudioRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
-import kr.muroom.muroombackendbach.user.exception.MusicianErrorCode;
 import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.InstrumentSimpleInfo;
+import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianProfileResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MyStudioInfo;
+import kr.muroom.muroombackendbach.user.presentation.dto.UpdateMusicianProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,8 +145,6 @@ public class MusicianService {
         .phoneNumber(request.phoneNumber())
         .nickname(request.nickname())
         .status(UserStatus.ACTIVE)
-        // TODO: 카카오 Biz 인증 후 생일 정보 받아서 입력받도록 수정 필요
-        .birthdate(LocalDate.parse("1999-04-13"))
         .instrument(instrument)
         .build();
 
@@ -185,13 +190,105 @@ public class MusicianService {
   @Transactional(readOnly = true)
   public MusicianSimpleProfileResponse getMusicianSimpleProfile(Long musicianId) {
     Musician musician = musicianRepository.findById(musicianId)
-        .orElseThrow(() -> new BusinessException(MusicianErrorCode.MUSICIAN_NOT_FOUND));
+        .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
 
     return MusicianSimpleProfileResponse.builder()
         .musicianId(musician.getId())
         .nickname(musician.getNickname())
         .musicianInstrument(InstrumentSimpleInfo.from(musician.getInstrument()))
-        // .profileImageUrl()
         .build();
   }
+
+  @Transactional(readOnly = true)
+  public MusicianProfileResponse getMusicianProfile(Long musicianId) {
+    Musician musician = musicianRepository.findById(musicianId)
+        .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
+
+    SocialAccount socialAccount = socialAccountRepository.findByMusicianId(musicianId)
+        .orElseThrow(() -> new BusinessException(SOCIAL_ACCOUNT_NOT_FOUND));
+
+    MyStudio myStudio = myStudioRepository.findFirstByMusicianId(musicianId)
+        .orElseThrow(() -> new BusinessException(MY_STUDIO_NOT_FOUND));
+
+    return MusicianProfileResponse.builder()
+        .musicianId(musician.getId())
+        .nickname(musician.getNickname())
+        .musicianInstrument(InstrumentSimpleInfo.from(musician.getInstrument()))
+        .snsAccount(socialAccount.getProvider())
+        .myStudio(MyStudioInfo.from(myStudio))
+        .build();
+  }
+
+  @Transactional
+  public void updateMyProfile(Long musicianId, UpdateMusicianProfileRequest request) {
+    Musician musician = musicianRepository.findById(musicianId)
+        .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
+
+    updateNickname(musician, request);
+    updateInstrument(musician, request);
+    updatePhone(musician, request);
+    updateStudioIfNeeded(musician, request);
+  }
+
+  private void updateNickname(Musician musician, UpdateMusicianProfileRequest request) {
+    if (request.nickname() == null) {
+      return;
+    }
+
+    if (musicianRepository.existsByNickname(request.nickname())) {
+      throw new BusinessException(ALREADY_EXIST_NICKNAME);
+    }
+
+    musician.changeNickname(request.nickname());
+  }
+
+  private void updateInstrument(Musician musician, UpdateMusicianProfileRequest request) {
+    if (request.instrumentId() == null) {
+      return;
+    }
+
+    Instrument instrument = instrumentRepository.findById(request.instrumentId())
+        .orElseThrow(() -> new BusinessException(NOT_EXIST_INSTRUMENT));
+
+    musician.changeInstrument(instrument);
+  }
+
+  private void updatePhone(Musician musician, UpdateMusicianProfileRequest request) {
+    if (request.phone() == null) {
+      return;
+    }
+
+    // 동일 번호면 스킵 (불필요 검증/변경 방지)
+    if (request.phone().equals(musician.getPhoneNumber())) {
+      return;
+    }
+
+    // 중복 체크
+    if (musicianRepository.existsByPhoneNumber(request.phone())) {
+      throw new BusinessException(DUPLICATE_PHONE_NUMBER);
+    }
+
+    musician.changePhone(request.phone());
+  }
+
+  private void updateStudioIfNeeded(Musician musician, UpdateMusicianProfileRequest request) {
+    boolean hasStudioUpdate =
+        request.studioName() != null ||
+            request.roadAddress() != null ||
+            request.detailAddress() != null;
+
+    if (!hasStudioUpdate) {
+      return;
+    }
+
+    MyStudio myStudio = myStudioRepository.findFirstByMusicianId(musician.getId())
+        .orElseThrow(() -> new BusinessException(MY_STUDIO_NOT_FOUND));
+
+    myStudio.changeMyStudio(
+        request.studioName(),
+        request.roadAddress(),
+        request.detailAddress()
+    );
+  }
+
 }

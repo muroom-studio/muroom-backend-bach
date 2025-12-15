@@ -7,9 +7,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum MusicianErrorCode implements ErrorCode {
-  MUSICIAN_NOT_FOUND(HttpStatus.BAD_REQUEST, "MC-400-02", "존재하지 않는 뮤지션입니다."),
-  DUPLICATE_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "MC-400-03", "이미 존재하는 핸드폰 번호입니다.");
+public enum SocialAccountErrorCode implements ErrorCode {
+  SOCIAL_ACCOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "SA-400-01", "존재하지 않는 소셜 계정입니다.");
+
   private final HttpStatus status;
   private final String code;
   private final String message;

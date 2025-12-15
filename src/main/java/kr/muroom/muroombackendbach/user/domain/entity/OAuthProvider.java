@@ -2,10 +2,25 @@ package kr.muroom.muroombackendbach.user.domain.entity;
 
 import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
+import kr.muroom.muroombackendbach.common.domain.EnumMapperType;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-public enum OAuthProvider {
-  KAKAO, NAVER, GOOGLE;
+@Getter
+@AllArgsConstructor
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+public enum OAuthProvider implements EnumMapperType {
+  KAKAO("카카오"), NAVER("네이버"), GOOGLE("구글");
+
+  private final String description;
+
+  @Override
+  public String getCode() {
+    return name();
+  }
 
   public static OAuthProvider fromRegistrationId(String registrationId) {
     return switch (registrationId.toUpperCase()) {

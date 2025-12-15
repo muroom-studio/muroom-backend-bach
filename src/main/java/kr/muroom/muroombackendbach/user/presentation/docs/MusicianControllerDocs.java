@@ -16,6 +16,7 @@ import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto;
 import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
 import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.UpdateMusicianProfileRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -109,4 +110,138 @@ public interface MusicianControllerDocs {
   ApiResponse<MusicianSimpleProfileResponse> getMySimpleProfile(
       @AuthenticationPrincipal Long musicianId
   );
+
+  @Operation(
+      summary = "내 상세 프로필 조회",
+      description =
+          """
+              현재 로그인한 뮤지션의 상세 프로필 정보를 조회합니다.
+              
+              포함 정보:
+              - musicianId
+              - nickname
+              - instrument
+              - snsAccount(provider)
+              - myStudio(나의 작업실)
+              """
+  )
+  @SecurityRequirement(name = "Authentication")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "200",
+          description = "내 상세 프로필 조회 성공"
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "뮤지션을 찾을 수 없음",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = {
+                  @ExampleObject(
+                      name = "뮤지션 없음",
+                      value = """
+                          {
+                            "code": "MC-400-02",
+                            "message": "뮤지션을 찾을 수 없습니다."
+                          }
+                          """,
+                      description = "musicianId로 뮤지션 조회에 실패한 경우"
+                  ),
+                  @ExampleObject(
+                      name = "소셜 계정 없음",
+                      value = """
+                          {
+                            "code": "SA-400-01",
+                            "message": "존재하지 않는 소셜 계정입니다."
+                          }
+                          """,
+                      description = "musicianId로 소셜 계정 조회에 실패한 경우"
+                  ),
+                  @ExampleObject(
+                      name = "나의 작업실 정보가 없음",
+                      value = """
+                          {
+                            "code": "MS-400-01",
+                            "message": "존재하지 않는 나의 작업실입니다."
+                          }
+                          """,
+                      description = "musicianId로 나의 작업실 조회에 실패한 경우"
+                  )
+              }
+          )
+      )
+  })
+  ApiResponse<MusicianDto.MusicianProfileResponse> getMyProfile(
+      @AuthenticationPrincipal Long musicianId
+  );
+
+  @SecurityRequirement(name = "Authentication")
+  @Operation(
+      summary = "내 상세 프로필 수정",
+      description = """
+          내 상세 프로필을 부분 수정합니다. (전달된 필드만 변경)
+          """
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "200",
+          description = "내 상세 프로필 수정 성공"
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "잘못된 요청/리소스 조회 실패",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = {
+                  @ExampleObject(
+                      name = "뮤지션 없음",
+                      value = """
+                          {
+                            "code": "MC-400-02",
+                            "message": "뮤지션을 찾을 수 없습니다."
+                          }
+                          """,
+                      description = "musicianId로 뮤지션 조회에 실패한 경우"
+                  ),
+                  @ExampleObject(
+                      name = "존재하지 않는 악기",
+                      value = """
+                          {
+                            "code": "IS-400-02",
+                            "message": "존재하지 않는 악기입니다."
+                          }
+                          """,
+                      description = "instrumentId로 악기 조회에 실패한 경우"
+                  ),
+                  @ExampleObject(
+                      name = "전화번호 중복",
+                      value = """
+                          {
+                            "code": "MC-400-03",
+                            "message": "이미 사용 중인 전화번호입니다."
+                          }
+                          """,
+                      description = "변경하려는 전화번호가 이미 존재하는 경우"
+                  ),
+                  @ExampleObject(
+                      name = "나의 작업실 정보가 없음",
+                      value = """
+                          {
+                            "code": "MS-400-01",
+                            "message": "존재하지 않는 나의 작업실입니다."
+                          }
+                          """,
+                      description = "musicianId로 나의 작업실 조회에 실패한 경우"
+                  )
+              }
+          )
+      )
+  })
+  ApiResponse<Void> updateMyProfile(
+      @AuthenticationPrincipal Long musicianId,
+      @RequestBody UpdateMusicianProfileRequest request
+  );
+
 }
