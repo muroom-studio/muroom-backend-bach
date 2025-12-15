@@ -45,7 +45,7 @@ public class MyStudio extends SoftDeletableEntity {
   @Column
   private String roadAddress;
 
-  public void changeMyStudio(String name, String detailAddress, String roadAddress) {
+  public void changeMyStudio(String name, String roadAddress, String detailAddress) {
     if (name != null) {
       this.name = name;
     }

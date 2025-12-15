@@ -181,10 +181,6 @@ public interface MusicianControllerDocs {
       summary = "내 상세 프로필 수정",
       description = """
           내 상세 프로필을 부분 수정합니다. (전달된 필드만 변경)
-          
-          **Studio 정보 변경 시 주의사항**
-          - studioName, roadAddress, detailAddress는 **작업실 정보로 함께 관리**됩니다.
-          - 작업실 정보를 변경하려면 **세 필드를 모두 채워서 함께 전달**해 주세요.
           """
   )
   @ApiResponses({
