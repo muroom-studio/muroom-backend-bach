@@ -128,17 +128,22 @@ public record MapSearchRequest(
     Set<RestroomGender> derivedGenders = new HashSet<>();
     if (!CollectionUtils.isEmpty(restroomTypes)) {
       for (String restroomType : restroomTypes) {
-        if (restroomType == null) {
+        if (restroomType == null || restroomType.isBlank()) {
           continue;
         }
-        switch (restroomType.toUpperCase()) {
-          case "INTERNAL" -> derivedLocations.add(RestroomLocation.INTERNAL);
-          case "EXTERNAL" -> derivedLocations.add(RestroomLocation.EXTERNAL);
-          case "SEPARATE" -> derivedGenders.add(RestroomGender.SEPARATE);
-          case "UNISEX" -> derivedGenders.add(RestroomGender.UNISEX);
-          default -> {
-            // ignored
-          }
+
+        String upperType = restroomType.toUpperCase(java.util.Locale.ROOT);
+        try {
+          derivedLocations.add(RestroomLocation.valueOf(upperType));
+          continue;
+        } catch (IllegalArgumentException ignored) {
+          // Not a valid restroom location, ignore.
+        }
+
+        try {
+          derivedGenders.add(RestroomGender.valueOf(upperType));
+        } catch (IllegalArgumentException ignored) {
+          // Invalid restroom type, ignore.
         }
       }
     }
