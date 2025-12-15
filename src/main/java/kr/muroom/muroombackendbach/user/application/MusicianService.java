@@ -5,6 +5,7 @@ import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.DUPLI
 import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 import static kr.muroom.muroombackendbach.user.exception.MyStudioErrorCode.MY_STUDIO_NOT_FOUND;
 import static kr.muroom.muroombackendbach.user.exception.SocialAccountErrorCode.SOCIAL_ACCOUNT_NOT_FOUND;
+import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpDto;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
@@ -230,8 +231,15 @@ public class MusicianService {
   }
 
   private void updateNickname(Musician musician, UpdateMusicianProfileRequest request) {
-    Optional.ofNullable(request.nickname())
-        .ifPresent(musician::changeNickname);
+    if (request.nickname() == null) {
+      return;
+    }
+
+    if (musicianRepository.existsByNickname(request.nickname())) {
+      throw new BusinessException(ALREADY_EXIST_NICKNAME);
+    }
+
+    musician.changeNickname(request.nickname());
   }
 
   private void updateInstrument(Musician musician, UpdateMusicianProfileRequest request) {

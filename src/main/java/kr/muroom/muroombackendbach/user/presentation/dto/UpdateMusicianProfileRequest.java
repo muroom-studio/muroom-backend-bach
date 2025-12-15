@@ -21,6 +21,7 @@ public record UpdateMusicianProfileRequest(
     @Schema(example = "010-1234-6071", description = "변경할 전화번호")
     String phone,
 
+    @Schema(example = "뮤룸 스튜디오")
     String studioName,
 
     String roadAddress,
