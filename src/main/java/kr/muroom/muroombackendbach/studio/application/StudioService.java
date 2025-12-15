@@ -5,6 +5,7 @@ import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
@@ -228,22 +229,22 @@ public class StudioService {
   }
 
   private MapSearchRequest resolveOptions(MapSearchRequest request) {
-    List<String> resolvedCommonOptionsCodes = request.commonOptionCodes();
+    Set<String> resolvedCommonOptionsCodes = request.commonOptionCodes();
     if (request.commonOptionCodes() != null && request.commonOptionCodes().size() == 1
-        && "ALL".equalsIgnoreCase(request.commonOptionCodes().getFirst())) {
+        && "ALL".equalsIgnoreCase(request.commonOptionCodes().iterator().next())) {
       resolvedCommonOptionsCodes = optionRepository.findAllByCategory(OptionCategory.COMMON)
           .stream()
           .map(Option::getCode)
-          .toList();
+          .collect(Collectors.toSet());
     }
 
-    List<String> resolvedIndividualOptionsCodes = request.individualOptionCodes();
+    Set<String> resolvedIndividualOptionsCodes = request.individualOptionCodes();
     if (request.individualOptionCodes() != null && request.individualOptionCodes().size() == 1
-        && "ALL".equalsIgnoreCase(request.individualOptionCodes().getFirst())) {
+        && "ALL".equalsIgnoreCase(request.individualOptionCodes().iterator().next())) {
       resolvedIndividualOptionsCodes = optionRepository.findAllByCategory(OptionCategory.INDIVIDUAL)
           .stream()
           .map(Option::getCode)
-          .toList();
+          .collect(Collectors.toSet());
     }
 
     return MapSearchRequest.builder()
@@ -261,6 +262,7 @@ public class StudioService {
         .minRoomHeight(request.minRoomHeight())
         .maxRoomHeight(request.maxRoomHeight())
         .floorTypes(request.floorTypes())
+        .restroomTypes(request.restroomTypes())
         .restroomLocations(request.restroomLocations())
         .restroomGenders(request.restroomGenders())
         .isParkingAvailable(request.isParkingAvailable())

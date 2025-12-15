@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.studio.domain.entity.QStudio;
@@ -275,7 +276,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
         ).exists();
   }
 
-  private BooleanExpression hasAllOptionsInCategory(List<String> optionCodes,
+  private BooleanExpression hasAllOptionsInCategory(Set<String> optionCodes,
       OptionCategory optionCategory) {
     if (CollectionUtils.isEmpty(optionCodes)) {
       return null;
@@ -289,7 +290,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     );
   }
 
-  private BooleanExpression inFloorTypes(List<FloorType> floorTypes) {
+  private BooleanExpression inFloorTypes(Set<FloorType> floorTypes) {
     if (CollectionUtils.isEmpty(floorTypes)) {
       return null;
     }
@@ -303,14 +304,14 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     return studio.studioBuildingInfo.isLodgingAvailable.eq(isLodgingAvailable);
   }
 
-  private BooleanExpression inRestroomLocations(List<RestroomLocation> restroomLocations) {
+  private BooleanExpression inRestroomLocations(Set<RestroomLocation> restroomLocations) {
     if (CollectionUtils.isEmpty(restroomLocations)) {
       return null;
     }
     return studio.studioBuildingInfo.restroomLocation.in(restroomLocations);
   }
 
-  private BooleanExpression inRestroomGenders(List<RestroomGender> restroomGenders) {
+  private BooleanExpression inRestroomGenders(Set<RestroomGender> restroomGenders) {
     if (CollectionUtils.isEmpty(restroomGenders)) {
       return null;
     }
@@ -333,7 +334,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     return studio.studioBuildingInfo.hasFireInsurance.eq(hasFireInsurance);
   }
 
-  private BooleanExpression notForbidsInstruments(List<String> forbiddenInstrumentCodes) {
+  private BooleanExpression notForbidsInstruments(Set<String> forbiddenInstrumentCodes) {
     if (CollectionUtils.isEmpty(forbiddenInstrumentCodes)) {
       return null;
     }
