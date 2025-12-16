@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.withdrawal.presentation;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.withdrawal.application.WithdrawalReasonService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/withdrawal/reasons")
 @RequiredArgsConstructor
+@Tag(name = "탈퇴 사유 API")
 public class WithdrawalReasonController {
 
   private final WithdrawalReasonService withdrawalReasonService;
