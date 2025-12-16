@@ -15,6 +15,7 @@ import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianPro
 import kr.muroom.muroombackendbach.user.presentation.dto.UpdateMusicianProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -88,4 +89,13 @@ public class MusicianController implements MusicianControllerDocs {
     musicianService.updateMyProfile(musicianId, request);
     return ApiResponse.success();
   }
+
+  @DeleteMapping("/me")
+  public ApiResponse<Void> withdrawMe(
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    musicianService.withdraw(musicianId);
+    return ApiResponse.success();
+  }
+
 }
