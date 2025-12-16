@@ -13,15 +13,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
+import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -31,7 +32,16 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Musician extends AuditableEntity {
+@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(
+    sql = """
+        UPDATE musicians
+        SET deleted_at = CURRENT_TIMESTAMP,
+            status = 'INACTIVE'
+        WHERE musician_id = ?
+        """
+)
+public class Musician extends SoftDeletableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "musician_id_seq_gen")
