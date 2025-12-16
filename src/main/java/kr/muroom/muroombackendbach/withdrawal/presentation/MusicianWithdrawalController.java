@@ -4,6 +4,7 @@ import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.withdrawal.application.MusicianWithdrawalService;
 import kr.muroom.muroombackendbach.withdrawal.presentation.dto.RegisterWithdrawalReasonRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +18,10 @@ public class MusicianWithdrawalController {
   private final MusicianWithdrawalService musicianWithdrawalService;
 
   @PostMapping
-  public ApiResponse<Void> register(@RequestBody RegisterWithdrawalReasonRequest request) {
-    musicianWithdrawalService.register(request);
+  public ApiResponse<Void> register(
+      @AuthenticationPrincipal Long musicianId,
+      @RequestBody RegisterWithdrawalReasonRequest request) {
+    musicianWithdrawalService.register(musicianId, request);
     return ApiResponse.success();
   }
 }

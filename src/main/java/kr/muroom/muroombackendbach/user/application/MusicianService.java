@@ -220,11 +220,6 @@ public class MusicianService {
   }
 
   @Transactional
-  public void withdraw(Long musicianId) {
-    
-  }
-
-  @Transactional
   public void updateMyProfile(Long musicianId, UpdateMusicianProfileRequest request) {
     Musician musician = musicianRepository.findById(musicianId)
         .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));

@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class MusicianWithdrawal {
+public class MusicianWithdrawal extends CreatedDateEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "musician_withdrawals_id_seq_gen")
@@ -49,7 +50,4 @@ public class MusicianWithdrawal {
 
   @Column(columnDefinition = "TEXT")
   private String opinion;
-
-  @Column(nullable = false)
-  private OffsetDateTime createdAt;
 }

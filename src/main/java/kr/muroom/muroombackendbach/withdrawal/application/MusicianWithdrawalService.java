@@ -6,7 +6,6 @@ import static kr.muroom.muroombackendbach.withdrawal.exception.WithdrawalReasonE
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
-import kr.muroom.muroombackendbach.user.exception.MusicianErrorCode;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.MusicianWithdrawal;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.WithdrawalReason;
 import kr.muroom.muroombackendbach.withdrawal.domain.repository.MusicianWithdrawalRepository;
@@ -25,8 +24,8 @@ public class MusicianWithdrawalService {
   private final MusicianRepository musicianRepository;
 
   @Transactional
-  public void register(RegisterWithdrawalReasonRequest request) {
-    Musician musician = musicianRepository.findById(request.musicianId())
+  public void register(Long musicianId, RegisterWithdrawalReasonRequest request) {
+    Musician musician = musicianRepository.findById(musicianId)
         .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
 
     WithdrawalReason withdrawalReason = withdrawalReasonRepository.findById(

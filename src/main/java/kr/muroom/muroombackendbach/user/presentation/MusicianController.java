@@ -89,13 +89,4 @@ public class MusicianController implements MusicianControllerDocs {
     musicianService.updateMyProfile(musicianId, request);
     return ApiResponse.success();
   }
-
-  @DeleteMapping("/me")
-  public ApiResponse<Void> withdrawMe(
-      @AuthenticationPrincipal Long musicianId
-  ) {
-    musicianService.withdraw(musicianId);
-    return ApiResponse.success();
-  }
-
 }
