@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.beta.inquiry.presentation;
 
-import kr.muroom.muroombackendbach.beta.inquiry.application.InquiryService;
+import kr.muroom.muroombackendbach.beta.inquiry.application.BetaInquiryService;
 import kr.muroom.muroombackendbach.beta.inquiry.presentation.dto.InquiryDto;
 import kr.muroom.muroombackendbach.beta.inquiry.presentation.dto.InquiryDto.GetResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/beta/inquiries")
-public class InquiryController {
+public class BetaInquiryController {
 
-  private final InquiryService inquiryService;
+  private final BetaInquiryService betaInquiryService;
 
   /**
    * 새로운 문의사항을 생성합니다.
@@ -31,7 +31,7 @@ public class InquiryController {
    */
   @PostMapping
   public ApiResponse<Void> createInquiry(@Validated @RequestBody InquiryDto.CreateRequest request) {
-    inquiryService.addNewInquiry(request);
+    betaInquiryService.addNewInquiry(request);
     return ApiResponse.success();
   }
 
@@ -44,7 +44,7 @@ public class InquiryController {
   @GetMapping
   public ApiResponse<PaginatedData<GetResponse>> getAllInquiries(
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    Page<GetResponse> inquiries = inquiryService.getAllInquiries(pageable);
+    Page<GetResponse> inquiries = betaInquiryService.getAllInquiries(pageable);
     PaginatedData<GetResponse> response = PaginatedData.from(inquiries);
     return ApiResponse.success(response);
   }
