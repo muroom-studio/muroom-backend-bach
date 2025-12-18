@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/withdrawal/musicians")
 @RequiredArgsConstructor
 @Tag(name = "뮤지션 탈퇴 API", description = "로그인된 사용자만 요청 가능 합니다.")
-public class MusicianWithdrawalController {
+public class MusicianWithdrawalController implements MusicianWithdrawalControllerDocs {
 
   private final MusicianWithdrawalService musicianWithdrawalService;
 

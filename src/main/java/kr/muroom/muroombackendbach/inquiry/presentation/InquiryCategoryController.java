@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/inquiry-categories")
 @RequiredArgsConstructor
-public class InquiryCategoryController {
+public class InquiryCategoryController implements InquiryCategoryControllerDocs {
 
   private final InquiryCategoryService inquiryCategoryService;
 

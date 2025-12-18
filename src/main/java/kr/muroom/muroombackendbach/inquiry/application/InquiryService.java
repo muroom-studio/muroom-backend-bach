@@ -1,18 +1,24 @@
 package kr.muroom.muroombackendbach.inquiry.application;
 
+import static kr.muroom.muroombackendbach.inquiry.exception.InquiryCategoryErrorCode.INQUIRY_CATEGORY_NOT_FOUND;
 import static kr.muroom.muroombackendbach.inquiry.exception.InquiryErrorCode.INQUIRY_FORBIDDEN;
 import static kr.muroom.muroombackendbach.inquiry.exception.InquiryErrorCode.INQUIRY_NOT_FOUND;
 import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
+import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryImage;
+import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryCategoryRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryRepository;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse.CategoryDto;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse.ImageDto;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryResponse;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.RegisterInquiryRequest;
+import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +31,26 @@ public class InquiryService {
 
   private final MusicianRepository musicianRepository;
   private final InquiryRepository inquiryRepository;
+  private final InquiryCategoryRepository inquiryCategoryRepository;
+  private final FileStorageService fileStorageService;
+
+  @Transactional
+  public void registerInquiry(Long musicianId, RegisterInquiryRequest request) {
+    Musician musician = musicianRepository.findById(musicianId)
+        .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
+
+    InquiryCategory inquiryCategory = inquiryCategoryRepository.findById(request.categoryId())
+        .orElseThrow(() -> new BusinessException(INQUIRY_CATEGORY_NOT_FOUND));
+
+    Inquiry inquiry = Inquiry.builder()
+        .musician(musician)
+        .category(inquiryCategory)
+        .title(request.title())
+        .content(request.content())
+        .build();
+
+    inquiryRepository.save(inquiry);
+  }
 
   public InquiryResponse getInquiry(Long musicianId, Long inquiryId) {
     if (!musicianRepository.existsById(musicianId)) {

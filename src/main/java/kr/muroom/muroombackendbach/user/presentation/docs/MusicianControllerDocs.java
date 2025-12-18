@@ -167,6 +167,16 @@ public interface MusicianControllerDocs {
                           }
                           """,
                       description = "musicianId로 나의 작업실 조회에 실패한 경우"
+                  ),
+                  @ExampleObject(
+                      name = "나의 작업실 정보가 없음",
+                      value = """
+                          {
+                            // HTTP STATUS가 403으로 온다면 무조건 로그인으로.
+                            "status": "403",
+                          }
+                          """,
+                      description = "로그인 필요"
                   )
               }
           )
