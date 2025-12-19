@@ -6,12 +6,16 @@ import static kr.muroom.muroombackendbach.inquiry.exception.InquiryErrorCode.INQ
 import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 
 import java.util.List;
+import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryImage;
+import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReply;
+import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryStatus;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryCategoryRepository;
+import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryReplyRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryRepository;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse.CategoryDto;
@@ -32,6 +36,7 @@ public class InquiryService {
   private final MusicianRepository musicianRepository;
   private final InquiryRepository inquiryRepository;
   private final InquiryCategoryRepository inquiryCategoryRepository;
+  private final InquiryReplyRepository inquiryReplyRepository;
   private final FileStorageService fileStorageService;
 
   @Transactional
@@ -47,9 +52,23 @@ public class InquiryService {
         .category(inquiryCategory)
         .title(request.title())
         .content(request.content())
+        .status(InquiryStatus.PROCESSING)
         .build();
 
     inquiryRepository.save(inquiry);
+  }
+
+  @Transactional
+  public void registerInquiryReply(Long inquiryId, InquiryReplyRequest request) {
+    Inquiry inquiry = inquiryRepository.findById(inquiryId)
+        .orElseThrow(() -> new BusinessException(INQUIRY_NOT_FOUND));
+
+    InquiryReply reply = InquiryReply.builder()
+        .inquiry(inquiry)
+        .content(request.content())
+        .build();
+
+    inquiryReplyRepository.save(reply);
   }
 
   public InquiryResponse getInquiry(Long musicianId, Long inquiryId) {

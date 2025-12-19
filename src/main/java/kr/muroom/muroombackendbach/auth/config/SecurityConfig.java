@@ -52,7 +52,7 @@ public class SecurityConfig {
                 "/api/**",
                 "/docs"
             ).permitAll()
-            .anyRequest().authenticated()
+            .anyRequest().permitAll()
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();

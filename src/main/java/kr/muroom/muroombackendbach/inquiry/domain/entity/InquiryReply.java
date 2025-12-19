@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "inquiry_replies")
-public class InquiryReply {
+public class InquiryReply extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "inquiry_reply_id_seq_gen")
@@ -39,13 +40,4 @@ public class InquiryReply {
   @Column(nullable = false, columnDefinition = "TEXT")
   private String content;
 
-  @Column(nullable = false, columnDefinition = "TIMESTAMPTZ")
-  private OffsetDateTime createdAt;
-
-  @Column(nullable = false, columnDefinition = "TIMESTAMPTZ")
-  private OffsetDateTime updatedAt;
-
-  public void assignInquiry(Inquiry inquiry) {
-    this.inquiry = inquiry;
-  }
 }

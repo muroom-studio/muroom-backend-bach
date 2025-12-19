@@ -59,12 +59,6 @@ public class Inquiry extends SoftDeletableEntity {
   private InquiryStatus status;
 
   @Column(nullable = false, columnDefinition = "TIMESTAMPTZ")
-  private OffsetDateTime createdAt;
-
-  @Column(nullable = false, columnDefinition = "TIMESTAMPTZ")
-  private OffsetDateTime updatedAt;
-
-  @Column(nullable = false, columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime deletedAt;
 
   @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
