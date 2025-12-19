@@ -5,9 +5,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.SearchInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
@@ -29,7 +31,7 @@ public interface InquiryControllerDocs {
       @Parameter(hidden = true)
       @AuthenticationPrincipal Long musicianId,
       @Parameter(hidden = true)
-      @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
+      @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   );
 
   @Operation(
@@ -41,6 +43,17 @@ public interface InquiryControllerDocs {
       @Parameter(hidden = true)
       @AuthenticationPrincipal Long musicianId,
       @RequestBody RegisterInquiryRequest request
+  );
+
+  @Operation(
+      summary = "나의 1:1 문의 검색"
+  )
+  @PostMapping("/search")
+  ApiResponse<PaginatedData<SearchInquiryResponse>> searchInquiry(
+      @AuthenticationPrincipal Long musicianId,
+      @RequestBody SearchInquiryRequest searchInquiryRequest,
+      @Parameter(hidden = true)
+      @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   );
 
   @Operation(

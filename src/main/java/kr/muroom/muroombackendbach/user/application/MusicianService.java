@@ -290,4 +290,7 @@ public class MusicianService {
     );
   }
 
+  public void dev() {
+    
+  }
 }

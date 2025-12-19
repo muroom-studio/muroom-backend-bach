@@ -45,17 +45,16 @@ public class InquiryService {
   private final InquiryReplyRepository inquiryReplyRepository;
   private final FileStorageService fileStorageService;
 
-  public SearchInquiryResponse searchInquiry(Long musicianId,
-      SearchInquiryRequest req) {
+  public Page<SearchInquiryResponse> searchInquiry(Long musicianId,
+      SearchInquiryRequest req, Pageable pageable) {
 
     String keyword = req.keyword();
     if (keyword == null || keyword.isBlank()) {
       keyword = "";
     }
 
-    Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"));
-    Page<Inquiry> inquirys = inquiryRepository.searchByKeyword(musicianId, keyword, pageable);
-    return null;
+    Page<Inquiry> inquiries = inquiryRepository.searchByKeyword(musicianId, keyword, pageable);
+    return inquiries.map(SearchInquiryResponse::from);
   }
 
   @Transactional

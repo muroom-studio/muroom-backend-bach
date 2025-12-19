@@ -9,6 +9,7 @@ import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResp
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
@@ -37,9 +38,14 @@ public class InquiryController implements InquiryControllerDocs {
   }
 
   @PostMapping("/search")
-  public ApiResponse<SearchInquiryResponse> searchInquiry(@AuthenticationPrincipal Long musicianId,
-      @RequestBody SearchInquiryRequest searchInquiryRequest) {
-    return ApiResponse.success(inquiryService.searchInquiry(musicianId, searchInquiryRequest));
+  public ApiResponse<PaginatedData<SearchInquiryResponse>> searchInquiry(
+      @AuthenticationPrincipal Long musicianId,
+      @RequestBody SearchInquiryRequest searchInquiryRequest,
+      @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
+  ) {
+    Page<SearchInquiryResponse> responses = inquiryService.searchInquiry(musicianId,
+        searchInquiryRequest, pageable);
+    return ApiResponse.success(PaginatedData.from(responses));
   }
 
   @PostMapping
