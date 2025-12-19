@@ -1,8 +1,11 @@
 package kr.muroom.muroombackendbach.inquiry.presentation;
 
+import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioImagePresignedUrlRequest;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
 import kr.muroom.muroombackendbach.inquiry.application.InquiryService;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.InquiryImagePresignedUrlRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.SearchInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +31,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class InquiryController implements InquiryControllerDocs {
 
   private final InquiryService inquiryService;
+
+  @PostMapping("/presigned-url")
+  public ApiResponse<GeneratePresignedUrlsPutResponse> generateInquiryImagePresignedUrls(
+      @Validated @RequestBody InquiryImagePresignedUrlRequest request) {
+    GeneratePresignedUrlsPutResponse response = inquiryService.generatePresignedPutUrls(
+        request);
+    return ApiResponse.success(response);
+  }
 
   @GetMapping("/my")
   public ApiResponse<PaginatedData<InquiryAllResponse>> getMyInquiry(

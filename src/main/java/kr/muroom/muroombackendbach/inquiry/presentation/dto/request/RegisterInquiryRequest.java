@@ -6,7 +6,7 @@ public record RegisterInquiryRequest(
     Long categoryId,
     String title,
     String content,
-    List<String> imagesKey
+    List<String> imageKeys
 ) {
 
 }

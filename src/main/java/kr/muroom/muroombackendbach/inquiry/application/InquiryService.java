@@ -7,16 +7,21 @@ import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSIC
 
 import java.util.List;
 import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyRequest;
+import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioImagePresignedUrlRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
+import kr.muroom.muroombackendbach.filestorage.exception.FileErrorCode;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse.PresignedUrlInfo;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryImage;
-import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReply;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryStatus;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryCategoryRepository;
-import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryReplyRepository;
+import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryImageRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryRepository;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.InquiryImagePresignedUrlRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.SearchInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse.CategoryDto;
@@ -28,9 +33,7 @@ import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +45,7 @@ public class InquiryService {
   private final MusicianRepository musicianRepository;
   private final InquiryRepository inquiryRepository;
   private final InquiryCategoryRepository inquiryCategoryRepository;
-  private final InquiryReplyRepository inquiryReplyRepository;
+  private final InquiryImageRepository inquiryImageRepository;
   private final FileStorageService fileStorageService;
 
   public Page<SearchInquiryResponse> searchInquiry(Long musicianId,
@@ -74,19 +77,34 @@ public class InquiryService {
         .build();
 
     inquiryRepository.save(inquiry);
+
+    List<String> keys = request.imageKeys();
+    if (keys == null || keys.isEmpty()) {
+      return;
+    }
+
+    List<InquiryImage> images = keys.stream()
+        .filter(k -> k != null && !k.isBlank())
+        .map(String::trim)
+        .distinct()
+        .map(key -> InquiryImage.builder()
+            .inquiry(inquiry)
+            .imageKey(key)
+            .build())
+        .toList();
+
+    if (!images.isEmpty()) {
+      inquiryImageRepository.saveAll(images);
+    }
   }
 
-  @Transactional
-  public void registerInquiryReply(Long inquiryId, InquiryReplyRequest request) {
-    Inquiry inquiry = inquiryRepository.findById(inquiryId)
-        .orElseThrow(() -> new BusinessException(INQUIRY_NOT_FOUND));
+  public Page<InquiryAllResponse> getMyInquiry(Long musicianId, Pageable pageable) {
+    if (!musicianRepository.existsById(musicianId)) {
+      throw new BusinessException(MUSICIAN_NOT_FOUND);
+    }
 
-    InquiryReply reply = InquiryReply.builder()
-        .inquiry(inquiry)
-        .content(request.content())
-        .build();
-
-    inquiryReplyRepository.save(reply);
+    return inquiryRepository.findAllByMusicianId(musicianId, pageable)
+        .map(this::toResponse);
   }
 
   public InquiryResponse getInquiry(Long musicianId, Long inquiryId) {
@@ -102,6 +120,34 @@ public class InquiryService {
     }
 
     return toInquiryResponse(inquiry);
+  }
+
+  public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(
+      InquiryImagePresignedUrlRequest request) {
+    List<PresignedUrlInfo> presignedUrlInfos = request.inquiryImages().stream()
+        .map((inquiryImageInfo) -> {
+          validateContentType(inquiryImageInfo.contentType());
+
+          InquiryCategory inquiryCategory = inquiryCategoryRepository.findById(
+                  inquiryImageInfo.categoryId())
+              .orElseThrow(() -> new BusinessException(INQUIRY_CATEGORY_NOT_FOUND));
+
+          String domain = "inquiries/" + inquiryCategory.getCode().toLowerCase();
+          PresignedPutUrlDto singleUrlDto = fileStorageService.generatePresignedPutUrl(
+              inquiryImageInfo.fileName(), domain, inquiryImageInfo.contentType()
+          );
+
+          return new PresignedUrlInfo(singleUrlDto.url(), singleUrlDto.fileKey());
+        })
+        .toList();
+
+    return new GeneratePresignedUrlsPutResponse(presignedUrlInfos);
+  }
+
+  private void validateContentType(String contentType) {
+    if (!contentType.startsWith("image/")) {
+      throw new BusinessException(FileErrorCode.UNSUPPORTED_FILE_TYPE);
+    }
   }
 
   private InquiryResponse toInquiryResponse(Inquiry inquiry) {
@@ -139,15 +185,6 @@ public class InquiryService {
         .toList();
   }
 
-  public Page<InquiryAllResponse> getMyInquiry(Long musicianId, Pageable pageable) {
-    if (!musicianRepository.existsById(musicianId)) {
-      throw new BusinessException(MUSICIAN_NOT_FOUND);
-    }
-
-    return inquiryRepository.findAllByMusicianId(musicianId, pageable)
-        .map(this::toResponse);
-  }
-
   private InquiryAllResponse toResponse(Inquiry inquiry) {
     return InquiryAllResponse.builder()
         .id(inquiry.getId())
@@ -182,5 +219,4 @@ public class InquiryService {
             .build())
         .toList();
   }
-
 }
