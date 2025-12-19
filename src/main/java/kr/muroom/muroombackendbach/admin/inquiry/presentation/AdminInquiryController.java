@@ -37,7 +37,7 @@ public class AdminInquiryController {
   )
   @PostMapping("/{inquiryId}/reply")
   public void registerInquiryReply(@PathVariable Long inquiryId,
-      @RequestBody InquiryReplyRequest request) {
+      @Validated @RequestBody InquiryReplyRequest request) {
     inquiryReplyService.registerInquiryReply(inquiryId, request);
   }
 }

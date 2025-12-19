@@ -14,7 +14,7 @@ public record InquiryImagePresignedUrlRequest(
       @NotBlank String fileName,
 
       @Schema(example = "1", description = "문의 카테고리 ID 값이 필요합니다.")
-      @NotBlank Long categoryId,
+      @NotNull Long categoryId,
 
       @Schema(example = "image/~")
       @NotBlank String contentType

@@ -62,7 +62,7 @@ public class InquiryController implements InquiryControllerDocs {
   @PostMapping
   public void registerInquiry(
       @AuthenticationPrincipal Long musicianId,
-      @RequestBody RegisterInquiryRequest request) {
+      @Validated @RequestBody RegisterInquiryRequest request) {
     inquiryService.registerInquiry(musicianId, request);
   }
 
