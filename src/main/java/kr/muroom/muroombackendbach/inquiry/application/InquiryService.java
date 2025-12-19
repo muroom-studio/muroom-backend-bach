@@ -170,9 +170,9 @@ public class InquiryService {
       return null;
     }
 
-    List<String> fileKeys = reply.getInquiryReplyImage() == null
+    List<String> fileKeys = reply.getInquiryReplyImages() == null
         ? List.of()
-        : reply.getInquiryReplyImage().stream()
+        : reply.getInquiryReplyImages().stream()
             .map(InquiryReplyImage::getImageKey)
             .filter(k -> k != null && !k.isBlank())
             .map(String::trim)
