@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.inquiry.presentation.dto;
+package kr.muroom.muroombackendbach.inquiry.presentation.dto.request;
 
 import java.util.List;
 

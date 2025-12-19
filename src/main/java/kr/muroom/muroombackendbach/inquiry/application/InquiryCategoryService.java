@@ -2,7 +2,7 @@ package kr.muroom.muroombackendbach.inquiry.application;
 
 import java.util.List;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryCategoryRepository;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryCategoryResponse;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryCategoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

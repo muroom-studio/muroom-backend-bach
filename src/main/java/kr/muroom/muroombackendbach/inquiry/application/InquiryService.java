@@ -17,14 +17,20 @@ import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryStatus;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryCategoryRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryReplyRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryRepository;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse.CategoryDto;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse.ImageDto;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.RegisterInquiryRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.SearchInquiryRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse.CategoryDto;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse.ImageDto;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +44,19 @@ public class InquiryService {
   private final InquiryCategoryRepository inquiryCategoryRepository;
   private final InquiryReplyRepository inquiryReplyRepository;
   private final FileStorageService fileStorageService;
+
+  public SearchInquiryResponse searchInquiry(Long musicianId,
+      SearchInquiryRequest req) {
+
+    String keyword = req.keyword();
+    if (keyword == null || keyword.isBlank()) {
+      keyword = "";
+    }
+
+    Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"));
+    Page<Inquiry> inquirys = inquiryRepository.searchByKeyword(musicianId, keyword, pageable);
+    return null;
+  }
 
   @Transactional
   public void registerInquiry(Long musicianId, RegisterInquiryRequest request) {
@@ -121,15 +140,13 @@ public class InquiryService {
         .toList();
   }
 
-  public List<InquiryAllResponse> getMyInquiry(Long musicianId) {
+  public Page<InquiryAllResponse> getMyInquiry(Long musicianId, Pageable pageable) {
     if (!musicianRepository.existsById(musicianId)) {
       throw new BusinessException(MUSICIAN_NOT_FOUND);
     }
 
-    return inquiryRepository.findAllByMusicianIdOrderByCreatedAtDesc(musicianId)
-        .stream()
-        .map(this::toResponse)
-        .toList();
+    return inquiryRepository.findAllByMusicianId(musicianId, pageable)
+        .map(this::toResponse);
   }
 
   private InquiryAllResponse toResponse(Inquiry inquiry) {

@@ -3,11 +3,14 @@ package kr.muroom.muroombackendbach.inquiry.presentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.RegisterInquiryRequest;
+import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,9 +25,11 @@ public interface InquiryControllerDocs {
       description = "로그인한 사용자의 1:1 문의 목록을 조회합니다."
   )
   @GetMapping("/my")
-  ApiResponse<List<InquiryAllResponse>> getMyInquiry(
+  ApiResponse<PaginatedData<InquiryAllResponse>> getMyInquiry(
       @Parameter(hidden = true)
-      @AuthenticationPrincipal Long musicianId
+      @AuthenticationPrincipal Long musicianId,
+      @Parameter(hidden = true)
+      @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
   );
 
   @Operation(

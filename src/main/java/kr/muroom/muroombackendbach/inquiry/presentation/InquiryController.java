@@ -1,12 +1,17 @@
 package kr.muroom.muroombackendbach.inquiry.presentation;
 
-import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
+import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.inquiry.application.InquiryService;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAllResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.RegisterInquiryRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.SearchInquiryRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +28,18 @@ public class InquiryController implements InquiryControllerDocs {
   private final InquiryService inquiryService;
 
   @GetMapping("/my")
-  public ApiResponse<List<InquiryAllResponse>> getMyInquiry(
-      @AuthenticationPrincipal Long musicianId
+  public ApiResponse<PaginatedData<InquiryAllResponse>> getMyInquiry(
+      @AuthenticationPrincipal Long musicianId,
+      @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   ) {
-    return ApiResponse.success(inquiryService.getMyInquiry(musicianId));
+    return ApiResponse.success(
+        PaginatedData.from(inquiryService.getMyInquiry(musicianId, pageable)));
+  }
+
+  @PostMapping("/search")
+  public ApiResponse<SearchInquiryResponse> searchInquiry(@AuthenticationPrincipal Long musicianId,
+      @RequestBody SearchInquiryRequest searchInquiryRequest) {
+    return ApiResponse.success(inquiryService.searchInquiry(musicianId, searchInquiryRequest));
   }
 
   @PostMapping

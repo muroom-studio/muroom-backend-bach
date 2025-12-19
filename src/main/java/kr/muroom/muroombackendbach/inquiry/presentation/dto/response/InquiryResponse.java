@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.inquiry.presentation.dto;
+package kr.muroom.muroombackendbach.inquiry.presentation.dto.response;
 
 import java.time.OffsetDateTime;
 import java.util.List;
