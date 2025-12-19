@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.withdrawal.presentation.dto.RegisterWithdrawalReasonRequest;
+import kr.muroom.muroombackendbach.withdrawal.presentation.dto.RegisterMusicianWithdrawalRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,6 +66,6 @@ public interface MusicianWithdrawalControllerDocs {
   ApiResponse<Void> register(
       @Parameter(hidden = true)
       @AuthenticationPrincipal Long musicianId,
-      @RequestBody RegisterWithdrawalReasonRequest request
+      @RequestBody RegisterMusicianWithdrawalRequest request
   );
 }

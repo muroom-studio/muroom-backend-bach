@@ -10,7 +10,7 @@ import kr.muroom.muroombackendbach.withdrawal.domain.entity.MusicianWithdrawal;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.WithdrawalReason;
 import kr.muroom.muroombackendbach.withdrawal.domain.repository.MusicianWithdrawalRepository;
 import kr.muroom.muroombackendbach.withdrawal.domain.repository.WithdrawalReasonRepository;
-import kr.muroom.muroombackendbach.withdrawal.presentation.dto.RegisterWithdrawalReasonRequest;
+import kr.muroom.muroombackendbach.withdrawal.presentation.dto.RegisterMusicianWithdrawalRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ public class MusicianWithdrawalService {
   private final MusicianRepository musicianRepository;
 
   @Transactional
-  public void register(Long musicianId, RegisterWithdrawalReasonRequest request) {
+  public void register(Long musicianId, RegisterMusicianWithdrawalRequest request) {
     Musician musician = musicianRepository.findById(musicianId)
         .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
 
@@ -33,7 +33,7 @@ public class MusicianWithdrawalService {
         .orElseThrow(() -> new BusinessException(NOT_EXIST_WITHDRAWAL_REASON));
 
     MusicianWithdrawal withdrawal =
-        RegisterWithdrawalReasonRequest.toEntity(
+        RegisterMusicianWithdrawalRequest.toEntity(
             musician,
             withdrawalReason,
             request.opinion()
