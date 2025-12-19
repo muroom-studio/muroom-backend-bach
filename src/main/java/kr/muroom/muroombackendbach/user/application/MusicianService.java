@@ -289,8 +289,4 @@ public class MusicianService {
         request.detailAddress()
     );
   }
-
-  public void dev() {
-    
-  }
 }

@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.inquiry.domain.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import lombok.AccessLevel;
@@ -35,9 +37,8 @@ public class InquiryReply extends AuditableEntity {
   @Column(name = "inquiry_reply_id")
   private Long id;
 
-  @OneToMany(fetch = FetchType.LAZY)
-  @JoinColumn(name = "inquiry_reply_id")
-  private List<InquiryReplyImage> inquiryReplyImage;
+  @OneToMany(mappedBy = "inquiryReply", fetch = FetchType.LAZY)
+  private List<InquiryReplyImage> inquiryReplyImages = new ArrayList<>();
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "inquiry_id", nullable = false)
