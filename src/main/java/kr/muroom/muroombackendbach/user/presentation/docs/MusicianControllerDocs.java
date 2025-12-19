@@ -13,12 +13,12 @@ import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
-import kr.muroom.muroombackendbach.user.presentation.dto.UpdateMusicianProfileRequest;
+import kr.muroom.muroombackendbach.user.presentation.dto.request.MusicianSignupRequest;
+import kr.muroom.muroombackendbach.user.presentation.dto.request.UpdateMusicianProfileRequest;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianProfileResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSignupResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSimpleProfileResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,8 +30,8 @@ public interface MusicianControllerDocs {
       summary = "뮤지션 회원가입",
       description = "뮤지션 회원 정보를 등록합니다."
   )
-  ApiResponse<MusicianSignUpResponse> registerMusician(
-      @Valid @RequestBody MusicianDto.MusicianSignUpDto request
+  ApiResponse<MusicianSignupResponse> registerMusician(
+      @Valid @RequestBody MusicianSignupRequest request
   );
 
   @Operation(
@@ -182,7 +182,7 @@ public interface MusicianControllerDocs {
           )
       )
   })
-  ApiResponse<MusicianDto.MusicianProfileResponse> getMyProfile(
+  ApiResponse<MusicianProfileResponse> getMyProfile(
       @AuthenticationPrincipal Long musicianId
   );
 

@@ -4,7 +4,6 @@ import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.*;
 import static kr.muroom.muroombackendbach.user.presentation.dto.OwnerDto.*;
 
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
-import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.terms.domain.entity.OwnerAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.OwnerAgreementRepository;
@@ -13,6 +12,7 @@ import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
+import kr.muroom.muroombackendbach.user.presentation.dto.request.OwnerSignupRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class OwnerService {
   private final TermRepository termRepository;
 
   @Transactional
-  public Long registerOwner(OwnerSignUpDto request) {
+  public Long registerOwner(OwnerSignupRequest request) {
     if (!userService.isNicknameAvailable(request.nickname())) {
       throw new BusinessException(ALREADY_EXIST_NICKNAME);
     }

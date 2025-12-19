@@ -1,9 +1,5 @@
 package kr.muroom.muroombackendbach.user.presentation;
 
-import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpDto;
-import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
-import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
-
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.oauth.login.application.OAuthLoginService;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
@@ -11,8 +7,11 @@ import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.presentation.docs.MusicianControllerDocs;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianProfileResponse;
-import kr.muroom.muroombackendbach.user.presentation.dto.UpdateMusicianProfileRequest;
+import kr.muroom.muroombackendbach.user.presentation.dto.request.MusicianSignupRequest;
+import kr.muroom.muroombackendbach.user.presentation.dto.request.UpdateMusicianProfileRequest;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianProfileResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSignupResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSimpleProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,10 +32,10 @@ public class MusicianController implements MusicianControllerDocs {
   private final OAuthLoginService oAuthLoginService;
 
   @PostMapping("/register")
-  public ApiResponse<MusicianSignUpResponse> registerMusician(
-      @Valid @RequestBody MusicianSignUpDto request
+  public ApiResponse<MusicianSignupResponse> registerMusician(
+      @Valid @RequestBody MusicianSignupRequest request
   ) {
-    MusicianSignUpResponse response = musicianService.registerMusician(request);
+    MusicianSignupResponse response = musicianService.registerMusician(request);
     return ApiResponse.created(response);
   }
 
