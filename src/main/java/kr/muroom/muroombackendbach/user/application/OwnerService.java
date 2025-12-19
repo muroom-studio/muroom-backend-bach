@@ -1,7 +1,9 @@
 package kr.muroom.muroombackendbach.user.application;
 
-import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.*;
+import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_EMAIL;
+import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
 
+import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.terms.domain.entity.OwnerAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
@@ -17,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

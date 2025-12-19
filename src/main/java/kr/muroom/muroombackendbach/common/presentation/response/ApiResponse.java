@@ -1,11 +1,10 @@
 package kr.muroom.muroombackendbach.common.presentation.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.ErrorPayload;
 import kr.muroom.muroombackendbach.common.exception.ValidationError;
 import org.springframework.http.HttpStatus;
-
-import java.util.List;
 
 /**
  * API 응답을 나타내는 레코드 클래스입니다.

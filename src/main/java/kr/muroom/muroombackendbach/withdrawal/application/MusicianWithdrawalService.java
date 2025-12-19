@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.withdrawal.application;
 
-import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.*;
+import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 import static kr.muroom.muroombackendbach.withdrawal.exception.WithdrawalReasonErrorCode.NOT_EXIST_WITHDRAWAL_REASON;
 
 import kr.muroom.muroombackendbach.common.exception.BusinessException;

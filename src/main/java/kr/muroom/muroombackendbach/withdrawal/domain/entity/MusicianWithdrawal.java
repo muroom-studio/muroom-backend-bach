@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import lombok.AccessLevel;

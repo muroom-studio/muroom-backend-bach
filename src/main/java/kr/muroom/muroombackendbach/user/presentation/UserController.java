@@ -1,22 +1,18 @@
 package kr.muroom.muroombackendbach.user.presentation;
 
-import static kr.muroom.muroombackendbach.user.presentation.dto.UserDto.*;
+import static kr.muroom.muroombackendbach.user.presentation.dto.UserDto.NicknameCheckResponse;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;
-import kr.muroom.muroombackendbach.common.sms.application.SmsVerificationService;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
+import kr.muroom.muroombackendbach.common.sms.application.SmsVerificationService;
 import kr.muroom.muroombackendbach.common.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.user.application.UserService;
 import kr.muroom.muroombackendbach.user.presentation.docs.UserControllerDocs;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsSendRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyRequest;
-import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

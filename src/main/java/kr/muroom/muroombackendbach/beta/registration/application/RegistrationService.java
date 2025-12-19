@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.beta.registration.application;
 
+import java.util.List;
 import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaIntroductoryImage;
 import kr.muroom.muroombackendbach.beta.registration.domain.entity.BetaRegistration;
 import kr.muroom.muroombackendbach.beta.registration.domain.repository.BetaRegistrationRepository;
@@ -17,8 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional

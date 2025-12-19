@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.inquiry.presentation;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.inquiry.application.InquiryService;
