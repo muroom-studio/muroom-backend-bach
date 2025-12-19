@@ -8,8 +8,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.List;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,7 +35,11 @@ public class InquiryReply extends AuditableEntity {
   @Column(name = "inquiry_reply_id")
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @OneToMany(fetch = FetchType.LAZY)
+  @JoinColumn(name = "inquiry_reply_id")
+  private List<InquiryReplyImage> inquiryReplyImage;
+
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "inquiry_id", nullable = false)
   private Inquiry inquiry;
 

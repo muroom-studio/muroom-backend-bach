@@ -13,6 +13,7 @@ public record InquiryResponse(
     InquiryStatus status,
     CategoryDto category,
     List<ImageDto> images,
+    Reply reply,
     OffsetDateTime createdAt,
     OffsetDateTime updatedAt
 ) {
@@ -29,6 +30,14 @@ public record InquiryResponse(
   public record ImageDto(
       Long id,
       String imageKey
+  ) {
+
+  }
+
+  @Builder
+  public record Reply(
+      String content,
+      List<String> fileKeys
   ) {
 
   }

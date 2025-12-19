@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
@@ -26,8 +27,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
-@Getter
 @Builder
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
@@ -60,16 +61,14 @@ public class Inquiry extends SoftDeletableEntity {
   @Column(nullable = false, length = 50)
   private InquiryStatus status;
 
-  @Column(nullable = false, columnDefinition = "TIMESTAMPTZ")
+  @Column(columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime deletedAt;
 
-  @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-      FetchType.LAZY)
-  @Builder.Default
-  private List<InquiryReply> replies = new ArrayList<>();
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "inquiry_id", nullable = false, unique = true)
+  private InquiryReply inquiryReply;
 
   @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
       FetchType.LAZY)
-  @Builder.Default
   private List<InquiryImage> images = new ArrayList<>();
 }

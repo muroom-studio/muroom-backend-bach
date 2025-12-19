@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.inquiry.presentation;
 
-import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioImagePresignedUrlRequest;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
@@ -46,7 +45,7 @@ public class InquiryController implements InquiryControllerDocs {
       @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   ) {
     return ApiResponse.success(
-        PaginatedData.from(inquiryService.getMyInquiry(musicianId, pageable)));
+        PaginatedData.from(inquiryService.getAllMyInquiry(musicianId, pageable)));
   }
 
   @PostMapping("/search")

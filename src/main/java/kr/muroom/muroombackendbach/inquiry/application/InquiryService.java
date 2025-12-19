@@ -6,8 +6,6 @@ import static kr.muroom.muroombackendbach.inquiry.exception.InquiryErrorCode.INQ
 import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 
 import java.util.List;
-import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyRequest;
-import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioImagePresignedUrlRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
@@ -17,6 +15,8 @@ import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.Generat
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryImage;
+import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReply;
+import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReplyImage;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryStatus;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryCategoryRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryImageRepository;
@@ -98,7 +98,7 @@ public class InquiryService {
     }
   }
 
-  public Page<InquiryAllResponse> getMyInquiry(Long musicianId, Pageable pageable) {
+  public Page<InquiryAllResponse> getAllMyInquiry(Long musicianId, Pageable pageable) {
     if (!musicianRepository.existsById(musicianId)) {
       throw new BusinessException(MUSICIAN_NOT_FOUND);
     }
@@ -157,9 +157,31 @@ public class InquiryService {
         .content(inquiry.getContent())
         .status(inquiry.getStatus())
         .category(toInquiryCategoryDto(inquiry))
+        .reply(toInquiryReplyImageDto(inquiry))
         .images(toInquiryImageDtos(inquiry.getImages()))
         .createdAt(inquiry.getCreatedAt())
         .updatedAt(inquiry.getUpdatedAt())
+        .build();
+  }
+
+  private InquiryResponse.Reply toInquiryReplyImageDto(Inquiry inquiry) {
+    InquiryReply reply = inquiry.getInquiryReply();
+    if (reply == null) {
+      return null;
+    }
+
+    List<String> fileKeys = reply.getInquiryReplyImage() == null
+        ? List.of()
+        : reply.getInquiryReplyImage().stream()
+            .map(InquiryReplyImage::getImageKey)
+            .filter(k -> k != null && !k.isBlank())
+            .map(String::trim)
+            .distinct()
+            .toList();
+
+    return InquiryResponse.Reply.builder()
+        .content(reply.getContent())
+        .fileKeys(fileKeys)
         .build();
   }
 
