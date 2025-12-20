@@ -37,7 +37,7 @@ public class InquiryReply extends AuditableEntity {
   @Column(name = "inquiry_reply_id")
   private Long id;
 
-  @OneToMany(mappedBy = "inquiryReply", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "inquiryReply", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   private List<InquiryReplyImage> inquiryReplyImages = new ArrayList<>();
 
   @OneToOne(fetch = FetchType.LAZY)
@@ -46,5 +46,31 @@ public class InquiryReply extends AuditableEntity {
 
   @Column(nullable = false, columnDefinition = "TEXT")
   private String content;
+
+  public void changeContent(String content) {
+    this.content = content;
+  }
+
+  public void replaceImages(List<String> imageKeys) {
+    this.inquiryReplyImages.clear();
+
+    if (imageKeys == null || imageKeys.isEmpty()) {
+      return;
+    }
+
+    for (int i = 0; i < imageKeys.size(); i++) {
+      String key = imageKeys.get(i);
+      if (key == null || key.isBlank()) {
+        continue;
+      }
+
+      InquiryReplyImage image = InquiryReplyImage.builder()
+          .inquiryReply(this)
+          .imageKey(key.trim())
+          .build();
+
+      this.inquiryReplyImages.add(image);
+    }
+  }
 
 }

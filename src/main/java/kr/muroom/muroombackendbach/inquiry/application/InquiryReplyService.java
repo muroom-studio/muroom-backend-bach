@@ -1,10 +1,12 @@
 package kr.muroom.muroombackendbach.inquiry.application;
 
 import static kr.muroom.muroombackendbach.inquiry.exception.InquiryErrorCode.INQUIRY_NOT_FOUND;
+import static kr.muroom.muroombackendbach.inquiry.exception.InquiryReplyErrorCode.INQUIRY_REPLY_NOT_FOUND;
 
 import java.util.List;
 import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyImagePresignedUrlRequest;
 import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyRequest;
+import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.UpdateInquiryReplyRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
@@ -18,12 +20,13 @@ import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryReplyImageRe
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryReplyRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryRepository;
 import lombok.RequiredArgsConstructor;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class InquiryReplyService {
 
   private final InquiryRepository inquiryRepository;
@@ -31,7 +34,6 @@ public class InquiryReplyService {
   private final FileStorageService fileStorageService;
   private final InquiryReplyImageRepository inquiryReplyImageRepository;
 
-  @Transactional
   public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(
       InquiryReplyImagePresignedUrlRequest request) {
     List<PresignedUrlInfo> presignedUrlInfos = request.inquiryReplyImages().stream()
@@ -56,7 +58,6 @@ public class InquiryReplyService {
     }
   }
 
-  @Transactional
   public void registerInquiryReply(Long inquiryId, InquiryReplyRequest request) {
     Inquiry inquiry = inquiryRepository.findById(inquiryId)
         .orElseThrow(() -> new BusinessException(INQUIRY_NOT_FOUND));
@@ -89,4 +90,21 @@ public class InquiryReplyService {
     }
   }
 
+  public void updateInquiryReply(Long inquiryReplyId, UpdateInquiryReplyRequest request) {
+    InquiryReply inquiryReply = inquiryReplyRepository.findById(inquiryReplyId)
+        .orElseThrow(() -> new BusinessException(INQUIRY_REPLY_NOT_FOUND));
+
+    inquiryReply.changeContent(request.content().trim());
+
+    List<String> imageKeys = request.inquiryReplyImages();
+    inquiryReply.replaceImages(imageKeys);
+  }
+
+  public void deleteInquiryReply(Long inquiryReplyId) {
+    if (!inquiryRepository.existsById(inquiryReplyId)) {
+      throw new BusinessException(INQUIRY_REPLY_NOT_FOUND);
+    }
+
+    inquiryReplyRepository.deleteById(inquiryReplyId);
+  }
 }
