@@ -1,18 +1,17 @@
 package kr.muroom.muroombackendbach.terms.domain.repository;
 
-import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.*;
+import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermsWithContentDto;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import kr.muroom.muroombackendbach.terms.domain.entity.QTerm;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor

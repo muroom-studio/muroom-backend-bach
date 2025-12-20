@@ -6,35 +6,34 @@ import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSIC
 import static kr.muroom.muroombackendbach.user.exception.MyStudioErrorCode.MY_STUDIO_NOT_FOUND;
 import static kr.muroom.muroombackendbach.user.exception.SocialAccountErrorCode.SOCIAL_ACCOUNT_NOT_FOUND;
 import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
-import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpDto;
-import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSignUpResponse;
-import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
 
 import java.util.List;
-import java.util.Optional;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.MusicianAgreementRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
-import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.MyStudio;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
-import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MyStudioRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.InstrumentSimpleInfo;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianProfileResponse;
-import kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MyStudioInfo;
-import kr.muroom.muroombackendbach.user.presentation.dto.UpdateMusicianProfileRequest;
+import kr.muroom.muroombackendbach.user.presentation.dto.request.MusicianSignupRequest;
+import kr.muroom.muroombackendbach.user.presentation.dto.request.UpdateMusicianProfileRequest;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianProfileResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianProfileResponse.MyStudioInfo;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSignupResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSimpleProfileResponse;
+import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSimpleProfileResponse.InstrumentSimpleInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +53,7 @@ public class MusicianService {
   private final RefreshTokenService refreshTokenService;
 
   @Transactional
-  public MusicianSignUpResponse registerMusician(MusicianSignUpDto request) {
+  public MusicianSignupResponse registerMusician(MusicianSignupRequest request) {
     // 0. token 검증
     SignupPayload signupPayload = jwtTokenProvider.parseSignupToken(request.signupToken());
 
@@ -78,13 +77,13 @@ public class MusicianService {
     // 4. 나의 작업실 생성
     createMyStudio(request, musician);
 
-    return new MusicianSignUpResponse(accessToken, refreshToken.token(), musicianId);
+    return new MusicianSignupResponse(accessToken, refreshToken.token(), musicianId);
   }
 
   /**
    * 이름 + 전화번호로 기존 뮤지션 조회, 없으면 신규 가입
    */
-  private Musician findOrRegisterMusician(MusicianSignUpDto request) {
+  private Musician findOrRegisterMusician(MusicianSignupRequest request) {
     return musicianRepository.findByNameAndPhoneNumber(request.name(), request.phoneNumber())
         .orElseGet(() -> registerNewMusician(request));
   }
@@ -92,7 +91,7 @@ public class MusicianService {
   /**
    * 나의 작업실 생성
    */
-  private void createMyStudio(MusicianSignUpDto request, Musician musician) {
+  private void createMyStudio(MusicianSignupRequest request, Musician musician) {
     MyStudio myStudio = MyStudio.builder()
         .musician(musician)
         .name(request.studioName())
@@ -133,7 +132,7 @@ public class MusicianService {
   /**
    * 신규 뮤지션 가입 + 약관 동의 처리 (소셜 계정 연결은 바깥에서 처리)
    */
-  private Musician registerNewMusician(MusicianSignUpDto request) {
+  private Musician registerNewMusician(MusicianSignupRequest request) {
     validateNickname(request.nickname());
     List<Term> terms = loadAndValidateTerms(request.termIds());
 
@@ -290,5 +289,4 @@ public class MusicianService {
         request.detailAddress()
     );
   }
-
 }

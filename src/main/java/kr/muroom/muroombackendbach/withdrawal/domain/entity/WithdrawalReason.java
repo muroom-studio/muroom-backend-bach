@@ -37,11 +37,10 @@ public class WithdrawalReason {
   @Column(name = "withdrawal_reason_id")
   private Long id;
 
-  @Enumerated(EnumType.STRING)
   @Column(length = 50, nullable = false, unique = true)
-  private WithdrawalReasonCode code;
+  private String code;
 
-  @Column(length = 255, nullable = false)
+  @Column(nullable = false)
   private String description;
 
   @Column(nullable = false)

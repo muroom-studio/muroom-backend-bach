@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.auth.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import kr.muroom.muroombackendbach.auth.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +31,12 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .formLogin(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
-        .anonymous(AbstractHttpConfigurer::disable)
+        //.anonymous(AbstractHttpConfigurer::disable)
+        .exceptionHandling(eh -> eh
+            .authenticationEntryPoint(
+                (req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+            .accessDeniedHandler((req, res, ex) -> res.sendError(HttpServletResponse.SC_FORBIDDEN))
+        )
         .authorizeHttpRequests((auth) -> auth
             .requestMatchers(
                 "/api/beta/**",
@@ -43,7 +49,8 @@ public class SecurityConfig {
                 "/oauth2/**",
                 "/api/v1/owner/register",
                 "/api/v1/owner/check-email",
-                "/api/**"
+                "/api/**",
+                "/docs"
             ).permitAll()
             .anyRequest().permitAll()
         )

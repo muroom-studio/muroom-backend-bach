@@ -8,13 +8,11 @@ import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_
 
 import java.security.SecureRandom;
 import java.time.Duration;
-
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.sms.domain.repository.SmsVerificationCodeStore;
 import kr.muroom.muroombackendbach.common.sms.presentation.SmsSender;
 import kr.muroom.muroombackendbach.common.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
-import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
