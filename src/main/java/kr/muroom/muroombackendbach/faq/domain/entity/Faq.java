@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import kr.muroom.muroombackendbach.admin.faq.presentation.dto.UpdateFaqRequest;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -46,4 +47,9 @@ public class Faq extends SoftDeletableEntity {
 
   @Column(name = "answer", nullable = false, columnDefinition = "TEXT")
   private String answer;
+
+  public void updateFaq(String question, String answer) {
+    this.question = question;
+    this.answer = answer;
+  }
 }
