@@ -211,6 +211,7 @@ public class MusicianService {
 
     return MusicianProfileResponse.builder()
         .musicianId(musician.getId())
+        .phone(musician.getPhoneNumber())
         .nickname(musician.getNickname())
         .musicianInstrument(InstrumentSimpleInfo.from(musician.getInstrument()))
         .snsAccount(socialAccount.getProvider())

@@ -28,7 +28,7 @@ public class SmsVerificationService {
   private static final int CODE_LENGTH = 6;
 
   private static final Duration CODE_TTL = Duration.ofMinutes(3);
-  private static final Duration RESEND_COOLDOWN = Duration.ofMinutes(1);
+  private static final Duration RESEND_COOLDOWN = Duration.ofSeconds(10);
 
   private static final int DAILY_LIMIT = 5;
   private static final int MAX_FAIL_COUNT = 5;

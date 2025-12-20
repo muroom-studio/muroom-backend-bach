@@ -1,0 +1,2 @@
+ALTER TABLE faqs
+    ALTER COLUMN deleted_at DROP NOT NULL;
