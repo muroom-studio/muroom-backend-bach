@@ -65,7 +65,6 @@ public class Inquiry extends SoftDeletableEntity {
   private OffsetDateTime deletedAt;
 
   @OneToOne(mappedBy = "inquiry", fetch = FetchType.LAZY)
-  @JoinColumn(name = "inquiry_id", nullable = false, unique = true)
   private InquiryReply inquiryReply;
 
   @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true, fetch =

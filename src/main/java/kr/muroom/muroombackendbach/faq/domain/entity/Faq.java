@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Builder
@@ -25,6 +26,13 @@ import org.hibernate.annotations.SQLRestriction;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @SQLRestriction("deleted_at IS NULL")
+@SQLDelete(
+    sql = """
+        UPDATE faqs
+        SET deleted_at = CURRENT_TIMESTAMP
+        WHERE faq_id = ?
+        """
+)
 @Table(name = "faqs")
 public class Faq extends SoftDeletableEntity {
 
