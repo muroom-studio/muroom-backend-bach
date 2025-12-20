@@ -39,10 +39,11 @@ public class AdminInquiryController {
       description = "관리자 답글 추가"
   )
   @PostMapping("/{inquiryId}/reply")
-  public void registerInquiryReply(
+  public ApiResponse<Void> registerInquiryReply(
       @PathVariable Long inquiryId,
       @Validated @RequestBody InquiryReplyRequest request) {
     inquiryReplyService.registerInquiryReply(inquiryId, request);
+    return ApiResponse.success();
   }
 
   @Operation(

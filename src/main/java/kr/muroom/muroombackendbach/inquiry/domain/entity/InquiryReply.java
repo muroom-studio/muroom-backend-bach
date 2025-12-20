@@ -58,8 +58,7 @@ public class InquiryReply extends AuditableEntity {
       return;
     }
 
-    for (int i = 0; i < imageKeys.size(); i++) {
-      String key = imageKeys.get(i);
+    for (String key : imageKeys) {
       if (key == null || key.isBlank()) {
         continue;
       }

@@ -20,7 +20,6 @@ import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryReplyImageRe
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryReplyRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryRepository;
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +33,7 @@ public class InquiryReplyService {
   private final FileStorageService fileStorageService;
   private final InquiryReplyImageRepository inquiryReplyImageRepository;
 
+  @Transactional(readOnly = true)
   public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(
       InquiryReplyImagePresignedUrlRequest request) {
     List<PresignedUrlInfo> presignedUrlInfos = request.inquiryReplyImages().stream()
@@ -101,10 +101,9 @@ public class InquiryReplyService {
   }
 
   public void deleteInquiryReply(Long inquiryReplyId) {
-    if (!inquiryReplyRepository.existsById(inquiryReplyId)) {
-      throw new BusinessException(INQUIRY_REPLY_NOT_FOUND);
-    }
+    InquiryReply inquiryReply = inquiryReplyRepository.findById(inquiryReplyId)
+        .orElseThrow(() -> new BusinessException(INQUIRY_REPLY_NOT_FOUND));
 
-    inquiryReplyRepository.deleteById(inquiryReplyId);
+    inquiryReplyRepository.delete(inquiryReply);
   }
 }

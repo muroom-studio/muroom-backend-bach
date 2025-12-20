@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum InquiryReplyErrorCode implements ErrorCode {
-  INQUIRY_REPLY_NOT_FOUND(HttpStatus.BAD_REQUEST, "IQ-400-01", "존재하지 않는 문의 답변입니다."),
+  INQUIRY_REPLY_NOT_FOUND(HttpStatus.BAD_REQUEST, "IQ-404-01", "존재하지 않는 문의 답변입니다."),
   ;
 
   private final HttpStatus status;
