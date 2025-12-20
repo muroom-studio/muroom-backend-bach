@@ -39,7 +39,7 @@ public class Faq extends SoftDeletableEntity {
   @Column(name = "faq_id")
   private Long id;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "faq_category_id", nullable = false)
   private FaqCategory category;
 
@@ -48,7 +48,4 @@ public class Faq extends SoftDeletableEntity {
 
   @Column(name = "answer", nullable = false, columnDefinition = "TEXT")
   private String answer;
-
-  @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
-  private OffsetDateTime deletedAt;
 }

@@ -9,8 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,5 +40,5 @@ public class FaqCategory {
   private String name;
 
   @Column(name = "is_active", nullable = false)
-  private Boolean isActive;
+  private boolean isActive;
 }
