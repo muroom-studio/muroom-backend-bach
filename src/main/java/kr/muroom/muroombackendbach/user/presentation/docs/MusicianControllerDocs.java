@@ -20,12 +20,11 @@ import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianProfil
 import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSimpleProfileResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "뮤지션 API", description = "뮤지션 관련 API")
+@Tag(name = "00_뮤지션 API", description = "뮤지션 관련 API")
 public interface MusicianControllerDocs {
 
   @Operation(
@@ -46,12 +45,26 @@ public interface MusicianControllerDocs {
   );
 
   @Operation(
+      operationId = "00_oauthLoginForSwagger",
       summary = "뮤지션 로그인 (Swagger 테스트용)",
-      description = "Swagger 테스트 전용 로그인 API입니다. "
-          + "운영/개발 환경에서는 redirect 기반 로그인 플로우를 사용해야 합니다."
+      description = """
+          Swagger 테스트 전용 로그인 API입니다.  
+          운영/개발 환경에서는 redirect 기반 로그인 플로우를 사용해야 합니다.
+          
+          아래 카카오 로그인 페이지에서 인증 후,
+          리다이렉트 URL에 포함된 `code` 값을 `providerId` 필드에 입력해주세요.
+          
+          🔗 카카오 로그인 페이지  
+          [카카오 로그인 바로가기](https://kauth.kakao.com/oauth/authorize?client_id=a87a624a98805882ce612eed7c018237&redirect_uri=http://localhost:3001/redirect/oauth/kakao&response_type=code)
+          """
   )
   ApiResponse<OAuthLoginResponse> oauthLoginForSwagger(
       @Valid @RequestBody OAuthLoginRequest request,
+      @Parameter(
+          description = "요청이 발생한 origin (Swagger 테스트용)",
+          example = "http://localhost:3001",
+          schema = @Schema(defaultValue = "http://localhost:3001")
+      )
       @RequestParam String origin
   );
 
