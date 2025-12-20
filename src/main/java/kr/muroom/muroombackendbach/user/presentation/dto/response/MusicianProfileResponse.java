@@ -14,6 +14,9 @@ public record MusicianProfileResponse(
     @Schema(description = "닉네임", example = "뮤루뮤루")
     String nickname,
 
+    @Schema(description = "010-1111-2222")
+    String phone,
+
     @Schema(description = "나의 악기 정보")
     InstrumentSimpleInfo musicianInstrument,
 
