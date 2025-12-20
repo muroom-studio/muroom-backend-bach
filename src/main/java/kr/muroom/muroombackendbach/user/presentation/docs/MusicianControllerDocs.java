@@ -20,12 +20,11 @@ import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianProfil
 import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSimpleProfileResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "뮤지션 API", description = "뮤지션 관련 API")
+@Tag(name = "00_뮤지션 API", description = "뮤지션 관련 API")
 public interface MusicianControllerDocs {
 
   @Operation(
@@ -46,6 +45,7 @@ public interface MusicianControllerDocs {
   );
 
   @Operation(
+      operationId = "00_oauthLoginForSwagger",
       summary = "뮤지션 로그인 (Swagger 테스트용)",
       description = """
           Swagger 테스트 전용 로그인 API입니다.  

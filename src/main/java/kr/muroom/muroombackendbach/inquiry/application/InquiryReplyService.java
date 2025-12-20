@@ -101,7 +101,7 @@ public class InquiryReplyService {
   }
 
   public void deleteInquiryReply(Long inquiryReplyId) {
-    if (!inquiryRepository.existsById(inquiryReplyId)) {
+    if (!inquiryReplyRepository.existsById(inquiryReplyId)) {
       throw new BusinessException(INQUIRY_REPLY_NOT_FOUND);
     }
 

@@ -180,6 +180,7 @@ public class InquiryService {
             .toList();
 
     return InquiryResponse.Reply.builder()
+        .id(reply.getId())
         .content(reply.getContent())
         .fileKeys(fileKeys)
         .build();
