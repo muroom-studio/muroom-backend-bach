@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +40,7 @@ public class InquiryController implements InquiryControllerDocs {
     return ApiResponse.success(response);
   }
 
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/my")
   public ApiResponse<PaginatedData<InquiryAllResponse>> getMyInquiry(
       @AuthenticationPrincipal Long musicianId,
@@ -48,6 +50,7 @@ public class InquiryController implements InquiryControllerDocs {
         PaginatedData.from(inquiryService.getAllMyInquiry(musicianId, pageable)));
   }
 
+  @PreAuthorize("isAuthenticated()")
   @PostMapping("/search")
   public ApiResponse<PaginatedData<SearchInquiryResponse>> searchInquiry(
       @AuthenticationPrincipal Long musicianId,
@@ -59,6 +62,7 @@ public class InquiryController implements InquiryControllerDocs {
     return ApiResponse.success(PaginatedData.from(responses));
   }
 
+  @PreAuthorize("isAuthenticated()")
   @PostMapping
   public void registerInquiry(
       @AuthenticationPrincipal Long musicianId,
@@ -66,6 +70,7 @@ public class InquiryController implements InquiryControllerDocs {
     inquiryService.registerInquiry(musicianId, request);
   }
 
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/{inquiryId}")
   public ApiResponse<InquiryResponse> getInquiry(
       @AuthenticationPrincipal Long musicianId,

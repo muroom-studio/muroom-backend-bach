@@ -31,7 +31,7 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .formLogin(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
-        .anonymous(AbstractHttpConfigurer::disable)
+        //.anonymous(AbstractHttpConfigurer::disable)
         .exceptionHandling(eh -> eh
             .authenticationEntryPoint(
                 (req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))

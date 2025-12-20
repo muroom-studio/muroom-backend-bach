@@ -5,6 +5,7 @@ import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.withdrawal.application.MusicianWithdrawalService;
 import kr.muroom.muroombackendbach.withdrawal.presentation.dto.RegisterMusicianWithdrawalRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ public class MusicianWithdrawalController implements MusicianWithdrawalControlle
 
   private final MusicianWithdrawalService musicianWithdrawalService;
 
+  @PreAuthorize("isAuthenticated()")
   @PostMapping
   public ApiResponse<Void> register(
       @AuthenticationPrincipal Long musicianId,
