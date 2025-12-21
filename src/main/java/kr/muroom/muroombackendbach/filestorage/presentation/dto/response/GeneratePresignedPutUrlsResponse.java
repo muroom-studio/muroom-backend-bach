@@ -2,7 +2,7 @@ package kr.muroom.muroombackendbach.filestorage.presentation.dto.response;
 
 import java.util.List;
 
-public record GeneratePresignedUrlsPutResponse(
+public record GeneratePresignedPutUrlsResponse(
     List<PresignedUrlInfo> presignedUrls
 ) {
 

@@ -12,10 +12,8 @@ import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioC
 import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioImagePresignedUrlRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
-import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
-import kr.muroom.muroombackendbach.filestorage.exception.FileErrorCode;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse.PresignedUrlInfo;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlsResponse;
+import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
@@ -35,7 +33,6 @@ import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudi
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationRepository;
 import kr.muroom.muroombackendbach.subway.exception.SubwayErrorCode;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
-import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
 import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -56,28 +53,9 @@ public class AdminStudioService {
   private final SubwayStationRepository subwayStationRepository;
   private final FileStorageService fileStorageService;
 
-  public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(
+  public GeneratePresignedPutUrlsResponse generatePresignedPutUrls(
       StudioImagePresignedUrlRequest request) {
-    List<PresignedUrlInfo> presignedUrlInfos = request.studioImages().stream()
-        .map((studioImageInfo) -> {
-          validateContentType(studioImageInfo.contentType());
-
-          String domain = "studios/" + studioImageInfo.category().name().toLowerCase();
-          PresignedPutUrlDto singleUrlDto = fileStorageService.generatePresignedPutUrl(
-              studioImageInfo.fileName(), domain, studioImageInfo.contentType()
-          );
-
-          return new PresignedUrlInfo(singleUrlDto.url(), singleUrlDto.fileKey());
-        })
-        .toList();
-
-    return new GeneratePresignedUrlsPutResponse(presignedUrlInfos);
-  }
-
-  private void validateContentType(String contentType) {
-    if (!contentType.startsWith("image/")) {
-      throw new BusinessException(FileErrorCode.UNSUPPORTED_FILE_TYPE);
-    }
+    return fileStorageService.generatePresignedPutUrls(request.studioImages(), FileStorageService::validateImageContentType);
   }
 
   public Long createStudio(StudioCreateRequest request) {
@@ -88,6 +66,18 @@ public class AdminStudioService {
     String lotNumberAddress = request.addressInfo().lotNumberAddress();
     Point location = mapGeocodingService.getPointFromAddress(roadNameAddress);
 
+    List<StudioImage> studioImages = buildStudioImages(request.imageKeys());
+    String thumbnailImageKey = studioImages.stream()
+        .filter(image -> image.getCategory() == StudioImageCategory.MAIN && image.getSequence() == 1)
+        .findFirst()
+        .map(StudioImage::getImageKey)
+        .orElse(null);
+    String blueprintImageKey = studioImages.stream()
+        .filter(image -> image.getCategory() == StudioImageCategory.BLUEPRINT)
+        .findFirst()
+        .map(StudioImage::getImageKey)
+        .orElse(null);
+
     Studio studio = Studio.builder()
         .owner(owner)
         .name(request.studioName())
@@ -97,8 +87,8 @@ public class AdminStudioService {
         .location(location)
         .introduction(request.introduction())
         .depositAmount(request.depositAmount())
-        .thumbnailImageKey(request.imageKeys().mainImageKeys().getFirst())
-        .blueprintImageKey(request.imageKeys().blueprintImageKey())
+        .thumbnailImageKey(thumbnailImageKey)
+        .blueprintImageKey(blueprintImageKey)
         .build();
 
     if (request.studioMinPrice() != null || request.studioMaxPrice() != null) {
@@ -118,7 +108,7 @@ public class AdminStudioService {
     studio.applyOptions(buildStudioOptions(request.optionCodes()));
     studio.updateForbiddenInstruments(
         buildForbiddenInstruments(request.forbiddenInstrumentCodes()));
-    studio.updateImages(buildStudioImages(request.imageKeys()));
+    studio.updateImages(studioImages);
     studio.updateNearbyStations(buildNearbyStations(request.nearbyStations()));
 
     Studio savedStudio = studioRepository.save(studio);
@@ -205,7 +195,7 @@ public class AdminStudioService {
     request.mainImageKeys()
         .forEach(key -> images.add(StudioImage.builder()
             .category(StudioImageCategory.MAIN)
-            .imageKey(key)
+            .imageKey(fileStorageService.moveFromTempToPermanent(key))
             .sequence(sequence.getAndIncrement())
             .build()));
 
@@ -214,7 +204,7 @@ public class AdminStudioService {
       request.buildingImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.BUILDING)
-              .imageKey(key)
+              .imageKey(fileStorageService.moveFromTempToPermanent(key))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
@@ -224,14 +214,14 @@ public class AdminStudioService {
       request.roomImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.ROOM)
-              .imageKey(key)
+              .imageKey(fileStorageService.moveFromTempToPermanent(key))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
 
     images.add(StudioImage.builder()
         .category(StudioImageCategory.BLUEPRINT)
-        .imageKey(request.blueprintImageKey())
+        .imageKey(fileStorageService.moveFromTempToPermanent(request.blueprintImageKey()))
         .sequence(1)
         .build());
 
@@ -240,7 +230,7 @@ public class AdminStudioService {
       request.commonOptionImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.COMMON_OPTION)
-              .imageKey(key)
+              .imageKey(fileStorageService.moveFromTempToPermanent(key))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
@@ -250,7 +240,7 @@ public class AdminStudioService {
       request.individualOptionImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.INDIVIDUAL_OPTION)
-              .imageKey(key)
+              .imageKey(fileStorageService.moveFromTempToPermanent(key))
               .sequence(sequence.getAndIncrement())
               .build()));
     }

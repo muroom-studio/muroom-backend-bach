@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum FileErrorCode implements ErrorCode {
   UNSUPPORTED_FILE_TYPE(HttpStatus.BAD_REQUEST, "FS-400-01", "지원하지 않는 파일 형식입니다."),
+
+  INVALID_TEMP_FILE_KEY(HttpStatus.BAD_REQUEST, "FS-400-02", "유효하지 않은 임시 파일 키입니다."),
   ;
 
   private final HttpStatus status;

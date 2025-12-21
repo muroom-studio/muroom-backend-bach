@@ -10,4 +10,6 @@ public interface SubwayStationsNearbyStudioQueryRepository {
   List<SubwayStationNearbyStudio> findAllByStudioIdInWithStation(Collection<Long> studioIds);
 
   List<SubwayStationNearbyStudio> findAllByStudioOrderBySequenceAsc(Studio studio);
+
+  SubwayStationNearbyStudio findFirstByStudioIdOrderBySequenceAsc(Long studioId);
 }

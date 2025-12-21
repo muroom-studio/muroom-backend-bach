@@ -8,5 +8,7 @@ public interface SubwayStationLineQueryRepository {
 
   List<SubwayStationLine> findAllByStudioIdsInWithLine(Collection<Long> studioIds);
 
-  List<SubwayStationLine> findAllByStationIdInWithLine(List<Long> stationIds);
+  List<SubwayStationLine> findAllByStationIdsInWithLine(List<Long> stationIds);
+
+  List<SubwayStationLine> findAllByStationIdInWithLine(Long stationId);
 }

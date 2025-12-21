@@ -26,6 +26,7 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.S
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
@@ -272,4 +273,47 @@ public class StudioService {
         .build();
   }
 
+  public boolean isValidStudioId(Long studioId) {
+    return studioRepository.existsById(studioId);
+  }
+
+  /**
+   * StudioId로 StudioInfo 조회
+   *
+   * <p>다른 서비스 에서 사용할 용도로만 존재하는 메서드입니다.
+   */
+  public StudioInfo getStudioInfoById(Long studioId) {
+    Studio studio = studioRepository.findById(studioId)
+        .orElseThrow(() -> new IllegalArgumentException("Studio not found with id: " + studioId));
+
+    StudioPriceInfo studioPriceInfo = calculatePrice(studio);
+
+    SubwayStationNearbyStudio subwayStationNearbyStudio = subwayStationsNearbyStudioRepository
+        .findFirstByStudioIdOrderBySequenceAsc(studioId);
+    StudioSubwayStationInfo nearestSubwayStation = null;
+    if (subwayStationNearbyStudio != null) {
+      SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
+      Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
+      List<StudioSubwayLineInfo> lines = subwayStationLineRepository.findAllByStationIdInWithLine(subwayStation.getId()).stream()
+          .map(subwayStationLine -> StudioSubwayLineInfo.builder()
+              .lineName(subwayStationLine.getLine().getName())
+              .lineColor(subwayStationLine.getLine().getColor())
+              .build())
+          .toList();
+      nearestSubwayStation = StudioSubwayStationInfo.builder()
+          .stationName(subwayStation.getName())
+          .lines(lines)
+          .distanceInMeters(distanceInMeters)
+          .build();
+    }
+
+    return StudioInfo.builder()
+        .id(studio.getId())
+        .name(studio.getName())
+        .thumbnailImageFileKey(studio.getThumbnailImageKey())
+        .nearestSubwayStation(nearestSubwayStation)
+        .minPrice(studioPriceInfo.minPrice())
+        .maxPrice(studioPriceInfo.maxPrice())
+        .build();
+  }
 }

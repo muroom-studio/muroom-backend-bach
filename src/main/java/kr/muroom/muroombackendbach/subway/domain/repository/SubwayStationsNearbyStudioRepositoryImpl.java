@@ -34,4 +34,14 @@ public class SubwayStationsNearbyStudioRepositoryImpl implements SubwayStationsN
         .orderBy(subwayStationNearbyStudio.sequence.asc())
         .fetch();
   }
+
+  @Override
+  public SubwayStationNearbyStudio findFirstByStudioIdOrderBySequenceAsc(Long studioId) {
+    return queryFactory
+        .selectFrom(subwayStationNearbyStudio)
+        .join(subwayStationNearbyStudio.subwayStation, subwayStation).fetchJoin()
+        .where(subwayStationNearbyStudio.studio.id.eq(studioId))
+        .orderBy(subwayStationNearbyStudio.sequence.asc())
+        .fetchFirst();
+  }
 }

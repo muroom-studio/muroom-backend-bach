@@ -11,23 +11,22 @@ import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.Musi
 import static kr.muroom.muroombackendbach.user.presentation.dto.MusicianDto.MusicianSimpleProfileResponse;
 
 import java.util.List;
-import java.util.Optional;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.MusicianAgreementRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
-import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.MyStudio;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
-import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MyStudioRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
@@ -291,4 +290,14 @@ public class MusicianService {
     );
   }
 
+  /**
+   * 뮤지션 조회
+   *
+   * <p>다른 서비스 에서 사용할 용도로만 존재하는 메서드입니다.
+   */
+  @Transactional(readOnly = true)
+  public Musician getMusicianById(Long musicianId) {
+    return musicianRepository.findById(musicianId)
+        .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
+  }
 }

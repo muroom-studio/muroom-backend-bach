@@ -1,0 +1,8 @@
+package kr.muroom.muroombackendbach.studioboasting.domain.repository;
+
+import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface StudioBoastRepository extends JpaRepository<StudioBoast, Long> {
+
+}

@@ -19,13 +19,13 @@ public class NearbyStationsResponse {
     private final Long stationId;
     private final String stationName;
     private final List<StudioSubwayLineInfo> lines;
-    private final Double distanceMeters; // 중심 주소로부터의 거리 (미터)
+    private final Integer distanceInMeters; // 중심 주소로부터의 거리 (미터)
 
-    public StationInfo(Long stationId, String stationName, List<StudioSubwayLineInfo> lines, Double distanceMeters) {
+    public StationInfo(Long stationId, String stationName, List<StudioSubwayLineInfo> lines, Integer distanceInMeters) {
       this.stationId = stationId;
       this.stationName = stationName;
       this.lines = lines;
-      this.distanceMeters = Math.round(distanceMeters * 10) / 10.0; // 소수점 첫째 자리까지 반올림
+      this.distanceInMeters = distanceInMeters;
     }
   }
 }

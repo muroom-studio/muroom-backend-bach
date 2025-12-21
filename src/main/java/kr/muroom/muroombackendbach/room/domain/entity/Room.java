@@ -45,7 +45,7 @@ public class Room extends SoftDeletableEntity {
   @Column(name = "height_mm", nullable = false)
   private Integer height;
 
-  @Column(name = "is_available", nullable = false)
+  @Column(name = "is_available")
   private Boolean isAvailable;
 
   @Column(name = "available_at")
