@@ -90,6 +90,8 @@ public class OAuthLoginService {
         .map(Musician::getId)
         .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
 
+    // 만약 userId == musicianId 에 deleteAt의 값이 있으면 null 해제
+
     // Jwt 토큰 발급
     String accessToken = jwtTokenProvider.createAccessToken(userId);
     JwtTokenProvider.RefreshIssue refreshIssue = jwtTokenProvider.createRefreshToken(userId);
