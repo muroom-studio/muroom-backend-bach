@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.beta.registration.exception;
+package kr.muroom.muroombackendbach.studioboasting.exception;
 
 import kr.muroom.muroombackendbach.common.exception.ErrorCode;
 import lombok.Getter;
@@ -7,12 +7,11 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum RegistrationErrorCode implements ErrorCode {
-
-  UNSUPPORTED_FILE_TYPE(HttpStatus.BAD_REQUEST, "BT-400-01", "지원하지 않는 파일 형식입니다."),
-  ;
+public enum StudioBoastErrorCode implements ErrorCode {
+  STUDIO_BOAST_NOT_FOUND(HttpStatus.NOT_FOUND, "SB-404-01", "해당 자랑하기 게시글을 찾을 수 없습니다.");
 
   private final HttpStatus status;
   private final String code;
   private final String message;
+
 }
