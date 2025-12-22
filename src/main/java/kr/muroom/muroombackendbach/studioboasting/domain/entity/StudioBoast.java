@@ -66,4 +66,24 @@ public class StudioBoast extends SoftDeletableEntity {
       this.likeCount = 0L;
     }
   }
+
+  public void update(
+      String content,
+      String studioName,
+      String roadNameAddress,
+      String lotNumberAddress,
+      String detailedAddress,
+      String instagramAccount,
+      Long studioId,
+      String thumbnailImageFileKey
+  ) {
+    this.content = content;
+    this.studioName = studioName;
+    this.roadNameAddress = roadNameAddress;
+    this.lotNumberAddress = lotNumberAddress;
+    this.detailedAddress = detailedAddress;
+    this.instagramAccount = instagramAccount;
+    this.studioId = studioId;
+    this.thumbnailImageFileKey = thumbnailImageFileKey;
+  }
 }

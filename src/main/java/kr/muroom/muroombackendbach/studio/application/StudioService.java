@@ -273,7 +273,7 @@ public class StudioService {
         .build();
   }
 
-  public boolean isValidStudioId(Long studioId) {
+  public boolean isExistingStudioId(Long studioId) {
     return studioRepository.existsById(studioId);
   }
 

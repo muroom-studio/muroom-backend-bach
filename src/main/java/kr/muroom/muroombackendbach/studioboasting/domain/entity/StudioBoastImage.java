@@ -36,4 +36,8 @@ public class StudioBoastImage extends CreatedDateEntity {
 
   @Column(nullable = false)
   private Long studioBoastId;
+
+  public void updateSequence(int newSequence) {
+    this.sequence = newSequence;
+  }
 }

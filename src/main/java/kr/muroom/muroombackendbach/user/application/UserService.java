@@ -17,8 +17,8 @@ public class UserService {
     boolean existsInOwner = ownerRepository.existsByNickname(nickname);
     return !(existsInMusician || existsInOwner);
   }
-  
-  public boolean isValidMusicianId(Long musicianId) {
+
+  public boolean isExistingMusicianId(Long musicianId) {
     return musicianRepository.existsById(musicianId);
   }
 }

@@ -126,26 +126,43 @@ public class FileStorageService {
 
     String permanentFileKey = tempFileKey.substring(TEMPORARY_FILE_KEY_PREFIX.length());
 
-    try {
-      CopyObjectRequest copyRequest = CopyObjectRequest.builder()
-          .sourceBucket(bucket)
-          .sourceKey(tempFileKey)
-          .destinationBucket(bucket)
-          .destinationKey(permanentFileKey)
-          .build();
-      s3Client.copyObject(copyRequest);
+    CopyObjectRequest copyRequest = CopyObjectRequest.builder()
+        .sourceBucket(bucket)
+        .sourceKey(tempFileKey)
+        .destinationBucket(bucket)
+        .destinationKey(permanentFileKey)
+        .build();
+    s3Client.copyObject(copyRequest);
 
-      DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-          .bucket(bucket)
-          .key(tempFileKey)
-          .build();
+    DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+        .bucket(bucket)
+        .key(tempFileKey)
+        .build();
+    try {
       s3Client.deleteObject(deleteRequest);
     } catch (NoSuchKeyException e) {
-      log.error("S3 NoSuchKeyException: The key '{}' does not exist in bucket '{}'.", tempFileKey, bucket);
-      throw e;
+      log.warn(e.getMessage());
+      throw new BusinessException(FileErrorCode.FILE_NOT_FOUND);
     }
 
     return permanentFileKey;
+  }
+
+  public void deleteFile(String fileKey) {
+    if (fileKey == null || fileKey.isBlank()) {
+      throw new BusinessException(FileErrorCode.INVALID_TEMP_FILE_KEY);
+    }
+    DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+        .bucket(bucket)
+        .key(fileKey)
+        .build();
+    try {
+      s3Client.deleteObject(deleteRequest);
+    } catch (NoSuchKeyException e) {
+      log.warn(e.getMessage());
+      throw new BusinessException(FileErrorCode.FILE_NOT_FOUND);
+    }
+
   }
 
   /**
