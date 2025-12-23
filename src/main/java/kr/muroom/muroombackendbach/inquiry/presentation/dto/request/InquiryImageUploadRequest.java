@@ -2,15 +2,11 @@ package kr.muroom.muroombackendbach.inquiry.presentation.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.request.FileUploadRequest;
 
 public record InquiryImageUploadRequest(
     @Schema(description = "파일 이름", example = "inquiry_image_01.jpg")
     @NotBlank String fileName,
-
-    @Schema(description = "카테고리 ID", example = "7819475129347823")
-    @NotNull Long categoryId,
 
     @Schema(description = "콘텐츠 타입", example = "image/jpeg")
     @NotBlank String contentType

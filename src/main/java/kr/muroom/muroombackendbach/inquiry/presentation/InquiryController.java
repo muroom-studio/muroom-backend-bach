@@ -49,6 +49,7 @@ public class InquiryController implements InquiryControllerDocs {
         PaginatedData.from(inquiryService.getAllMyInquiry(musicianId, pageable)));
   }
 
+  // TODO: 조회 요청인데 Post로 한 이유요궁금해
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/search")
   public ApiResponse<PaginatedData<SearchInquiryResponse>> searchInquiry(
