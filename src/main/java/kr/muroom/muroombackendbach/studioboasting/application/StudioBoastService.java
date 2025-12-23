@@ -30,9 +30,7 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import kr.muroom.muroombackendbach.subway.application.SubwayService;
 import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse.StationInfo;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
-import kr.muroom.muroombackendbach.user.application.UserService;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
-import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +46,6 @@ public class StudioBoastService {
   private final StudioBoastImageRepository studioBoastImageRepository;
   private final StudioBoastCommentRepository studioBoastCommentRepository;
   private final FileStorageService fileStorageService;
-  private final UserService userService;
   private final StudioService studioService;
   private final MusicianService musicianService;
   private final SubwayService subwayService;
@@ -58,37 +55,34 @@ public class StudioBoastService {
   }
 
   @Transactional
-  public Long createStudioBoast(CreateStudioBoastRequest request) {
-    if (!userService.isExistingMusicianId(request.creatorUserId())) {
-      throw new BusinessException(UserErrorCode.USER_NOT_FOUND);
-    }
-
+  public Long createStudioBoast(CreateStudioBoastRequest request, Long musicianId) {
     if (request.studioId() != null && !studioService.isExistingStudioId(request.studioId())) {
       throw new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND);
     }
 
-    String thumbnailImageFileKey = request.imageFileKeys().getFirst();
+    List<String> temporaryImageKeys = request.imageFileKeys();
+    List<String> permanentImageKeys = temporaryImageKeys.stream()
+        .map(fileStorageService::movePublicFileFromTempToPermanent)
+        .toList();
 
     StudioBoast newStudioBoast = StudioBoast.builder()
         .content(request.content())
-        .thumbnailImageFileKey(thumbnailImageFileKey)
+        .thumbnailImageFileKey(permanentImageKeys.getFirst())
         .studioName(request.studioName())
         .roadNameAddress(request.roadNameAddress())
         .lotNumberAddress(request.lotNumberAddress())
         .detailedAddress(request.detailedAddress())
         .instagramAccount(request.instagramAccount())
-        .creatorUserId(request.creatorUserId())
+        .creatorUserId(musicianId)
         .studioId(request.studioId())
         .build();
     StudioBoast savedStudioBoast = studioBoastRepository.save(newStudioBoast);
 
-    List<String> imageKeys = request.imageFileKeys();
     List<StudioBoastImage> newStudioBoastImages = new ArrayList<>();
-    for (int i = 0; i < imageKeys.size(); i++) {
-      String permanentKey = fileStorageService.movePublicFileFromTempToPermanent(imageKeys.get(i));
+    for (int i = 0; i < permanentImageKeys.size(); i++) {
       newStudioBoastImages.add(StudioBoastImage.builder()
           .studioBoastId(savedStudioBoast.getId()) // ID가 아닌 객체 자체를 주입
-          .imageFileKey(permanentKey)
+          .imageFileKey(permanentImageKeys.get(i))
           .sequence(i) // 0-based index 사용 (0이 썸네일)
           .build());
     }
@@ -189,7 +183,7 @@ public class StudioBoastService {
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
     List<StudioBoastImage> studioBoastImages =
         studioBoastImageRepository.findByStudioBoastIdOrderBySequenceAsc(studioBoastId);
-    List<String> studioBoastImageFileKeys = studioBoastImages.stream()
+    List<String> studioBoastImageFileUrls = studioBoastImages.stream()
         .map(studioBoastImage -> fileStorageService.getPublicFileUrl(studioBoastImage.getImageFileKey()))
         .toList();
 
@@ -226,7 +220,7 @@ public class StudioBoastService {
     return StudioBoastDetailResponse.builder()
         .id(studioBoast.getId())
         .content(studioBoast.getContent())
-        .imageFileKeys(studioBoastImageFileKeys)
+        .imageFileUrls(studioBoastImageFileUrls)
         .likeCount(studioBoast.getLikeCount())
         .commentCount(studioBoastCommentRepository.countByStudioBoastId(studioBoastId))
         .createdAt(studioBoast.getCreatedAt())
@@ -238,17 +232,28 @@ public class StudioBoastService {
   }
 
   @Transactional
-  public void deleteStudioBoast(Long studioBoastId) {
+  public void deleteStudioBoast(Long studioBoastId, Long musicianId) {
     // TODO: 삭제 권한 검증
-    // if (!boast.getCreatorUserId().equals(currentUserId)) { ... }
+    StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
+        .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
+
+    if (!studioBoast.getCreatorUserId().equals(musicianId)) {
+      throw new BusinessException(AuthErrorCode.FORBIDDEN);
+    }
 
     // 1. 연관된 이미지 Hard Delete
-    // studioBoastImageRepository.deleteAllByStudioBoastId(studioBoastId);
+    List<StudioBoastImage> studioBoastImages = studioBoastImageRepository.findAllByStudioBoastId(studioBoastId);
+    if (studioBoastImages != null && !studioBoastImages.isEmpty()) {
+      studioBoastImages.stream()
+          .map(StudioBoastImage::getImageFileKey)
+          .forEach(fileStorageService::deletePublicFile);
+      studioBoastImageRepository.deleteAll(studioBoastImages);
+    }
 
     // 2. 연관된 댓글 Soft Delete
     // studioBoastCommentRepository.softDeleteAllByStudioBoastId(studioBoastId);
 
-    // 3. (필요 시) 연관된 '좋아요' Hard Delete
+    // 3. 연관된 '좋아요' Hard Delete
     // studioBoastLikeRepository.deleteAllByStudioBoastId(studioBoastId);
     studioBoastRepository.deleteById(studioBoastId);
   }

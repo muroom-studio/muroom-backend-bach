@@ -10,11 +10,22 @@ import lombok.Builder;
 @Schema(description = "작업실 소개(자랑) 상세 조회 응답 DTO")
 @Builder
 public record StudioBoastDetailResponse(
+    @Schema(description = "작업실 소개(자랑) 게시글 ID", example = "123456789012345678", requiredMode = RequiredMode.REQUIRED)
     Long id,
+
+    @Schema(description = "작업실 소개(자랑) 게시글 내용", example = "우리 스튜디오에서 멋진 음악 작업하세요!", requiredMode = RequiredMode.REQUIRED)
     String content,
-    List<String> imageFileKeys,
+
+    @Schema(description = "작업실 소개(자랑) 이미지 파일 URL 목록", requiredMode = RequiredMode.REQUIRED)
+    List<String> imageFileUrls,
+
+    @Schema(description = "좋아요 수", example = "150", requiredMode = RequiredMode.REQUIRED)
     long likeCount,
+
+    @Schema(description = "댓글 수", example = "25", requiredMode = RequiredMode.REQUIRED)
     long commentCount,
+
+    @Schema(description = "작성일시", example = "2024-06-15T14:30:00+09:00", requiredMode = RequiredMode.REQUIRED)
     OffsetDateTime createdAt,
 
     @Schema(description = "서비스에 업로드된 스튜디오인지 여부", example = "true", requiredMode = RequiredMode.REQUIRED)
@@ -23,10 +34,10 @@ public record StudioBoastDetailResponse(
     @Schema(description = "작성자 정보", requiredMode = RequiredMode.REQUIRED)
     CreatorUserInfo creatorUserInfo,
 
-    @Schema(description = "서비스에 업로드된 스튜디오인 경우 muroom 스튜디오 정보", nullable = true)
+    @Schema(description = "(unknownStudioInfo가 null일 때만) 서비스에 업로드된 스튜디오인 경우 muroom 스튜디오 정보", nullable = true)
     StudioInfo studioInfo,
 
-    @Schema(description = "서비스에 업로드되지 않은 스튜디오인 경우 사용자 등록 정보", nullable = true)
+    @Schema(description = "(studioInfo가 null일 때만) 서비스에 업로드되지 않은 스튜디오인 경우 사용자 등록 정보", nullable = true)
     UnknownStudioInfo unknownStudioInfo
 ) {
 

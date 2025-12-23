@@ -86,24 +86,27 @@ public class InquiryService {
 
     inquiryRepository.save(inquiry);
 
-    List<String> keys = request.imageKeys();
-    if (keys == null || keys.isEmpty()) {
+    List<String> temporaryImageFileKeys = request.imageKeys();
+    if (temporaryImageFileKeys == null || temporaryImageFileKeys.isEmpty()) {
       return;
     }
 
-    List<InquiryImage> images = keys.stream()
+    List<String> permanentImageFileKeys = temporaryImageFileKeys.stream()
         .filter(k -> k != null && !k.isBlank())
         .map(String::trim)
         .distinct()
-        .peek(fileStorageService::movePrivateFileFromTempToPermanent)
-        .map(key -> InquiryImage.builder()
+        .map(fileStorageService::movePrivateFileFromTempToPermanent)
+        .toList();
+
+    List<InquiryImage> inquiryImages = permanentImageFileKeys.stream()
+        .map(permanentImageFileKey -> InquiryImage.builder()
             .inquiry(inquiry)
-            .imageKey(key)
+            .imageKey(permanentImageFileKey)
             .build())
         .toList();
 
-    if (!images.isEmpty()) {
-      inquiryImageRepository.saveAll(images);
+    if (!permanentImageFileKeys.isEmpty()) {
+      inquiryImageRepository.saveAll(inquiryImages);
     }
   }
 

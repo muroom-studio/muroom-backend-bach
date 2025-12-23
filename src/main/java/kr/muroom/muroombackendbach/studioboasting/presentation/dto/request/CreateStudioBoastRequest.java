@@ -3,7 +3,6 @@ package kr.muroom.muroombackendbach.studioboasting.presentation.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.Builder;
@@ -34,10 +33,6 @@ public record CreateStudioBoastRequest(
     @Schema(description = "인스타그램 계정", example = "muroom_studio", requiredMode = RequiredMode.REQUIRED)
     @NotBlank
     String instagramAccount,
-
-    @Schema(description = "작성자 사용자 ID", example = "1234567890", requiredMode = RequiredMode.REQUIRED)
-    @NotNull
-    Long creatorUserId,
 
     @Schema(description = "작업실 ID", example = "9876543210", nullable = true)
     Long studioId,

@@ -2,11 +2,11 @@ package kr.muroom.muroombackendbach.studioboasting.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.studioboasting.application.StudioBoastService;
+import kr.muroom.muroombackendbach.studioboasting.presentation.docs.StudioBoastControllerDocs;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastRequest;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,17 +30,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "내 작업실 소개(자랑) API", description = "내 작업실 소개(자랑) 및 해당 컨텐츠 댓글, 좋아요 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/studio-boasts")
-public class StudioBoastController {
+public class StudioBoastController implements StudioBoastControllerDocs {
 
   private final StudioBoastService studioBoastService;
 
-  // TODO: @PreAuthorize("isAuthenticated()") 추가 필요
-
   @PostMapping("/presigned-url")
+  @PreAuthorize("isAuthenticated()")
   public ApiResponse<GeneratePresignedPutUrlResponse> generateStudioBoastImagePresignedUrls(
       @Validated @RequestBody StudioBoastImageUploadRequest request) {
     GeneratePresignedPutUrlResponse response = studioBoastService.generateStudioImagePresignedPutUrl(request);
@@ -47,13 +46,17 @@ public class StudioBoastController {
   }
 
   @PostMapping
+  @PreAuthorize("isAuthenticated()")
   public ApiResponse<Long> createStudioBoast(
-      @Validated @RequestBody CreateStudioBoastRequest request) {
-    Long response = studioBoastService.createStudioBoast(request);
+      @Validated @RequestBody CreateStudioBoastRequest request,
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    Long response = studioBoastService.createStudioBoast(request, musicianId);
     return ApiResponse.success(response);
   }
 
   @PutMapping("/{studioBoastId}")
+  @PreAuthorize("isAuthenticated()")
   public ApiResponse<Long> updateStudioBoast(
       @PathVariable Long studioBoastId,
       @Validated @RequestBody UpdateStudioBoastRequest request,
@@ -103,8 +106,12 @@ public class StudioBoastController {
   }
 
   @DeleteMapping("/{studioBoastId}")
-  public ApiResponse<Void> deleteStudioBoast(@PathVariable Long studioBoastId) {
-    studioBoastService.deleteStudioBoast(studioBoastId);
+  @PreAuthorize("isAuthenticated()")
+  public ApiResponse<Void> deleteStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    studioBoastService.deleteStudioBoast(studioBoastId, musicianId);
     return ApiResponse.deleted();
   }
 }
