@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlsResponse;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
@@ -53,9 +53,8 @@ public class StudioBoastService {
   private final MusicianService musicianService;
   private final SubwayService subwayService;
 
-  public GeneratePresignedPutUrlsResponse generateStudioImagePresignedPutUrls(
-      List<StudioBoastImageUploadRequest> request) {
-    return fileStorageService.generatePresignedPutUrls(request, FileStorageService::validateImageContentType);
+  public GeneratePresignedPutUrlResponse generateStudioImagePresignedPutUrl(StudioBoastImageUploadRequest request) {
+    return fileStorageService.generatePresignedPutUrlForPublic(request, FileStorageService::validateImageContentType);
   }
 
   @Transactional
@@ -86,7 +85,7 @@ public class StudioBoastService {
     List<String> imageKeys = request.imageFileKeys();
     List<StudioBoastImage> newStudioBoastImages = new ArrayList<>();
     for (int i = 0; i < imageKeys.size(); i++) {
-      String permanentKey = fileStorageService.moveFromTempToPermanent(imageKeys.get(i));
+      String permanentKey = fileStorageService.movePublicFileFromTempToPermanent(imageKeys.get(i));
       newStudioBoastImages.add(StudioBoastImage.builder()
           .studioBoastId(savedStudioBoast.getId()) // ID가 아닌 객체 자체를 주입
           .imageFileKey(permanentKey)
@@ -148,7 +147,7 @@ public class StudioBoastService {
     if (!imagesToDelete.isEmpty()) {
       studioBoastImageRepository.deleteAll(imagesToDelete);
       // S3에 저장된 파일도 삭제합니다.
-      imagesToDelete.forEach(image -> fileStorageService.deleteFile(image.getImageFileKey()));
+      imagesToDelete.forEach(image -> fileStorageService.deletePublicFile(image.getImageFileKey()));
     }
 
     // 5. 새 이미지 목록 생성 및 업데이트 (순서 변경 및 추가 처리)
@@ -165,7 +164,7 @@ public class StudioBoastService {
         // 기존에 없던 새로운 이미지는 생성
         imagesToUpdate.add(StudioBoastImage.builder()
             .studioBoastId(studioBoast.getId())
-            .imageFileKey(fileStorageService.moveFromTempToPermanent(imageFileKey))
+            .imageFileKey(fileStorageService.movePublicFileFromTempToPermanent(imageFileKey))
             .sequence(i)
             .build());
       }
@@ -180,7 +179,7 @@ public class StudioBoastService {
 
     return studioBoastPage.map(studioBoast -> StudioBoastListElementResponse.builder()
         .id(studioBoast.getId())
-        .thumbnailImageFileKey(studioBoast.getThumbnailImageFileKey())
+        .thumbnailImageFileUrl(fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey()))
         .build()
     );
   }
@@ -191,7 +190,7 @@ public class StudioBoastService {
     List<StudioBoastImage> studioBoastImages =
         studioBoastImageRepository.findByStudioBoastIdOrderBySequenceAsc(studioBoastId);
     List<String> studioBoastImageFileKeys = studioBoastImages.stream()
-        .map(StudioBoastImage::getImageFileKey)
+        .map(studioBoastImage -> fileStorageService.getPublicFileUrl(studioBoastImage.getImageFileKey()))
         .toList();
 
     Musician creatorUser = musicianService.getMusicianById(studioBoast.getCreatorUserId());

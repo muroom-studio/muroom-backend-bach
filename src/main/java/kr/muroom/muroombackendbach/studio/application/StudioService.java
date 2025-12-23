@@ -169,7 +169,7 @@ public class StudioService {
         .filter(Objects::nonNull).toList();
     Map<String, String> presignedUrls = studioThumbnailImageKeys.stream()
         .collect(Collectors.toMap(studioThumbnailImageKey -> studioThumbnailImageKey,
-            fileStorageService::generatePresignedGetUrl));
+            fileStorageService::getPublicFileUrl));
 
     // 정보 조합
     List<StudioListResponse> responseContent = studios.stream().map(studio -> {

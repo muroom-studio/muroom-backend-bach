@@ -33,12 +33,17 @@ cloud:
   aws:
     region:
       static: ${AWS_REGION}
-    s3:
-      bucket: ${AWS_S3_BUCKET}
-      presign:
-        expiration: 10m
+    secretsmanager:
+      enabled: true
+    credentials:
+      instance-profile: true
     stack:
       auto: false
+    s3:
+      private-bucket-name: ${AWS_S3_PRIVATE_BUCKET}
+      public-bucket-name: ${AWS_S3_PUBLIC_BUCKET}
+      presign:
+        expiration: 10m
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}

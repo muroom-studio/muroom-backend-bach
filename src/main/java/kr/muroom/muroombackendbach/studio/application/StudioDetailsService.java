@@ -225,7 +225,7 @@ public class StudioDetailsService {
         .toList();
 
     return keys.stream()
-        .map(fileStorageService::generatePresignedGetUrl)
+        .map(fileStorageService::getPublicFileUrl)
         .toList();
   }
 }

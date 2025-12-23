@@ -2,9 +2,9 @@ package kr.muroom.muroombackendbach.admin.studio.presentation;
 
 import kr.muroom.muroombackendbach.admin.studio.application.AdminStudioService;
 import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioCreateRequest;
-import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioImagePresignedUrlRequest;
+import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioImageUploadRequest;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlsResponse;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,9 +20,9 @@ public class AdminStudioController {
   private final AdminStudioService adminStudioService;
 
   @PostMapping("/presigned-url")
-  public ApiResponse<GeneratePresignedPutUrlsResponse> generateStudioImagePresignedUrls(
-      @Validated @RequestBody StudioImagePresignedUrlRequest request) {
-    GeneratePresignedPutUrlsResponse response = adminStudioService.generatePresignedPutUrls(request);
+  public ApiResponse<GeneratePresignedPutUrlResponse> generateStudioImagePresignedUrl(
+      @Validated @RequestBody StudioImageUploadRequest request) {
+    GeneratePresignedPutUrlResponse response = adminStudioService.generatePresignedPutUrl(request);
     return ApiResponse.success(response);
   }
 

@@ -3,8 +3,8 @@ package kr.muroom.muroombackendbach.studio.presentation.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.domain.EnumMapperType;
-import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import lombok.Builder;
 
 public final class StudioOptionResponse {

@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.auth.jwt;
 
-import static kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.*;
+import static kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
+import static kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshPayload;
 import static kr.muroom.muroombackendbach.auth.jwt.exception.JwtErrorCode.EXPIRED_REFRESH_TOKEN;
 import static kr.muroom.muroombackendbach.auth.jwt.exception.JwtErrorCode.INVALID_REFRESH_TOKEN;
 import static kr.muroom.muroombackendbach.auth.jwt.exception.JwtErrorCode.REUSED_REFRESH_TOKEN;
@@ -9,12 +10,10 @@ import io.jsonwebtoken.ExpiredJwtException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

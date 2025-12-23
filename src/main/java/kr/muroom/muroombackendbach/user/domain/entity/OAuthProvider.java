@@ -1,9 +1,8 @@
 package kr.muroom.muroombackendbach.user.domain.entity;
 
-import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.*;
+import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.UNSUPPORTED_OAUTH_PROVIDER;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.v3.oas.annotations.media.Schema;
 import kr.muroom.muroombackendbach.common.domain.EnumMapperType;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.AllArgsConstructor;

@@ -9,10 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioCreateRequest;
 import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioCreateRequest.RoomInfoRequest;
-import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioImagePresignedUrlRequest;
+import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioImageUploadRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlsResponse;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
@@ -53,9 +53,8 @@ public class AdminStudioService {
   private final SubwayStationRepository subwayStationRepository;
   private final FileStorageService fileStorageService;
 
-  public GeneratePresignedPutUrlsResponse generatePresignedPutUrls(
-      StudioImagePresignedUrlRequest request) {
-    return fileStorageService.generatePresignedPutUrls(request.studioImages(), FileStorageService::validateImageContentType);
+  public GeneratePresignedPutUrlResponse generatePresignedPutUrl(StudioImageUploadRequest request) {
+    return fileStorageService.generatePresignedPutUrlForPublic(request, FileStorageService::validateImageContentType);
   }
 
   public Long createStudio(StudioCreateRequest request) {
@@ -195,7 +194,7 @@ public class AdminStudioService {
     request.mainImageKeys()
         .forEach(key -> images.add(StudioImage.builder()
             .category(StudioImageCategory.MAIN)
-            .imageKey(fileStorageService.moveFromTempToPermanent(key))
+            .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
             .sequence(sequence.getAndIncrement())
             .build()));
 
@@ -204,7 +203,7 @@ public class AdminStudioService {
       request.buildingImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.BUILDING)
-              .imageKey(fileStorageService.moveFromTempToPermanent(key))
+              .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
@@ -214,14 +213,14 @@ public class AdminStudioService {
       request.roomImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.ROOM)
-              .imageKey(fileStorageService.moveFromTempToPermanent(key))
+              .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
 
     images.add(StudioImage.builder()
         .category(StudioImageCategory.BLUEPRINT)
-        .imageKey(fileStorageService.moveFromTempToPermanent(request.blueprintImageKey()))
+        .imageKey(fileStorageService.movePublicFileFromTempToPermanent(request.blueprintImageKey()))
         .sequence(1)
         .build());
 
@@ -230,7 +229,7 @@ public class AdminStudioService {
       request.commonOptionImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.COMMON_OPTION)
-              .imageKey(fileStorageService.moveFromTempToPermanent(key))
+              .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
@@ -240,7 +239,7 @@ public class AdminStudioService {
       request.individualOptionImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.INDIVIDUAL_OPTION)
-              .imageKey(fileStorageService.moveFromTempToPermanent(key))
+              .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
               .sequence(sequence.getAndIncrement())
               .build()));
     }

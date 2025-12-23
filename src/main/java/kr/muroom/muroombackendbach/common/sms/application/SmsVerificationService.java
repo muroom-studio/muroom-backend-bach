@@ -8,13 +8,11 @@ import static kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode.SMS_
 
 import java.security.SecureRandom;
 import java.time.Duration;
-
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.sms.domain.repository.SmsVerificationCodeStore;
 import kr.muroom.muroombackendbach.common.sms.presentation.SmsSender;
 import kr.muroom.muroombackendbach.common.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
-import kr.muroom.muroombackendbach.user.presentation.dto.UserDto.SmsVerifyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +28,7 @@ public class SmsVerificationService {
   private static final int CODE_LENGTH = 6;
 
   private static final Duration CODE_TTL = Duration.ofMinutes(3);
-  private static final Duration RESEND_COOLDOWN = Duration.ofMinutes(1);
+  private static final Duration RESEND_COOLDOWN = Duration.ofSeconds(10);
 
   private static final int DAILY_LIMIT = 5;
   private static final int MAX_FAIL_COUNT = 5;

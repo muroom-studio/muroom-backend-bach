@@ -3,10 +3,9 @@ package kr.muroom.muroombackendbach.studioboasting.presentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlsResponse;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.studioboasting.application.StudioBoastService;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
@@ -40,10 +39,10 @@ public class StudioBoastController {
 
   // TODO: @PreAuthorize("isAuthenticated()") 추가 필요
 
-  @PostMapping("/images/presigned-urls")
-  public ApiResponse<GeneratePresignedPutUrlsResponse> generateStudioBoastImagePresignedUrls(
-      @Validated @RequestBody List<StudioBoastImageUploadRequest> request) {
-    GeneratePresignedPutUrlsResponse response = studioBoastService.generateStudioImagePresignedPutUrls(request);
+  @PostMapping("/presigned-url")
+  public ApiResponse<GeneratePresignedPutUrlResponse> generateStudioBoastImagePresignedUrls(
+      @Validated @RequestBody StudioBoastImageUploadRequest request) {
+    GeneratePresignedPutUrlResponse response = studioBoastService.generateStudioImagePresignedPutUrl(request);
     return ApiResponse.success(response);
   }
 

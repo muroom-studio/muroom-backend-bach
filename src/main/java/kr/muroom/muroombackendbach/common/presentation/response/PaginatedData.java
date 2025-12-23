@@ -1,8 +1,7 @@
 package kr.muroom.muroombackendbach.common.presentation.response;
 
-import org.springframework.data.domain.Page;
-
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 /**
  * 페이징된 데이터를 나타내는 레코드 클래스입니다.

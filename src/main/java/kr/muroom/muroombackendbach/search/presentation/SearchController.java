@@ -7,6 +7,7 @@ import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.search.application.SearchHistoryService;
 import kr.muroom.muroombackendbach.search.presentation.dto.response.RecentSearchResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ public class SearchController {
   @Operation(summary = "회원의 최근 검색어 조회", description = "로그인한 사용자의 최근 검색어를 최대 7개까지 조회합니다.")
   @SecurityRequirement(name = "Authorization")
   @GetMapping("/recent")
+  @PreAuthorize("isAuthenticated()")
   public ApiResponse<List<RecentSearchResponse>> getRecentSearchKeywords(
       @AuthenticationPrincipal Long musicianId) {
     if (musicianId == null) {
