@@ -95,6 +95,7 @@ public class InquiryService {
         .filter(k -> k != null && !k.isBlank())
         .map(String::trim)
         .distinct()
+        .peek(fileStorageService::movePrivateFileFromTempToPermanent)
         .map(key -> InquiryImage.builder()
             .inquiry(inquiry)
             .imageKey(key)
@@ -165,7 +166,7 @@ public class InquiryService {
             .toList();
 
     List<String> fileUrls = fileKeys.stream()
-        .map(fileStorageService::getPublicFileUrl)
+        .map(fileStorageService::generatePresignedGetUrlForPrivateFile)
         .toList();
 
     return InquiryResponse.Reply.builder()
@@ -212,7 +213,7 @@ public class InquiryService {
     return images.stream()
         .map(inquiryImage -> ImageDto.builder()
             .id(inquiryImage.getId()) // InquiryImage의 id를 사용
-            .imageFileUrl(fileStorageService.getPublicFileUrl(inquiryImage.getImageKey())) // public URL 생성
+            .imageFileUrl(fileStorageService.generatePresignedGetUrlForPrivateFile(inquiryImage.getImageKey())) // public URL 생성
             .build())
         .toList();
   }
