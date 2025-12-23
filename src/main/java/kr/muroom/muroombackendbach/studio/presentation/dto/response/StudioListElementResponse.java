@@ -6,7 +6,7 @@ import lombok.Builder;
 
 @Builder
 @Schema(description = "지도 스튜디오 목록")
-public record StudioListResponse(
+public record StudioListElementResponse(
     @Schema(description = "스튜디오 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     Long studioId,
 

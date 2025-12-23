@@ -9,7 +9,7 @@ import kr.muroom.muroombackendbach.studio.application.StudioDetailsService;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -51,13 +51,13 @@ public class StudioController {
       }
   )
   @GetMapping("/map-list")
-  public ApiResponse<PaginatedData<StudioListResponse>> searchStudiosForMapList(
+  public ApiResponse<PaginatedData<StudioListElementResponse>> searchStudiosForMapList(
       @Validated @ParameterObject MapSearchRequest request,
       @AuthenticationPrincipal Long musicianId,
       @Parameter(hidden = true)
       @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
   ) {
-    Page<StudioListResponse> response = studioService.searchStudiosForMapList(request, musicianId, pageable);
+    Page<StudioListElementResponse> response = studioService.searchStudiosForMapList(request, musicianId, pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
 

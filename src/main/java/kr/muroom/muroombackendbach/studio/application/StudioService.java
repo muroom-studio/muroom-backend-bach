@@ -24,9 +24,8 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequ
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
-import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
@@ -108,7 +107,7 @@ public class StudioService {
         .build();
   }
 
-  public Page<StudioListResponse> searchStudiosForMapList(MapSearchRequest request, Long musicianId, Pageable pageable) {
+  public Page<StudioListElementResponse> searchStudiosForMapList(MapSearchRequest request, Long musicianId, Pageable pageable) {
     if (request.keyword() != null && !request.keyword().isBlank()) {
       searchHistoryService.addSearchKeyword(musicianId, request.keyword());
     }
@@ -172,7 +171,7 @@ public class StudioService {
             fileStorageService::getPublicFileUrl));
 
     // 정보 조합
-    List<StudioListResponse> responseContent = studios.stream().map(studio -> {
+    List<StudioListElementResponse> responseContent = studios.stream().map(studio -> {
       Integer minPrice = null;
       Integer maxPrice = null;
       IntSummaryStatistics roomPriceStats = roomPriceStatsByStudioId.get(studio.getId());
@@ -214,7 +213,7 @@ public class StudioService {
       Double longitude = location != null ? location.getX() : null;
       Double latitude = location != null ? location.getY() : null;
 
-      return StudioListResponse.builder()
+      return StudioListElementResponse.builder()
           .studioId(studio.getId())
           .studioName(studio.getName())
           .minPrice(minPrice)
@@ -282,7 +281,7 @@ public class StudioService {
    *
    * <p>다른 서비스 에서 사용할 용도로만 존재하는 메서드입니다.
    */
-  public StudioInfo getStudioInfoById(Long studioId) {
+  public StudioListElementResponse getStudioInfoById(Long studioId) {
     Studio studio = studioRepository.findById(studioId)
         .orElseThrow(() -> new IllegalArgumentException("Studio not found with id: " + studioId));
 
@@ -307,11 +306,11 @@ public class StudioService {
           .build();
     }
 
-    return StudioInfo.builder()
-        .id(studio.getId())
-        .name(studio.getName())
-        .thumbnailImageFileKey(studio.getThumbnailImageKey())
-        .nearestSubwayStation(nearestSubwayStation)
+    return StudioListElementResponse.builder()
+        .studioId(studio.getId())
+        .studioName(studio.getName())
+        .thumbnailImageUrl(fileStorageService.getPublicFileUrl(studio.getThumbnailImageKey()))
+        .nearbySubwayStationInfo(nearestSubwayStation)
         .minPrice(studioPriceInfo.minPrice())
         .maxPrice(studioPriceInfo.maxPrice())
         .build();

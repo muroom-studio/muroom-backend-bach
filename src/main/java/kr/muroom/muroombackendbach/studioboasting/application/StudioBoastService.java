@@ -198,16 +198,18 @@ public class StudioBoastService {
     StudioInfo studioInfo = null;
     UnknownStudioInfo unknownStudioInfo = null;
     if (isStudioUploaded) {
-      studioInfo = studioService.getStudioInfoById(studioBoast.getStudioId());
+      studioInfo = StudioInfo.from(studioService.getStudioInfoById(studioBoast.getStudioId()));
     } else {
-      StationInfo nearestStationInfo = subwayService.findNearbyStations(studioBoast.getRoadNameAddress())
-          .getStations()
-          .getFirst();
-      StudioSubwayStationInfo nearestSubwayStation = StudioSubwayStationInfo.builder()
-          .stationName(nearestStationInfo.getStationName())
-          .lines(nearestStationInfo.getLines())
-          .distanceInMeters(nearestStationInfo.getDistanceInMeters())
-          .build();
+      List<StationInfo> nearbySubwayStations = subwayService.findNearbyStations(studioBoast.getRoadNameAddress()).getStations();
+      StudioSubwayStationInfo nearestSubwayStation = null;
+      if (!nearbySubwayStations.isEmpty()) {
+        StationInfo stationInfo = nearbySubwayStations.getFirst();
+        nearestSubwayStation = StudioSubwayStationInfo.builder()
+            .stationName(stationInfo.getStationName())
+            .lines(stationInfo.getLines())
+            .distanceInMeters(stationInfo.getDistanceInMeters())
+            .build();
+      }
       unknownStudioInfo = UnknownStudioInfo.builder()
           .name(studioBoast.getStudioName())
           .nearestSubwayStation(nearestSubwayStation)

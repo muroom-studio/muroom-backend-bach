@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
 import java.util.List;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import lombok.Builder;
 
 @Schema(description = "작업실 소개(자랑) 상세 조회 응답 DTO")
@@ -66,8 +67,8 @@ public record StudioBoastDetailResponse(
       @Schema(description = "작업실(스튜디오) 이름", example = "뮤룸 스튜디오 홍대점", requiredMode = RequiredMode.REQUIRED)
       String name,
 
-      @Schema(description = "작업실(스튜디오) 썸네일 이미지 파일 키", example = "studio-boasts/abcd-efgh-ijkl.png", nullable = true)
-      String thumbnailImageFileKey,
+      @Schema(description = "작업실(스튜디오) 썸네일 이미지 파일 URL", requiredMode = RequiredMode.REQUIRED)
+      String thumbnailImageFileUrl,
 
       @Schema(description = "인근 지하철역 정보", requiredMode = RequiredMode.REQUIRED)
       StudioSubwayStationInfo nearestSubwayStation,
@@ -79,6 +80,16 @@ public record StudioBoastDetailResponse(
       Integer maxPrice
   ) {
 
+    public static StudioInfo from(StudioListElementResponse studioListElement) {
+      return StudioInfo.builder()
+          .id(studioListElement.studioId())
+          .name(studioListElement.studioName())
+          .thumbnailImageFileUrl(studioListElement.thumbnailImageUrl())
+          .nearestSubwayStation(studioListElement.nearbySubwayStationInfo())
+          .minPrice(studioListElement.minPrice())
+          .maxPrice(studioListElement.maxPrice())
+          .build();
+    }
   }
 
   @Builder
