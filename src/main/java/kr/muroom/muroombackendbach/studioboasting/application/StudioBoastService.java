@@ -26,6 +26,7 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.CreatorUserInfo;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.UnknownStudioInfo;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastListElementResponse;
 import kr.muroom.muroombackendbach.subway.application.SubwayService;
 import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse.StationInfo;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
@@ -33,6 +34,8 @@ import kr.muroom.muroombackendbach.user.application.UserService;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -170,6 +173,16 @@ public class StudioBoastService {
 
     // 6. 변경된 이미지 목록을 한번에 저장
     studioBoastImageRepository.saveAll(imagesToUpdate);
+  }
+
+  public Page<StudioBoastListElementResponse> getStudioBoasts(Pageable pageable) {
+    Page<StudioBoast> studioBoastPage = studioBoastRepository.findAll(pageable);
+
+    return studioBoastPage.map(studioBoast -> StudioBoastListElementResponse.builder()
+        .id(studioBoast.getId())
+        .thumbnailImageFileKey(studioBoast.getThumbnailImageFileKey())
+        .build()
+    );
   }
 
   public StudioBoastDetailResponse getStudioBoastDetail(Long studioBoastId) {

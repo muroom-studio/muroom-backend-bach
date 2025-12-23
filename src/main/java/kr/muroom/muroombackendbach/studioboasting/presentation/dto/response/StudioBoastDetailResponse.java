@@ -7,6 +7,7 @@ import java.util.List;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import lombok.Builder;
 
+@Schema(description = "작업실 소개(자랑) 상세 조회 응답 DTO")
 @Builder
 public record StudioBoastDetailResponse(
     Long id,

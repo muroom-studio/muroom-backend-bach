@@ -3,7 +3,7 @@ package kr.muroom.muroombackendbach.studioboasting.presentation.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.request.FileUploadRequest;
 
-@Schema(description = "작업실 소개(자랑) 이미지 업로드 요청 DTO")
+@Schema(description = "내 작업실 소개(자랑) 이미지 업로드 요청 DTO")
 public record StudioBoastImageUploadRequest(
     @Schema(description = "파일 이름", example = "boast-image.png")
     String fileName,
