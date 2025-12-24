@@ -6,7 +6,7 @@ import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 
 public record TermAllByCodeResponse(
-    Long termId,
+    String termId,
     TermsType code,
     TargetRole targetRole,
     String version,
@@ -16,7 +16,7 @@ public record TermAllByCodeResponse(
 
   public static TermAllByCodeResponse from(Term term) {
     return new TermAllByCodeResponse(
-        term.getId(),
+        String.valueOf(term.getId()),
         term.getCode(),
         term.getTargetRole(),
         term.getVersion(),

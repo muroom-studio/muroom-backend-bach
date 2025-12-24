@@ -8,7 +8,7 @@ public record MusicianSignupResponse(
     @Schema(example = "대충 토큰 값")
     String refreshToken,
     @Schema(example = "1")
-    Long musicianId
+    String musicianId
 ) {
 
 }

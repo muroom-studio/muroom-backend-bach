@@ -38,8 +38,8 @@ public final class StudioOptionResponse {
   @Builder
   @Schema(description = "옵션 DTO")
   public record GetSingle(
-      @Schema(description = "옵션 ID", example = "29")
-      Long id,
+      @Schema(description = "옵션 ID", example = "791543436721219205")
+      String id,
       @Schema(description = "옵션 코드", example = "GROUND")
       String code,
       @Schema(description = "옵션 이름 및 표시값", example = "지상")
@@ -57,7 +57,7 @@ public final class StudioOptionResponse {
 
     public static GetSingle from(Option option) {
       return GetSingle.builder()
-          .id(option.getId())
+          .id(String.valueOf(option.getId()))
           .code(option.getCode())
           .description(option.getDescription())
           .iconImageKey(option.getIconImageKey())
@@ -66,7 +66,7 @@ public final class StudioOptionResponse {
 
     public static GetSingle from(Instrument instrument) {
       return GetSingle.builder()
-          .id(instrument.getId())
+          .id(String.valueOf(instrument.getId()))
           .code(instrument.getCode())
           .description(instrument.getDescription())
           .build();

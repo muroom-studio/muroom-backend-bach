@@ -171,7 +171,7 @@ public class StudioBoastService {
     Page<StudioBoast> studioBoastPage = studioBoastRepository.findAll(pageable);
 
     return studioBoastPage.map(studioBoast -> StudioBoastListElementResponse.builder()
-        .id(studioBoast.getId())
+        .id(String.valueOf(studioBoast.getId()))
         .thumbnailImageFileUrl(fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey()))
         .build()
     );
@@ -188,7 +188,7 @@ public class StudioBoastService {
 
     Musician creatorUser = musicianService.getMusicianById(studioBoast.getCreatorUserId());
     CreatorUserInfo creatorUserInfo = CreatorUserInfo.builder()
-        .id(creatorUser.getId())
+        .id(String.valueOf(creatorUser.getId()))
         .nickname(creatorUser.getNickname())
         .instrument(creatorUser.getInstrument().getDescription())
         .build();
@@ -219,7 +219,7 @@ public class StudioBoastService {
     }
 
     return StudioBoastDetailResponse.builder()
-        .id(studioBoast.getId())
+        .id(String.valueOf(studioBoast.getId()))
         .content(studioBoast.getContent())
         .imageFileUrls(studioBoastImageFileUrls)
         .likeCount(studioBoast.getLikeCount())

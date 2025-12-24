@@ -12,7 +12,7 @@ import lombok.Builder;
 @Builder
 public record StudioBoastDetailResponse(
     @Schema(description = "작업실 소개(자랑) 게시글 ID", example = "123456789012345678", requiredMode = RequiredMode.REQUIRED)
-    Long id,
+    String id,
 
     @Schema(description = "작업실 소개(자랑) 게시글 내용", example = "우리 스튜디오에서 멋진 음악 작업하세요!", requiredMode = RequiredMode.REQUIRED)
     String content,
@@ -45,7 +45,7 @@ public record StudioBoastDetailResponse(
   @Builder
   public record CreatorUserInfo(
       @Schema(description = "작성자 musician ID", example = "790273425936465074", nullable = true)
-      Long id,
+      String id,
 
       @Schema(description = "작성자 닉네임", example = "뮤룸작가", requiredMode = RequiredMode.REQUIRED)
       String nickname,
@@ -61,8 +61,8 @@ public record StudioBoastDetailResponse(
 
   @Builder
   public record StudioInfo(
-      @Schema(description = "작업실(스튜디오) ID", example = "1", nullable = true)
-      Long id,
+      @Schema(description = "작업실(스튜디오) ID", example = "791543436721219205", nullable = true)
+      String id,
 
       @Schema(description = "작업실(스튜디오) 이름", example = "뮤룸 스튜디오 홍대점", requiredMode = RequiredMode.REQUIRED)
       String name,

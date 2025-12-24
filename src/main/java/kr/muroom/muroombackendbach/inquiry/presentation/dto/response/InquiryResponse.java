@@ -8,7 +8,7 @@ import lombok.Builder;
 
 @Builder
 public record InquiryResponse(
-    Long id,
+    String id,
     String title,
     String content,
     InquiryStatus status,
@@ -29,7 +29,7 @@ public record InquiryResponse(
 
   @Builder
   public record Reply(
-      Long id,
+      String id,
       @Schema(example = "안녕하세요, 관리자입니다. 해결 완료")
       String content,
       List<String> fileUrls

@@ -56,7 +56,7 @@ public class InquiryService {
     Page<Inquiry> inquiries = inquiryRepository.searchByKeyword(musicianId, keyword, pageable);
 
     return inquiries.map(inquiry -> SearchInquiryResponse.builder()
-        .id(inquiry.getId())
+        .id(String.valueOf(inquiry.getId()))
         .title(inquiry.getTitle())
         .content(inquiry.getContent())
         .status(inquiry.getStatus())
@@ -141,7 +141,7 @@ public class InquiryService {
   private InquiryResponse toInquiryResponse(Inquiry inquiry) {
 
     return InquiryResponse.builder()
-        .id(inquiry.getId())
+        .id(String.valueOf(inquiry.getId()))
         .title(inquiry.getTitle())
         .content(inquiry.getContent())
         .status(inquiry.getStatus())
@@ -173,7 +173,7 @@ public class InquiryService {
         .toList();
 
     return InquiryResponse.Reply.builder()
-        .id(reply.getId())
+        .id(String.valueOf(reply.getId()))
         .content(reply.getContent())
         .fileUrls(fileUrls)
         .build();
@@ -191,7 +191,7 @@ public class InquiryService {
 
   private InquiryAllResponse toResponse(Inquiry inquiry) {
     return InquiryAllResponse.builder()
-        .id(inquiry.getId())
+        .id(String.valueOf(inquiry.getId()))
         .title(inquiry.getTitle())
         .content(inquiry.getContent())
         .status(inquiry.getStatus())
@@ -215,7 +215,7 @@ public class InquiryService {
   private List<ImageDto> toImageDtos(List<InquiryImage> images) {
     return images.stream()
         .map(inquiryImage -> ImageDto.builder()
-            .id(inquiryImage.getId()) // InquiryImage의 id를 사용
+            .id(String.valueOf(inquiryImage.getId())) // InquiryImage의 id를 사용
             .imageFileUrl(fileStorageService.generatePresignedGetUrlForPrivateFile(inquiryImage.getImageKey())) // public URL 생성
             .build())
         .toList();

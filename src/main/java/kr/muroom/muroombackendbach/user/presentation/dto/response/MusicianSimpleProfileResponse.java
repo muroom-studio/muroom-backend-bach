@@ -7,7 +7,7 @@ import lombok.Builder;
 @Builder
 public record MusicianSimpleProfileResponse(
     @Schema(description = "뮤지션 ID", example = "1")
-    Long musicianId,
+    String musicianId,
 
     @Schema(description = "닉네임", example = "뮤루뮤루")
     String nickname,

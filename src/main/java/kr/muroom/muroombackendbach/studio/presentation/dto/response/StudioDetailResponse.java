@@ -46,8 +46,8 @@ public record StudioDetailResponse(
 
   @Builder
   public record StudioBaseInfoDto(
-      @Schema(description = "스튜디오 ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-      Long studioId,
+      @Schema(description = "스튜디오 ID", example = "791543436721219205", requiredMode = Schema.RequiredMode.REQUIRED)
+      String studioId,
 
       @Schema(description = "스튜디오 이름", example = "뮤룸 스튜디오", requiredMode = Schema.RequiredMode.REQUIRED)
       String studioName,
@@ -262,8 +262,8 @@ public record StudioDetailResponse(
 
   @Builder
   public record RoomInfoDto(
-      @Schema(description = "방 ID", example = "132", requiredMode = Schema.RequiredMode.REQUIRED)
-      Long roomId,
+      @Schema(description = "방 ID", example = "791543436721219205", requiredMode = Schema.RequiredMode.REQUIRED)
+      String roomId,
 
       @Schema(description = "방 이름", example = "Room A", requiredMode = Schema.RequiredMode.REQUIRED)
       String roomName,
@@ -286,7 +286,7 @@ public record StudioDetailResponse(
 
     public static RoomInfoDto from(Room room) {
       return RoomInfoDto.builder()
-          .roomId(room.getId())
+          .roomId(String.valueOf(room.getId()))
           .roomName(room.getName())
           .isAvailable(room.getIsAvailable())
           .availableAt(room.getAvailableAt())

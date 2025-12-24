@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record WithdrawalReasonResponse(
-    Long id,
+    String id,
     @Schema(example = "LACK_OF_LISTING_INFO")
     String code,
     @Schema(example = "원하는 매물 정보가 부족함")

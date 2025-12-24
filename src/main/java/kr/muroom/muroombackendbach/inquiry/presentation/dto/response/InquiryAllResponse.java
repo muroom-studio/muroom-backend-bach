@@ -7,7 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record InquiryAllResponse(
-    Long id,
+    String id,
     String title,
     String content,
     InquiryStatus status,

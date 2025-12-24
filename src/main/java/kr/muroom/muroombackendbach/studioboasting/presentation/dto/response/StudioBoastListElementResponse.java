@@ -9,7 +9,7 @@ import lombok.Builder;
 public record StudioBoastListElementResponse(
 
     @Schema(description = "작업실 소개(자랑)글 ID", example = "790304842909819754", requiredMode = RequiredMode.REQUIRED)
-    Long id,
+    String id,
 
     @Schema(description = "작업실 소개(자랑)글 썸네일 이미지 파일 URL",
         example = "https://muroom-storage.s3.ap-northeast-2.amazonaws.com/studio-boasting/thumbnails/thumbnail-image-01.png",

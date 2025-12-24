@@ -97,7 +97,7 @@ public class OAuthLoginService {
     // refresh redis 저장
     refreshTokenService.save(userId, refreshIssue.jti(), refreshIssue.expiresAt());
 
-    return OAuthLoginResponse.login(accessToken, refreshIssue.token(), userId, provider);
+    return OAuthLoginResponse.login(accessToken, refreshIssue.token(), String.valueOf(userId), provider);
   }
 
   /**

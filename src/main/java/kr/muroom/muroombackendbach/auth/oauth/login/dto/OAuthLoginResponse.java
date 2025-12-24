@@ -35,7 +35,7 @@ public record OAuthLoginResponse(
         example = "1",
         nullable = true
     )
-    Long userId,
+    String userId,
 
     @Schema(
         description = "OAuth 제공자",
@@ -54,7 +54,7 @@ public record OAuthLoginResponse(
   }
 
   // 로그인 성공용 팩토리 메서드
-  public static OAuthLoginResponse login(String accessToken, String refreshToken, Long userId,
+  public static OAuthLoginResponse login(String accessToken, String refreshToken, String userId,
       OAuthProvider provider) {
     return new OAuthLoginResponse(ResultType.LOGIN, accessToken, refreshToken, null, userId,
         provider);

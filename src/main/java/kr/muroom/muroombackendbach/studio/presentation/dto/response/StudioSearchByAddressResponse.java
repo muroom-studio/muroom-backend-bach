@@ -6,8 +6,8 @@ import lombok.Builder;
 @Schema(description = "스튜디오 주소 검색 요청 DTO")
 @Builder
 public record StudioSearchByAddressResponse(
-    @Schema(description = "스튜디오 ID", example = "874921832983")
-    Long id,
+    @Schema(description = "스튜디오 ID", example = "791543436721219205")
+    String id,
 
     @Schema(description = "스튜디오 이름", example = "뮤룸 스튜디오")
     String name,

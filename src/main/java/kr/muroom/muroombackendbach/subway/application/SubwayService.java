@@ -43,7 +43,7 @@ public class SubwayService {
     // 4. 최종 응답 DTO로 조립
     List<NearbyStationsResponse.StationInfo> stationInfos = stationsWithDistance.stream()
         .map(swd -> new NearbyStationsResponse.StationInfo(
-            swd.getStation().getId(),
+            String.valueOf(swd.getStation().getId()),
             swd.getStation().getName(),
             linesByStationId.getOrDefault(swd.getStation().getId(), List.of()),
             swd.getDistance().intValue()
