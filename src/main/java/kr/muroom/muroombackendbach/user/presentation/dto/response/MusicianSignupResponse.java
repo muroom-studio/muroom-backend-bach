@@ -7,7 +7,7 @@ public record MusicianSignupResponse(
     String accessToken,
     @Schema(example = "대충 토큰 값")
     String refreshToken,
-    @Schema(example = "1")
+    @Schema(example = "791543436721219205")
     String musicianId
 ) {
 

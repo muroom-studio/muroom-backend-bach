@@ -17,7 +17,7 @@ public record FaqResponse(
 
   @Builder
   public record Category(
-      @Schema(example = "1")
+      @Schema(example = "791543436721219205")
       String categoryId,
       @Schema(example = "ACCOUNT", description = "고유한 코드 값")
       String code,

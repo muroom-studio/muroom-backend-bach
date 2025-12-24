@@ -32,7 +32,7 @@ public record OAuthLoginResponse(
 
     @Schema(
         description = "로그인된 유저 ID (로그인 성공 시에만 반환)",
-        example = "1",
+        example = "791543436721219205",
         nullable = true
     )
     String userId,

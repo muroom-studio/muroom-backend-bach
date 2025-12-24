@@ -45,7 +45,7 @@ public interface FaqControllerDocs {
       @Parameter(
           name = "categoryId",
           description = "FAQ 카테고리 ID. 미입력 시 카테고리 필터 없이 조회합니다.",
-          example = "1",
+          example = "791543436721219205",
           schema = @Schema(type = "integer", format = "int64", nullable = true)
       )
   })
