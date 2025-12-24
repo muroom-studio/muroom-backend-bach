@@ -25,12 +25,4 @@ public record InquiryAllResponse(
 
   }
 
-  @Builder
-  public record ImageDto(
-      Long id,
-      String imageKey
-  ) {
-
-  }
-
 }

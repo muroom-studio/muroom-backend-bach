@@ -2,11 +2,11 @@ package kr.muroom.muroombackendbach.admin.inquiry.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyImagePresignedUrlRequest;
+import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyImageUploadRequest;
 import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyRequest;
 import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.UpdateInquiryReplyRequest;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.inquiry.application.InquiryReplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -27,10 +27,9 @@ public class AdminInquiryController {
   private final InquiryReplyService inquiryReplyService;
 
   @PostMapping("/presigned-url")
-  public ApiResponse<GeneratePresignedUrlsPutResponse> generateInquiryReplyImagePresignedUrls(
-      @Validated @RequestBody InquiryReplyImagePresignedUrlRequest request) {
-    GeneratePresignedUrlsPutResponse response = inquiryReplyService.generatePresignedPutUrls(
-        request);
+  public ApiResponse<GeneratePresignedPutUrlResponse> generateInquiryReplyImagePresignedUrls(
+      @Validated @RequestBody InquiryReplyImageUploadRequest request) {
+    GeneratePresignedPutUrlResponse response = inquiryReplyService.generatePresignedPutUrl(request);
     return ApiResponse.success(response);
   }
 
@@ -46,6 +45,8 @@ public class AdminInquiryController {
     return ApiResponse.success();
   }
 
+  // TODO: 검토 필요
+  // TODO: S3 버킷에 이미지 삭제 로직 추가 필요
   @Operation(
       summary = "1:1 문의 답글 수정",
       description = "전체 수정, 모든 컬럼이 필요합니다. 덮어쓰기"

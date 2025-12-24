@@ -5,13 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,9 +27,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Term extends CreatedDateEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "term_id_seq_gen")
-  @SequenceGenerator(name = "term_id_seq_gen", sequenceName = "term_id_seq",
-      allocationSize = 1)
+  @Tsid
   @Column(name = "term_id")
   private Long id;
 

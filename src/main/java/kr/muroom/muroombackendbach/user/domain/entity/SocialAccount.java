@@ -6,15 +6,13 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,9 +38,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class SocialAccount extends AuditableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "social_account_id_seq_gen")
-  @SequenceGenerator(name = "social_account_id_seq_gen", sequenceName = "social_account_id_seq",
-      allocationSize = 1)
+  @Tsid
   @Column(name = "social_account_id")
   private Long id;
 

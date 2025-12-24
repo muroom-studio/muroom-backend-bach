@@ -5,10 +5,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.SearchInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -39,7 +39,7 @@ public interface InquiryControllerDocs {
       description = "로그인한 사용자가 1:1 문의를 등록합니다."
   )
   @PostMapping
-  void registerInquiry(
+  ApiResponse<Void> registerInquiry(
       @Parameter(hidden = true)
       @AuthenticationPrincipal Long musicianId,
       @RequestBody RegisterInquiryRequest request

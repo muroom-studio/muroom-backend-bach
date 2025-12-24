@@ -28,19 +28,11 @@ public record InquiryResponse(
   }
 
   @Builder
-  public record ImageDto(
-      Long id,
-      String imageKey
-  ) {
-
-  }
-
-  @Builder
   public record Reply(
       Long id,
       @Schema(example = "안녕하세요, 관리자입니다. 해결 완료")
       String content,
-      List<String> fileKeys
+      List<String> fileUrls
   ) {
 
   }

@@ -4,15 +4,13 @@ import static kr.muroom.muroombackendbach.inquiry.exception.InquiryErrorCode.INQ
 import static kr.muroom.muroombackendbach.inquiry.exception.InquiryReplyErrorCode.INQUIRY_REPLY_NOT_FOUND;
 
 import java.util.List;
-import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyImagePresignedUrlRequest;
+import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyImageUploadRequest;
 import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyRequest;
 import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.UpdateInquiryReplyRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
-import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
 import kr.muroom.muroombackendbach.filestorage.exception.FileErrorCode;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse.PresignedUrlInfo;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReply;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReplyImage;
@@ -34,22 +32,8 @@ public class InquiryReplyService {
   private final InquiryReplyImageRepository inquiryReplyImageRepository;
 
   @Transactional(readOnly = true)
-  public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(
-      InquiryReplyImagePresignedUrlRequest request) {
-    List<PresignedUrlInfo> presignedUrlInfos = request.inquiryReplyImages().stream()
-        .map((inquiryReplyImageInfo) -> {
-          validateContentType(inquiryReplyImageInfo.contentType());
-
-          String domain = "inquiry_replies/" + inquiryReplyImageInfo.inquiryId();
-          PresignedPutUrlDto singleUrlDto = fileStorageService.generatePresignedPutUrl(
-              inquiryReplyImageInfo.fileName(), domain, inquiryReplyImageInfo.contentType()
-          );
-
-          return new PresignedUrlInfo(singleUrlDto.url(), singleUrlDto.fileKey());
-        })
-        .toList();
-
-    return new GeneratePresignedUrlsPutResponse(presignedUrlInfos);
+  public GeneratePresignedPutUrlResponse generatePresignedPutUrl(InquiryReplyImageUploadRequest request) {
+    return fileStorageService.generatePresignedPutUrlForPrivate(request, FileStorageService::validateImageContentType);
   }
 
   private void validateContentType(String contentType) {

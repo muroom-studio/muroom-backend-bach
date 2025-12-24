@@ -8,10 +8,7 @@ import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSIC
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
-import kr.muroom.muroombackendbach.filestorage.application.FileStorageService.PresignedPutUrlDto;
-import kr.muroom.muroombackendbach.filestorage.exception.FileErrorCode;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse.PresignedUrlInfo;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryImage;
@@ -21,13 +18,13 @@ import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryStatus;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryCategoryRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryImageRepository;
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryRepository;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.InquiryImagePresignedUrlRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.InquiryImageUploadRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.SearchInquiryRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.ImageDto;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse.CategoryDto;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse.ImageDto;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
@@ -57,7 +54,18 @@ public class InquiryService {
     }
 
     Page<Inquiry> inquiries = inquiryRepository.searchByKeyword(musicianId, keyword, pageable);
-    return inquiries.map(SearchInquiryResponse::from);
+
+    return inquiries.map(inquiry -> SearchInquiryResponse.builder()
+        .id(inquiry.getId())
+        .title(inquiry.getTitle())
+        .content(inquiry.getContent())
+        .status(inquiry.getStatus())
+        .category(SearchInquiryResponse.CategoryDto.from(inquiry.getCategory()))
+        .images(toImageDtos(inquiry.getImages()))
+        .createdAt(inquiry.getCreatedAt())
+        .updatedAt(inquiry.getUpdatedAt())
+        .build()
+    );
   }
 
   @Transactional
@@ -78,23 +86,27 @@ public class InquiryService {
 
     inquiryRepository.save(inquiry);
 
-    List<String> keys = request.imageKeys();
-    if (keys == null || keys.isEmpty()) {
+    List<String> temporaryImageFileKeys = request.imageKeys();
+    if (temporaryImageFileKeys == null || temporaryImageFileKeys.isEmpty()) {
       return;
     }
 
-    List<InquiryImage> images = keys.stream()
+    List<String> permanentImageFileKeys = temporaryImageFileKeys.stream()
         .filter(k -> k != null && !k.isBlank())
         .map(String::trim)
         .distinct()
-        .map(key -> InquiryImage.builder()
+        .map(fileStorageService::movePrivateFileFromTempToPermanent)
+        .toList();
+
+    List<InquiryImage> inquiryImages = permanentImageFileKeys.stream()
+        .map(permanentImageFileKey -> InquiryImage.builder()
             .inquiry(inquiry)
-            .imageKey(key)
+            .imageKey(permanentImageFileKey)
             .build())
         .toList();
 
-    if (!images.isEmpty()) {
-      inquiryImageRepository.saveAll(images);
+    if (!permanentImageFileKeys.isEmpty()) {
+      inquiryImageRepository.saveAll(inquiryImages);
     }
   }
 
@@ -122,35 +134,12 @@ public class InquiryService {
     return toInquiryResponse(inquiry);
   }
 
-  public GeneratePresignedUrlsPutResponse generatePresignedPutUrls(
-      InquiryImagePresignedUrlRequest request) {
-    List<PresignedUrlInfo> presignedUrlInfos = request.inquiryImages().stream()
-        .map((inquiryImageInfo) -> {
-          validateContentType(inquiryImageInfo.contentType());
-
-          InquiryCategory inquiryCategory = inquiryCategoryRepository.findById(
-                  inquiryImageInfo.categoryId())
-              .orElseThrow(() -> new BusinessException(INQUIRY_CATEGORY_NOT_FOUND));
-
-          String domain = "inquiries/" + inquiryCategory.getCode().toLowerCase();
-          PresignedPutUrlDto singleUrlDto = fileStorageService.generatePresignedPutUrl(
-              inquiryImageInfo.fileName(), domain, inquiryImageInfo.contentType()
-          );
-
-          return new PresignedUrlInfo(singleUrlDto.url(), singleUrlDto.fileKey());
-        })
-        .toList();
-
-    return new GeneratePresignedUrlsPutResponse(presignedUrlInfos);
-  }
-
-  private void validateContentType(String contentType) {
-    if (!contentType.startsWith("image/")) {
-      throw new BusinessException(FileErrorCode.UNSUPPORTED_FILE_TYPE);
-    }
+  public GeneratePresignedPutUrlResponse generatePresignedPutUrl(InquiryImageUploadRequest request) {
+    return fileStorageService.generatePresignedPutUrlForPrivate(request, FileStorageService::validateImageContentType);
   }
 
   private InquiryResponse toInquiryResponse(Inquiry inquiry) {
+
     return InquiryResponse.builder()
         .id(inquiry.getId())
         .title(inquiry.getTitle())
@@ -158,7 +147,7 @@ public class InquiryService {
         .status(inquiry.getStatus())
         .category(toInquiryCategoryDto(inquiry))
         .reply(toInquiryReplyImageDto(inquiry))
-        .images(toInquiryImageDtos(inquiry.getImages()))
+        .images(toImageDtos(inquiry.getImages()))
         .createdAt(inquiry.getCreatedAt())
         .updatedAt(inquiry.getUpdatedAt())
         .build();
@@ -179,10 +168,14 @@ public class InquiryService {
             .distinct()
             .toList();
 
+    List<String> fileUrls = fileKeys.stream()
+        .map(fileStorageService::generatePresignedGetUrlForPrivateFile)
+        .toList();
+
     return InquiryResponse.Reply.builder()
         .id(reply.getId())
         .content(reply.getContent())
-        .fileKeys(fileKeys)
+        .fileUrls(fileUrls)
         .build();
   }
 
@@ -194,18 +187,6 @@ public class InquiryService {
         .code(inquiry.getCategory().getCode())
         .name(inquiry.getCategory().getName())
         .build();
-  }
-
-  private List<InquiryResponse.ImageDto> toInquiryImageDtos(List<InquiryImage> images) {
-    if (images == null) {
-      return List.of();
-    }
-    return images.stream()
-        .map(img -> InquiryResponse.ImageDto.builder()
-            .id(img.getId())
-            .imageKey(img.getImageKey())
-            .build())
-        .toList();
   }
 
   private InquiryAllResponse toResponse(Inquiry inquiry) {
@@ -231,14 +212,11 @@ public class InquiryService {
         .build();
   }
 
-  private List<InquiryAllResponse.ImageDto> toImageDtos(List<InquiryImage> images) {
-    if (images == null) {
-      return List.of();
-    }
+  private List<ImageDto> toImageDtos(List<InquiryImage> images) {
     return images.stream()
-        .map(img -> ImageDto.builder()
-            .id(img.getId())
-            .imageKey(img.getImageKey())
+        .map(inquiryImage -> ImageDto.builder()
+            .id(inquiryImage.getId()) // InquiryImage의 id를 사용
+            .imageFileUrl(fileStorageService.generatePresignedGetUrlForPrivateFile(inquiryImage.getImageKey())) // public URL 생성
             .build())
         .toList();
   }

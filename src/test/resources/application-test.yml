@@ -20,12 +20,17 @@ cloud:
   aws:
     region:
       static: test-region
-    s3:
-      bucket: test-bucket
-      presign:
-        expiration: 10m
+    secretsmanager:
+      enabled: true
+    credentials:
+      instance-profile: true
     stack:
       auto: false
+    s3:
+      private-bucket-name: test-private-bucket
+      public-bucket-name: test-public-bucket
+      presign:
+        expiration: 10m
 
 jwt:
   secret-key: some-very-very-very-very-very-very-very-long-secret-key

@@ -290,4 +290,15 @@ public class MusicianService {
         request.detailAddress()
     );
   }
+
+  /**
+   * 뮤지션 조회
+   *
+   * <p>다른 서비스 에서 사용할 용도로만 존재하는 메서드입니다.
+   */
+  @Transactional(readOnly = true)
+  public Musician getMusicianById(Long musicianId) {
+    return musicianRepository.findById(musicianId)
+        .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
+  }
 }

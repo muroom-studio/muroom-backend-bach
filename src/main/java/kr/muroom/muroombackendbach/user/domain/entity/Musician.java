@@ -6,15 +6,13 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -44,9 +42,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Musician extends SoftDeletableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "musician_id_seq_gen")
-  @SequenceGenerator(name = "musician_id_seq_gen", sequenceName = "musician_id_seq",
-      allocationSize = 1)
+  @Tsid
   @Column(name = "musician_id")
   private Long id;
 

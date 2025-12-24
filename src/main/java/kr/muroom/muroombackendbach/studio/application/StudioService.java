@@ -24,7 +24,7 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequ
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
@@ -107,7 +107,7 @@ public class StudioService {
         .build();
   }
 
-  public Page<StudioListResponse> searchStudiosForMapList(MapSearchRequest request, Long musicianId, Pageable pageable) {
+  public Page<StudioListElementResponse> searchStudiosForMapList(MapSearchRequest request, Long musicianId, Pageable pageable) {
     if (request.keyword() != null && !request.keyword().isBlank()) {
       searchHistoryService.addSearchKeyword(musicianId, request.keyword());
     }
@@ -168,10 +168,10 @@ public class StudioService {
         .filter(Objects::nonNull).toList();
     Map<String, String> presignedUrls = studioThumbnailImageKeys.stream()
         .collect(Collectors.toMap(studioThumbnailImageKey -> studioThumbnailImageKey,
-            fileStorageService::generatePresignedGetUrl));
+            fileStorageService::getPublicFileUrl));
 
     // 정보 조합
-    List<StudioListResponse> responseContent = studios.stream().map(studio -> {
+    List<StudioListElementResponse> responseContent = studios.stream().map(studio -> {
       Integer minPrice = null;
       Integer maxPrice = null;
       IntSummaryStatistics roomPriceStats = roomPriceStatsByStudioId.get(studio.getId());
@@ -213,7 +213,7 @@ public class StudioService {
       Double longitude = location != null ? location.getX() : null;
       Double latitude = location != null ? location.getY() : null;
 
-      return StudioListResponse.builder()
+      return StudioListElementResponse.builder()
           .studioId(studio.getId())
           .studioName(studio.getName())
           .minPrice(minPrice)
@@ -272,4 +272,47 @@ public class StudioService {
         .build();
   }
 
+  public boolean isExistingStudioId(Long studioId) {
+    return studioRepository.existsById(studioId);
+  }
+
+  /**
+   * StudioId로 StudioInfo 조회
+   *
+   * <p>다른 서비스 에서 사용할 용도로만 존재하는 메서드입니다.
+   */
+  public StudioListElementResponse getStudioInfoById(Long studioId) {
+    Studio studio = studioRepository.findById(studioId)
+        .orElseThrow(() -> new IllegalArgumentException("Studio not found with id: " + studioId));
+
+    StudioPriceInfo studioPriceInfo = calculatePrice(studio);
+
+    SubwayStationNearbyStudio subwayStationNearbyStudio = subwayStationsNearbyStudioRepository
+        .findFirstByStudioIdOrderBySequenceAsc(studioId);
+    StudioSubwayStationInfo nearestSubwayStation = null;
+    if (subwayStationNearbyStudio != null) {
+      SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
+      Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
+      List<StudioSubwayLineInfo> lines = subwayStationLineRepository.findAllByStationIdInWithLine(subwayStation.getId()).stream()
+          .map(subwayStationLine -> StudioSubwayLineInfo.builder()
+              .lineName(subwayStationLine.getLine().getName())
+              .lineColor(subwayStationLine.getLine().getColor())
+              .build())
+          .toList();
+      nearestSubwayStation = StudioSubwayStationInfo.builder()
+          .stationName(subwayStation.getName())
+          .lines(lines)
+          .distanceInMeters(distanceInMeters)
+          .build();
+    }
+
+    return StudioListElementResponse.builder()
+        .studioId(studio.getId())
+        .studioName(studio.getName())
+        .thumbnailImageUrl(fileStorageService.getPublicFileUrl(studio.getThumbnailImageKey()))
+        .nearbySubwayStationInfo(nearestSubwayStation)
+        .minPrice(studioPriceInfo.minPrice())
+        .maxPrice(studioPriceInfo.maxPrice())
+        .build();
+  }
 }
