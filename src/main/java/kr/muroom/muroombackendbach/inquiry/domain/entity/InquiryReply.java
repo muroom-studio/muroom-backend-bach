@@ -4,18 +4,15 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,9 +28,7 @@ import lombok.NoArgsConstructor;
 public class InquiryReply extends AuditableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "inquiry_reply_id_seq_gen")
-  @SequenceGenerator(name = "inquiry_reply_id_seq_gen", sequenceName = "inquiry_reply_id_seq",
-      allocationSize = 1)
+  @Tsid
   @Column(name = "inquiry_reply_id")
   private Long id;
 

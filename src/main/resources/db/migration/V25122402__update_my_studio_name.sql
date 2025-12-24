@@ -1,0 +1,2 @@
+ALTER TABLE my_studios
+    ALTER COLUMN name DROP NOT NULL;

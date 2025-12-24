@@ -31,7 +31,7 @@ public class StudioBoastImage extends CreatedDateEntity {
   @Column(length = 1024, nullable = false)
   private String imageFileKey;
 
-  @Column
+  @Column(nullable = false)
   private Integer sequence;
 
   @Column(nullable = false)

@@ -3,13 +3,11 @@ package kr.muroom.muroombackendbach.studio.domain.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,10 +24,7 @@ import lombok.NoArgsConstructor;
 public class StudioForbiddenInstrument {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE,
-      generator = "studio_forbidden_instrument_id_seq_gen")
-  @SequenceGenerator(name = "studio_forbidden_instrument_id_seq_gen",
-      sequenceName = "studio_forbidden_instrument_id_seq", allocationSize = 1)
+  @Tsid
   @Column(name = "studio_forbidden_instrument_id")
   private Long id;
 

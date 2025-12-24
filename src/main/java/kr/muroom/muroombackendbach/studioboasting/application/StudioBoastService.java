@@ -15,7 +15,6 @@ import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage;
-import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastCommentRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastImageRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
@@ -44,7 +43,7 @@ public class StudioBoastService {
 
   private final StudioBoastRepository studioBoastRepository;
   private final StudioBoastImageRepository studioBoastImageRepository;
-  private final StudioBoastCommentRepository studioBoastCommentRepository;
+  //  private final StudioBoastCommentRepository studioBoastCommentRepository;
   private final FileStorageService fileStorageService;
   private final StudioService studioService;
   private final MusicianService musicianService;
@@ -224,7 +223,9 @@ public class StudioBoastService {
         .content(studioBoast.getContent())
         .imageFileUrls(studioBoastImageFileUrls)
         .likeCount(studioBoast.getLikeCount())
-        .commentCount(studioBoastCommentRepository.countByStudioBoastId(studioBoastId))
+        .commentCount(0L
+            // studioBoastCommentRepository.countByStudioBoastId(studioBoastId)
+        )
         .createdAt(studioBoast.getCreatedAt())
         .isStudioUploaded(isStudioUploaded)
         .creatorUserInfo(creatorUserInfo)

@@ -6,19 +6,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,9 +35,7 @@ import org.hibernate.annotations.SQLRestriction;
 public class Inquiry extends SoftDeletableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "inquiry_id_seq_gen")
-  @SequenceGenerator(name = "inquiry_id_seq_gen", sequenceName = "inquiry_id_seq",
-      allocationSize = 1)
+  @Tsid
   @Column(name = "inquiry_id")
   private Long id;
 

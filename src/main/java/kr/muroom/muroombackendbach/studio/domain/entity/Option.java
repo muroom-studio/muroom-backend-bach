@@ -4,12 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,8 +24,7 @@ import lombok.NoArgsConstructor;
 public class Option extends AuditableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "option_id_seq_gen")
-  @SequenceGenerator(name = "option_id_seq_gen", sequenceName = "option_id_seq", allocationSize = 1)
+  @Tsid
   @Column(name = "option_id")
   private Long id;
 
