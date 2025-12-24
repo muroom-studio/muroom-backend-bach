@@ -16,7 +16,7 @@ public record UpdateMusicianProfileRequest(
 
     @Schema(
         description = "악기 ID (변경 시에만 전달)",
-        example = "1"
+        example = "791543436721219205"
     )
     Long instrumentId,
 

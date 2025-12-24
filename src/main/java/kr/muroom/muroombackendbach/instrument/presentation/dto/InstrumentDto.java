@@ -8,14 +8,14 @@ public final class InstrumentDto {
   }
 
   public record InstrumentResponse(
-      Long id,
+      String id,
       String code,
       String description
   ) {
 
     public static InstrumentResponse from(Instrument instrument) {
       return new InstrumentResponse(
-          instrument.getId(),
+          String.valueOf(instrument.getId()),
           instrument.getCode(),
           instrument.getDescription()
       );

@@ -2,13 +2,13 @@ package kr.muroom.muroombackendbach.inquiry.presentation;
 
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
-import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedUrlsPutResponse;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.inquiry.application.InquiryService;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.InquiryImagePresignedUrlRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.InquiryImageUploadRequest;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.SearchInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,10 +33,9 @@ public class InquiryController implements InquiryControllerDocs {
   private final InquiryService inquiryService;
 
   @PostMapping("/presigned-url")
-  public ApiResponse<GeneratePresignedUrlsPutResponse> generateInquiryImagePresignedUrls(
-      @Validated @RequestBody InquiryImagePresignedUrlRequest request) {
-    GeneratePresignedUrlsPutResponse response = inquiryService.generatePresignedPutUrls(
-        request);
+  public ApiResponse<GeneratePresignedPutUrlResponse> generateInquiryImagePresignedUrls(
+      @Validated @RequestBody InquiryImageUploadRequest request) {
+    GeneratePresignedPutUrlResponse response = inquiryService.generatePresignedPutUrl(request);
     return ApiResponse.success(response);
   }
 
@@ -50,6 +49,7 @@ public class InquiryController implements InquiryControllerDocs {
         PaginatedData.from(inquiryService.getAllMyInquiry(musicianId, pageable)));
   }
 
+  // TODO: 조회 요청인데 Post로 한 이유요궁금해
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/search")
   public ApiResponse<PaginatedData<SearchInquiryResponse>> searchInquiry(
@@ -64,10 +64,12 @@ public class InquiryController implements InquiryControllerDocs {
 
   @PreAuthorize("isAuthenticated()")
   @PostMapping
-  public void registerInquiry(
+  public ApiResponse<Void> registerInquiry(
       @AuthenticationPrincipal Long musicianId,
-      @Validated @RequestBody RegisterInquiryRequest request) {
+      @Validated @RequestBody RegisterInquiryRequest request
+  ) {
     inquiryService.registerInquiry(musicianId, request);
+    return ApiResponse.success();
   }
 
   @PreAuthorize("isAuthenticated()")

@@ -7,7 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record FaqResponse(
-    Long faqId,
+    String faqId,
     Category category,
     @Schema(example = "푸시알림은 어떻게 설정하나요?")
     String question,
@@ -17,18 +17,17 @@ public record FaqResponse(
 
   @Builder
   public record Category(
-      @Schema(example = "1")
-      Long categoryId,
+      @Schema(example = "791543436721219205")
+      String categoryId,
       @Schema(example = "ACCOUNT", description = "고유한 코드 값")
       String code,
       @Schema(example = "계정")
       String name
   ) {
 
-    public static Category from(
-        FaqCategory category) {
+    public static Category from(FaqCategory category) {
       return Category.builder()
-          .categoryId(category.getId())
+          .categoryId(String.valueOf(category.getId()))
           .code(category.getCode())
           .name(category.getName())
           .build();
@@ -37,7 +36,7 @@ public record FaqResponse(
 
   public static FaqResponse from(Faq faq) {
     return FaqResponse.builder()
-        .faqId(faq.getId())
+        .faqId(String.valueOf(faq.getId()))
         .category(Category.from(faq.getCategory()))
         .question(faq.getQuestion())
         .answer(faq.getAnswer())

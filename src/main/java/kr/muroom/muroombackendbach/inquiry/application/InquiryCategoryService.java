@@ -16,7 +16,7 @@ public class InquiryCategoryService {
     return inquiryCategoryRepository.findAll()
         .stream()
         .map(category -> InquiryCategoryResponse.builder()
-            .id(category.getId())
+            .id(String.valueOf(category.getId()))
             .code(category.getCode())
             .name(category.getName())
             .build())

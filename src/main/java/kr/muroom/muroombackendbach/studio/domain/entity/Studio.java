@@ -4,21 +4,19 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
@@ -43,8 +41,7 @@ import org.locationtech.jts.geom.Point;
 public class Studio extends SoftDeletableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "studio_id_seq_gen")
-  @SequenceGenerator(name = "studio_id_seq_gen", sequenceName = "studio_id_seq", allocationSize = 1)
+  @Tsid
   @Column(name = "studio_id")
   private Long id;
 

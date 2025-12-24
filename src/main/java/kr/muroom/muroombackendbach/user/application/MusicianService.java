@@ -77,7 +77,7 @@ public class MusicianService {
     // 4. 나의 작업실 생성
     createMyStudio(request, musician);
 
-    return new MusicianSignupResponse(accessToken, refreshToken.token(), musicianId);
+    return new MusicianSignupResponse(accessToken, refreshToken.token(), String.valueOf(musicianId));
   }
 
   /**
@@ -192,7 +192,7 @@ public class MusicianService {
         .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
 
     return MusicianSimpleProfileResponse.builder()
-        .musicianId(musician.getId())
+        .musicianId(String.valueOf(musician.getId()))
         .nickname(musician.getNickname())
         .musicianInstrument(InstrumentSimpleInfo.from(musician.getInstrument()))
         .build();
@@ -210,7 +210,7 @@ public class MusicianService {
         .orElseThrow(() -> new BusinessException(MY_STUDIO_NOT_FOUND));
 
     return MusicianProfileResponse.builder()
-        .musicianId(musician.getId())
+        .musicianId(String.valueOf(musician.getId()))
         .phone(musician.getPhoneNumber())
         .nickname(musician.getNickname())
         .musicianInstrument(InstrumentSimpleInfo.from(musician.getInstrument()))
@@ -289,5 +289,16 @@ public class MusicianService {
         request.roadAddress(),
         request.detailAddress()
     );
+  }
+
+  /**
+   * 뮤지션 조회
+   *
+   * <p>다른 서비스 에서 사용할 용도로만 존재하는 메서드입니다.
+   */
+  @Transactional(readOnly = true)
+  public Musician getMusicianById(Long musicianId) {
+    return musicianRepository.findById(musicianId)
+        .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
   }
 }

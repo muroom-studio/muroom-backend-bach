@@ -7,7 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record InquiryAllResponse(
-    Long id,
+    String id,
     String title,
     String content,
     InquiryStatus status,
@@ -21,14 +21,6 @@ public record InquiryAllResponse(
   public record CategoryDto(
       String code,
       String name
-  ) {
-
-  }
-
-  @Builder
-  public record ImageDto(
-      Long id,
-      String imageKey
   ) {
 
   }

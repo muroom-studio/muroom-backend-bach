@@ -33,7 +33,7 @@ public class SubwayService {
 
     // 3. 지하철역들의 노선 정보 일괄 조회 (N+1 방지)
     List<Long> stationIds = stationsWithDistance.stream().map(s -> s.getStation().getId()).toList();
-    Map<Long, List<StudioSubwayLineInfo>> linesByStationId = subwayStationLineRepository.findAllByStationIdInWithLine(stationIds)
+    Map<Long, List<StudioSubwayLineInfo>> linesByStationId = subwayStationLineRepository.findAllByStationIdsInWithLine(stationIds)
         .stream()
         .collect(Collectors.groupingBy(
             ssl -> ssl.getStation().getId(),
@@ -43,10 +43,10 @@ public class SubwayService {
     // 4. 최종 응답 DTO로 조립
     List<NearbyStationsResponse.StationInfo> stationInfos = stationsWithDistance.stream()
         .map(swd -> new NearbyStationsResponse.StationInfo(
-            swd.getStation().getId(),
+            String.valueOf(swd.getStation().getId()),
             swd.getStation().getName(),
             linesByStationId.getOrDefault(swd.getStation().getId(), List.of()),
-            swd.getDistance()
+            swd.getDistance().intValue()
         ))
         .toList();
 

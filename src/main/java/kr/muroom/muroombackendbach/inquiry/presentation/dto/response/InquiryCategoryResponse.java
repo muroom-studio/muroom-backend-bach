@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record InquiryCategoryResponse(
-    Long id,
+    String id,
     String code,
     String name
 ) {
