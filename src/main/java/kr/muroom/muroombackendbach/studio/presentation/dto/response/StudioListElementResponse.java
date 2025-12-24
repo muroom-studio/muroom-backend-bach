@@ -7,8 +7,8 @@ import lombok.Builder;
 @Builder
 @Schema(description = "지도 스튜디오 목록")
 public record StudioListElementResponse(
-    @Schema(description = "스튜디오 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    Long studioId,
+    @Schema(description = "스튜디오 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "791543436721219205")
+    String studioId,
 
     @Schema(description = "스튜디오 이름", example = "뮤룸 스튜디오 홍대점", requiredMode = Schema.RequiredMode.REQUIRED)
     String studioName,

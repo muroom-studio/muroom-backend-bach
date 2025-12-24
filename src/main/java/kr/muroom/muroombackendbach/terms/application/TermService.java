@@ -47,7 +47,7 @@ public class TermService {
             TermErrorCode.NOT_EXIST_TERM));
 
     return TermContentDto.builder()
-        .termId(termId)
+        .termId(String.valueOf(termId))
         .title(termContent.getTitle())
         .content(termContent.getContent())
         .build();

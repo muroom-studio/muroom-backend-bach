@@ -87,7 +87,7 @@ public class StudioDetailsService {
     List<StudioSubwayStationInfo> nearbySubwayStations = getNearbySubwayStations(studio);
 
     StudioBaseInfoDto studioBaseInfoDto = StudioBaseInfoDto.builder()
-        .studioId(studio.getId())
+        .studioId(String.valueOf(studio.getId()))
         .studioName(studio.getName())
         .roadNameAddress(studio.getRoadNameAddress())
         .lotNumberAddress(studio.getLotNumberAddress())

@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ImageDto(
-    Long id,
+    String id,
     String imageFileUrl
 ) {
 

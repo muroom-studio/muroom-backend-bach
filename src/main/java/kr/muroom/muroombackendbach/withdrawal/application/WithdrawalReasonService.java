@@ -25,7 +25,7 @@ public class WithdrawalReasonService {
 
     return withdrawalReasons.stream()
         .map(reason -> WithdrawalReasonResponse.builder()
-            .id(reason.getId())
+            .id(String.valueOf(reason.getId()))
             .code(reason.getCode())
             .description(reason.getDescription())
             .build()

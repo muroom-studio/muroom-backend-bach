@@ -8,7 +8,7 @@ import lombok.Builder;
 
 @Builder
 public record SearchInquiryResponse(
-    Long id,
+    String id,
     String title,
     String content,
     InquiryStatus status,

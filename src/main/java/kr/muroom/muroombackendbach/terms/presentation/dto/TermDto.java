@@ -14,7 +14,7 @@ public final class TermDto {
   @Schema(description = "약관 내용이 포함된 약관 정보")
   public record TermsWithContentDto(
       @Schema(description = "약관 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-      Long termId,
+      String termId,
 
       @Schema(description = "약관 종류", requiredMode = Schema.RequiredMode.REQUIRED)
       TermsType code,
@@ -37,7 +37,7 @@ public final class TermDto {
   @Builder
   public record TermContentDto(
       @Schema(description = "약관 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-      Long termId,
+      String termId,
 
       @Schema(description = "약관 제목", requiredMode = Schema.RequiredMode.REQUIRED)
       String title,

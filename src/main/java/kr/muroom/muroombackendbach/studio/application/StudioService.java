@@ -98,7 +98,7 @@ public class StudioService {
     StudioPriceInfo studioPriceInfo = calculatePrice(studio);
 
     return StudioMapResponse.builder()
-        .id(studio.getId())
+        .id(String.valueOf(studio.getId()))
         .name(studio.getName())
         .longitude(studio.getLocation().getX())
         .latitude(studio.getLocation().getY())
@@ -214,7 +214,7 @@ public class StudioService {
       Double latitude = location != null ? location.getY() : null;
 
       return StudioListElementResponse.builder()
-          .studioId(studio.getId())
+          .studioId(String.valueOf(studio.getId()))
           .studioName(studio.getName())
           .minPrice(minPrice)
           .maxPrice(maxPrice)
@@ -307,7 +307,7 @@ public class StudioService {
     }
 
     return StudioListElementResponse.builder()
-        .studioId(studio.getId())
+        .studioId(String.valueOf(studio.getId()))
         .studioName(studio.getName())
         .thumbnailImageUrl(fileStorageService.getPublicFileUrl(studio.getThumbnailImageKey()))
         .nearbySubwayStationInfo(nearestSubwayStation)

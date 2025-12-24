@@ -16,12 +16,12 @@ public class NearbyStationsResponse {
   @Getter
   public static class StationInfo {
 
-    private final Long stationId;
+    private final String stationId;
     private final String stationName;
     private final List<StudioSubwayLineInfo> lines;
     private final Integer distanceInMeters; // 중심 주소로부터의 거리 (미터)
 
-    public StationInfo(Long stationId, String stationName, List<StudioSubwayLineInfo> lines, Integer distanceInMeters) {
+    public StationInfo(String stationId, String stationName, List<StudioSubwayLineInfo> lines, Integer distanceInMeters) {
       this.stationId = stationId;
       this.stationName = stationName;
       this.lines = lines;
