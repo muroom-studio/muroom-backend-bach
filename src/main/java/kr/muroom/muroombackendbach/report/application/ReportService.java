@@ -2,6 +2,7 @@ package kr.muroom.muroombackendbach.report.application;
 
 import static kr.muroom.muroombackendbach.report.exception.ReportErrorCode.REPORT_FORBIDDEN;
 import static kr.muroom.muroombackendbach.report.exception.ReportErrorCode.REPORT_NOT_FOUND;
+import static kr.muroom.muroombackendbach.report.exception.ReportErrorCode.REPORT_REASON_NOT_FOUND;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
@@ -19,6 +20,7 @@ import kr.muroom.muroombackendbach.report.handler.ReportTargetHandler;
 import kr.muroom.muroombackendbach.report.handler.ReportTargetHandlerRegistry;
 import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.report.presentation.dto.request.SearchReportRequest;
+import kr.muroom.muroombackendbach.report.presentation.dto.request.UpdateReportRequest;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.ReportsResponse;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.SearchReportResponse;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
@@ -136,5 +138,38 @@ public class ReportService {
         .snapshot(report.getSnapshot())
         .build()
     );
+  }
+
+  @Transactional
+  public void updateMyReport(Long musicianId, Long reportId, UpdateReportRequest request) {
+    Report report = reportRepository.findById(reportId)
+        .orElseThrow(() -> new BusinessException(REPORT_NOT_FOUND));
+
+    if (!report.getReporter().getId().equals(musicianId)) {
+      throw new BusinessException(REPORT_FORBIDDEN);
+    }
+
+    if (report.getStatus() != ReportStatus.SUBMITTED) {
+      throw new BusinessException(ReportErrorCode.REPORT_NOT_EDITABLE);
+    }
+
+    boolean updated = false;
+
+    if (request.reportReasonId() != null) {
+      ReportReason newReason = reportReasonRepository.findById(request.reportReasonId())
+          .orElseThrow(() -> new BusinessException(REPORT_REASON_NOT_FOUND));
+
+      report.changeReportReason(newReason);
+      updated = true;
+    }
+
+    if (request.description() != null) {
+      report.changeDescription(request.description().trim());
+      updated = true;
+    }
+
+    if (!updated) {
+      throw new BusinessException(ReportErrorCode.REPORT_INVALID_REQUEST);
+    }
   }
 }
