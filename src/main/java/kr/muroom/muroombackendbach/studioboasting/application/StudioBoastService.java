@@ -31,6 +31,7 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.UnknownStudioInfo;
 import kr.muroom.muroombackendbach.subway.application.SubwayService;
+import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse;
 import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse.StationInfo;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
@@ -48,7 +49,8 @@ public class StudioBoastService {
 
   private final StudioBoastRepository studioBoastRepository;
   private final StudioBoastImageRepository studioBoastImageRepository;
-  //  private final StudioBoastCommentRepository studioBoastCommentRepository;
+  // private final StudioBoastCommentRepository studioBoastCommentRepository;
+  // private final StudioBoastLikeRepository studioBoastLikeRepository;
   private final FileStorageService fileStorageService;
   private final StudioService studioService;
   private final MusicianService musicianService;
@@ -206,6 +208,13 @@ public class StudioBoastService {
         .stream()
         .collect(Collectors.toMap(studio -> Long.parseLong(studio.studioId()), Function.identity()));
 
+    List<String> unknownStudioAddresses = studioBoasts.stream()
+        .filter(studioBoast -> studioBoast.getStudioId() == null)
+        .map(StudioBoast::getRoadNameAddress)
+        .distinct()
+        .toList();
+    Map<String, NearbyStationsResponse> nearbyStationsResult = subwayService.findNearbyStationsInBulk(unknownStudioAddresses);
+
     // 3-4. 현재 사용자의 '좋아요' 정보 조회
     Set<Long> likedBoastIds = Collections.emptySet();
     /*Set<Long> likedBoastIds = (musicianId == null) ? Collections.emptySet()
@@ -243,12 +252,11 @@ public class StudioBoastService {
           studioInfo = StudioInfo.from(studioListElement);
         }
       } else {
-        // !!주의!!: 이 부분은 매 요소마다 외부 API/DB 조회를 유발할 수 있어 성능 저하의 원인이 될 수 있습니다.
-        // 대량 조회 시에는 별도의 최적화 방안(bulk-api 등)을 고려해야 합니다.
-        List<StationInfo> nearbySubwayStations = subwayService.findNearbyStations(boast.getRoadNameAddress()).getStations();
+        NearbyStationsResponse nearbyStations = nearbyStationsResult.get(boast.getRoadNameAddress());
         StudioSubwayStationInfo nearestSubwayStation = null;
-        if (!nearbySubwayStations.isEmpty()) {
-          StationInfo stationInfo = nearbySubwayStations.getFirst();
+
+        if (nearbyStations != null && !nearbyStations.getStations().isEmpty()) {
+          NearbyStationsResponse.StationInfo stationInfo = nearbyStations.getStations().getFirst();
           nearestSubwayStation = StudioSubwayStationInfo.builder()
               .stationName(stationInfo.getStationName())
               .lines(stationInfo.getLines())
