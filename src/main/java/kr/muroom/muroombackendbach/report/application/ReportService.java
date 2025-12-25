@@ -115,9 +115,7 @@ public class ReportService {
   }
 
   public Page<SearchReportResponse> searchReports(Long musicianId,
-      SearchReportRequest req, Pageable pageable) {
-
-    String keyword = req.keyword();
+      String keyword, Pageable pageable) {
     if (keyword == null || keyword.isBlank()) {
       keyword = "";
     }

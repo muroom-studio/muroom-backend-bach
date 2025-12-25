@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "1:1 문의 API", description = "뮤지션 1:1 문의 관련 API")
 public interface InquiryControllerDocs {
@@ -48,10 +49,10 @@ public interface InquiryControllerDocs {
   @Operation(
       summary = "나의 1:1 문의 검색"
   )
-  @PostMapping("/search")
+  @GetMapping("/search")
   ApiResponse<PaginatedData<SearchInquiryResponse>> searchInquiry(
       @AuthenticationPrincipal Long musicianId,
-      @RequestBody SearchInquiryRequest searchInquiryRequest,
+      @RequestParam String keyword,
       @Parameter(hidden = true)
       @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   );
