@@ -27,4 +27,5 @@ public class ReportReasonController {
   public ApiResponse<List<ReportReasonResponse>> getAllInquiryCategories() {
     return ApiResponse.success(reportReasonService.getAllReportReason());
   }
+
 }
