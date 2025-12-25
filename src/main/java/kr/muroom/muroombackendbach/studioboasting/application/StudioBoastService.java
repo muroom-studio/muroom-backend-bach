@@ -187,14 +187,24 @@ public class StudioBoastService {
   }
 
   public Page<StudioBoastDetailResponse> getStudioBoasts(Pageable pageable, Long musicianId) {
-    // 1. 기본 데이터 페이지네이션 조회 (게시물)
     Page<StudioBoast> studioBoastPage = studioBoastRepository.findAll(pageable);
-    List<StudioBoast> studioBoasts = studioBoastPage.getContent();
-
-    if (studioBoasts.isEmpty()) {
+    if (studioBoastPage.isEmpty()) {
       return Page.empty(pageable);
     }
+    List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(studioBoastPage.getContent(), musicianId);
+    return new PageImpl<>(studioBoastDetails, pageable, studioBoastPage.getTotalElements());
+  }
 
+  public Page<StudioBoastDetailResponse> getMyStudioBoasts(Pageable pageable, Long musicianId) {
+    Page<StudioBoast> studioBoastPage = studioBoastRepository.findAllByCreatorUserId(musicianId, pageable);
+    if (studioBoastPage.isEmpty()) {
+      return Page.empty(pageable);
+    }
+    List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(studioBoastPage.getContent(), musicianId);
+    return new PageImpl<>(studioBoastDetails, pageable, studioBoastPage.getTotalElements());
+  }
+
+  private List<StudioBoastDetailResponse> enrichStudioBoasts(List<StudioBoast> studioBoasts, Long musicianId) {
     // 2. 후속 처리에 필요한 ID들을 일괄 수집
     List<Long> studioBoastIds = studioBoasts.stream().map(StudioBoast::getId).toList();
     List<Long> creatorUserIds = studioBoasts.stream().map(StudioBoast::getCreatorUserId).distinct().toList();
@@ -238,18 +248,16 @@ public class StudioBoastService {
       likedBoastIds = Collections.emptySet();
     }
 
-    // 4. 조회한 모든 데이터를 조합하여 최종 응답 DTO 리스트 생성
-    List<StudioBoastDetailResponse> responses = studioBoasts.stream().map(boast -> {
-
+    return studioBoasts.stream().map(studioBoast -> {
       // 이미지 URL 목록 생성
-      List<String> imageUrls = imagesByBoastId.getOrDefault(boast.getId(), Collections.emptyList())
+      List<String> imageUrls = imagesByBoastId.getOrDefault(studioBoast.getId(), Collections.emptyList())
           .stream()
           .sorted(Comparator.comparing(StudioBoastImage::getSequence))
           .map(image -> fileStorageService.getPublicFileUrl(image.getImageFileKey()))
           .toList();
 
       // 작성자 정보 DTO 생성
-      Musician creator = musiciansById.get(boast.getCreatorUserId());
+      Musician creator = musiciansById.get(studioBoast.getCreatorUserId());
       CreatorUserInfo creatorUserInfo = CreatorUserInfo.builder()
           .id(String.valueOf(creator.getId()))
           .nickname(creator.getNickname())
@@ -257,17 +265,17 @@ public class StudioBoastService {
           .build();
 
       // 스튜디오 정보 DTO 생성 (등록/미등록 분기 처리)
-      boolean isStudioUploaded = boast.getStudioId() != null;
+      boolean isStudioUploaded = studioBoast.getStudioId() != null;
       StudioInfo studioInfo = null;
       UnknownStudioInfo unknownStudioInfo = null;
 
       if (isStudioUploaded) {
-        StudioListElementResponse studioListElement = studioInfosById.get(boast.getStudioId());
+        StudioListElementResponse studioListElement = studioInfosById.get(studioBoast.getStudioId());
         if (studioListElement != null) {
           studioInfo = StudioInfo.from(studioListElement);
         }
       } else {
-        NearbyStationsResponse nearbyStations = nearbyStationsResult.get(boast.getRoadNameAddress());
+        NearbyStationsResponse nearbyStations = nearbyStationsResult.get(studioBoast.getRoadNameAddress());
         StudioSubwayStationInfo nearestSubwayStation = null;
 
         if (nearbyStations != null && !nearbyStations.getStations().isEmpty()) {
@@ -279,35 +287,32 @@ public class StudioBoastService {
               .build();
         }
         unknownStudioInfo = UnknownStudioInfo.builder()
-            .name(boast.getStudioName())
+            .name(studioBoast.getStudioName())
             .nearestSubwayStation(nearestSubwayStation)
-            .roadNameAddress(boast.getRoadNameAddress())
-            .lotNumberAddress(boast.getLotNumberAddress())
-            .detailedAddress(boast.getDetailedAddress())
+            .roadNameAddress(studioBoast.getRoadNameAddress())
+            .lotNumberAddress(studioBoast.getLotNumberAddress())
+            .detailedAddress(studioBoast.getDetailedAddress())
             .build();
       }
 
       // 최종 DTO 빌드
       return StudioBoastDetailResponse.builder()
-          .id(String.valueOf(boast.getId()))
-          .content(boast.getContent())
+          .id(String.valueOf(studioBoast.getId()))
+          .content(studioBoast.getContent())
           .thumbnailImageFileUrl(
-              fileStorageService.getPublicFileUrl(boast.getThumbnailImageFileKey())
+              fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey())
           )
           .imageFileUrls(imageUrls)
-          .isLikedByRequestUser(likedBoastIds.contains(boast.getId()))
-          .likeCount(boast.getLikeCount())
+          .isLikedByRequestUser(likedBoastIds.contains(studioBoast.getId()))
+          .likeCount(studioBoast.getLikeCount())
           .commentCount(0L) // 댓글 기능은 아직 미구현
-          .createdAt(boast.getCreatedAt())
+          .createdAt(studioBoast.getCreatedAt())
           .isStudioUploaded(isStudioUploaded)
           .creatorUserInfo(creatorUserInfo)
           .studioInfo(studioInfo)
           .unknownStudioInfo(unknownStudioInfo)
           .build();
     }).toList();
-
-    // 5. Page 객체로 변환하여 반환
-    return new PageImpl<>(responses, pageable, studioBoastPage.getTotalElements());
   }
 
   public StudioBoastDetailResponse getStudioBoastDetail(Long studioBoastId, Long musicianId) {

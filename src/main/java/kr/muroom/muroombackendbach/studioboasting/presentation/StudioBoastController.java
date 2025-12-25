@@ -82,20 +82,21 @@ public class StudioBoastController implements StudioBoastControllerDocs {
       @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
       @AuthenticationPrincipal Long musicianId
   ) {
-    String[] sortParams = sort.split(",");
-    String sortKey = sortParams[0];
-    Sort.Direction direction = (sortParams.length > 1 && sortParams[1].equalsIgnoreCase("asc"))
-        ? Sort.Direction.ASC : Sort.Direction.DESC;
-
-    String property = "createdAt";
-    if ("likes".equalsIgnoreCase(sortKey)) {
-      property = "likeCount";
-    }
-
-    Sort sortOrder = Sort.by(new Sort.Order(direction, property), Sort.Order.desc("id"));
-    Pageable pageable = PageRequest.of(page, size, sortOrder);
+    Pageable pageable = buildStudioBoastPageable(page, size, sort);
     Page<StudioBoastDetailResponse> response = studioBoastService.getStudioBoasts(pageable, musicianId);
+    return ApiResponse.success(PaginatedData.from(response));
+  }
 
+  @GetMapping("/my")
+  @PreAuthorize("isAuthenticated()")
+  public ApiResponse<PaginatedData<StudioBoastDetailResponse>> getMyStudioBoasts(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "12") int size,
+      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    Pageable pageable = buildStudioBoastPageable(page, size, sort);
+    Page<StudioBoastDetailResponse> response = studioBoastService.getMyStudioBoasts(pageable, musicianId);
     return ApiResponse.success(PaginatedData.from(response));
   }
 
@@ -107,5 +108,20 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   ) {
     studioBoastService.deleteStudioBoast(studioBoastId, musicianId);
     return ApiResponse.deleted();
+  }
+
+  private Pageable buildStudioBoastPageable(int page, int size, String sort) {
+    String[] sortParams = sort.split(",");
+    String sortKey = sortParams[0];
+    Sort.Direction direction = (sortParams.length > 1 && sortParams[1].equalsIgnoreCase("asc"))
+        ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+    String property = "createdAt";
+    if ("likes".equalsIgnoreCase(sortKey)) {
+      property = "likeCount";
+    }
+
+    Sort sortOrder = Sort.by(new Sort.Order(direction, property), Sort.Order.desc("id"));
+    return PageRequest.of(page, size, sortOrder);
   }
 }
