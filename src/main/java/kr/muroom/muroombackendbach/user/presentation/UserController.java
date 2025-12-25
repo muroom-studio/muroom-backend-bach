@@ -2,6 +2,7 @@ package kr.muroom.muroombackendbach.user.presentation;
 
 import static kr.muroom.muroombackendbach.user.presentation.dto.UserDto.NicknameCheckResponse;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
@@ -44,8 +45,10 @@ public class UserController implements UserControllerDocs {
   }
 
   @PostMapping("/sms/auth")
-  public ApiResponse<SmsAuthResponse> authSend(@Validated @RequestBody SmsSendRequest request) {
-    return ApiResponse.success(smsVerificationService.sendVerificationCode(request.phone()));
+  public ApiResponse<SmsAuthResponse> authSend(@Validated @RequestBody SmsSendRequest request,
+      HttpServletRequest httpRequest) {
+    String ip = httpRequest.getRemoteAddr();
+    return ApiResponse.success(smsVerificationService.sendVerificationCode(request.phone(), ip));
   }
 
   @PostMapping("/sms/verify")
