@@ -68,7 +68,7 @@ public class StudioBoastService {
       throw new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND);
     }
 
-    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && request.agreedToEventTerms()) {
+    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && !request.agreedToEventTerms()) {
       throw new BusinessException(StudioBoastErrorCode.EVENT_TERMS_NOT_AGREED);
     }
 
@@ -113,7 +113,7 @@ public class StudioBoastService {
       throw new BusinessException(AuthErrorCode.FORBIDDEN);
     }
 
-    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && request.agreedToEventTerms()) {
+    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && !request.agreedToEventTerms()) {
       throw new BusinessException(StudioBoastErrorCode.EVENT_TERMS_NOT_AGREED);
     }
 
