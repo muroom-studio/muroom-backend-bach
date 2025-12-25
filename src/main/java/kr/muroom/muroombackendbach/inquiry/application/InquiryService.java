@@ -20,7 +20,6 @@ import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryImageReposit
 import kr.muroom.muroombackendbach.inquiry.domain.repository.InquiryRepository;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.InquiryImageUploadRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.SearchInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.ImageDto;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse.CategoryDto;

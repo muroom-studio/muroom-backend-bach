@@ -74,4 +74,16 @@ public class Report extends SoftDeletableEntity {
   private JsonNode snapshot;
 
   private OffsetDateTime deletedAt;
+
+  public void changeReportReason(ReportReason reportReason) {
+    this.reportReason = reportReason;
+  }
+
+  public void changeDescription(String description) {
+    this.description = description;
+  }
+
+  public void changeStatus(ReportStatus status) {
+    this.status = status;
+  }
 }
