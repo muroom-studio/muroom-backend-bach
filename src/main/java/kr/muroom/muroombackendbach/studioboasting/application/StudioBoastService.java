@@ -68,6 +68,10 @@ public class StudioBoastService {
       throw new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND);
     }
 
+    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && request.agreedToEventTerms()) {
+      throw new BusinessException(StudioBoastErrorCode.EVENT_TERMS_NOT_AGREED);
+    }
+
     List<String> temporaryImageKeys = request.imageFileKeys();
     List<String> permanentImageKeys = temporaryImageKeys.stream()
         .map(fileStorageService::movePublicFileFromTempToPermanent)
@@ -107,6 +111,10 @@ public class StudioBoastService {
 
     if (!studioBoast.getCreatorUserId().equals(currentUserId)) {
       throw new BusinessException(AuthErrorCode.FORBIDDEN);
+    }
+
+    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && request.agreedToEventTerms()) {
+      throw new BusinessException(StudioBoastErrorCode.EVENT_TERMS_NOT_AGREED);
     }
 
     studioBoast.update(
@@ -316,7 +324,7 @@ public class StudioBoastService {
         .id(String.valueOf(creatorUser.getId()))
         .nickname(creatorUser.getNickname())
         .instrument(creatorUser.getInstrument().getDescription())
-        .agreedToEventTerms(studioBoast.getAgreedToEventTerms())
+        .agreedToEventTerms(studioBoast.isAgreedToEventTerms())
         .instagramAccount(studioBoast.getInstagramAccount())
         .build();
 
