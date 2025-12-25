@@ -7,6 +7,7 @@ import static kr.muroom.muroombackendbach.user.exception.MyStudioErrorCode.MY_ST
 import static kr.muroom.muroombackendbach.user.exception.SocialAccountErrorCode.SOCIAL_ACCOUNT_NOT_FOUND;
 import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
 
+import java.util.Collections;
 import java.util.List;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
@@ -273,9 +274,9 @@ public class MusicianService {
 
   private void updateStudioIfNeeded(Musician musician, UpdateMusicianProfileRequest request) {
     boolean hasStudioUpdate =
-        request.studioName() != null ||
-            request.roadAddress() != null ||
-            request.detailAddress() != null;
+        request.studioName() != null
+            || request.roadAddress() != null
+            || request.detailAddress() != null;
 
     if (!hasStudioUpdate) {
       return;
@@ -300,5 +301,18 @@ public class MusicianService {
   public Musician getMusicianById(Long musicianId) {
     return musicianRepository.findById(musicianId)
         .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
+  }
+
+  /**
+   * 뮤지션 ID 리스트로 뮤지션 리스트 조회
+   *
+   * <p>다른 서비스에서 사용할 용도로만 존재하는 메서드입니다.
+   */
+  @Transactional(readOnly = true)
+  public List<Musician> getMusiciansByIds(List<Long> musicianIds) {
+    if (musicianIds == null || musicianIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return musicianRepository.findAllById(musicianIds);
   }
 }
