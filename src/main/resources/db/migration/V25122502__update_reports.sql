@@ -1,0 +1,2 @@
+ALTER TABLE reports
+    ALTER COLUMN deleted_at DROP NOT NULL;

@@ -5,6 +5,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
+import kr.muroom.muroombackendbach.report.application.ReportService;
+import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
+import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.studio.application.StudioDetailsService;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
@@ -21,6 +24,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +36,7 @@ public class StudioController {
 
   private final StudioService studioService;
   private final StudioDetailsService studioDetailsService;
+  private final ReportService reportService;
 
   @GetMapping("/map-search")
   public ApiResponse<List<StudioMapResponse>> searchStudiosInMapBounds(
@@ -57,15 +63,27 @@ public class StudioController {
       @Parameter(hidden = true)
       @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
   ) {
-    Page<StudioListElementResponse> response = studioService.searchStudiosForMapList(request, musicianId, pageable);
+    Page<StudioListElementResponse> response = studioService.searchStudiosForMapList(request,
+        musicianId, pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
 
   @Operation(summary = "스튜디오 상세 조회", description = "스튜디오의 상세 정보를 조회합니다.")
   @GetMapping("/{studioId}")
-  public ApiResponse<StudioDetailResponse> getStudio(@PathVariable Long studioId, @AuthenticationPrincipal Long musicianId) {
+  public ApiResponse<StudioDetailResponse> getStudio(@PathVariable Long studioId,
+      @AuthenticationPrincipal Long musicianId) {
     StudioDetailResponse response = studioDetailsService.getStudio(studioId, musicianId);
 
     return ApiResponse.success(response);
+  }
+
+  @Operation(summary = "스튜디오 신고하기", description = "스튜디오 신고하기")
+  @PostMapping("/{studioId}/report")
+  public ApiResponse<Void> reportStudio(
+      @PathVariable Long studioId,
+      @AuthenticationPrincipal Long musicianId,
+      @RequestBody RegisterReportRequest request) {
+    reportService.registerReport(ReportDomainType.STUDIO, studioId, musicianId, request);
+    return ApiResponse.success();
   }
 }
