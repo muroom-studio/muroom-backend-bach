@@ -30,6 +30,9 @@ public record UpdateStudioBoastRequest(
     @NotBlank
     String detailedAddress,
 
+    @Schema(description = "이벤트 약관 동의 여부", example = "true", requiredMode = RequiredMode.REQUIRED)
+    boolean agreedToEventTerms,
+
     @Schema(description = "인스타그램 계정", example = "muroom_studio")
     String instagramAccount,
 

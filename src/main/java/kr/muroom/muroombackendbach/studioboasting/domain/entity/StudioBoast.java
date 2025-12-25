@@ -48,6 +48,9 @@ public class StudioBoast extends SoftDeletableEntity {
   private String detailedAddress;
 
   @Column(nullable = false)
+  private Boolean agreedToEventTerms;
+
+  @Column(nullable = false)
   private String instagramAccount;
 
   @Column(nullable = false)
@@ -73,6 +76,7 @@ public class StudioBoast extends SoftDeletableEntity {
       String roadNameAddress,
       String lotNumberAddress,
       String detailedAddress,
+      boolean agreedToEventTerms,
       String instagramAccount,
       Long studioId,
       String thumbnailImageFileKey
@@ -82,6 +86,7 @@ public class StudioBoast extends SoftDeletableEntity {
     this.roadNameAddress = roadNameAddress;
     this.lotNumberAddress = lotNumberAddress;
     this.detailedAddress = detailedAddress;
+    this.agreedToEventTerms = agreedToEventTerms;
     this.instagramAccount = instagramAccount;
     this.studioId = studioId;
     this.thumbnailImageFileKey = thumbnailImageFileKey;

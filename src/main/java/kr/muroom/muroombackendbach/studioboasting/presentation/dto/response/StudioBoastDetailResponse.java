@@ -59,6 +59,9 @@ public record StudioBoastDetailResponse(
       @Schema(description = "작성자 대표 악기", example = "GUITAR", requiredMode = RequiredMode.REQUIRED)
       String instrument,
 
+      @Schema(description = "이벤트 약관 동의 여부", example = "true", nullable = true)
+      Boolean agreedToEventTerms,
+
       @Schema(description = "작성자의 인스타그램 계정(이벤트 기간 한정)", example = "my_insta", nullable = true)
       String instagramAccount
   ) {

@@ -80,6 +80,7 @@ public class StudioBoastService {
         .roadNameAddress(request.roadNameAddress())
         .lotNumberAddress(request.lotNumberAddress())
         .detailedAddress(request.detailedAddress())
+        .agreedToEventTerms(request.agreedToEventTerms())
         .instagramAccount(request.instagramAccount())
         .creatorUserId(musicianId)
         .studioId(request.studioId())
@@ -114,6 +115,7 @@ public class StudioBoastService {
         request.roadNameAddress(),
         request.lotNumberAddress(),
         request.detailedAddress(),
+        request.agreedToEventTerms(),
         request.instagramAccount(),
         request.studioId(),
         request.imageFileKeys().getFirst()
@@ -314,6 +316,8 @@ public class StudioBoastService {
         .id(String.valueOf(creatorUser.getId()))
         .nickname(creatorUser.getNickname())
         .instrument(creatorUser.getInstrument().getDescription())
+        .agreedToEventTerms(studioBoast.getAgreedToEventTerms())
+        .instagramAccount(studioBoast.getInstagramAccount())
         .build();
 
     boolean isStudioUploaded = studioBoast.getStudioId() != null;
