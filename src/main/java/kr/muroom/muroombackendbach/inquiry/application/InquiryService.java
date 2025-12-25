@@ -46,9 +46,8 @@ public class InquiryService {
   private final FileStorageService fileStorageService;
 
   public Page<SearchInquiryResponse> searchInquiry(Long musicianId,
-      SearchInquiryRequest req, Pageable pageable) {
+      String keyword, Pageable pageable) {
 
-    String keyword = req.keyword();
     if (keyword == null || keyword.isBlank()) {
       keyword = "";
     }
@@ -134,8 +133,10 @@ public class InquiryService {
     return toInquiryResponse(inquiry);
   }
 
-  public GeneratePresignedPutUrlResponse generatePresignedPutUrl(InquiryImageUploadRequest request) {
-    return fileStorageService.generatePresignedPutUrlForPrivate(request, FileStorageService::validateImageContentType);
+  public GeneratePresignedPutUrlResponse generatePresignedPutUrl(
+      InquiryImageUploadRequest request) {
+    return fileStorageService.generatePresignedPutUrlForPrivate(request,
+        FileStorageService::validateImageContentType);
   }
 
   private InquiryResponse toInquiryResponse(Inquiry inquiry) {
@@ -216,7 +217,8 @@ public class InquiryService {
     return images.stream()
         .map(inquiryImage -> ImageDto.builder()
             .id(String.valueOf(inquiryImage.getId())) // InquiryImage의 id를 사용
-            .imageFileUrl(fileStorageService.generatePresignedGetUrlForPrivateFile(inquiryImage.getImageKey())) // public URL 생성
+            .imageFileUrl(fileStorageService.generatePresignedGetUrlForPrivateFile(
+                inquiryImage.getImageKey())) // public URL 생성
             .build())
         .toList();
   }
