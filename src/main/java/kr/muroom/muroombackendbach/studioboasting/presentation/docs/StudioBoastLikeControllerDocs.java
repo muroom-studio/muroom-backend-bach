@@ -35,7 +35,7 @@ public interface StudioBoastLikeControllerDocs {
                           value = """
                               {
                                   "status": 400,
-                                  "code": "SB-400-01",
+                                  "code": "SB-404-01",
                                   "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
                               }
                               """
@@ -70,7 +70,7 @@ public interface StudioBoastLikeControllerDocs {
                           value = """
                               {
                                   "status": 400,
-                                  "code": "SB-400-01",
+                                  "code": "SB-404-01",
                                   "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
                               }
                               """

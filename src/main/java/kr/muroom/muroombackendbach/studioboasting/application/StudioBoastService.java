@@ -20,7 +20,6 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.S
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage;
-import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastLike;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastImageRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastLikeRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
@@ -219,17 +218,12 @@ public class StudioBoastService {
     Map<String, NearbyStationsResponse> nearbyStationsResult = subwayService.findNearbyStationsInBulk(unknownStudioAddresses);
 
     // 3-4. 현재 사용자의 '좋아요' 정보 조회
-    Set<Long> likedBoastIds;
+    final Set<Long> likedBoastIds;
     if (musicianId != null) {
       Musician requestMusician = musicianService.getMusicianById(musicianId);
-      if (requestMusician != null) {
-        List<StudioBoastLike> userLikes = studioBoastLikeRepository.findAllByMusicianAndStudioBoastIn(requestMusician, studioBoasts);
-        likedBoastIds = userLikes.stream()
-            .map(like -> like.getStudioBoast().getId())
-            .collect(Collectors.toSet());
-      } else {
-        likedBoastIds = Collections.emptySet();
-      }
+      likedBoastIds = studioBoastLikeRepository.findAllByMusicianAndStudioBoastIn(requestMusician, studioBoasts).stream()
+          .map(like -> like.getStudioBoast().getId())
+          .collect(Collectors.toSet());
     } else {
       likedBoastIds = Collections.emptySet();
     }

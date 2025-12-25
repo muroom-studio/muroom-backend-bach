@@ -21,7 +21,6 @@ public class StudioBoastLikeService {
   private final StudioBoastLikeRepository studioBoastLikeRepository;
   private final MusicianService musicianService;
 
-  @Transactional
   public void likeStudioBoast(Long studioBoastId, Long musicianId) {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
@@ -39,8 +38,7 @@ public class StudioBoastLikeService {
 
     studioBoast.adjustLikeCount(1);
   }
-
-  @Transactional
+  
   public void unlikeStudioBoast(Long studioBoastId, Long musicianId) {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));

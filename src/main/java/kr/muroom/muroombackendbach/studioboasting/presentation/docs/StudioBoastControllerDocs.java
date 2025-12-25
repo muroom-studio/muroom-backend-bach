@@ -57,7 +57,7 @@ public interface StudioBoastControllerDocs {
                           value = """
                               {
                                   "status": 400,
-                                  "code": "ST-400-01",
+                                  "code": "ST-404-01",
                                   "message": "해당 스튜디오를 찾을 수 없습니다.",
                               }
                               """
@@ -92,7 +92,7 @@ public interface StudioBoastControllerDocs {
                           value = """
                               {
                                   "status": 400,
-                                  "code": "ST-400-01",
+                                  "code": "ST-404-01",
                                   "message": "해당 스튜디오를 찾을 수 없습니다.",
                               }
                               """
@@ -114,7 +114,7 @@ public interface StudioBoastControllerDocs {
                           value = """
                               {
                                   "status": 400,
-                                  "code": "SB-400-01",
+                                  "code": "SB-404-01",
                                   "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
                               }
                               """
@@ -172,7 +172,7 @@ public interface StudioBoastControllerDocs {
                           value = """
                               {
                                   "status": 400,
-                                  "code": "SB-400-01",
+                                  "code": "SB-404-01",
                                   "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
                               }
                               """
@@ -223,7 +223,7 @@ public interface StudioBoastControllerDocs {
                           value = """
                               {
                                   "status": 400,
-                                  "code": "SB-400-01",
+                                  "code": "SB-404-01",
                                   "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
                               }
                               """
