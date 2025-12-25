@@ -47,7 +47,7 @@ public class StudioReportTargetHandler implements ReportTargetHandler {
 
     Map<String, Object> snap = Map.of(
         "title", studio.getName(),
-        "imageKeys", imageKeys,                       // imageUrls가 아니라 imageKeys로 저장
+        "imageKeys", imageKeys,
         "ownerNickname", studio.getOwner().getNickname()
     );
 

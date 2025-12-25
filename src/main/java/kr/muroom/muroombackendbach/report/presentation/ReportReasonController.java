@@ -24,7 +24,7 @@ public class ReportReasonController {
       description = "신고 등록 시 사용되는 모든 신고 유형을 조회합니다."
   )
   @GetMapping
-  public ApiResponse<List<ReportReasonResponse>> getAllInquiryCategories() {
+  public ApiResponse<List<ReportReasonResponse>> getAllReportReason() {
     return ApiResponse.success(reportReasonService.getAllReportReason());
   }
 

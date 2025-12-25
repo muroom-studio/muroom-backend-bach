@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReportService {
 
   private final ReportRepository reportRepository;
@@ -78,7 +79,6 @@ public class ReportService {
     reportRepository.save(report);
   }
 
-  @Transactional(readOnly = true)
   public Page<ReportsResponse> getMyReports(Long musicianId, Pageable pageable) {
     Page<Report> reports = reportRepository.findByReporterId(musicianId,
         pageable);
@@ -86,6 +86,7 @@ public class ReportService {
     return reports.map(this::toListItem);
   }
 
+  @Transactional
   public void deleteMyReport(Long musicianId, Long reportId) {
     Report report = reportRepository.findById(reportId)
         .orElseThrow(() -> new BusinessException(REPORT_NOT_FOUND));
@@ -128,6 +129,11 @@ public class ReportService {
         .targetType(report.getTargetType())
         .targetId(report.getTargetId())
         .status(report.getStatus())
+        .reason(new SearchReportResponse.Reason(
+            report.getReportReason().getId(),
+            report.getReportReason().getCode(),
+            report.getReportReason().getDescription()
+        ))
         .description(report.getDescription())
         .snapshot(report.getSnapshot())
         .build()

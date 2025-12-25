@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class ReportReason {
+public class ReportReason extends AuditableEntity {
 
   @Id
   @Tsid
@@ -33,10 +34,4 @@ public class ReportReason {
 
   @Column(nullable = false)
   private String description;
-
-  @Column(nullable = false)
-  private OffsetDateTime createdAt;
-
-  @Column(nullable = false)
-  private OffsetDateTime updatedAt;
 }
