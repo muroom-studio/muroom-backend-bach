@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -50,14 +51,14 @@ public class InquiryController implements InquiryControllerDocs {
   }
 
   @PreAuthorize("isAuthenticated()")
-  @PostMapping("/search")
+  @GetMapping("/search")
   public ApiResponse<PaginatedData<SearchInquiryResponse>> searchInquiry(
       @AuthenticationPrincipal Long musicianId,
-      @RequestBody SearchInquiryRequest searchInquiryRequest,
+      @RequestParam(required = false) String keyword,
       @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   ) {
     Page<SearchInquiryResponse> responses = inquiryService.searchInquiry(musicianId,
-        searchInquiryRequest, pageable);
+        keyword, pageable);
     return ApiResponse.success(PaginatedData.from(responses));
   }
 

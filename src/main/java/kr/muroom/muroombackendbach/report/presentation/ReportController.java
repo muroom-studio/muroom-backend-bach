@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "신고 API", description = "신고 조회 / 삭제")
@@ -45,15 +46,15 @@ public class ReportController {
   }
 
   @PreAuthorize("isAuthenticated()")
-  @PostMapping("/search")
+  @GetMapping("/search")
   public ApiResponse<PaginatedData<SearchReportResponse>> searchReport(
       @AuthenticationPrincipal Long musicianId,
-      @RequestBody SearchReportRequest request,
+      @RequestParam(required = false) String keyword,
       @Parameter(hidden = true)
       @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   ) {
     Page<SearchReportResponse> responses = reportService.searchReports(musicianId,
-        request, pageable);
+        keyword, pageable);
     return ApiResponse.success(PaginatedData.from(responses));
   }
 
