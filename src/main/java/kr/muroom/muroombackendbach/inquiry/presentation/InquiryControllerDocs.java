@@ -30,9 +30,9 @@ public interface InquiryControllerDocs {
   @GetMapping("/my")
   ApiResponse<PaginatedData<InquiryAllResponse>> getMyInquiry(
       @Parameter(hidden = true)
-      @AuthenticationPrincipal Long musicianId,
+      Long musicianId,
       @Parameter(hidden = true)
-      @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
+      Pageable pageable
   );
 
   @Operation(
@@ -42,8 +42,8 @@ public interface InquiryControllerDocs {
   @PostMapping
   ApiResponse<Void> registerInquiry(
       @Parameter(hidden = true)
-      @AuthenticationPrincipal Long musicianId,
-      @RequestBody RegisterInquiryRequest request
+      Long musicianId,
+      RegisterInquiryRequest request
   );
 
   @Operation(
@@ -51,10 +51,10 @@ public interface InquiryControllerDocs {
   )
   @GetMapping("/search")
   ApiResponse<PaginatedData<SearchInquiryResponse>> searchInquiry(
-      @AuthenticationPrincipal Long musicianId,
-      @RequestParam String keyword,
+      Long musicianId,
+      String keyword,
       @Parameter(hidden = true)
-      @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
+      Pageable pageable
   );
 
   @Operation(
@@ -64,7 +64,7 @@ public interface InquiryControllerDocs {
   @GetMapping("/{inquiryId}")
   ApiResponse<InquiryResponse> getInquiry(
       @Parameter(hidden = true)
-      @AuthenticationPrincipal Long musicianId,
-      @PathVariable Long inquiryId
+      Long musicianId,
+      Long inquiryId
   );
 }
