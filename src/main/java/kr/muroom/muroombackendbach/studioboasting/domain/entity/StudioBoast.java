@@ -91,8 +91,4 @@ public class StudioBoast extends SoftDeletableEntity {
     this.studioId = studioId;
     this.thumbnailImageFileKey = thumbnailImageFileKey;
   }
-
-//  public boolean getAgreedToEventTerms() {
-//    return this.agreedToEventTerms;
-//  }
 }
