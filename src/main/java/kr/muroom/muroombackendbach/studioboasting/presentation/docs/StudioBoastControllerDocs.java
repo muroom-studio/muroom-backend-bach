@@ -11,7 +11,6 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.Creat
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse;
-import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastListElementResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,7 +40,7 @@ public interface StudioBoastControllerDocs {
   )
   @SecurityRequirement(name = "Authentication")
   @PostMapping
-  ApiResponse<Long> createStudioBoast(
+  ApiResponse<String> createStudioBoast(
       @Validated @RequestBody CreateStudioBoastRequest request,
       @AuthenticationPrincipal Long musicianId
   );
@@ -52,7 +51,7 @@ public interface StudioBoastControllerDocs {
   )
   @SecurityRequirement(name = "Authentication")
   @PutMapping("/{studioBoastId}")
-  ApiResponse<Long> updateStudioBoast(
+  ApiResponse<String> updateStudioBoast(
       @PathVariable Long studioBoastId,
       @Validated @RequestBody UpdateStudioBoastRequest request,
       @AuthenticationPrincipal Long musicianId
@@ -63,7 +62,9 @@ public interface StudioBoastControllerDocs {
       description = "작업실 소개(자랑) 게시글의 상세 정보를 조회합니다."
   )
   @GetMapping("/{studioBoastId}")
-  ApiResponse<StudioBoastDetailResponse> getStudioBoastDetail(@PathVariable Long studioBoastId);
+  ApiResponse<StudioBoastDetailResponse> getStudioBoastDetail(
+      @PathVariable Long studioBoastId, @AuthenticationPrincipal Long musicianId
+  );
 
   @Operation(summary = "작업실 소개(자랑) 게시글 목록 페이지네이션 조회",
       description = "작업실 소개(자랑) 게시글 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
@@ -76,10 +77,11 @@ public interface StudioBoastControllerDocs {
       }
   )
   @GetMapping
-  ApiResponse<PaginatedData<StudioBoastListElementResponse>> getStudioBoasts(
+  ApiResponse<PaginatedData<StudioBoastDetailResponse>> getStudioBoasts(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "12") int size,
-      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort
+      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
+      @AuthenticationPrincipal Long musicianId
   );
 
   @Operation(

@@ -11,7 +11,6 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.Creat
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse;
-import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastListElementResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,28 +46,32 @@ public class StudioBoastController implements StudioBoastControllerDocs {
 
   @PostMapping
   @PreAuthorize("isAuthenticated()")
-  public ApiResponse<Long> createStudioBoast(
+  public ApiResponse<String> createStudioBoast(
       @Validated @RequestBody CreateStudioBoastRequest request,
       @AuthenticationPrincipal Long musicianId
   ) {
-    Long response = studioBoastService.createStudioBoast(request, musicianId);
+    Long newStudioBoastId = studioBoastService.createStudioBoast(request, musicianId);
+    String response = String.valueOf(newStudioBoastId);
     return ApiResponse.success(response);
   }
 
   @PutMapping("/{studioBoastId}")
   @PreAuthorize("isAuthenticated()")
-  public ApiResponse<Long> updateStudioBoast(
+  public ApiResponse<String> updateStudioBoast(
       @PathVariable Long studioBoastId,
       @Validated @RequestBody UpdateStudioBoastRequest request,
       @AuthenticationPrincipal Long musicianId
   ) {
-    Long response = studioBoastService.updateStudioBoast(studioBoastId, request, musicianId);
+    Long updatedStudioBoastId = studioBoastService.updateStudioBoast(studioBoastId, request, musicianId);
+    String response = String.valueOf(updatedStudioBoastId);
     return ApiResponse.success(response);
   }
 
   @GetMapping("/{studioBoastId}")
-  public ApiResponse<StudioBoastDetailResponse> getStudioBoastDetail(@PathVariable Long studioBoastId) {
-    StudioBoastDetailResponse response = studioBoastService.getStudioBoastDetail(studioBoastId);
+  public ApiResponse<StudioBoastDetailResponse> getStudioBoastDetail(
+      @PathVariable Long studioBoastId, @AuthenticationPrincipal Long musicianId
+  ) {
+    StudioBoastDetailResponse response = studioBoastService.getStudioBoastDetail(studioBoastId, musicianId);
     return ApiResponse.success(response);
   }
 
@@ -83,10 +86,11 @@ public class StudioBoastController implements StudioBoastControllerDocs {
       }
   )
   @GetMapping
-  public ApiResponse<PaginatedData<StudioBoastListElementResponse>> getStudioBoasts(
+  public ApiResponse<PaginatedData<StudioBoastDetailResponse>> getStudioBoasts(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "12") int size,
-      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort
+      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
+      @AuthenticationPrincipal Long musicianId
   ) {
     String[] sortParams = sort.split(",");
     String sortKey = sortParams[0];
@@ -100,7 +104,7 @@ public class StudioBoastController implements StudioBoastControllerDocs {
 
     Sort sortOrder = Sort.by(new Sort.Order(direction, property), Sort.Order.desc("id"));
     Pageable pageable = PageRequest.of(page, size, sortOrder);
-    Page<StudioBoastListElementResponse> response = studioBoastService.getStudioBoasts(pageable);
+    Page<StudioBoastDetailResponse> response = studioBoastService.getStudioBoasts(pageable, musicianId);
 
     return ApiResponse.success(PaginatedData.from(response));
   }

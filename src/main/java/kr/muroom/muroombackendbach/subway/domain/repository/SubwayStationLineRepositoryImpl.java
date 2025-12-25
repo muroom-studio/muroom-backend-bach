@@ -25,7 +25,7 @@ public class SubwayStationLineRepositoryImpl implements SubwayStationLineQueryRe
   }
 
   @Override
-  public List<SubwayStationLine> findAllByStationIdsInWithLine(List<Long> stationIds) {
+  public List<SubwayStationLine> findAllByStationIdsInWithLine(Collection<Long> stationIds) {
     return queryFactory
         .selectFrom(subwayStationLine)
         .join(subwayStationLine.line, subwayLine).fetchJoin()
