@@ -47,7 +47,7 @@ cloud:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
-  access-expiration-ms: 900000 #15분
+  access-expiration-ms: 2592000000 #15분은 900000ms
   refresh-expiration-ms: 3600000 # 1시간
   signup-expiration-ms: 900000
 

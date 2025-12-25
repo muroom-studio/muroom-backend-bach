@@ -1,10 +1,9 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
+import kr.muroom.muroombackendbach.studioboasting.application.StudioBoastLikeService;
 import kr.muroom.muroombackendbach.studioboasting.application.StudioBoastService;
 import kr.muroom.muroombackendbach.studioboasting.presentation.docs.StudioBoastControllerDocs;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastRequest;
@@ -35,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudioBoastController implements StudioBoastControllerDocs {
 
   private final StudioBoastService studioBoastService;
+  private final StudioBoastLikeService studioBoastLikeService;
 
   @PostMapping("/presigned-url")
   @PreAuthorize("isAuthenticated()")
@@ -75,16 +75,6 @@ public class StudioBoastController implements StudioBoastControllerDocs {
     return ApiResponse.success(response);
   }
 
-  @Operation(summary = "작업실 자랑 게시글 목록 페이지네이션 조회",
-      description = "작업실 자랑 게시글 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
-      parameters = {
-          @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-          @Parameter(name = "size", description = "페이지 당 항목 수", example = "12"),
-          @Parameter(name = "sort", description = "정렬 기준 (예: 'likes,desc', 'latest,desc'). 생략 시 "
-              + "기본값은 'latest,desc' (최신순) 입니다.",
-              example = "likes,desc")
-      }
-  )
   @GetMapping
   public ApiResponse<PaginatedData<StudioBoastDetailResponse>> getStudioBoasts(
       @RequestParam(defaultValue = "0") int page,

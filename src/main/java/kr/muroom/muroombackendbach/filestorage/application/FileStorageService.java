@@ -34,6 +34,7 @@ public class FileStorageService {
   private final Duration expiration;
 
   private static final String TEMPORARY_FILE_KEY_PREFIX = "temp/";
+  private static final String DELETION_SCHEDULED_FILE_KEY_PREFIX = "deletion-scheduled/";
 
   public FileStorageService(
       S3Client s3Client,
@@ -103,11 +104,11 @@ public class FileStorageService {
   }
 
   public void deletePublicFile(String fileKey) {
-    deleteFile(publicBucket, fileKey);
+    softDeleteFile(publicBucket, fileKey);
   }
 
   public void deletePrivateFile(String fileKey) {
-    deleteFile(privateBucket, fileKey);
+    softDeleteFile(privateBucket, fileKey);
   }
 
   // --- 내부 헬퍼 메서드 ---
@@ -161,12 +162,42 @@ public class FileStorageService {
       throw new BusinessException(FileErrorCode.FILE_NOT_FOUND);
     }
 
-    deleteFile(bucket, tempFileKey);
+    deleteFilePermanently(bucket, tempFileKey);
 
     return permanentFileKey;
   }
 
-  private void deleteFile(String bucket, String fileKey) {
+  private void softDeleteFile(String bucket, String deletionRequestedFileKey) {
+    if (deletionRequestedFileKey == null || deletionRequestedFileKey.isEmpty()) {
+      return;
+    }
+
+    CopyObjectRequest copyRequest = CopyObjectRequest.builder()
+        .sourceBucket(bucket)
+        .sourceKey(deletionRequestedFileKey)
+        .destinationBucket(bucket)
+        .destinationKey(DELETION_SCHEDULED_FILE_KEY_PREFIX + deletionRequestedFileKey)
+        .build();
+    try {
+      s3Client.copyObject(copyRequest);
+    } catch (NoSuchKeyException e) {
+      log.warn(e.getMessage());
+      // ignore
+      // throw new BusinessException(FileErrorCode.FILE_NOT_FOUND);
+    }
+
+    DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+        .bucket(bucket)
+        .key(deletionRequestedFileKey)
+        .build();
+    try {
+      s3Client.deleteObject(deleteRequest);
+    } catch (NoSuchKeyException e) {
+      // ignore
+    }
+  }
+
+  private void deleteFilePermanently(String bucket, String fileKey) {
     DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
         .bucket(bucket)
         .key(fileKey)

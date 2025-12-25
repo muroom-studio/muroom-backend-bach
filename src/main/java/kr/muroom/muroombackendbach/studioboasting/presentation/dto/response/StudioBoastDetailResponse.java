@@ -17,6 +17,9 @@ public record StudioBoastDetailResponse(
     @Schema(description = "작업실 소개(자랑) 게시글 내용", example = "우리 스튜디오에서 멋진 음악 작업하세요!", requiredMode = RequiredMode.REQUIRED)
     String content,
 
+    @Schema(description = "작업실 소개(자랑) 썸네일 이미지 파일 URL", requiredMode = RequiredMode.REQUIRED)
+    String thumbnailImageFileUrl,
+
     @Schema(description = "작업실 소개(자랑) 이미지 파일 URL 목록", requiredMode = RequiredMode.REQUIRED)
     List<String> imageFileUrls,
 
