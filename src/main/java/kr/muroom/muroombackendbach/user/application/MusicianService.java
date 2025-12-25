@@ -274,9 +274,9 @@ public class MusicianService {
 
   private void updateStudioIfNeeded(Musician musician, UpdateMusicianProfileRequest request) {
     boolean hasStudioUpdate =
-        request.studioName() != null ||
-            request.roadAddress() != null ||
-            request.detailAddress() != null;
+        request.studioName() != null
+            || request.roadAddress() != null
+            || request.detailAddress() != null;
 
     if (!hasStudioUpdate) {
       return;
