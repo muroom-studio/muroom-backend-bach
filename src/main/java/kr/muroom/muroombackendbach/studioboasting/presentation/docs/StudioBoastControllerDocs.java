@@ -2,8 +2,13 @@ package kr.muroom.muroombackendbach.studioboasting.presentation.docs;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
@@ -38,6 +43,30 @@ public interface StudioBoastControllerDocs {
       summary = "작업실 소개(자랑) 게시글 생성",
       description = "새로운 작업실 소개(자랑) 게시글을 생성합니다."
   )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "작업실 연결을 요청했는데, 해당 작업실이 존재하지 않는 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 없음",
+                          value = """
+                              {
+                                  "status": 400,
+                                  "code": "ST-404-01",
+                                  "message": "해당 스튜디오를 찾을 수 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      )
+  })
   @SecurityRequirement(name = "Authentication")
   @PostMapping
   ApiResponse<String> createStudioBoast(
@@ -49,6 +78,74 @@ public interface StudioBoastControllerDocs {
       summary = "작업실 소개(자랑) 게시글 수정",
       description = "본인의 작업실 소개(자랑) 게시글을 수정합니다."
   )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "작업실 연결을 요청했는데, 해당 작업실이 존재하지 않는 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 없음",
+                          value = """
+                              {
+                                  "status": 400,
+                                  "code": "ST-404-01",
+                                  "message": "해당 스튜디오를 찾을 수 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "해당 작업실 소개(자랑) 게시글이 존재하지 않는 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 없음",
+                          value = """
+                              {
+                                  "status": 400,
+                                  "code": "SB-404-01",
+                                  "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "403",
+          description = "본인의 작업실 소개(자랑) 게시글이 아닌 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 권한 없음",
+                          value = """
+                              {
+                                  "status": 403,
+                                  "code": "AU-403-01",
+                                  "message": "해당 리소스에 접근 권한이 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      )
+  })
   @SecurityRequirement(name = "Authentication")
   @PutMapping("/{studioBoastId}")
   ApiResponse<String> updateStudioBoast(
@@ -61,6 +158,30 @@ public interface StudioBoastControllerDocs {
       summary = "작업실 소개(자랑) 게시글 상세 조회",
       description = "작업실 소개(자랑) 게시글의 상세 정보를 조회합니다."
   )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "해당 작업실 소개(자랑) 게시글이 존재하지 않는 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 없음",
+                          value = """
+                              {
+                                  "status": 400,
+                                  "code": "SB-404-01",
+                                  "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      )
+  })
   @GetMapping("/{studioBoastId}")
   ApiResponse<StudioBoastDetailResponse> getStudioBoastDetail(
       @PathVariable Long studioBoastId, @AuthenticationPrincipal Long musicianId
@@ -88,6 +209,52 @@ public interface StudioBoastControllerDocs {
       summary = "작업실 소개(자랑) 게시글 삭제",
       description = "본인의 작업실 소개(자랑) 게시글을 삭제합니다."
   )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "해당 작업실 소개(자랑) 게시글이 존재하지 않는 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 없음",
+                          value = """
+                              {
+                                  "status": 400,
+                                  "code": "SB-404-01",
+                                  "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "403",
+          description = "본인의 작업실 소개(자랑) 게시글이 아닌 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 권한 없음",
+                          value = """
+                              {
+                                  "status": 403,
+                                  "code": "AU-403-01",
+                                  "message": "해당 리소스에 접근 권한이 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      )
+  })
   @DeleteMapping("/{studioBoastId}")
   @SecurityRequirement(name = "Authentication")
   ApiResponse<Void> deleteStudioBoast(

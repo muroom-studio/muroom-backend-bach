@@ -5,13 +5,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
+import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Builder
@@ -21,7 +23,9 @@ import lombok.NoArgsConstructor;
 @Table(name = "studio_boast_images", indexes = {
     @Index(name = "idx_image_studio_boast_id", columnList = "studio_boast_id")
 })
-public class StudioBoastImage extends CreatedDateEntity {
+@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE studio_boast_images SET deleted_at = CURRENT_TIMESTAMP WHERE studio_boast_image_id = ?")
+public class StudioBoastImage extends SoftDeletableEntity {
 
   @Id
   @Tsid

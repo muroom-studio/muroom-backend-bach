@@ -21,6 +21,7 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListEl
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastImageRepository;
+import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastLikeRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastRequest;
@@ -55,6 +56,7 @@ public class StudioBoastService {
   private final StudioService studioService;
   private final MusicianService musicianService;
   private final SubwayService subwayService;
+  private final StudioBoastLikeRepository studioBoastLikeRepository;
 
   public GeneratePresignedPutUrlResponse generateStudioImagePresignedPutUrl(StudioBoastImageUploadRequest request) {
     return fileStorageService.generatePresignedPutUrlForPublic(request, FileStorageService::validateImageContentType);
@@ -216,12 +218,15 @@ public class StudioBoastService {
     Map<String, NearbyStationsResponse> nearbyStationsResult = subwayService.findNearbyStationsInBulk(unknownStudioAddresses);
 
     // 3-4. 현재 사용자의 '좋아요' 정보 조회
-    Set<Long> likedBoastIds = Collections.emptySet();
-    /*Set<Long> likedBoastIds = (musicianId == null) ? Collections.emptySet()
-        : studioBoastLikeRepository.findByMusicianIdAndStudioBoastIdIn(musicianId, studioBoastIds)
-            .stream()
-            .map(StudioBoastLike::getStudioBoastId)
-            .collect(Collectors.toSet());*/
+    final Set<Long> likedBoastIds;
+    if (musicianId != null) {
+      Musician requestMusician = musicianService.getMusicianById(musicianId);
+      likedBoastIds = studioBoastLikeRepository.findAllByMusicianAndStudioBoastIn(requestMusician, studioBoasts).stream()
+          .map(like -> like.getStudioBoast().getId())
+          .collect(Collectors.toSet());
+    } else {
+      likedBoastIds = Collections.emptySet();
+    }
 
     // 4. 조회한 모든 데이터를 조합하여 최종 응답 DTO 리스트 생성
     List<StudioBoastDetailResponse> responses = studioBoasts.stream().map(boast -> {
@@ -276,7 +281,11 @@ public class StudioBoastService {
       return StudioBoastDetailResponse.builder()
           .id(String.valueOf(boast.getId()))
           .content(boast.getContent())
+          .thumbnailImageFileUrl(
+              fileStorageService.getPublicFileUrl(boast.getThumbnailImageFileKey())
+          )
           .imageFileUrls(imageUrls)
+          .isLikedByRequestUser(likedBoastIds.contains(boast.getId()))
           .likeCount(boast.getLikeCount())
           .commentCount(0L) // 댓글 기능은 아직 미구현
           .createdAt(boast.getCreatedAt())
@@ -284,7 +293,6 @@ public class StudioBoastService {
           .creatorUserInfo(creatorUserInfo)
           .studioInfo(studioInfo)
           .unknownStudioInfo(unknownStudioInfo)
-          .isLikedByRequestUser(likedBoastIds.contains(boast.getId()))
           .build();
     }).toList();
 
@@ -300,12 +308,6 @@ public class StudioBoastService {
     List<String> studioBoastImageFileUrls = studioBoastImages.stream()
         .map(studioBoastImage -> fileStorageService.getPublicFileUrl(studioBoastImage.getImageFileKey()))
         .toList();
-
-    boolean isLiked = false;
-    if (musicianId != null) {
-      // TODO: 내가 좋아요를 눌렀는지 여부 조회 (redis 캐싱 적용 예정)
-      // isLiked = studioBoastLikeRepository.existsByStudioBoastIdAndMusicianId(studioBoastId, musicianId);
-    }
 
     Musician creatorUser = musicianService.getMusicianById(studioBoast.getCreatorUserId());
     CreatorUserInfo creatorUserInfo = CreatorUserInfo.builder()
@@ -339,9 +341,18 @@ public class StudioBoastService {
           .build();
     }
 
+    boolean isLiked = false;
+    if (musicianId != null) {
+      Musician requestUser = musicianService.getMusicianById(musicianId);
+      isLiked = studioBoastLikeRepository.existsByMusicianAndStudioBoast(requestUser, studioBoast);
+    }
+
     return StudioBoastDetailResponse.builder()
         .id(String.valueOf(studioBoast.getId()))
         .content(studioBoast.getContent())
+        .thumbnailImageFileUrl(
+            fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey())
+        )
         .imageFileUrls(studioBoastImageFileUrls)
         .isLikedByRequestUser(isLiked)
         .likeCount(studioBoast.getLikeCount())
@@ -365,7 +376,7 @@ public class StudioBoastService {
       throw new BusinessException(AuthErrorCode.FORBIDDEN);
     }
 
-    // 1. 연관된 이미지 Hard Delete
+    // 1. 연관된 이미지 Soft Delete
     List<StudioBoastImage> studioBoastImages = studioBoastImageRepository.findAllByStudioBoastId(studioBoastId);
     if (studioBoastImages != null && !studioBoastImages.isEmpty()) {
       studioBoastImages.stream()
@@ -378,7 +389,8 @@ public class StudioBoastService {
     // studioBoastCommentRepository.softDeleteAllByStudioBoastId(studioBoastId);
 
     // 3. 연관된 '좋아요' Hard Delete
-    // studioBoastLikeRepository.deleteAllByStudioBoastId(studioBoastId);
+    studioBoastLikeRepository.deleteAllByStudioBoast(studioBoast);
+
     studioBoastRepository.deleteById(studioBoastId);
   }
 }
