@@ -68,6 +68,10 @@ public class StudioBoastService {
       throw new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND);
     }
 
+    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && request.agreedToEventTerms()) {
+      throw new BusinessException(StudioBoastErrorCode.EVENT_TERMS_NOT_AGREED);
+    }
+
     List<String> temporaryImageKeys = request.imageFileKeys();
     List<String> permanentImageKeys = temporaryImageKeys.stream()
         .map(fileStorageService::movePublicFileFromTempToPermanent)
@@ -80,6 +84,7 @@ public class StudioBoastService {
         .roadNameAddress(request.roadNameAddress())
         .lotNumberAddress(request.lotNumberAddress())
         .detailedAddress(request.detailedAddress())
+        .agreedToEventTerms(request.agreedToEventTerms())
         .instagramAccount(request.instagramAccount())
         .creatorUserId(musicianId)
         .studioId(request.studioId())
@@ -108,12 +113,17 @@ public class StudioBoastService {
       throw new BusinessException(AuthErrorCode.FORBIDDEN);
     }
 
+    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && request.agreedToEventTerms()) {
+      throw new BusinessException(StudioBoastErrorCode.EVENT_TERMS_NOT_AGREED);
+    }
+
     studioBoast.update(
         request.content(),
         request.studioName(),
         request.roadNameAddress(),
         request.lotNumberAddress(),
         request.detailedAddress(),
+        request.agreedToEventTerms(),
         request.instagramAccount(),
         request.studioId(),
         request.imageFileKeys().getFirst()
@@ -314,6 +324,8 @@ public class StudioBoastService {
         .id(String.valueOf(creatorUser.getId()))
         .nickname(creatorUser.getNickname())
         .instrument(creatorUser.getInstrument().getDescription())
+        .agreedToEventTerms(studioBoast.isAgreedToEventTerms())
+        .instagramAccount(studioBoast.getInstagramAccount())
         .build();
 
     boolean isStudioUploaded = studioBoast.getStudioId() != null;

@@ -65,6 +65,28 @@ public interface StudioBoastControllerDocs {
                   }
               )
           }
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "이벤트 약관에 동의하지 않은 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "이벤트 약관 미동의",
+                          value = """
+                              {
+                                  "status": 400,
+                                  "code": "SB-400-91",
+                                  "message": "인스타그램 계정 입력 시 이벤트 약관에 동의해야 합니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
       )
   })
   @SecurityRequirement(name = "Authentication")
@@ -116,6 +138,28 @@ public interface StudioBoastControllerDocs {
                                   "status": 400,
                                   "code": "SB-404-01",
                                   "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "이벤트 약관에 동의하지 않은 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "이벤트 약관 미동의",
+                          value = """
+                              {
+                                  "status": 400,
+                                  "code": "SB-400-91",
+                                  "message": "인스타그램 계정 입력 시 이벤트 약관에 동의해야 합니다.",
                               }
                               """
                       )
