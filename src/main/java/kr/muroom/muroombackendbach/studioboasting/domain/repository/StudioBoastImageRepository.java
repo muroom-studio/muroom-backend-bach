@@ -11,4 +11,6 @@ public interface StudioBoastImageRepository extends JpaRepository<StudioBoastIma
   void deleteAllByStudioBoastId(Long studioBoastId);
 
   List<StudioBoastImage> findAllByStudioBoastId(Long studioBoastId);
+
+  List<StudioBoastImage> findAllByStudioBoastIdIn(List<Long> studioBoastIds);
 }

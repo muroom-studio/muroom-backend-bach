@@ -59,8 +59,40 @@ public class StudioService {
 
     List<Studio> studiosWithinBounds = studioRepository.findStudiosWithinBounds(resolvedRequest);
 
+    if (studiosWithinBounds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // 2. N+1 문제를 해결하기 위해, 가격 계산에 필요한 정보를 일괄 조회합니다.
+    List<Long> studioIds = studiosWithinBounds.stream().map(Studio::getId).toList();
+
+    // 2-1. Room들의 가격 통계 정보를 일괄 조회합니다.
+    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(studioIds).stream()
+        .collect(Collectors.groupingBy(
+            room -> room.getStudio().getId(),
+            Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull, Collectors.summarizingInt(Integer::intValue)))
+        ));
+
+    // 2-2. Room 가격 정보가 없을 경우를 대비해 StudioPrice 정보를 일괄 조회합니다.
+    Map<Long, StudioPrice> studioPricesByStudioId = studioPriceRepository.findAllByStudioIdIn(studioIds).stream()
+        .collect(Collectors.toMap(sp -> sp.getStudio().getId(), Function.identity()));
+
+    // 3. 일괄 조회한 데이터를 사용하여 최종 DTO 목록을 생성합니다.
     return studiosWithinBounds.stream()
-        .map(this::convertToStudioMapResponse)
+        .map(studio -> {
+          // 미리 조회한 데이터를 사용하여 가격을 계산합니다.
+          StudioPriceInfo studioPriceInfo = calculatePriceWithPrefetched(studio, roomPriceStatsByStudioId, studioPricesByStudioId);
+
+          // StudioMapResponse를 빌드합니다.
+          return StudioMapResponse.builder()
+              .id(String.valueOf(studio.getId()))
+              .name(studio.getName())
+              .longitude(studio.getLocation().getX())
+              .latitude(studio.getLocation().getY())
+              .minPrice(studioPriceInfo.minPrice())
+              .maxPrice(studioPriceInfo.maxPrice())
+              .build();
+        })
         .toList();
   }
 
@@ -91,19 +123,6 @@ public class StudioService {
     return StudioPriceInfo.builder()
         .minPrice(minPrice)
         .maxPrice(maxPrice)
-        .build();
-  }
-
-  private StudioMapResponse convertToStudioMapResponse(Studio studio) {
-    StudioPriceInfo studioPriceInfo = calculatePrice(studio);
-
-    return StudioMapResponse.builder()
-        .id(String.valueOf(studio.getId()))
-        .name(studio.getName())
-        .longitude(studio.getLocation().getX())
-        .latitude(studio.getLocation().getY())
-        .minPrice(studioPriceInfo.minPrice())
-        .maxPrice(studioPriceInfo.maxPrice())
         .build();
   }
 
@@ -313,6 +332,107 @@ public class StudioService {
         .nearbySubwayStationInfo(nearestSubwayStation)
         .minPrice(studioPriceInfo.minPrice())
         .maxPrice(studioPriceInfo.maxPrice())
+        .build();
+  }
+
+  @Transactional(readOnly = true)
+  public List<StudioListElementResponse> getStudioInfoByIds(List<Long> studioIds) {
+    if (studioIds == null || studioIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // 단계 1: Studio 엔티티 일괄 조회
+    // getStudioInfoById의 `studioRepository.findById`에 해당
+    List<Studio> studios = studioRepository.findAllById(studioIds);
+    if (studios.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // --- 사전 데이터 일괄 조회 (N+1 방지) ---
+
+    // 단계 2를 위한 데이터: Room 가격, Studio 가격 정보 일괄 조회
+    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(studioIds).stream()
+        .collect(Collectors.groupingBy(room -> room.getStudio().getId(),
+            Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull, Collectors.summarizingInt(Integer::intValue)))));
+    Map<Long, StudioPrice> studioPricesByStudioId = studioPriceRepository.findAllByStudioIdIn(studioIds).stream()
+        .collect(Collectors.toMap(sp -> sp.getStudio().getId(), Function.identity()));
+
+    // 단계 3을 위한 데이터: 가장 가까운 지하철역 정보 일괄 조회
+    // getStudioInfoById의 `findFirstByStudioIdOrderBySequenceAsc`에 해당
+    Map<Long, SubwayStationNearbyStudio> nearbyStationsByStudioId = subwayStationsNearbyStudioRepository.findAllByStudioIdInWithStation(
+            studioIds).stream()
+        .collect(Collectors.toMap(
+            nearby -> nearby.getStudio().getId(),
+            Function.identity(),
+            (s1, s2) -> s1.getSequence() < s2.getSequence() ? s1 : s2
+        ));
+
+    // 단계 4를 위한 데이터: 지하철 노선 정보 일괄 조회
+    Set<Long> stationIds = nearbyStationsByStudioId.values().stream()
+        .map(nearby -> nearby.getSubwayStation().getId())
+        .collect(Collectors.toSet());
+
+    final Map<Long, List<StudioSubwayLineInfo>> lineInfosByStationId = stationIds.isEmpty()
+        ? Collections.emptyMap()
+        : subwayStationLineRepository.findAllByStationIdsInWithLine(stationIds).stream()
+            .collect(Collectors.groupingBy(line -> line.getStation().getId(),
+                Collectors.mapping(line -> StudioSubwayLineInfo.builder()
+                    .lineName(line.getLine().getName()).lineColor(line.getLine().getColor()).build(), Collectors.toList())));
+
+    // --- 최종 DTO 조립 ---
+    return studios.stream().map(studio -> {
+
+      // 단계 2: 가격 계산 (사전 조회된 데이터 사용)
+      StudioPriceInfo studioPriceInfo = calculatePriceWithPrefetched(studio, roomPriceStatsByStudioId, studioPricesByStudioId);
+
+      // 단계 3 & 4: 지하철역 정보 계산 (사전 조회된 데이터 사용)
+      SubwayStationNearbyStudio subwayStationNearbyStudio = nearbyStationsByStudioId.get(studio.getId());
+      StudioSubwayStationInfo nearestSubwayStation = null;
+      if (subwayStationNearbyStudio != null) {
+        SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
+        Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
+        List<StudioSubwayLineInfo> lines = lineInfosByStationId.getOrDefault(subwayStation.getId(), Collections.emptyList());
+        nearestSubwayStation = StudioSubwayStationInfo.builder()
+            .stationName(subwayStation.getName())
+            .lines(lines)
+            .distanceInMeters(distanceInMeters)
+            .build();
+      }
+
+      // 최종 빌드
+      return StudioListElementResponse.builder()
+          .studioId(String.valueOf(studio.getId()))
+          .studioName(studio.getName())
+          .nearbySubwayStationInfo(nearestSubwayStation)
+          .minPrice(studioPriceInfo.minPrice())
+          .maxPrice(studioPriceInfo.maxPrice())
+          .build();
+    }).toList();
+  }
+
+  private StudioPriceInfo calculatePriceWithPrefetched(
+      Studio studio, Map<Long, IntSummaryStatistics> roomStatsMap, Map<Long, StudioPrice> studioPriceMap
+  ) {
+    Integer minPrice = null;
+    Integer maxPrice = null;
+
+    IntSummaryStatistics priceSummaryStats = roomStatsMap.get(studio.getId());
+    if (priceSummaryStats != null && priceSummaryStats.getCount() > 0) {
+      minPrice = priceSummaryStats.getMin();
+      maxPrice = priceSummaryStats.getMax();
+    }
+
+    if (minPrice == null) {
+      StudioPrice studioPrice = studioPriceMap.get(studio.getId());
+      if (studioPrice != null) {
+        minPrice = studioPrice.getMinPrice();
+        maxPrice = studioPrice.getMaxPrice();
+      }
+    }
+
+    return StudioPriceInfo.builder()
+        .minPrice(minPrice)
+        .maxPrice(maxPrice)
         .build();
   }
 }
