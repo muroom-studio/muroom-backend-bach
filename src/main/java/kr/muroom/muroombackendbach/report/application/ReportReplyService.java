@@ -7,6 +7,7 @@ import kr.muroom.muroombackendbach.report.domain.entity.ReportReply;
 import kr.muroom.muroombackendbach.report.domain.repository.ReportReplyRepository;
 import kr.muroom.muroombackendbach.report.domain.repository.ReportRepository;
 import kr.muroom.muroombackendbach.report.exception.ReportErrorCode;
+import kr.muroom.muroombackendbach.report.exception.ReportReplyErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,9 @@ public class ReportReplyService {
   }
 
   public void deleteReportReply(Long reportReplyId) {
-    reportReplyRepository.deleteById(reportReplyId);
+    ReportReply reportReply = reportReplyRepository.findById(reportReplyId)
+        .orElseThrow(() -> new BusinessException(
+            ReportReplyErrorCode.REPORT_REPLY_NOT_FOUND));
+    reportReplyRepository.delete(reportReply);
   }
 }
