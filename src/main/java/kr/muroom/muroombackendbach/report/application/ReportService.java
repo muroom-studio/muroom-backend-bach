@@ -1,0 +1,111 @@
+package kr.muroom.muroombackendbach.report.application;
+
+import static kr.muroom.muroombackendbach.report.exception.ReportErrorCode.REPORT_FORBIDDEN;
+import static kr.muroom.muroombackendbach.report.exception.ReportErrorCode.REPORT_NOT_FOUND;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.report.domain.entity.Report;
+import kr.muroom.muroombackendbach.report.domain.entity.ReportReason;
+import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
+import kr.muroom.muroombackendbach.report.domain.enums.ReportStatus;
+import kr.muroom.muroombackendbach.report.domain.repository.ReportReasonRepository;
+import kr.muroom.muroombackendbach.report.domain.repository.ReportRepository;
+import kr.muroom.muroombackendbach.report.exception.ReportErrorCode;
+import kr.muroom.muroombackendbach.report.handler.ReportTargetHandler;
+import kr.muroom.muroombackendbach.report.handler.ReportTargetHandlerRegistry;
+import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
+import kr.muroom.muroombackendbach.report.presentation.dto.response.ReportsResponse;
+import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
+import kr.muroom.muroombackendbach.user.exception.MusicianErrorCode;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class ReportService {
+
+  private final ReportRepository reportRepository;
+  private final ReportReasonRepository reportReasonRepository;
+  private final MusicianRepository musicianRepository;
+  private final ReportTargetHandlerRegistry handlerRegistry;
+
+  @Transactional
+  public void registerReport(ReportDomainType type, Long domainId, Long musicianId,
+      RegisterReportRequest request) {
+    // 1. 신고자
+    Musician reporter = musicianRepository.findById(musicianId)
+        .orElseThrow(() -> new BusinessException(MusicianErrorCode.MUSICIAN_NOT_FOUND));
+
+    // 2. 신고 유형 찾기
+    ReportReason reportReason = reportReasonRepository.findById(request.reportReasonId())
+        .orElseThrow(() -> new BusinessException(ReportErrorCode.REPORT_REASON_NOT_FOUND));
+
+    // 중복 신고 방지
+    boolean exists = reportRepository.existsByReporterIdAndTargetTypeAndTargetId(
+        reporter.getId(), type, domainId);
+    if (exists) {
+      throw new BusinessException(ReportErrorCode.REPORT_ALREADY_EXISTS);
+    }
+
+    ReportTargetHandler handler = handlerRegistry.get(type);
+
+    // 도메인별 검증
+    handler.validateTarget(domainId, reporter);
+
+    // 운영용 snapshot(JSONB)
+    JsonNode snapshotJson = handler.buildSnapshot(domainId);
+
+    Report report = Report.builder()
+        .reporter(reporter)
+        .targetType(type)
+        .targetId(domainId)
+        .reportReason(reportReason)
+        .description(request.description())
+        .status(ReportStatus.SUBMITTED)
+        .snapshot(snapshotJson)
+        .build();
+
+    reportRepository.save(report);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<ReportsResponse> getMyReports(Long musicianId, Pageable pageable) {
+    Page<Report> reports = reportRepository.findByReporterId(musicianId,
+        pageable);
+
+    return reports.map(this::toListItem);
+  }
+
+  public void deleteMyReport(Long musicianId, Long reportId) {
+    Report report = reportRepository.findById(reportId)
+        .orElseThrow(() -> new BusinessException(REPORT_NOT_FOUND));
+
+    if (!report.getReporter().getId().equals(musicianId)) {
+      throw new BusinessException(REPORT_FORBIDDEN);
+    }
+
+    reportRepository.delete(report);
+  }
+
+  private ReportsResponse toListItem(Report report) {
+    return new ReportsResponse(
+        report.getId(),
+        report.getTargetType(),
+        report.getTargetId(),
+        new ReportsResponse.Reason(
+            report.getReportReason().getId(),
+            report.getReportReason().getCode(),
+            report.getReportReason().getDescription()
+        ),
+        report.getDescription(),
+        report.getStatus(),
+        report.getSnapshot()
+    );
+  }
+
+}
