@@ -52,6 +52,9 @@ public class StudioBoastCommentService {
       if (parentComment.getParent() != null) {
         throw new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_CANNOT_REPLY_TO_REPLY);
       }
+      if (!parentComment.getStudioBoast().getId().equals(studioBoastId)) {
+        throw new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_PARENT_MISMATCH);
+      }
     }
 
     StudioBoastComment newComment = StudioBoastComment.builder()
@@ -153,14 +156,28 @@ public class StudioBoastCommentService {
   ) {
     // 삭제된 댓글 처리
     if (comment.getDeletedAt() != null) {
-      return StudioBoastCommentResponse.createDeletedPlaceholder(comment.getId(), replies);
-    }
-    // 비밀 댓글 처리 (권한 확인)
-    if (!canViewComment(comment, postAuthorId, requestUserId)) {
-      return StudioBoastCommentResponse.createSecretPlaceholder(comment.getId(), replies);
+      return StudioBoastCommentResponse.builder()
+          .id(comment.getId().toString())
+          .content("삭제된 댓글입니다.")
+          .isDeleted(true)
+          .isVisible(false)
+          .replies(replies)
+          .build();
     }
 
-    // DTO에 필요한 데이터 조회 및 계산
+    // 댓글 가시성 판단
+    boolean isVisible = canViewComment(comment, postAuthorId, requestUserId);
+    if (!isVisible) {
+      return StudioBoastCommentResponse.builder()
+          .id(comment.getId().toString())
+          .content("비밀 댓글입니다.")
+          .isSecret(true)
+          .isDeleted(false)
+          .isVisible(false)
+          .replies(replies)
+          .build();
+    }
+
     Musician creator = musiciansById.get(comment.getCreatorUserId());
     Musician taggedUser = (comment.getTaggedUserId() != null) ? musiciansById.get(comment.getTaggedUserId()) : null;
     Boolean isWritten = (requestUserId != null) ? requestUserId.equals(comment.getCreatorUserId()) : null;
@@ -174,6 +191,7 @@ public class StudioBoastCommentService {
         .createdAt(comment.getCreatedAt())
         .isSecret(comment.getIsSecret())
         .isDeleted(false)
+        .isVisible(true)
         .creatorUserInfo(CreatorUserInfo.from(creator))
         .taggedUserInfo(TaggedUserInfo.from(taggedUser))
         .replies(replies)
@@ -187,6 +205,7 @@ public class StudioBoastCommentService {
     if (!comment.getIsSecret()) {
       return true;
     }
+
     if (requestUserId == null) {
       return false;
     }
@@ -199,11 +218,26 @@ public class StudioBoastCommentService {
       StudioBoastComment reply, Long postAuthorId, Long requestUserId,
       Map<Long, Musician> musiciansById, Set<Long> likedCommentIds, Map<Long, Long> likeCounts
   ) {
+    // 삭제된 댓글 처리
     if (reply.getDeletedAt() != null) {
-      return StudioBoastCommentReplyResponse.createDeletedPlaceholder(reply.getId());
+      return StudioBoastCommentReplyResponse.builder()
+          .id(reply.getId().toString())
+          .content("삭제된 댓글입니다.")
+          .isDeleted(true)
+          .isVisible(false)
+          .build();
     }
-    if (!canViewComment(reply, postAuthorId, requestUserId)) {
-      return StudioBoastCommentReplyResponse.createSecretPlaceholder(reply.getId());
+
+    // 댓글 가시성 판단
+    boolean isVisible = canViewComment(reply, postAuthorId, requestUserId);
+    if (!isVisible) {
+      return StudioBoastCommentReplyResponse.builder()
+          .id(reply.getId().toString())
+          .content("비밀 댓글입니다.")
+          .isSecret(true)
+          .isDeleted(false)
+          .isVisible(false)
+          .build();
     }
 
     Musician creator = musiciansById.get(reply.getCreatorUserId());
@@ -218,6 +252,7 @@ public class StudioBoastCommentService {
         .createdAt(reply.getCreatedAt())
         .isSecret(reply.getIsSecret())
         .isDeleted(false)
+        .isVisible(true)
         .creatorUserInfo(CreatorUserInfo.from(creator))
         .taggedUserInfo(TaggedUserInfo.from(taggedUser))
         .likeCount(likeCount)
@@ -231,6 +266,11 @@ public class StudioBoastCommentService {
   public void likeComment(Long commentId, Long musicianId) {
     StudioBoastComment comment = studioBoastCommentRepository.findById(commentId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+
+    Long postAuthorId = comment.getStudioBoast().getCreatorUserId();
+    if (!canViewComment(comment, postAuthorId, musicianId)) {
+      throw new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND);
+    }
 
     if (studioBoastCommentLikeRepository.findByMusicianIdAndComment(musicianId, comment).isPresent()) {
       return;
@@ -247,6 +287,11 @@ public class StudioBoastCommentService {
   public void unlikeComment(Long commentId, Long musicianId) {
     StudioBoastComment comment = studioBoastCommentRepository.findById(commentId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+
+    Long postAuthorId = comment.getStudioBoast().getCreatorUserId();
+    if (!canViewComment(comment, postAuthorId, musicianId)) {
+      throw new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND);
+    }
 
     studioBoastCommentLikeRepository.findByMusicianIdAndComment(musicianId, comment)
         .ifPresent(studioBoastCommentLikeRepository::delete);

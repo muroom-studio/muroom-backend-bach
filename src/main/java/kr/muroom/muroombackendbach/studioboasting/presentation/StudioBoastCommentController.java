@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/studio-boasts")
+@RequestMapping("/api/v1/studio-boasts/{studioBoastId}/comments")
 public class StudioBoastCommentController implements StudioBoastCommentControllerDocs {
 
   private final StudioBoastCommentService studioBoastCommentService;
 
   @Override
-  @PostMapping("/{studioBoastId}/comments")
+  @PostMapping
   @PreAuthorize("isAuthenticated()")
   public ApiResponse<String> createComment(
       @PathVariable Long studioBoastId,
@@ -45,7 +45,7 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
   }
 
   @Override
-  @GetMapping("/{studioBoastId}/comments")
+  @GetMapping
   @PreAuthorize("isAuthenticated()")
   public ApiResponse<PaginatedData<StudioBoastCommentResponse>> getComments(
       @PathVariable Long studioBoastId,
@@ -60,7 +60,7 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
   }
 
   @Override
-  @PutMapping("/comments/{commentId}")
+  @PutMapping("/{commentId}")
   @PreAuthorize("isAuthenticated()")
   public ApiResponse<Void> updateComment(
       @PathVariable Long commentId,
@@ -72,7 +72,7 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
   }
 
   @Override
-  @DeleteMapping("/comments/{commentId}")
+  @DeleteMapping("/{commentId}")
   @PreAuthorize("isAuthenticated()")
   public ApiResponse<Void> deleteComment(
       @PathVariable Long commentId,
@@ -82,7 +82,7 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
     return ApiResponse.deleted();
   }
 
-  @PostMapping("/comments/{commentId}/likes")
+  @PostMapping("/{commentId}/likes")
   @PreAuthorize("isAuthenticated()")
   public ApiResponse<Void> likeComment(
       @PathVariable Long commentId,
@@ -92,7 +92,7 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
     return ApiResponse.success();
   }
 
-  @DeleteMapping("/comments/{commentId}/likes")
+  @DeleteMapping("/{commentId}/likes")
   @PreAuthorize("isAuthenticated()")
   public ApiResponse<Void> unlikeComment(
       @PathVariable Long commentId,

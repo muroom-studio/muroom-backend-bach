@@ -26,6 +26,9 @@ public record StudioBoastCommentResponse(
     @Schema(description = "댓글이 삭제된 댓글인지 여부", example = "false")
     Boolean isDeleted,
 
+    @Schema(description = "현 사용자에게 댓글이 보이는지 여부", example = "true")
+    Boolean isVisible,
+
     @Schema(description = "댓글 작성자 정보")
     CreatorUserInfo creatorUserInfo,
 
@@ -73,25 +76,5 @@ public record StudioBoastCommentResponse(
       }
       return new TaggedUserInfo(taggedUser.getId().toString(), taggedUser.getNickname());
     }
-  }
-
-  public static StudioBoastCommentResponse createSecretPlaceholder(Long commentId, List<StudioBoastCommentReplyResponse> replies) {
-    return StudioBoastCommentResponse.builder()
-        .id(commentId.toString())
-        .content("비밀 댓글입니다.")
-        .isSecret(true)
-        .isDeleted(false)
-        .replies(replies)
-        .build();
-  }
-
-  public static StudioBoastCommentResponse createDeletedPlaceholder(Long commentId, List<StudioBoastCommentReplyResponse> replies) {
-    return StudioBoastCommentResponse.builder()
-        .id(commentId.toString())
-        .content("삭제된 댓글입니다.")
-        .isSecret(false)
-        .isDeleted(true)
-        .replies(replies)
-        .build();
   }
 }

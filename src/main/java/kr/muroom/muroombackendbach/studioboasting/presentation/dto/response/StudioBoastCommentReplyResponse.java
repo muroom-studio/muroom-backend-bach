@@ -27,6 +27,9 @@ public record StudioBoastCommentReplyResponse(
     @Schema(description = "댓글이 삭제된 댓글인지 여부", example = "false")
     Boolean isDeleted,
 
+    @Schema(description = "현 사용자에게 댓글이 보이는지 여부", example = "true")
+    Boolean isVisible,
+
     @Schema(description = "댓글 작성자 정보")
     CreatorUserInfo creatorUserInfo,
 
@@ -43,21 +46,4 @@ public record StudioBoastCommentReplyResponse(
     Long likeCount
 ) {
 
-  public static StudioBoastCommentReplyResponse createSecretPlaceholder(Long commentId) {
-    return StudioBoastCommentReplyResponse.builder()
-        .id(commentId.toString())
-        .content("비밀 댓글입니다.")
-        .isSecret(true)
-        .isDeleted(false)
-        .build();
-  }
-
-  public static StudioBoastCommentReplyResponse createDeletedPlaceholder(Long commentId) {
-    return StudioBoastCommentReplyResponse.builder()
-        .id(commentId.toString())
-        .content("삭제된 댓글입니다.")
-        .isSecret(false)
-        .isDeleted(true)
-        .build();
-  }
 }

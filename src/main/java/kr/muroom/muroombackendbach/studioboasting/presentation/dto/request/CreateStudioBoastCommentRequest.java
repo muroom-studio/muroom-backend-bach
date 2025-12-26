@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.studioboasting.presentation.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
@@ -15,6 +16,7 @@ public record CreateStudioBoastCommentRequest(
     String content,
 
     @Schema(description = "비밀 댓글 여부", example = "true", requiredMode = RequiredMode.REQUIRED)
+    @NotNull
     Boolean isSecret,
 
     @Schema(description = "대댓글일 경우, 부모 댓글의 ID", nullable = true)
