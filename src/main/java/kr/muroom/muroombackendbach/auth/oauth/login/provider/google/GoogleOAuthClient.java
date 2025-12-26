@@ -23,7 +23,7 @@ public class GoogleOAuthClient {
 
   public GoogleTokenResponse exchangeCodeForToken(String accessToken) {
     if (accessToken == null || accessToken.isBlank()) {
-      throw new IllegalArgumentException("Google AccessToken(authorizationCode)이 비어있습니다.");
+      throw new IllegalArgumentException("Google AccessToken이 비어있습니다.");
     }
     try {
       HttpHeaders headers = new HttpHeaders();

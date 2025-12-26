@@ -24,7 +24,7 @@ public class GoogleOAuthClientService implements OAuthClientService {
         authorizationCode);
 
     return OAuthTokenResult.builder()
-        .idToken(response.getSub())
+        .idToken(response.sub())
         .build();
   }
 
