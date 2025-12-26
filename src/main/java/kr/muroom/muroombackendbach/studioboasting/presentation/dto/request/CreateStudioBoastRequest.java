@@ -33,8 +33,7 @@ public record CreateStudioBoastRequest(
     @Schema(description = "이벤트 약관 동의 여부", example = "true", requiredMode = RequiredMode.REQUIRED)
     boolean agreedToEventTerms,
 
-    @Schema(description = "인스타그램 계정", example = "muroom_studio", requiredMode = RequiredMode.REQUIRED)
-    @NotBlank
+    @Schema(description = "인스타그램 계정", example = "muroom_studio", nullable = true)
     String instagramAccount,
 
     @Schema(description = "작업실 ID", example = "9876543210", nullable = true)

@@ -45,7 +45,7 @@ public interface StudioBoastControllerDocs {
   )
   @ApiResponses({
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "400",
+          responseCode = "404",
           description = "작업실 연결을 요청했는데, 해당 작업실이 존재하지 않는 경우",
           content = {
               @Content(
@@ -56,7 +56,7 @@ public interface StudioBoastControllerDocs {
                           name = "작업실 소개(자랑) 게시글 없음",
                           value = """
                               {
-                                  "status": 400,
+                                  "status": 404,
                                   "code": "ST-404-01",
                                   "message": "해당 스튜디오를 찾을 수 없습니다.",
                               }
@@ -102,7 +102,7 @@ public interface StudioBoastControllerDocs {
   )
   @ApiResponses({
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "400",
+          responseCode = "404",
           description = "작업실 연결을 요청했는데, 해당 작업실이 존재하지 않는 경우",
           content = {
               @Content(
@@ -113,7 +113,7 @@ public interface StudioBoastControllerDocs {
                           name = "작업실 소개(자랑) 게시글 없음",
                           value = """
                               {
-                                  "status": 400,
+                                  "status": 404,
                                   "code": "ST-404-01",
                                   "message": "해당 스튜디오를 찾을 수 없습니다.",
                               }
@@ -124,7 +124,7 @@ public interface StudioBoastControllerDocs {
           }
       ),
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "400",
+          responseCode = "404",
           description = "해당 작업실 소개(자랑) 게시글이 존재하지 않는 경우",
           content = {
               @Content(
@@ -135,7 +135,7 @@ public interface StudioBoastControllerDocs {
                           name = "작업실 소개(자랑) 게시글 없음",
                           value = """
                               {
-                                  "status": 400,
+                                  "status": 404,
                                   "code": "SB-404-01",
                                   "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
                               }
@@ -204,7 +204,7 @@ public interface StudioBoastControllerDocs {
   )
   @ApiResponses({
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "400",
+          responseCode = "404",
           description = "해당 작업실 소개(자랑) 게시글이 존재하지 않는 경우",
           content = {
               @Content(
@@ -215,7 +215,7 @@ public interface StudioBoastControllerDocs {
                           name = "작업실 소개(자랑) 게시글 없음",
                           value = """
                               {
-                                  "status": 400,
+                                  "status": 404,
                                   "code": "SB-404-01",
                                   "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
                               }
@@ -249,13 +249,56 @@ public interface StudioBoastControllerDocs {
       @AuthenticationPrincipal Long musicianId
   );
 
+  @Operation(summary = "내가 작성한 작업실 소개(자랑) 게시글 목록 페이지네이션 조회",
+      description = "내가 작성한 작업실 소개(자랑) 게시글 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
+      parameters = {
+          @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
+          @Parameter(name = "size", description = "페이지 당 항목 수", example = "12"),
+          @Parameter(name = "sort", description = "정렬 기준 (예: 'likes,desc', 'latest,desc'). 생략 시 "
+              + "기본값은 'latest,desc' (최신순) 입니다.",
+              example = "likes,desc")
+      }
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "401",
+          description = "인증되지 않은 사용자가 접근하는 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 권한 없음",
+                          value = """
+                              {
+                                  "timestamp": "2025-12-25T16:53:50.176+00:00",
+                                  "status": 401,
+                                  "error": "Unauthorized",
+                                  "path": "/api/v1/studio-boasts/my"
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      )
+  })
+  @SecurityRequirement(name = "Authentication")
+  @GetMapping("/my")
+  ApiResponse<PaginatedData<StudioBoastDetailResponse>> getMyStudioBoasts(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "12") int size,
+      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
+      @AuthenticationPrincipal Long musicianId
+  );
+
   @Operation(
       summary = "작업실 소개(자랑) 게시글 삭제",
       description = "본인의 작업실 소개(자랑) 게시글을 삭제합니다."
   )
   @ApiResponses({
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "400",
+          responseCode = "404",
           description = "해당 작업실 소개(자랑) 게시글이 존재하지 않는 경우",
           content = {
               @Content(
@@ -266,7 +309,7 @@ public interface StudioBoastControllerDocs {
                           name = "작업실 소개(자랑) 게시글 없음",
                           value = """
                               {
-                                  "status": 400,
+                                  "status": 404,
                                   "code": "SB-404-01",
                                   "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
                               }
