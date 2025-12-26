@@ -78,15 +78,20 @@ public class MusicianService {
     // 4. 나의 작업실 생성
     createMyStudio(request, musician);
 
-    return new MusicianSignupResponse(accessToken, refreshToken.token(), String.valueOf(musicianId));
+    return new MusicianSignupResponse(accessToken, refreshToken.token(),
+        String.valueOf(musicianId));
   }
 
   /**
    * 이름 + 전화번호로 기존 뮤지션 조회, 없으면 신규 가입
    */
   private Musician findOrRegisterMusician(MusicianSignupRequest request) {
-    return musicianRepository.findByNameAndPhoneNumber(request.name(), request.phoneNumber())
-        .orElseGet(() -> registerNewMusician(request));
+
+    if (musicianRepository.existsByPhoneNumber(request.phoneNumber())) {
+      throw new BusinessException(DUPLICATE_PHONE_NUMBER);
+    }
+
+    return registerNewMusician(request);
   }
 
   /**
