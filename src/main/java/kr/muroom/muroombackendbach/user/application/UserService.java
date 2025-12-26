@@ -1,7 +1,9 @@
 package kr.muroom.muroombackendbach.user.application;
 
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
+import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +16,13 @@ public class UserService {
 
   public boolean isNicknameAvailable(String nickname) {
     boolean existsInMusician = musicianRepository.existsByNickname(nickname);
-    boolean existsInOwner = ownerRepository.existsByNickname(nickname);
-    return !(existsInMusician || existsInOwner);
+    return !(existsInMusician);
+  }
+
+  public void isPhoneAvailable(String phone) {
+    if (musicianRepository.existsByPhoneNumber(phone)) {
+      throw new BusinessException(UserErrorCode.PHONE_NUMBER_ALREADY_EXISTS);
+    }
   }
 
   public boolean isExistingMusicianId(Long musicianId) {

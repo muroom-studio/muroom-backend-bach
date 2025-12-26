@@ -49,8 +49,16 @@ public class MusicianController implements MusicianControllerDocs {
     return ApiResponse.success(oAuthLoginService.login(request, origin));
   }
 
-  @PostMapping("/login/swagger")
-  public ApiResponse<OAuthLoginResponse> oauthLoginForSwagger(
+  @PostMapping("/login/kakao/swagger")
+  public ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByKakao(
+      @Valid @RequestBody OAuthLoginRequest request,
+      @RequestParam String origin
+  ) {
+    return ApiResponse.success(oAuthLoginService.login(request, origin));
+  }
+
+  @PostMapping("/login/google/swagger")
+  public ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByGoogle(
       @Valid @RequestBody OAuthLoginRequest request,
       @RequestParam String origin
   ) {

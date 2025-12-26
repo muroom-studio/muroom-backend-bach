@@ -69,24 +69,26 @@ public class MusicianService {
     String accessToken = jwtTokenProvider.createAccessToken(musicianId);
     RefreshIssue refreshToken = jwtTokenProvider.createRefreshToken(musicianId);
 
-    // 2.1 Redis 토큰 저장
+    // 3 Redis 토큰 저장
     refreshTokenService.save(musicianId, refreshToken.jti(), refreshToken.expiresAt());
-
-    // 3. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
-    linkSocialAccountIfNecessary(musician, provider, providerUserId);
 
     // 4. 나의 작업실 생성
     createMyStudio(request, musician);
 
-    return new MusicianSignupResponse(accessToken, refreshToken.token(), String.valueOf(musicianId));
+    return new MusicianSignupResponse(accessToken, refreshToken.token(),
+        String.valueOf(musicianId));
   }
 
   /**
    * 이름 + 전화번호로 기존 뮤지션 조회, 없으면 신규 가입
    */
   private Musician findOrRegisterMusician(MusicianSignupRequest request) {
-    return musicianRepository.findByNameAndPhoneNumber(request.name(), request.phoneNumber())
-        .orElseGet(() -> registerNewMusician(request));
+
+    if (musicianRepository.existsByPhoneNumber(request.phoneNumber())) {
+      throw new BusinessException(DUPLICATE_PHONE_NUMBER);
+    }
+
+    return registerNewMusician(request);
   }
 
   /**
@@ -101,33 +103,6 @@ public class MusicianService {
         .build();
 
     myStudioRepository.save(myStudio);
-  }
-
-  /**
-   * 기존 뮤지션에게 소셜 계정을 연결 (이미 연결된 경우 스킵)
-   */
-  private void linkSocialAccountIfNecessary(
-      Musician musician,
-      OAuthProvider provider,
-      String providerUserId) {
-    boolean alreadyLinked = socialAccountRepository
-        .existsByMusicianAndProviderAndProviderUserId(
-            musician,
-            provider,
-            providerUserId
-        );
-
-    if (alreadyLinked) {
-      return;
-    }
-
-    SocialAccount socialAccount = SocialAccount.builder()
-        .musician(musician)
-        .provider(provider)
-        .providerUserId(providerUserId)
-        .build();
-
-    socialAccountRepository.save(socialAccount);
   }
 
   /**
