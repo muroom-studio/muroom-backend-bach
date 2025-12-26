@@ -32,7 +32,7 @@ public record InquiryResponse(
       String id,
       @Schema(example = "안녕하세요, 관리자입니다. 해결 완료")
       String content,
-      List<String> fileUrls
+      List<ImageDto> imageUrls
   ) {
 
   }
