@@ -72,7 +72,7 @@ public class StudioBoastReportTargetHandler implements ReportTargetHandler {
         .filter(key -> key != null && !key.isBlank())
         .map(key ->
             fileStorageService.copyPublicFileToReportSnapshot(
-                "studio_boast",
+                supports().name().toLowerCase(),
                 key
             )
         )

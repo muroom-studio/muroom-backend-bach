@@ -191,7 +191,7 @@ public class FileStorageService {
           FileErrorCode.FILE_NOT_FOUND);
     }
     if (domain == null || domain.isBlank()) {
-      throw new BusinessException(FileErrorCode.INVALID_TEMP_FILE_KEY);
+      throw new BusinessException(FileErrorCode.INVALID_FILE_PATH);
     }
 
     String normalizedDomain = domain.trim().toLowerCase();
