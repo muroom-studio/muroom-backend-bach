@@ -17,6 +17,7 @@ public class RedisSmsVerificationCodeStore implements SmsVerificationCodeStore {
   private static final String PREFIX_LAST_SEND = "sms:last_send:";
   private static final String PREFIX_DAILY_COUNT = "sms:daily_count:";
   private static final String PREFIX_FAIL_COUNT = "sms:fail_count:";
+  private static final String PREFIX_DAILY_COUNT_IP = "sms:ip:daily_count:";
 
   private final StringRedisTemplate redisTemplate;
 
@@ -73,6 +74,28 @@ public class RedisSmsVerificationCodeStore implements SmsVerificationCodeStore {
     String key = PREFIX_FAIL_COUNT + phoneNumber;
     Long value = redisTemplate.opsForValue().increment(key);
     return value != null ? value.intValue() : 0;
+  }
+
+  @Override
+  public int getTodaySendCountByIp(String ip) {
+    String key = dailyCountKeyByIp(ip);
+    String value = redisTemplate.opsForValue().get(key);
+    return value != null ? Integer.parseInt(value) : 0;
+  }
+
+  @Override
+  public int incrementTodaySendCountByIp(String ip) {
+    String key = dailyCountKeyByIp(ip);
+    Long value = redisTemplate.opsForValue().increment(key);
+
+    redisTemplate.expire(key, durationUntilMidnight());
+
+    return value != null ? value.intValue() : 0;
+  }
+
+  private String dailyCountKeyByIp(String ip) {
+    String today = LocalDate.now().toString();
+    return PREFIX_DAILY_COUNT_IP + ip + ":" + today;
   }
 
   private String dailyCountKey(String phoneNumber) {

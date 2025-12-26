@@ -1,8 +1,12 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation;
 
+import io.swagger.v3.oas.annotations.Operation;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
+import kr.muroom.muroombackendbach.report.application.ReportService;
+import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
+import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.studioboasting.application.StudioBoastLikeService;
 import kr.muroom.muroombackendbach.studioboasting.application.StudioBoastService;
 import kr.muroom.muroombackendbach.studioboasting.presentation.docs.StudioBoastControllerDocs;
@@ -35,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudioBoastController implements StudioBoastControllerDocs {
 
   private final StudioBoastService studioBoastService;
+  private final ReportService reportService;
   private final StudioBoastLikeService studioBoastLikeService;
 
   private final static String SORT_KEY_RANDOM = "random";
@@ -43,7 +48,9 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   @PreAuthorize("isAuthenticated()")
   public ApiResponse<GeneratePresignedPutUrlResponse> generateStudioBoastImagePresignedUrls(
       @Validated @RequestBody StudioBoastImageUploadRequest request) {
-    GeneratePresignedPutUrlResponse response = studioBoastService.generateStudioImagePresignedPutUrl(request);
+    GeneratePresignedPutUrlResponse response =
+        studioBoastService.generateStudioImagePresignedPutUrl(
+            request);
     return ApiResponse.success(response);
   }
 
@@ -65,7 +72,8 @@ public class StudioBoastController implements StudioBoastControllerDocs {
       @Validated @RequestBody UpdateStudioBoastRequest request,
       @AuthenticationPrincipal Long musicianId
   ) {
-    Long updatedStudioBoastId = studioBoastService.updateStudioBoast(studioBoastId, request, musicianId);
+    Long updatedStudioBoastId = studioBoastService.updateStudioBoast(studioBoastId, request,
+        musicianId);
     String response = String.valueOf(updatedStudioBoastId);
     return ApiResponse.success(response);
   }
@@ -74,7 +82,8 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   public ApiResponse<StudioBoastDetailResponse> getStudioBoastDetail(
       @PathVariable Long studioBoastId, @AuthenticationPrincipal Long musicianId
   ) {
-    StudioBoastDetailResponse response = studioBoastService.getStudioBoastDetail(studioBoastId, musicianId);
+    StudioBoastDetailResponse response = studioBoastService.getStudioBoastDetail(studioBoastId,
+        musicianId);
     return ApiResponse.success(response);
   }
 
@@ -94,7 +103,8 @@ public class StudioBoastController implements StudioBoastControllerDocs {
     }
 
     Pageable pageable = buildStudioBoastPageable(page, size, sort);
-    Page<StudioBoastDetailResponse> response = studioBoastService.getStudioBoasts(pageable, musicianId);
+    Page<StudioBoastDetailResponse> response = studioBoastService.getStudioBoasts(pageable,
+        musicianId);
     return ApiResponse.success(PaginatedData.from(response));
   }
 
@@ -107,7 +117,8 @@ public class StudioBoastController implements StudioBoastControllerDocs {
       @AuthenticationPrincipal Long musicianId
   ) {
     Pageable pageable = buildStudioBoastPageable(page, size, sort);
-    Page<StudioBoastDetailResponse> response = studioBoastService.getMyStudioBoasts(pageable, musicianId);
+    Page<StudioBoastDetailResponse> response = studioBoastService.getMyStudioBoasts(pageable,
+        musicianId);
     return ApiResponse.success(PaginatedData.from(response));
   }
 
@@ -130,6 +141,16 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   ) {
     studioBoastService.deleteStudioBoast(studioBoastId, musicianId);
     return ApiResponse.deleted();
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/{studioBoastId}/report")
+  public ApiResponse<Void> reportStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId,
+      @RequestBody RegisterReportRequest request) {
+    reportService.registerReport(ReportDomainType.STUDIO_BOAST, studioBoastId, musicianId, request);
+    return ApiResponse.success();
   }
 
   private Pageable buildStudioBoastPageable(int page, int size, String sort) {

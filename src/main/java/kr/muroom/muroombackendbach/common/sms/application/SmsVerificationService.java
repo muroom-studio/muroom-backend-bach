@@ -10,13 +10,16 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.sms.domain.repository.SmsVerificationCodeStore;
+import kr.muroom.muroombackendbach.common.sms.exception.SmsErrorCode;
 import kr.muroom.muroombackendbach.common.sms.presentation.SmsSender;
 import kr.muroom.muroombackendbach.common.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SmsVerificationService {
@@ -33,13 +36,15 @@ public class SmsVerificationService {
   private static final int DAILY_LIMIT = 5;
   private static final int MAX_FAIL_COUNT = 5;
 
+  private static final int IP_DAILY_LIMIT = 30;
+
   @Transactional
-  public SmsAuthResponse sendVerificationCode(String phone) {
+  public SmsAuthResponse sendVerificationCode(String phone, String ip) {
     // 1. 전화번호 - 하이픈 제거
     String normalizedPhone = normalizePhone(phone);
 
     // 2. 하루 최대 전송 / 재요청 시간 검사
-    checkRateLimit(normalizedPhone);
+    checkRateLimit(normalizedPhone, ip);
 
     // 3. 인증 코드 생성
     String code = generateCode();
@@ -103,7 +108,7 @@ public class SmsVerificationService {
     return sb.toString();
   }
 
-  private void checkRateLimit(String phone) {
+  private void checkRateLimit(String phone, String ip) {
     long now = System.currentTimeMillis();
 
     Long lastSendAt = codeStore.getLastSendEpochMillis(phone);
@@ -117,6 +122,14 @@ public class SmsVerificationService {
     int todayCount = codeStore.getTodaySendCount(phone);
     if (todayCount >= DAILY_LIMIT) {
       throw new BusinessException(SMS_DAILY_LIMIT_EXCEEDED);
+    }
+
+    if (ip != null) {
+      log.debug("인증 메세지 요청 IP : {}", ip);
+      int ipToday = codeStore.incrementTodaySendCountByIp(ip);
+      if (ipToday > IP_DAILY_LIMIT) {
+        throw new BusinessException(SmsErrorCode.SMS_IP_DAILY_LIMIT_EXCEEDED);
+      }
     }
   }
 

@@ -21,4 +21,8 @@ public interface SmsVerificationCodeStore {
   void incrementTodaySendCount(String phoneNumber);
 
   int incrementFailCount(String phoneNumber);
+
+  int incrementTodaySendCountByIp(String ip);
+
+  int getTodaySendCountByIp(String ip);
 }

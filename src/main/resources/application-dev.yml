@@ -67,6 +67,7 @@ logging:
     kr.muroom.muroombackendbach: DEBUG
 
 server:
+  forward-headers-strategy: native
   url: https://dev-api.muroom.kr
 springdoc:
   api-docs:

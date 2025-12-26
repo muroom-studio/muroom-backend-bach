@@ -12,6 +12,8 @@ import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
+import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
+import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastRequest;
@@ -365,5 +367,119 @@ public interface StudioBoastControllerDocs {
   ApiResponse<Void> deleteStudioBoast(
       @PathVariable Long studioBoastId,
       @AuthenticationPrincipal Long musicianId
+  );
+
+  @Operation(
+      summary = "스튜디오 매물 자랑 신고하기",
+      description = """
+          스튜디오 매물 자랑 게시글을 신고합니다.
+          
+          - 이미 신고한 게시글은 다시 신고할 수 없습니다.
+          - 본인이 작성한 게시글은 신고할 수 없습니다.
+          - 신고 시점의 게시글 정보는 스냅샷(JSON)으로 저장됩니다.
+          """
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "200",
+          description = "신고 성공"
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "잘못된 요청",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = {
+                  @ExampleObject(
+                      name = "신고 대상 없음",
+                      value = """
+                          {
+                              "status": 400,
+                              "code": "RP-400-01",
+                              "message": "해당 신고내역을 찾을 수 없습니다."
+                          }
+                          """
+                  ),
+                  @ExampleObject(
+                      name = "신고 사유 없음",
+                      value = """
+                          {
+                              "status": 400,
+                              "code": "RP-400-02",
+                              "message": "해당 신고이유 유형을 찾을 수 없습니다."
+                          }
+                          """
+                  ),
+                  @ExampleObject(
+                      name = "이미 신고한 게시글",
+                      value = """
+                          {
+                              "status": 400,
+                              "code": "RP-400-04",
+                              "message": "이미 신고 처리 되었습니다."
+                          }
+                          """
+                  ),
+                  @ExampleObject(
+                      name = "자기 자신 신고",
+                      value = """
+                          {
+                              "status": 400,
+                              "code": "RP-400-09",
+                              "message": "나를 신고할 수 없습니다."
+                          }
+                          """
+                  )
+              }
+          )
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "403",
+          description = "권한 없음",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = {
+                  @ExampleObject(
+                      name = "권한 없음",
+                      value = """
+                          {
+                              "status": 403,
+                              "code": "RP-403-06",
+                              "message": "권한이 없습니다."
+                          }
+                          """
+                  )
+              }
+          )
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "500",
+          description = "서버 오류",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = {
+                  @ExampleObject(
+                      name = "스냅샷 JSON 변환 실패",
+                      value = """
+                          {
+                              "status": 500,
+                              "code": "RP-500-05",
+                              "message": "JSON 변환 실패했습니다."
+                          }
+                          """
+                  )
+              }
+          )
+      )
+  })
+  @PostMapping("/{studioBoastId}/report")
+  @SecurityRequirement(name = "Authentication")
+  ApiResponse<Void> reportStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId,
+      @RequestBody RegisterReportRequest request
   );
 }
