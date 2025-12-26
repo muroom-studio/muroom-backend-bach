@@ -12,12 +12,12 @@ import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
-import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
 import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastSimpleResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,8 +28,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "~/studio-boasts - 작업실 소개(자랑) API", description = "내 작업실 소개(자랑) 및 해당 컨텐츠 댓글, 좋아요 관련 "
-    + "API")
+@Tag(name = "studio boast - 작업실 소개(자랑) API")
 public interface StudioBoastControllerDocs {
 
   @Operation(
@@ -238,8 +237,8 @@ public interface StudioBoastControllerDocs {
       description = "작업실 소개(자랑) 게시글 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
       parameters = {
           @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-          @Parameter(name = "size", description = "페이지 당 항목 수", example = "12"),
-          @Parameter(name = "sort", description = "정렬 기준 (예: 'likes,desc', 'latest,desc'). 생략 시 "
+          @Parameter(name = "size", description = "페이지 당 항목 수. 생략 시 기본값은 12입니다.", example = "12"),
+          @Parameter(name = "sort", description = "정렬 기준 (예: 'likes,desc', 'latest,desc', 'random'). 생략 시 "
               + "기본값은 'latest,desc' (최신순) 입니다.",
               example = "likes,desc")
       }
@@ -252,11 +251,28 @@ public interface StudioBoastControllerDocs {
       @AuthenticationPrincipal Long musicianId
   );
 
+  @Operation(summary = "작업실 자랑 간단 정보 목록 페이지네이션 조회",
+      description = "작업실 자랑 게시글의 간단한 정보 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
+      parameters = {
+          @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
+          @Parameter(name = "size", description = "페이지 당 항목 수. 생략 시 기본값은 10입니다.", example = "12"),
+          @Parameter(name = "sort", description = "정렬 기준 ['likes,desc', 'latest,desc']. 생략 시 "
+              + "기본값은 'latest,desc' (최신순) 입니다.",
+              example = "latest,desc")
+      }
+  )
+  @GetMapping("/simple")
+  ApiResponse<PaginatedData<StudioBoastSimpleResponse>> getSimpleStudioBoasts(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "12") int size,
+      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort
+  );
+
   @Operation(summary = "내가 작성한 작업실 소개(자랑) 게시글 목록 페이지네이션 조회",
       description = "내가 작성한 작업실 소개(자랑) 게시글 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
       parameters = {
           @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-          @Parameter(name = "size", description = "페이지 당 항목 수", example = "12"),
+          @Parameter(name = "size", description = "페이지 당 항목 수. 생략 시 기본값은 12입니다.", example = "12"),
           @Parameter(name = "sort", description = "정렬 기준 (예: 'likes,desc', 'latest,desc'). 생략 시 "
               + "기본값은 'latest,desc' (최신순) 입니다.",
               example = "likes,desc")
@@ -464,5 +480,75 @@ public interface StudioBoastControllerDocs {
       @PathVariable Long studioBoastId,
       @AuthenticationPrincipal Long musicianId,
       @RequestBody RegisterReportRequest request
+  );
+
+  @Operation(
+      summary = "작업실 소개(자랑) 게시글 좋아요 추가",
+      description = "작업실 소개(자랑) 게시글에 좋아요를 추가합니다."
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "404",
+          description = "해당 작업실 소개(자랑) 게시글이 존재하지 않는 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 없음",
+                          value = """
+                              {
+                                  "status": 404,
+                                  "code": "SB-404-01",
+                                  "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      )
+  })
+  @SecurityRequirement(name = "Authentication")
+  @PostMapping("/{studioBoastId}/likes")
+  ApiResponse<Void> likeStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId
+  );
+
+  @Operation(
+      summary = "작업실 소개(자랑) 게시글 좋아요 취소",
+      description = "작업실 소개(자랑) 게시글에 추가된 좋아요를 취소합니다."
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "404",
+          description = "해당 작업실 소개(자랑) 게시글이 존재하지 않는 경우",
+          content = {
+              @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = BusinessException.class),
+                  examples = {
+                      @ExampleObject(
+                          name = "작업실 소개(자랑) 게시글 없음",
+                          value = """
+                              {
+                                  "status": 404,
+                                  "code": "SB-404-01",
+                                  "message": "해당 작업실 소개(자랑)글을 찾을 수 없습니다.",
+                              }
+                              """
+                      )
+                  }
+              )
+          }
+      )
+  })
+  @SecurityRequirement(name = "Authentication")
+  @DeleteMapping("/{studioBoastId}/likes")
+  ApiResponse<Void> unlikeStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId
   );
 }

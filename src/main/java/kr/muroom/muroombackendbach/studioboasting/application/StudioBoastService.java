@@ -31,6 +31,7 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.CreatorUserInfo;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.UnknownStudioInfo;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastSimpleResponse;
 import kr.muroom.muroombackendbach.subway.application.SubwayService;
 import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse;
 import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse.StationInfo;
@@ -193,6 +194,42 @@ public class StudioBoastService {
     }
     List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(studioBoastPage.getContent(), musicianId);
     return new PageImpl<>(studioBoastDetails, pageable, studioBoastPage.getTotalElements());
+  }
+
+  public Page<StudioBoastDetailResponse> getRandomStudioBoasts(Pageable pageable, Long musicianId) {
+    // 1. QueryDSL로 구현된 레포지토리의 findAllRandomly 메소드를 호출
+    //    DB에서 직접 'ORDER BY RANDOM()'을 실행하여 무작위로 정렬된 데이터 페이지를 조회
+    Page<StudioBoast> studioBoastPage = studioBoastRepository.findAllRandomly(pageable);
+
+    // 2. 결과가 없으면 빈 페이지를 즉시 반환
+    if (studioBoastPage.isEmpty()) {
+      return Page.empty(pageable);
+    }
+
+    // 3. 기존의 enrichStudioBoasts 헬퍼 메소드를 재사용하여
+    //    조회된 StudioBoast 엔티티 리스트를 StudioBoastDetailResponse DTO 리스트로 변환
+    //    (작성자 정보, 이미지 URL, 좋아요 여부 등의 추가 정보를 채워넣는 과정)
+    List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(studioBoastPage.getContent(), musicianId);
+
+    // 4. 변환된 DTO 리스트와 페이지네이션 정보를 포함하는 새로운 Page 객체를 생성하여 반환
+    return new PageImpl<>(studioBoastDetails, pageable, studioBoastPage.getTotalElements());
+  }
+
+  public Page<StudioBoastSimpleResponse> getSimpleStudioBoasts(Pageable pageable) {
+    // 1. studioBoastRepository를 사용하여 페이지네이션된 StudioBoast 엔티티 목록을 조회합니다.
+    //    Pageable 객체에 정렬 정보(최신순, 좋아요순)가 포함되어 있으므로 findAll(pageable)을 호출합니다.
+    Page<StudioBoast> studioBoastPage = studioBoastRepository.findAll(pageable);
+
+    // 2. 조회된 Page<StudioBoast> 객체의 내용을 Page<StudioBoastSimpleResponse>로 매핑합니다.
+    //    - 각 StudioBoast 엔티티에 대해 StudioBoastSimpleResponse DTO를 생성합니다.
+    //    - ID는 Long에서 String으로 변환하고, 썸네일 이미지 키는 FileStorageService를 통해
+    //      접근 가능한 public URL로 변환합니다.
+    return studioBoastPage.map(studioBoast -> StudioBoastSimpleResponse.builder()
+        .id(String.valueOf(studioBoast.getId()))
+        .thumbnailImageFileUrl(
+            fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey())
+        )
+        .build());
   }
 
   public Page<StudioBoastDetailResponse> getMyStudioBoasts(Pageable pageable, Long musicianId) {

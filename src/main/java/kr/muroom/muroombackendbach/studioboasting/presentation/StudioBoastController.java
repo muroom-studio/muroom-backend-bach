@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation;
 
-import io.swagger.v3.oas.annotations.Operation;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
@@ -14,6 +13,7 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.Creat
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastSimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,8 +38,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudioBoastController implements StudioBoastControllerDocs {
 
   private final StudioBoastService studioBoastService;
-  private final ReportService reportService;
   private final StudioBoastLikeService studioBoastLikeService;
+  private final ReportService reportService;
+
+  private final static String SORT_KEY_RANDOM = "random";
 
   @PostMapping("/presigned-url")
   @PreAuthorize("isAuthenticated()")
@@ -91,6 +93,14 @@ public class StudioBoastController implements StudioBoastControllerDocs {
       @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
       @AuthenticationPrincipal Long musicianId
   ) {
+    String sortKey = sort.split(",")[0];
+
+    if (SORT_KEY_RANDOM.equalsIgnoreCase(sortKey)) {
+      Pageable pageable = PageRequest.of(page, size);
+      Page<StudioBoastDetailResponse> response = studioBoastService.getRandomStudioBoasts(pageable, musicianId);
+      return ApiResponse.success(PaginatedData.from(response));
+    }
+
     Pageable pageable = buildStudioBoastPageable(page, size, sort);
     Page<StudioBoastDetailResponse> response = studioBoastService.getStudioBoasts(pageable,
         musicianId);
@@ -108,6 +118,17 @@ public class StudioBoastController implements StudioBoastControllerDocs {
     Pageable pageable = buildStudioBoastPageable(page, size, sort);
     Page<StudioBoastDetailResponse> response = studioBoastService.getMyStudioBoasts(pageable,
         musicianId);
+    return ApiResponse.success(PaginatedData.from(response));
+  }
+
+  @GetMapping("/simple")
+  public ApiResponse<PaginatedData<StudioBoastSimpleResponse>> getSimpleStudioBoasts(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort
+  ) {
+    Pageable pageable = buildStudioBoastPageable(page, size, sort);
+    Page<StudioBoastSimpleResponse> response = studioBoastService.getSimpleStudioBoasts(pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
 
@@ -144,5 +165,25 @@ public class StudioBoastController implements StudioBoastControllerDocs {
 
     Sort sortOrder = Sort.by(new Sort.Order(direction, property), Sort.Order.desc("id"));
     return PageRequest.of(page, size, sortOrder);
+  }
+
+  @PostMapping("/{studioBoastId}/likes")
+  @PreAuthorize("isAuthenticated()")
+  public ApiResponse<Void> likeStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    studioBoastLikeService.likeStudioBoast(studioBoastId, musicianId);
+    return ApiResponse.success();
+  }
+
+  @DeleteMapping("/{studioBoastId}/likes")
+  @PreAuthorize("isAuthenticated()")
+  public ApiResponse<Void> unlikeStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    studioBoastLikeService.unlikeStudioBoast(studioBoastId, musicianId);
+    return ApiResponse.success();
   }
 }
