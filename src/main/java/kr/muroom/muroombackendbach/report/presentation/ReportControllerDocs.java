@@ -12,14 +12,12 @@ import kr.muroom.muroombackendbach.report.presentation.dto.request.UpdateReportR
 import kr.muroom.muroombackendbach.report.presentation.dto.response.ReportsResponse;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.SearchReportResponse;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "신고 API", description = "신고 조회 / 검색 / 삭제")
+@Tag(name = "report - 신고 API")
 public interface ReportControllerDocs {
 
   @Operation(
