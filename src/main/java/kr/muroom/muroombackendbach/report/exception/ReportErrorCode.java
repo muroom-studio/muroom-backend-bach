@@ -16,8 +16,9 @@ public enum ReportErrorCode implements ErrorCode {
       "JSON 변환 실패했습니다."),
   REPORT_FORBIDDEN(HttpStatus.FORBIDDEN, "RP-403-06", "권한이 없습니다."),
   REPORT_NOT_EDITABLE(HttpStatus.BAD_REQUEST, "RP-400-07", "수정을 할 수 없는 상태의 신고입니다."),
-  REPORT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "RP-400-08", "잘못된 요청 값 입니다.");
-
+  REPORT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "RP-400-08", "잘못된 요청 값 입니다."),
+  REPORT_NOT_ME(HttpStatus.BAD_REQUEST, "RP-400-09", "나를 신고할 수 없습니다."),
+  ;
   private final HttpStatus status;
   private final String code;
   private final String message;

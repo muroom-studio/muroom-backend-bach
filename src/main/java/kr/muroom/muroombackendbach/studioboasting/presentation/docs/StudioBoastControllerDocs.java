@@ -12,6 +12,8 @@ import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
+import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
+import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastRequest;
@@ -26,7 +28,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "~/studio-boasts - 작업실 소개(자랑) API", description = "내 작업실 소개(자랑) 및 해당 컨텐츠 댓글, 좋아요 관련 API")
+@Tag(name = "~/studio-boasts - 작업실 소개(자랑) API", description = "내 작업실 소개(자랑) 및 해당 컨텐츠 댓글, 좋아요 관련 "
+    + "API")
 public interface StudioBoastControllerDocs {
 
   @Operation(
@@ -348,4 +351,11 @@ public interface StudioBoastControllerDocs {
       @PathVariable Long studioBoastId,
       @AuthenticationPrincipal Long musicianId
   );
+
+  @Operation(summary = "스튜디오 매물 자랑 신고하기", description = "스튜디오 매물 자랑 신고하기")
+  @PostMapping("/{studioBoastId}/report")
+  ApiResponse<Void> reportStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId,
+      @RequestBody RegisterReportRequest request);
 }
