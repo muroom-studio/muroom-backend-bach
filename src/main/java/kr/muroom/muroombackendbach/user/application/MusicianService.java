@@ -7,6 +7,7 @@ import static kr.muroom.muroombackendbach.user.exception.MyStudioErrorCode.MY_ST
 import static kr.muroom.muroombackendbach.user.exception.SocialAccountErrorCode.SOCIAL_ACCOUNT_NOT_FOUND;
 import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -286,7 +287,7 @@ public class MusicianService {
    * <p>다른 서비스에서 사용할 용도로만 존재하는 메서드입니다.
    */
   @Transactional(readOnly = true)
-  public List<Musician> getMusiciansByIds(List<Long> musicianIds) {
+  public List<Musician> getMusiciansByIds(Collection<Long> musicianIds) {
     if (musicianIds == null || musicianIds.isEmpty()) {
       return Collections.emptyList();
     }
@@ -294,7 +295,7 @@ public class MusicianService {
   }
 
   @Transactional(readOnly = true)
-  public Map<Long, Musician> getMusiciansAsMapByIds(List<Long> musicianIds) {
+  public Map<Long, Musician> getMusiciansAsMapByIds(Collection<Long> musicianIds) {
     List<Musician> musicians = getMusiciansByIds(musicianIds);
     return musicians.stream()
         .collect(Collectors.toMap(Musician::getId, musician -> musician));
