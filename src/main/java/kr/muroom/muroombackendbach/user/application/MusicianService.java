@@ -69,11 +69,8 @@ public class MusicianService {
     String accessToken = jwtTokenProvider.createAccessToken(musicianId);
     RefreshIssue refreshToken = jwtTokenProvider.createRefreshToken(musicianId);
 
-    // 2.1 Redis 토큰 저장
+    // 3 Redis 토큰 저장
     refreshTokenService.save(musicianId, refreshToken.jti(), refreshToken.expiresAt());
-
-    // 3. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
-    linkSocialAccountIfNecessary(musician, provider, providerUserId);
 
     // 4. 나의 작업실 생성
     createMyStudio(request, musician);
@@ -106,33 +103,6 @@ public class MusicianService {
         .build();
 
     myStudioRepository.save(myStudio);
-  }
-
-  /**
-   * 기존 뮤지션에게 소셜 계정을 연결 (이미 연결된 경우 스킵)
-   */
-  private void linkSocialAccountIfNecessary(
-      Musician musician,
-      OAuthProvider provider,
-      String providerUserId) {
-    boolean alreadyLinked = socialAccountRepository
-        .existsByMusicianAndProviderAndProviderUserId(
-            musician,
-            provider,
-            providerUserId
-        );
-
-    if (alreadyLinked) {
-      return;
-    }
-
-    SocialAccount socialAccount = SocialAccount.builder()
-        .musician(musician)
-        .provider(provider)
-        .providerUserId(providerUserId)
-        .build();
-
-    socialAccountRepository.save(socialAccount);
   }
 
   /**
