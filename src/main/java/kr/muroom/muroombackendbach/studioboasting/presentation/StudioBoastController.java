@@ -10,6 +10,7 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.Creat
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastSimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +36,8 @@ public class StudioBoastController implements StudioBoastControllerDocs {
 
   private final StudioBoastService studioBoastService;
   private final StudioBoastLikeService studioBoastLikeService;
+
+  private final static String SORT_KEY_RANDOM = "random";
 
   @PostMapping("/presigned-url")
   @PreAuthorize("isAuthenticated()")
@@ -82,6 +85,14 @@ public class StudioBoastController implements StudioBoastControllerDocs {
       @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
       @AuthenticationPrincipal Long musicianId
   ) {
+    String sortKey = sort.split(",")[0];
+
+    if (SORT_KEY_RANDOM.equalsIgnoreCase(sortKey)) {
+      Pageable pageable = PageRequest.of(page, size);
+      Page<StudioBoastDetailResponse> response = studioBoastService.getRandomStudioBoasts(pageable, musicianId);
+      return ApiResponse.success(PaginatedData.from(response));
+    }
+
     Pageable pageable = buildStudioBoastPageable(page, size, sort);
     Page<StudioBoastDetailResponse> response = studioBoastService.getStudioBoasts(pageable, musicianId);
     return ApiResponse.success(PaginatedData.from(response));
@@ -97,6 +108,17 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   ) {
     Pageable pageable = buildStudioBoastPageable(page, size, sort);
     Page<StudioBoastDetailResponse> response = studioBoastService.getMyStudioBoasts(pageable, musicianId);
+    return ApiResponse.success(PaginatedData.from(response));
+  }
+
+  @GetMapping("/simple")
+  public ApiResponse<PaginatedData<StudioBoastSimpleResponse>> getSimpleStudioBoasts(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort
+  ) {
+    Pageable pageable = buildStudioBoastPageable(page, size, sort);
+    Page<StudioBoastSimpleResponse> response = studioBoastService.getSimpleStudioBoasts(pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
 

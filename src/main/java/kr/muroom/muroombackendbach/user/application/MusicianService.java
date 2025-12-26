@@ -9,6 +9,8 @@ import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_E
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
@@ -314,5 +316,12 @@ public class MusicianService {
       return Collections.emptyList();
     }
     return musicianRepository.findAllById(musicianIds);
+  }
+
+  @Transactional(readOnly = true)
+  public Map<Long, Musician> getMusiciansAsMapByIds(List<Long> musicianIds) {
+    List<Musician> musicians = getMusiciansByIds(musicianIds);
+    return musicians.stream()
+        .collect(Collectors.toMap(Musician::getId, musician -> musician));
   }
 }

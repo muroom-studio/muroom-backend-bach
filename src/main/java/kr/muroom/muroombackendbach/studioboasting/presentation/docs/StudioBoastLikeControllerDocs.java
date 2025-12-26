@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-@Tag(name = "~/studio-boasts/{studioBoastId}/likes - 작업실 소개(자랑) 좋아요 API", description = "작업실 소개(자랑) 게시글 좋아요 관련 API")
+@Tag(name = "studio boast like - 작업실 소개(자랑) 좋아요 API")
 public interface StudioBoastLikeControllerDocs {
 
   @Operation(

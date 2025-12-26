@@ -8,6 +8,7 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.S
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import lombok.Builder;
 
+// TODO: isWrittenByRequestUser 필드 추가
 @Schema(description = "작업실 소개(자랑) 상세 조회 응답 DTO")
 @Builder
 public record StudioBoastDetailResponse(
