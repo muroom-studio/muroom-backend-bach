@@ -6,6 +6,7 @@ import kr.muroom.muroombackendbach.admin.report.presentation.dto.request.Registe
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.report.application.ReportReplyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ public class AdminReportController {
 
   private final ReportReplyService reportReplyService;
 
+  @PreAuthorize("isAuthenticated()")
   @PostMapping("/{reportId}/reply")
   public ApiResponse<Void> registerReportReply(
       @PathVariable Long reportId,

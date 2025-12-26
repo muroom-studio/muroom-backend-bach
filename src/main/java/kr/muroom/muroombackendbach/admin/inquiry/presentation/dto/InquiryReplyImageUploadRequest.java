@@ -10,7 +10,7 @@ public record InquiryReplyImageUploadRequest(
     @NotBlank String fileName,
 
     @Schema(example = "78962138792321", description = "답글을 남길 문의의 ID 값이 필요합니다.")
-    @NotNull Long inquiryId,
+    @NotNull String inquiryId,
 
     @Schema(example = "image/")
     @NotBlank String contentType

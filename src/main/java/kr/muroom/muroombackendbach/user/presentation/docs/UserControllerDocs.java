@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
@@ -63,7 +64,8 @@ public interface UserControllerDocs {
           )
       )
   })
-  ApiResponse<SmsAuthResponse> authSend(@RequestBody UserDto.SmsSendRequest request);
+  ApiResponse<SmsAuthResponse> authSend(@RequestBody UserDto.SmsSendRequest request,
+      HttpServletRequest httpRequest);
 
   @Operation(summary = "SMS 인증번호 검증", description = "입력한 인증번호가 유효한지 검증합니다.")
   @ApiResponses({

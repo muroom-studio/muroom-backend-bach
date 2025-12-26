@@ -58,6 +58,7 @@ logging:
 
 server:
   url: http://localhost:8080
+  forward-headers-strategy: native
 springdoc:
   api-docs:
     enabled: true
