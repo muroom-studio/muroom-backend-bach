@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "신고 유형 API", description = "신고 유형 관련 API")
+@Tag(name = "report reason - 신고 유형 API")
 @RestController
 @RequestMapping("/api/v1/report-reason")
 @RequiredArgsConstructor

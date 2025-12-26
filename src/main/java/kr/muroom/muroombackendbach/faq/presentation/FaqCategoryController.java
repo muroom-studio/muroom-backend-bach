@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "FAQ 카테고리 API", description = "faq 카테고리 관련 ")
+@Tag(name = "faq category - faq 카테고리 API")
 @RestController
 @RequestMapping("/api/v1/faq-categories")
 @RequiredArgsConstructor

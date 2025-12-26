@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.inquiry.presentation;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.inquiry.application.InquiryCategoryService;
+import kr.muroom.muroombackendbach.inquiry.presentation.docs.InquiryCategoryControllerDocs;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryCategoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

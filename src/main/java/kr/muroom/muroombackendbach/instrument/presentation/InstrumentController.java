@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "악기 API")
+@Tag(name = "instrument - 악기 종류 API")
 @RestController
 @RequestMapping("/api/v1/instruments")
 @RequiredArgsConstructor
