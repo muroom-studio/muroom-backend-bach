@@ -18,7 +18,8 @@ public class StudioBoastRepositoryImpl implements StudioBoastQueryRepository {
 
   @Override
   public Page<StudioBoast> findAllRandomly(Pageable pageable) {
-    long totalCount = queryFactory.select(studioBoast.count()).from(studioBoast).fetchOne();
+    Long countResult = queryFactory.select(studioBoast.count()).from(studioBoast).fetchOne();
+    long totalCount = (countResult != null) ? countResult : 0L;
     if (totalCount == 0) {
       return Page.empty(pageable);
     }
