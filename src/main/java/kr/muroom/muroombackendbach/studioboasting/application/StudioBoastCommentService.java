@@ -16,6 +16,7 @@ import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastC
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastCommentRequest;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentReplyResponse;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse.CreatorUserInfo;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse.TaggedUserInfo;
@@ -47,6 +48,10 @@ public class StudioBoastCommentService {
     if (request.parentId() != null) {
       parentComment = studioBoastCommentRepository.findById(request.parentId())
           .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+
+      if (parentComment.getParent() != null) {
+        throw new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_CANNOT_REPLY_TO_REPLY);
+      }
     }
 
     StudioBoastComment newComment = StudioBoastComment.builder()
@@ -126,33 +131,33 @@ public class StudioBoastCommentService {
         .collect(Collectors.groupingBy(comment -> comment.getParent().getId()));
 
     List<StudioBoastCommentResponse> commentResponses = rootComments.stream()
-        .map(comment ->
-            buildCommentResponse(comment, postAuthorId, requestUserId, repliesByParentId, musiciansById, likedCommentIds, likeCounts)
-        )
+        .map(rootComment -> {
+          List<StudioBoastComment> directReplies = repliesByParentId.getOrDefault(rootComment.getId(), Collections.emptyList());
+
+          List<StudioBoastCommentReplyResponse> replyResponses = directReplies.stream()
+              .map(reply -> buildReplyResponse(
+                  reply, postAuthorId, requestUserId, musiciansById, likedCommentIds, likeCounts
+              ))
+              .toList();
+
+          return buildCommentResponse(rootComment, postAuthorId, requestUserId, musiciansById, likedCommentIds, likeCounts, replyResponses);
+        })
         .toList();
 
     return new PageImpl<>(commentResponses, pageable, rootCommentPage.getTotalElements());
   }
 
   private StudioBoastCommentResponse buildCommentResponse(
-      StudioBoastComment comment, Long postAuthorId, Long requestUserId, Map<Long, List<StudioBoastComment>> repliesByParentId,
-      Map<Long, Musician> musiciansById, Set<Long> likedCommentIds, Map<Long, Long> likeCounts) {
-    // 대댓글 목록을 먼저 재귀적으로 빌드
-    List<StudioBoastComment> directReplies = repliesByParentId.getOrDefault(comment.getId(), Collections.emptyList());
-    List<StudioBoastCommentResponse> replyResponses = directReplies.stream()
-        .map(reply ->
-            buildCommentResponse(reply, postAuthorId, requestUserId, repliesByParentId, musiciansById, likedCommentIds, likeCounts)
-        )
-        .toList();
-
+      StudioBoastComment comment, Long postAuthorId, Long requestUserId, Map<Long, Musician> musiciansById,
+      Set<Long> likedCommentIds, Map<Long, Long> likeCounts, List<StudioBoastCommentReplyResponse> replies
+  ) {
     // 삭제된 댓글 처리
     if (comment.getDeletedAt() != null) {
-      return StudioBoastCommentResponse.createDeletedPlaceholder(comment.getId(), replyResponses);
+      return StudioBoastCommentResponse.createDeletedPlaceholder(comment.getId(), replies);
     }
-
     // 비밀 댓글 처리 (권한 확인)
     if (!canViewComment(comment, postAuthorId, requestUserId)) {
-      return StudioBoastCommentResponse.createSecretPlaceholder(comment.getId(), replyResponses);
+      return StudioBoastCommentResponse.createSecretPlaceholder(comment.getId(), replies);
     }
 
     // DTO에 필요한 데이터 조회 및 계산
@@ -171,7 +176,7 @@ public class StudioBoastCommentService {
         .isDeleted(false)
         .creatorUserInfo(CreatorUserInfo.from(creator))
         .taggedUserInfo(TaggedUserInfo.from(taggedUser))
-        .replies(replyResponses)
+        .replies(replies)
         .likeCount(likeCount)
         .isWrittenByRequestUser(isWritten)
         .isLikedByRequestUser(isLiked)
@@ -188,6 +193,37 @@ public class StudioBoastCommentService {
     return requestUserId.equals(postAuthorId)
         || requestUserId.equals(comment.getCreatorUserId())
         || (comment.getTaggedUserId() != null && requestUserId.equals(comment.getTaggedUserId()));
+  }
+
+  private StudioBoastCommentReplyResponse buildReplyResponse(
+      StudioBoastComment reply, Long postAuthorId, Long requestUserId,
+      Map<Long, Musician> musiciansById, Set<Long> likedCommentIds, Map<Long, Long> likeCounts
+  ) {
+    if (reply.getDeletedAt() != null) {
+      return StudioBoastCommentReplyResponse.createDeletedPlaceholder(reply.getId());
+    }
+    if (!canViewComment(reply, postAuthorId, requestUserId)) {
+      return StudioBoastCommentReplyResponse.createSecretPlaceholder(reply.getId());
+    }
+
+    Musician creator = musiciansById.get(reply.getCreatorUserId());
+    Musician taggedUser = (reply.getTaggedUserId() != null) ? musiciansById.get(reply.getTaggedUserId()) : null;
+    Boolean isWritten = (requestUserId != null) ? requestUserId.equals(reply.getCreatorUserId()) : null;
+    Boolean isLiked = (requestUserId != null) ? likedCommentIds.contains(reply.getId()) : null;
+    Long likeCount = likeCounts.getOrDefault(reply.getId(), 0L);
+
+    return StudioBoastCommentReplyResponse.builder()
+        .id(reply.getId().toString())
+        .content(reply.getContent())
+        .createdAt(reply.getCreatedAt())
+        .isSecret(reply.getIsSecret())
+        .isDeleted(false)
+        .creatorUserInfo(CreatorUserInfo.from(creator))
+        .taggedUserInfo(TaggedUserInfo.from(taggedUser))
+        .likeCount(likeCount)
+        .isWrittenByRequestUser(isWritten)
+        .isLikedByRequestUser(isLiked)
+        .build();
   }
 
   // ===== ===== ===== ===== 댓글 좋아요 ===== ===== ===== =====

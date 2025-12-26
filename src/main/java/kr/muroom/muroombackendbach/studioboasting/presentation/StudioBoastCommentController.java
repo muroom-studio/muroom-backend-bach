@@ -30,18 +30,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/studio-boasts")
 public class StudioBoastCommentController implements StudioBoastCommentControllerDocs {
 
-  private StudioBoastCommentService studioBoastCommentService;
+  private final StudioBoastCommentService studioBoastCommentService;
 
   @Override
   @PostMapping("/{studioBoastId}/comments")
   @PreAuthorize("isAuthenticated()")
-  public ApiResponse<Long> createComment(
+  public ApiResponse<String> createComment(
       @PathVariable Long studioBoastId,
       @AuthenticationPrincipal Long musicianId,
       @Validated @RequestBody CreateStudioBoastCommentRequest request
   ) {
     Long commentId = studioBoastCommentService.createComment(studioBoastId, musicianId, request);
-    return ApiResponse.success(commentId);
+    return ApiResponse.success(commentId.toString());
   }
 
   @Override

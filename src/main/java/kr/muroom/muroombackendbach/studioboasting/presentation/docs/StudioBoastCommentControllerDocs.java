@@ -25,7 +25,7 @@ public interface StudioBoastCommentControllerDocs {
   @Operation(summary = "댓글/대댓글 생성", description = "지정된 작업실 자랑 게시글에 댓글 또는 대댓글을 작성합니다.")
   @SecurityRequirement(name = "Authentication")
   @PostMapping("/{studioBoastId}/comments")
-  ApiResponse<Long> createComment(
+  ApiResponse<String> createComment(
       @PathVariable Long studioBoastId,
       @AuthenticationPrincipal Long musicianId,
       @Validated @RequestBody CreateStudioBoastCommentRequest request

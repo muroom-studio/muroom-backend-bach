@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation;
 
-import io.swagger.v3.oas.annotations.Operation;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
@@ -39,8 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudioBoastController implements StudioBoastControllerDocs {
 
   private final StudioBoastService studioBoastService;
-  private final ReportService reportService;
   private final StudioBoastLikeService studioBoastLikeService;
+  private final ReportService reportService;
 
   private final static String SORT_KEY_RANDOM = "random";
 
@@ -166,5 +165,25 @@ public class StudioBoastController implements StudioBoastControllerDocs {
 
     Sort sortOrder = Sort.by(new Sort.Order(direction, property), Sort.Order.desc("id"));
     return PageRequest.of(page, size, sortOrder);
+  }
+
+  @PostMapping("/{studioBoastId}/likes")
+  @PreAuthorize("isAuthenticated()")
+  public ApiResponse<Void> likeStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    studioBoastLikeService.likeStudioBoast(studioBoastId, musicianId);
+    return ApiResponse.success();
+  }
+
+  @DeleteMapping("/{studioBoastId}/likes")
+  @PreAuthorize("isAuthenticated()")
+  public ApiResponse<Void> unlikeStudioBoast(
+      @PathVariable Long studioBoastId,
+      @AuthenticationPrincipal Long musicianId
+  ) {
+    studioBoastLikeService.unlikeStudioBoast(studioBoastId, musicianId);
+    return ApiResponse.success();
   }
 }

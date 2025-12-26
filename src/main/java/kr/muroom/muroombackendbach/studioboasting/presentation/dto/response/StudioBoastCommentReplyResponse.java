@@ -3,14 +3,15 @@ package kr.muroom.muroombackendbach.studioboasting.presentation.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
-import java.util.List;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse.CreatorUserInfo;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse.TaggedUserInfo;
 import lombok.Builder;
 
-@Schema(description = "작업실 소개(자랑) 댓글 응답 DTO")
+@Schema(description = "작업실 소개(자랑) 대댓글 응답 DTO")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-public record StudioBoastCommentResponse(
+public record StudioBoastCommentReplyResponse(
+
     @Schema(description = "댓글 ID", example = "12345678901234")
     String id,
 
@@ -38,60 +39,25 @@ public record StudioBoastCommentResponse(
     @Schema(description = "좋아요 여부", example = "true")
     Boolean isLikedByRequestUser,
 
-    @Schema(description = "대댓글 목록")
-    List<StudioBoastCommentReplyResponse> replies,
-
     @Schema(description = "좋아요 수", example = "42")
     Long likeCount
 ) {
 
-  @Schema(description = "댓글 작성자 정보")
-  public record CreatorUserInfo(
-      @Schema(description = "작성자 뮤지션 ID", example = "12345678901234")
-      String id,
-
-      @Schema(description = "작성자 닉네임", example = "뮤지션닉네임")
-      String nickname
-  ) {
-
-    public static CreatorUserInfo from(Musician creator) {
-      if (creator == null) {
-        return null;
-      }
-      return new CreatorUserInfo(creator.getId().toString(), creator.getNickname());
-    }
-  }
-
-  public record TaggedUserInfo(
-      String id,
-      String nickname
-  ) {
-
-    public static TaggedUserInfo from(Musician taggedUser) {
-      if (taggedUser == null) {
-        return null;
-      }
-      return new TaggedUserInfo(taggedUser.getId().toString(), taggedUser.getNickname());
-    }
-  }
-
-  public static StudioBoastCommentResponse createSecretPlaceholder(Long commentId, List<StudioBoastCommentReplyResponse> replies) {
-    return StudioBoastCommentResponse.builder()
+  public static StudioBoastCommentReplyResponse createSecretPlaceholder(Long commentId) {
+    return StudioBoastCommentReplyResponse.builder()
         .id(commentId.toString())
         .content("비밀 댓글입니다.")
         .isSecret(true)
         .isDeleted(false)
-        .replies(replies)
         .build();
   }
 
-  public static StudioBoastCommentResponse createDeletedPlaceholder(Long commentId, List<StudioBoastCommentReplyResponse> replies) {
-    return StudioBoastCommentResponse.builder()
+  public static StudioBoastCommentReplyResponse createDeletedPlaceholder(Long commentId) {
+    return StudioBoastCommentReplyResponse.builder()
         .id(commentId.toString())
         .content("삭제된 댓글입니다.")
         .isSecret(false)
         .isDeleted(true)
-        .replies(replies)
         .build();
   }
 }
