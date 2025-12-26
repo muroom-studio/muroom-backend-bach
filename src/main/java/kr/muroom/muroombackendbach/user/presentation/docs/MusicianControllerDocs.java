@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "00_뮤지션 API", description = "뮤지션 관련 API")
+@Tag(name = "musician - 뮤지션 API")
 public interface MusicianControllerDocs {
 
   @Operation(

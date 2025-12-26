@@ -14,7 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "FAQ API", description = "FAQ 목록 조회 및 키워드/카테고리 필터 검색 API")
+@Tag(name = "faq - faq API")
 public interface FaqControllerDocs {
 
   @Operation(

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "약관 API", description = "약관 관련 API")
+@Tag(name = "terms - 약관 API")
 public interface TermControllerDocs {
 
   @Operation(

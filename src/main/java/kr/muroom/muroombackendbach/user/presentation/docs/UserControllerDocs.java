@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "유저 API", description = "뮤지션/사장님 공통 관련 API")
+@Tag(name = "user - 유저(뮤지션/사장님) 공용 API")
 public interface UserControllerDocs {
 
   @Operation(
