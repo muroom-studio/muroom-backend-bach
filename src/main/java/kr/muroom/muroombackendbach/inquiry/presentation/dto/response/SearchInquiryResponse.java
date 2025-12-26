@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.List;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
+import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReply;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryStatus;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse.Reply;
 import lombok.Builder;
 
 @Builder
@@ -42,6 +44,16 @@ public record SearchInquiryResponse(
       List<ImageDto> imageUrls
   ) {
 
+    public static Reply from(InquiryReply reply, List<ImageDto> imageUrls) {
+      if (reply == null) {
+        return null;
+      }
+      return Reply.builder()
+          .id(String.valueOf(reply.getId()))
+          .content(reply.getContent())
+          .imageUrls(imageUrls == null ? List.of() : imageUrls)
+          .build();
+    }
   }
 
 }

@@ -50,7 +50,7 @@ public class InquiryResponseMapper {
         .title(inquiry.getTitle())
         .content(inquiry.getContent())
         .status(inquiry.getStatus())
-        .category(toAllCategory(inquiry))
+        .category(InquiryAllResponse.CategoryDto.from(inquiry.getCategory()))
         .images(toInquiryImageDtos(inquiry.getImages()))
         .reply(toAllReply(inquiry))
         .createdAt(inquiry.getCreatedAt())
@@ -64,35 +64,11 @@ public class InquiryResponseMapper {
         .title(inquiry.getTitle())
         .content(inquiry.getContent())
         .status(inquiry.getStatus())
-        .category(toInquiryCategory(inquiry))
+        .category(InquiryResponse.CategoryDto.from(inquiry.getCategory()))
         .reply(toInquiryReply(inquiry))
         .images(toInquiryImageDtos(inquiry.getImages()))
         .createdAt(inquiry.getCreatedAt())
         .updatedAt(inquiry.getUpdatedAt())
-        .build();
-  }
-
-  // =========================
-  // Category mapping
-  // =========================
-
-  private InquiryAllResponse.CategoryDto toAllCategory(Inquiry inquiry) {
-    if (inquiry.getCategory() == null) {
-      return null;
-    }
-    return InquiryAllResponse.CategoryDto.builder()
-        .code(inquiry.getCategory().getCode())
-        .name(inquiry.getCategory().getName())
-        .build();
-  }
-
-  private InquiryResponse.CategoryDto toInquiryCategory(Inquiry inquiry) {
-    if (inquiry.getCategory() == null) {
-      return null;
-    }
-    return InquiryResponse.CategoryDto.builder()
-        .code(inquiry.getCategory().getCode())
-        .name(inquiry.getCategory().getName())
         .build();
   }
 
