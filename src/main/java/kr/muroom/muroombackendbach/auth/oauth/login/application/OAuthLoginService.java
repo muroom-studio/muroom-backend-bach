@@ -55,7 +55,7 @@ public class OAuthLoginService {
     // 3. 기존 소셜 계정 조회
     return socialAccountRepository
         .findByProviderAndProviderUserId(provider, providerUserId)
-        .map(account -> loginExistingUser(account, provider))
+        .map(this::loginExistingUser)
         .orElseGet(() -> prepareSignup(provider, providerUserId));
   }
 
@@ -83,8 +83,7 @@ public class OAuthLoginService {
    * 기존 계정 로그인 처리: - Musician ID 조회 - 소셜 토큰 Redis 저장 - 우리 서비스 JWT 발급
    */
   private OAuthLoginResponse loginExistingUser(
-      SocialAccount socialAccount,
-      OAuthProvider provider
+      SocialAccount socialAccount
   ) {
     Long userId = Optional.ofNullable(socialAccount.getMusician())
         .map(Musician::getId)
@@ -98,7 +97,7 @@ public class OAuthLoginService {
     refreshTokenService.save(userId, refreshIssue.jti(), refreshIssue.expiresAt());
 
     return OAuthLoginResponse.login(accessToken, refreshIssue.token(), String.valueOf(userId),
-        provider);
+        socialAccount.getProvider());
   }
 
   /**

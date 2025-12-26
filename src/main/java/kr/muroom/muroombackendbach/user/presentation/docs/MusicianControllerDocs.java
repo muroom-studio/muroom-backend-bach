@@ -45,7 +45,29 @@ public interface MusicianControllerDocs {
   );
 
   @Operation(
-      operationId = "00_oauthLoginForSwagger",
+      summary = "뮤지션 로그인 (Swagger 테스트용)",
+      description = """
+          Swagger 테스트 전용 로그인 API입니다.  
+          운영/개발 환경에서는 redirect 기반 로그인 플로우를 사용해야 합니다.
+          
+          아래 구글 로그인 페이지에서 인증 후,
+          리다이렉트 URL에 포함된 `access_token` 값을 `providerId` 필드에 입력해주세요.
+          
+          🔗 구글 로그인 페이지  
+          [구글 로그인 바로가기](https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20email%20profile&response_type=token&redirect_uri=http://localhost:3001/redirect/oauth/google&client_id=857075964668-3uqbevha9k2ctfrr6rd272jj9h637ce8.apps.googleusercontent.com)
+          """
+  )
+  ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByGoogle(
+      @Valid @RequestBody OAuthLoginRequest request,
+      @Parameter(
+          description = "요청이 발생한 origin (Swagger 테스트용)",
+          example = "http://localhost:3001",
+          schema = @Schema(defaultValue = "http://localhost:3001")
+      )
+      @RequestParam String origin
+  );
+
+  @Operation(
       summary = "뮤지션 로그인 (Swagger 테스트용)",
       description = """
           Swagger 테스트 전용 로그인 API입니다.  
@@ -58,7 +80,7 @@ public interface MusicianControllerDocs {
           [카카오 로그인 바로가기](https://kauth.kakao.com/oauth/authorize?client_id=a87a624a98805882ce612eed7c018237&redirect_uri=http://localhost:3001/redirect/oauth/kakao&response_type=code)
           """
   )
-  ApiResponse<OAuthLoginResponse> oauthLoginForSwagger(
+  ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByKakao(
       @Valid @RequestBody OAuthLoginRequest request,
       @Parameter(
           description = "요청이 발생한 origin (Swagger 테스트용)",

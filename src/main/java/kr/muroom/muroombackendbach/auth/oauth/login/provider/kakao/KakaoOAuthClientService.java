@@ -27,7 +27,7 @@ public class KakaoOAuthClientService implements OAuthClientService {
         kakaoOAuthClient.exchangeCodeForToken(authorizationCode, origin);
 
     return OAuthTokenResult.builder()
-        .idToken(response.getIdToken())
+        .idToken(response.idToken())
         .build();
   }
 

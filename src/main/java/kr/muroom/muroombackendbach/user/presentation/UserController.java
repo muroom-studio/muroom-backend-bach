@@ -37,6 +37,12 @@ public class UserController implements UserControllerDocs {
     return ApiResponse.success(new NicknameCheckResponse(available));
   }
 
+  @GetMapping("/phone/check")
+  public ApiResponse<Void> checkPhone(@RequestParam String phone) {
+    userService.isPhoneAvailable(phone);
+    return ApiResponse.success();
+  }
+
   @PostMapping("/refresh")
   public ApiResponse<TokenPair> refresh(
       @RequestHeader("refreshToken") String refreshToken
