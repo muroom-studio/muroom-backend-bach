@@ -36,6 +36,8 @@ public class FileStorageService {
   private static final String TEMPORARY_FILE_KEY_PREFIX = "temp/";
   private static final String DELETION_SCHEDULED_FILE_KEY_PREFIX = "deletion-scheduled/";
 
+  private static final String SNAPSHOT_REPORT_PREFIX = "snapshot/report/";
+
   public FileStorageService(
       S3Client s3Client,
       S3Presigner s3Presigner,
@@ -80,6 +82,20 @@ public class FileStorageService {
     return moveFromTempToPermanent(privateBucket, tempFileKey);
   }
 
+  /**
+   * Public 버킷 파일을 snapshot/report/{domain}/ 아래로 복사합니다. (원본 유지)
+   */
+  public String copyPublicFileToReportSnapshot(String domain, String fileKey) {
+    return copyFileToReportSnapshot(publicBucket, domain, fileKey);
+  }
+
+  /**
+   * Private 버킷 파일을 snapshot/report/{domain}/ 아래로 복사합니다. (원본 유지)
+   */
+  public String copyPrivateFileToReportSnapshot(String domain, String fileKey) {
+    return copyFileToReportSnapshot(privateBucket, domain, fileKey);
+  }
+
   public String getPublicFileUrl(String fileKey) {
     GetUrlRequest getUrlRequest = GetUrlRequest.builder()
         .bucket(publicBucket)
@@ -99,7 +115,8 @@ public class FileStorageService {
         .getObjectRequest(getObjectRequest)
         .build();
 
-    PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(presignRequest);
+    PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(
+        presignRequest);
     return presignedGetObjectRequest.url().toString();
   }
 
@@ -134,7 +151,8 @@ public class FileStorageService {
         .putObjectRequest(putObjectRequest)
         .build();
 
-    PresignedPutObjectRequest presignedPutObjectRequest = s3Presigner.presignPutObject(putObjectPresignRequest);
+    PresignedPutObjectRequest presignedPutObjectRequest = s3Presigner.presignPutObject(
+        putObjectPresignRequest);
 
     return GeneratePresignedPutUrlResponse.builder()
         .presignedPutUrl(presignedPutObjectRequest.url().toString())
@@ -165,6 +183,43 @@ public class FileStorageService {
     deleteFilePermanently(bucket, tempFileKey);
 
     return permanentFileKey;
+  }
+
+  private String copyFileToReportSnapshot(String bucket, String domain, String fileKey) {
+    if (fileKey == null || fileKey.isBlank()) {
+      throw new BusinessException(
+          FileErrorCode.FILE_NOT_FOUND);
+    }
+    if (domain == null || domain.isBlank()) {
+      throw new BusinessException(FileErrorCode.INVALID_TEMP_FILE_KEY);
+    }
+
+    String normalizedDomain = domain.trim().toLowerCase();
+
+    // 원본 key에서 파일명만 뽑아서 스냅샷 키 생성
+    String fileName = extractFileName(fileKey); // 예: abc.png, 123/abc.png -> abc.png
+    String snapshotFileKey = String.format("%s%s/%s-%s",
+        SNAPSHOT_REPORT_PREFIX,
+        normalizedDomain,
+        UUID.randomUUID(),
+        fileName
+    );
+
+    CopyObjectRequest copyRequest = CopyObjectRequest.builder()
+        .sourceBucket(bucket)
+        .sourceKey(fileKey)
+        .destinationBucket(bucket)
+        .destinationKey(snapshotFileKey)
+        .build();
+
+    try {
+      s3Client.copyObject(copyRequest);
+    } catch (NoSuchKeyException e) {
+      log.warn("Snapshot copy failed - file not found. bucket={}, key={}", bucket, fileKey);
+      throw new BusinessException(FileErrorCode.FILE_NOT_FOUND);
+    }
+
+    return snapshotFileKey;
   }
 
   private void softDeleteFile(String bucket, String deletionRequestedFileKey) {
@@ -209,6 +264,11 @@ public class FileStorageService {
       // ignore
       // throw new BusinessException(FileErrorCode.FILE_NOT_FOUND);
     }
+  }
+
+  private String extractFileName(String fileKey) {
+    int idx = fileKey.lastIndexOf('/');
+    return (idx >= 0) ? fileKey.substring(idx + 1) : fileKey;
   }
 
   // --- ContentType 유효성 검사 메서드 ---
