@@ -36,7 +36,6 @@ public class StudioController {
 
   private final StudioService studioService;
   private final StudioDetailsService studioDetailsService;
-  private final ReportService reportService;
 
   @GetMapping("/map-search")
   public ApiResponse<List<StudioMapResponse>> searchStudiosInMapBounds(
@@ -75,15 +74,5 @@ public class StudioController {
     StudioDetailResponse response = studioDetailsService.getStudio(studioId, musicianId);
 
     return ApiResponse.success(response);
-  }
-
-  @Operation(summary = "스튜디오 신고하기", description = "스튜디오 신고하기")
-  @PostMapping("/{studioId}/report")
-  public ApiResponse<Void> reportStudio(
-      @PathVariable Long studioId,
-      @AuthenticationPrincipal Long musicianId,
-      @RequestBody RegisterReportRequest request) {
-    reportService.registerReport(ReportDomainType.STUDIO, studioId, musicianId, request);
-    return ApiResponse.success();
   }
 }

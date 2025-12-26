@@ -1,6 +1,9 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.provider.google;
 
+import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
+import kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.google.dto.GoogleTokenResponse;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -39,11 +42,11 @@ public class GoogleOAuthClient {
     } catch (HttpStatusCodeException e) {
       log.warn("[Google userinfo 실패] status={}, body={}", e.getStatusCode(),
           e.getResponseBodyAsString());
-      throw new IllegalStateException("Google userinfo 요청에 실패했습니다. status=" + e.getStatusCode(), e);
+      throw new BusinessException(AuthErrorCode.LOGIN_FAIL);
 
     } catch (RestClientException e) {
       log.warn("[Google userinfo 실패] RestClientException", e);
-      throw new IllegalStateException("Google userinfo 요청 중 오류가 발생했습니다.", e);
+      throw new BusinessException(AuthErrorCode.LOGIN_FAIL);
     }
   }
 }

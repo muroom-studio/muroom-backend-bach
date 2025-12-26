@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.report.handler.implement;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Map;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
@@ -36,13 +37,11 @@ public class StudioBoastReportTargetHandler implements ReportTargetHandler {
 
   private final StudioBoastRepository studioBoastRepository;
   private final StudioBoastImageRepository studioBoastImageRepository;
-  private final StudioBoastService studioBoastService;
   private final ObjectMapper objectMapper;
   private final FileStorageService fileStorageService;
   private final StudioService studioService;
   private final MusicianService musicianService;
   private final SubwayService subwayService;
-  private final StudioBoastLikeRepository studioBoastLikeRepository;
 
   @Override
   public ReportDomainType supports() {
@@ -50,8 +49,8 @@ public class StudioBoastReportTargetHandler implements ReportTargetHandler {
   }
 
   @Override
-  public void validateTarget(Long domainId, Musician reporter) {
-    StudioBoast studioBoast = studioBoastRepository.findById(domainId)
+  public void validateTarget(Long studioBoastId, Musician reporter) {
+    StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
 
     if (studioBoast.getCreatorUserId().equals(reporter.getId())) {
@@ -60,75 +59,45 @@ public class StudioBoastReportTargetHandler implements ReportTargetHandler {
   }
 
   @Override
-  public JsonNode buildSnapshot(Long domainId) {
-    // 1. 기존 상세 조회 로직 재사용
-    StudioBoastDetailResponse detailResponse = getStudioBoastDetail(domainId);
-    // 2. DTO → JsonNode 변환
-    return objectMapper.valueToTree(detailResponse);
-  }
-
-  public StudioBoastDetailResponse getStudioBoastDetail(Long studioBoastId) {
+  public JsonNode buildSnapshot(Long studioBoastId) {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
-    List<StudioBoastImage> studioBoastImages =
-        studioBoastImageRepository.findByStudioBoastIdOrderBySequenceAsc(studioBoastId);
-    List<String> studioBoastImageFileUrls = studioBoastImages.stream()
-        .map(studioBoastImage -> fileStorageService.getPublicFileUrl(
-            studioBoastImage.getImageFileKey()))
+
+    List<StudioBoastImage> images =
+        studioBoastImageRepository.findAllByStudioBoastId(studioBoastId);
+
+    // 1) 이미지: 원본 key 그대로 snapshot/report/{domain}/ 로 copy
+    List<String> snapshotImageKeys = images.stream()
+        .map(StudioBoastImage::getImageFileKey)
+        .filter(key -> key != null && !key.isBlank())
+        .map(key ->
+            fileStorageService.copyPublicFileToReportSnapshot(
+                supports().name().toLowerCase(),
+                key
+            )
+        )
         .toList();
 
-    Musician creatorUser = musicianService.getMusicianById(studioBoast.getCreatorUserId());
-    CreatorUserInfo creatorUserInfo = CreatorUserInfo.builder()
-        .id(String.valueOf(creatorUser.getId()))
-        .nickname(creatorUser.getNickname())
-        .instrument(creatorUser.getInstrument().getDescription())
-        .agreedToEventTerms(studioBoast.isAgreedToEventTerms())
-        .instagramAccount(studioBoast.getInstagramAccount())
-        .build();
+    // 2) snapshot 데이터 구성
+    Map<String, Object> snapshot = Map.of(
+        "boastId", studioBoast.getId(),
+        "content", studioBoast.getContent(),
+        "userId", studioBoast.getCreatorUserId(),
+        "studioName", studioBoast.getStudioName(),
+        "imageKeys", snapshotImageKeys,
+        "roadNameAddress", studioBoast.getRoadNameAddress(),
+        "lotNumberAddress", studioBoast.getLotNumberAddress(),
+        "detailedAddress", studioBoast.getDetailedAddress(),
+        "createdAt", studioBoast.getCreatedAt()
+    );
 
-    boolean isStudioUploaded = studioBoast.getStudioId() != null;
-    StudioInfo studioInfo = null;
-    UnknownStudioInfo unknownStudioInfo = null;
-    if (isStudioUploaded) {
-      studioInfo = StudioInfo.from(studioService.getStudioInfoById(studioBoast.getStudioId()));
-    } else {
-      List<StationInfo> nearbySubwayStations = subwayService.findNearbyStations(
-          studioBoast.getRoadNameAddress()).getStations();
-      StudioSubwayStationInfo nearestSubwayStation = null;
-      if (!nearbySubwayStations.isEmpty()) {
-        StationInfo stationInfo = nearbySubwayStations.getFirst();
-        nearestSubwayStation = StudioSubwayStationInfo.builder()
-            .stationName(stationInfo.getStationName())
-            .lines(stationInfo.getLines())
-            .distanceInMeters(stationInfo.getDistanceInMeters())
-            .build();
-      }
-      unknownStudioInfo = UnknownStudioInfo.builder()
-          .name(studioBoast.getStudioName())
-          .nearestSubwayStation(nearestSubwayStation)
-          .roadNameAddress(studioBoast.getRoadNameAddress())
-          .lotNumberAddress(studioBoast.getLotNumberAddress())
-          .detailedAddress(studioBoast.getDetailedAddress())
-          .build();
+    // 3) JsonNode 변환
+    try {
+      return objectMapper.valueToTree(snapshot);
+    } catch (Exception e) {
+      log.error("Report snapshot serialize failed. studioBoastId={}", studioBoastId, e);
+      throw new BusinessException(ReportErrorCode.REPORT_SNAPSHOT_SERIALIZE_FAILED);
     }
-
-    boolean isLiked = false;
-
-    return StudioBoastDetailResponse.builder()
-        .id(String.valueOf(studioBoast.getId()))
-        .content(studioBoast.getContent())
-        .thumbnailImageFileUrl(
-            fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey())
-        )
-        .imageFileUrls(studioBoastImageFileUrls)
-        .isLikedByRequestUser(isLiked)
-        .likeCount(studioBoast.getLikeCount())
-        .commentCount(0L)
-        .createdAt(studioBoast.getCreatedAt())
-        .isStudioUploaded(isStudioUploaded)
-        .creatorUserInfo(creatorUserInfo)
-        .studioInfo(studioInfo)
-        .unknownStudioInfo(unknownStudioInfo)
-        .build();
   }
+
 }
