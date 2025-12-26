@@ -67,11 +67,6 @@ public class StudioBoastReportTargetHandler implements ReportTargetHandler {
     return objectMapper.valueToTree(detailResponse);
   }
 
-  private StudioBoast getStudioBoast(Long domainId) {
-    return studioBoastRepository.findById(domainId)
-        .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
-  }
-
   public StudioBoastDetailResponse getStudioBoastDetail(Long studioBoastId) {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));

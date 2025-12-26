@@ -153,12 +153,16 @@ public class InquiryResponseMapper {
     }
 
     return images.stream()
-        .filter(img -> img.getImageKey() != null && !img.getImageKey().isBlank())
+        .filter(this::hasValidImageKey)
         .map(img -> ImageDto.builder()
             .id(String.valueOf(img.getId()))
             .imageFileUrl(
                 fileStorageService.generatePresignedGetUrlForPrivateFile(img.getImageKey()))
             .build())
         .toList();
+  }
+
+  private boolean hasValidImageKey(InquiryImage img) {
+    return img != null && img.getImageKey() != null && !img.getImageKey().isBlank();
   }
 }
