@@ -431,7 +431,6 @@ public class StudioBoastService {
 
   @Transactional
   public void deleteStudioBoast(Long studioBoastId, Long musicianId) {
-    // TODO: 삭제 권한 검증
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
 
