@@ -25,10 +25,10 @@ public record StudioBoastDetailResponse(
     List<String> imageFileUrls,
 
     @Schema(description = "요청한 사용자가 작성한 댓글인지 여부")
-    Boolean isWrittenByRequestUser,
+    boolean isWrittenByRequestUser,
 
     @Schema(description = "요청한 사용자가 좋아요를 눌렀는지 여부", example = "true", requiredMode = RequiredMode.REQUIRED)
-    Boolean isLikedByRequestUser,
+    boolean isLikedByRequestUser,
 
     @Schema(description = "좋아요 수", example = "150", requiredMode = RequiredMode.REQUIRED)
     long likeCount,

@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -8,7 +7,6 @@ import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import lombok.Builder;
 
 @Schema(description = "작업실 소개(자랑) 댓글 응답 DTO")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record StudioBoastCommentResponse(
     @Schema(description = "댓글 ID", example = "12345678901234")
@@ -21,13 +19,13 @@ public record StudioBoastCommentResponse(
     OffsetDateTime createdAt,
 
     @Schema(description = "댓글이 비밀 댓글인지 여부", example = "false")
-    Boolean isSecret,
+    boolean isSecret,
 
     @Schema(description = "댓글이 삭제된 댓글인지 여부", example = "false")
-    Boolean isDeleted,
+    boolean isDeleted,
 
     @Schema(description = "현 사용자에게 댓글이 보이는지 여부", example = "true")
-    Boolean isVisible,
+    boolean isVisible,
 
     @Schema(description = "댓글 작성자 정보")
     CreatorUserInfo creatorUserInfo,
@@ -36,10 +34,10 @@ public record StudioBoastCommentResponse(
     TaggedUserInfo taggedUserInfo,
 
     @Schema(description = "요청한 사용자가 작성한 댓글인지 여부")
-    Boolean isWrittenByRequestUser,
+    boolean isWrittenByRequestUser,
 
     @Schema(description = "좋아요 여부", example = "true")
-    Boolean isLikedByRequestUser,
+    boolean isLikedByRequestUser,
 
     @Schema(description = "대댓글 목록")
     List<StudioBoastCommentReplyResponse> replies,
