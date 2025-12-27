@@ -10,20 +10,12 @@ import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
 import kr.muroom.muroombackendbach.report.exception.ReportErrorCode;
 import kr.muroom.muroombackendbach.report.handler.ReportTargetHandler;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
-import kr.muroom.muroombackendbach.studioboasting.application.StudioBoastService;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastImageRepository;
-import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastLikeRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
-import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse;
-import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.CreatorUserInfo;
-import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
-import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.UnknownStudioInfo;
 import kr.muroom.muroombackendbach.subway.application.SubwayService;
-import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse.StationInfo;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +56,7 @@ public class StudioBoastReportTargetHandler implements ReportTargetHandler {
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
 
     List<StudioBoastImage> images =
-        studioBoastImageRepository.findAllByStudioBoastId(studioBoastId);
+        studioBoastImageRepository.findAllByStudioBoast(studioBoast);
 
     // 1) 이미지: 원본 key 그대로 snapshot/report/{domain}/ 로 copy
     List<String> snapshotImageKeys = images.stream()

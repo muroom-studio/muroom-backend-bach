@@ -22,25 +22,25 @@ public record StudioBoastCommentReplyResponse(
     OffsetDateTime createdAt,
 
     @Schema(description = "댓글이 비밀 댓글인지 여부", example = "false")
-    Boolean isSecret,
+    boolean isSecret,
 
     @Schema(description = "댓글이 삭제된 댓글인지 여부", example = "false")
-    Boolean isDeleted,
+    boolean isDeleted,
 
     @Schema(description = "현 사용자에게 댓글이 보이는지 여부", example = "true")
-    Boolean isVisible,
+    boolean isVisible,
 
     @Schema(description = "댓글 작성자 정보")
     CreatorUserInfo creatorUserInfo,
 
-    @Schema(description = "태그된 사용자 정보")
+    @Schema(description = "태그된 사용자 정보", nullable = true)
     TaggedUserInfo taggedUserInfo,
 
     @Schema(description = "요청한 사용자가 작성한 댓글인지 여부")
-    Boolean isWrittenByRequestUser,
+    boolean isWrittenByRequestUser,
 
     @Schema(description = "좋아요 여부", example = "true")
-    Boolean isLikedByRequestUser,
+    boolean isLikedByRequestUser,
 
     @Schema(description = "좋아요 수", example = "42")
     Long likeCount
