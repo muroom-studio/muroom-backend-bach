@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -7,6 +8,7 @@ import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import lombok.Builder;
 
 @Schema(description = "작업실 소개(자랑) 댓글 응답 DTO")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record StudioBoastCommentResponse(
     @Schema(description = "댓글 ID", example = "12345678901234")
@@ -30,7 +32,7 @@ public record StudioBoastCommentResponse(
     @Schema(description = "댓글 작성자 정보")
     CreatorUserInfo creatorUserInfo,
 
-    @Schema(description = "태그된 사용자 정보")
+    @Schema(description = "태그된 사용자 정보", nullable = true)
     TaggedUserInfo taggedUserInfo,
 
     @Schema(description = "요청한 사용자가 작성한 댓글인지 여부")
@@ -63,8 +65,12 @@ public record StudioBoastCommentResponse(
     }
   }
 
+  @Schema(description = "태그된 사용자 정보")
   public record TaggedUserInfo(
+      @Schema(description = "태그된 뮤지션 ID", example = "12345678901234")
       String id,
+
+      @Schema(description = "태그된 뮤지션 닉네임", example = "태그된뮤지션닉네임")
       String nickname
   ) {
 

@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse.CreatorUserInfo;
@@ -7,6 +8,7 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import lombok.Builder;
 
 @Schema(description = "작업실 소개(자랑) 대댓글 응답 DTO")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record StudioBoastCommentReplyResponse(
 
@@ -31,7 +33,7 @@ public record StudioBoastCommentReplyResponse(
     @Schema(description = "댓글 작성자 정보")
     CreatorUserInfo creatorUserInfo,
 
-    @Schema(description = "태그된 사용자 정보")
+    @Schema(description = "태그된 사용자 정보", nullable = true)
     TaggedUserInfo taggedUserInfo,
 
     @Schema(description = "요청한 사용자가 작성한 댓글인지 여부")

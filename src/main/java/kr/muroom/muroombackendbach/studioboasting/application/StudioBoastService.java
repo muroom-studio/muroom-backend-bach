@@ -148,7 +148,7 @@ public class StudioBoastService {
   private void syncImages(StudioBoast studioBoast, List<String> newImageFileKeys) {
 
     // 1. DB에 저장된 기존 이미지 목록 조회
-    List<StudioBoastImage> oldImages = studioBoastImageRepository.findByStudioBoastIdOrderBySequenceAsc(studioBoast.getId());
+    List<StudioBoastImage> oldImages = studioBoastImageRepository.findByStudioBoastOrderBySequenceAsc(studioBoast);
     Map<String, StudioBoastImage> oldImageMap = oldImages.stream()
         .collect(Collectors.toMap(StudioBoastImage::getImageFileKey, image -> image));
 
@@ -247,7 +247,6 @@ public class StudioBoastService {
 
   private List<StudioBoastDetailResponse> enrichStudioBoasts(List<StudioBoast> studioBoasts, Long musicianId) {
     // 2. 후속 처리에 필요한 ID들을 일괄 수집
-    List<Long> studioBoastIds = studioBoasts.stream().map(StudioBoast::getId).toList();
     List<Long> creatorUserIds = studioBoasts.stream().map(StudioBoast::getCreatorUserId).distinct().toList();
     List<Long> studioIds = studioBoasts.stream()
         .map(StudioBoast::getStudioId)
@@ -257,7 +256,7 @@ public class StudioBoastService {
 
     // 3. 수집한 ID를 사용하여 연관 데이터 일괄 조회 (In-clause 쿼리)
     // 3-1. 이미지 정보 조회
-    Map<Long, List<StudioBoastImage>> imagesByBoastId = studioBoastImageRepository.findAllByStudioBoastIdIn(studioBoastIds).stream()
+    Map<Long, List<StudioBoastImage>> imagesByBoastId = studioBoastImageRepository.findAllByStudioBoastIn(studioBoasts).stream()
         .collect(Collectors.groupingBy(studioBoastImage -> studioBoastImage.getStudioBoast().getId()));
 
     // 3-2. 작성자 정보 조회
@@ -363,7 +362,7 @@ public class StudioBoastService {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
     List<StudioBoastImage> studioBoastImages =
-        studioBoastImageRepository.findByStudioBoastIdOrderBySequenceAsc(studioBoastId);
+        studioBoastImageRepository.findByStudioBoastOrderBySequenceAsc(studioBoast);
     List<String> studioBoastImageFileUrls = studioBoastImages.stream()
         .map(studioBoastImage -> fileStorageService.getPublicFileUrl(studioBoastImage.getImageFileKey()))
         .toList();
@@ -441,12 +440,12 @@ public class StudioBoastService {
     }
 
     // 1. 연관된 이미지 Soft Delete
-    List<StudioBoastImage> studioBoastImages = studioBoastImageRepository.findAllByStudioBoastId(studioBoastId);
+    List<StudioBoastImage> studioBoastImages = studioBoastImageRepository.findAllByStudioBoast(studioBoast);
     if (studioBoastImages != null && !studioBoastImages.isEmpty()) {
       studioBoastImages.stream()
           .map(StudioBoastImage::getImageFileKey)
           .forEach(fileStorageService::deletePublicFile);
-      studioBoastImageRepository.deleteAll(studioBoastImages);
+      studioBoastImageRepository.deleteAllByStudioBoast(studioBoast);
     }
 
     // 2. 연관된 '좋아요' 삭제
