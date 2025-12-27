@@ -20,6 +20,7 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.S
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage;
+import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastCommentLikeRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastCommentRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastImageRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastLikeRepository;
@@ -60,6 +61,7 @@ public class StudioBoastService {
   private final SubwayService subwayService;
   private final StudioBoastLikeRepository studioBoastLikeRepository;
   private final StudioBoastCommentRepository studioBoastCommentRepository;
+  private final StudioBoastCommentLikeRepository studioBoastCommentLikeRepository;
 
   public GeneratePresignedPutUrlResponse generateStudioImagePresignedPutUrl(StudioBoastImageUploadRequest request) {
     return fileStorageService.generatePresignedPutUrlForPublic(request, FileStorageService::validateImageContentType);
@@ -447,12 +449,14 @@ public class StudioBoastService {
       studioBoastImageRepository.deleteAll(studioBoastImages);
     }
 
-    // 2. 연관된 댓글 Soft Delete
-    // studioBoastCommentRepository.softDeleteAllByStudioBoastId(studioBoastId);
-
-    // 3. 연관된 '좋아요' Hard Delete
+    // 2. 연관된 '좋아요' 삭제
     studioBoastLikeRepository.deleteAllByStudioBoast(studioBoast);
 
-    studioBoastRepository.deleteById(studioBoastId);
+    // 3. 연관된 댓글 삭제
+    studioBoastCommentLikeRepository.deleteAllByStudioBoast(studioBoast);
+    studioBoastCommentRepository.deleteAllByStudioBoast(studioBoast);
+
+    // 4. 스튜디오 자랑글 자체 삭제
+    studioBoastRepository.delete(studioBoast);
   }
 }

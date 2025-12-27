@@ -16,4 +16,6 @@ public interface StudioBoastCommentRepository extends JpaRepository<StudioBoastC
   List<StudioBoastComment> findByParentInOrderByCreatedAtAsc(List<StudioBoastComment> parents);
 
   long countByStudioBoast(StudioBoast studioBoast);
+
+  void deleteAllByStudioBoast(StudioBoast studioBoast);
 }

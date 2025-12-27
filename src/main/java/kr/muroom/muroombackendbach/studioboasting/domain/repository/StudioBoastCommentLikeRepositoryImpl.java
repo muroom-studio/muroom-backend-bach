@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastComment;
 import lombok.RequiredArgsConstructor;
 
@@ -55,5 +56,13 @@ public class StudioBoastCommentLikeRepositoryImpl implements StudioBoastCommentL
                 }
             )
         );
+  }
+
+  @Override
+  public void deleteAllByStudioBoast(StudioBoast studioBoast) {
+    queryFactory
+        .delete(studioBoastCommentLike)
+        .where(studioBoastCommentLike.comment.studioBoast.eq(studioBoast))
+        .execute();
   }
 }
