@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
@@ -10,6 +11,7 @@ import lombok.Builder;
 
 // TODO: isWrittenByRequestUser 필드 추가
 @Schema(description = "작업실 소개(자랑) 상세 조회 응답 DTO")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public record StudioBoastDetailResponse(
     @Schema(description = "작업실 소개(자랑) 게시글 ID", example = "123456789012345678", requiredMode = RequiredMode.REQUIRED)
@@ -52,6 +54,7 @@ public record StudioBoastDetailResponse(
     UnknownStudioInfo unknownStudioInfo
 ) {
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   @Builder
   public record CreatorUserInfo(
       @Schema(description = "작성자 musician ID", example = "790273425936465074", nullable = true)
@@ -72,6 +75,7 @@ public record StudioBoastDetailResponse(
 
   }
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   @Builder
   public record StudioInfo(
       @Schema(description = "작업실(스튜디오) ID", example = "791543436721219205", nullable = true)
@@ -105,6 +109,7 @@ public record StudioBoastDetailResponse(
     }
   }
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   @Builder
   public record UnknownStudioInfo(
       @Schema(description = "작업실(스튜디오) 이름", example = "뮤룸 스튜디오 홍대점", requiredMode = RequiredMode.REQUIRED)
