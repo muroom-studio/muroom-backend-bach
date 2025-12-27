@@ -2,8 +2,11 @@ package kr.muroom.muroombackendbach.studioboasting.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
@@ -38,8 +41,9 @@ public class StudioBoastImage extends SoftDeletableEntity {
   @Column(nullable = false)
   private Integer sequence;
 
-  @Column(nullable = false)
-  private Long studioBoastId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "studio_boast_id", nullable = false)
+  private StudioBoast studioBoast;
 
   public void updateSequence(int newSequence) {
     this.sequence = newSequence;

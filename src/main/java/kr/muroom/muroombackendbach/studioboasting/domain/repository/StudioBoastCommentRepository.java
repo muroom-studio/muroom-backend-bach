@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StudioBoastCommentRepository extends JpaRepository<StudioBoastComment, Long> {
+public interface StudioBoastCommentRepository extends JpaRepository<StudioBoastComment, Long>, StudioBoastCommentQueryRepository {
 
   // 최상위 댓글 목록을 '페이지네이션'하여 조회합니다.
   Page<StudioBoastComment> findByStudioBoastAndParentIsNull(StudioBoast studioBoast, Pageable pageable);
@@ -16,6 +16,4 @@ public interface StudioBoastCommentRepository extends JpaRepository<StudioBoastC
   List<StudioBoastComment> findByParentInOrderByCreatedAtAsc(List<StudioBoastComment> parents);
 
   long countByStudioBoast(StudioBoast studioBoast);
-
-  void deleteAllByStudioBoast(StudioBoast studioBoast);
 }
