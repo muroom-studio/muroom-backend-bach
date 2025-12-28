@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.admin.owner.application;
 
+import java.security.SecureRandom;
 import kr.muroom.muroombackendbach.admin.owner.presentation.request.OwnerCreateRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.user.domain.entity.Owner;
@@ -17,13 +18,25 @@ public class AdminOwnerService {
 
   private final OwnerRepository ownerRepository;
   private final UniqueNicknameCodeGenerator uniqueNicknameCodeGenerator;
+  private static final SecureRandom RND = new SecureRandom();
 
+  private static final int MAX_ATTEMPTS = 30;
+  private static final int SPACE = 1_000_000;
+
+  @Transactional(readOnly = true)
   public String generateOwnerUniqueNickname() {
-    // 1. 번호표(Sequence) 하나 소모 (동시성 문제 없이 유니크함 보장)
-    Long nextSeq = ownerRepository.getNextIdSequence();
+    for (int i = 0; i < MAX_ATTEMPTS; i++) {
+      long candidate = RND.nextInt(SPACE); // 0..999999
 
-    // 2. 번호표를 닉네임으로 변환하여 반환
-    return uniqueNicknameCodeGenerator.generate(nextSeq);
+      String nickname = uniqueNicknameCodeGenerator.generate(candidate);
+
+      // 이미 쓰는 닉네임이면 다시
+      if (!ownerRepository.existsByNickname(nickname)) {
+        return nickname;
+      }
+    }
+
+    throw new IllegalStateException("닉네임 후보 생성에 실패했습니다. (재시도 초과)");
   }
 
   public void createOwner(OwnerCreateRequest request) {

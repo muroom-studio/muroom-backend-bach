@@ -9,14 +9,11 @@ import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
 import kr.muroom.muroombackendbach.report.exception.ReportErrorCode;
 import kr.muroom.muroombackendbach.report.handler.ReportTargetHandler;
-import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastImageRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
-import kr.muroom.muroombackendbach.subway.application.SubwayService;
-import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +28,6 @@ public class StudioBoastReportTargetHandler implements ReportTargetHandler {
   private final StudioBoastImageRepository studioBoastImageRepository;
   private final ObjectMapper objectMapper;
   private final FileStorageService fileStorageService;
-  private final StudioService studioService;
-  private final MusicianService musicianService;
-  private final SubwayService subwayService;
 
   @Override
   public ReportDomainType supports() {

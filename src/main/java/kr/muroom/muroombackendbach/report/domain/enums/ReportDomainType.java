@@ -34,6 +34,8 @@ public enum ReportDomainType implements EnumMapperType {
    */
   STUDIO_BOAST("스튜디오 매물 자랑"),
 
+  STUDIO_BOAST_COMMENT("스튜디오 매물 댓글"),
+
   /**
    * 스튜디오 내부 개별 룸 예) 사진/설명과 다른 룸 상태
    */

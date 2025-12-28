@@ -2,6 +2,9 @@ package kr.muroom.muroombackendbach.studioboasting.presentation;
 
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
+import kr.muroom.muroombackendbach.report.application.ReportService;
+import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
+import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.studioboasting.application.StudioBoastCommentService;
 import kr.muroom.muroombackendbach.studioboasting.presentation.docs.StudioBoastCommentControllerDocs;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastCommentRequest;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudioBoastCommentController implements StudioBoastCommentControllerDocs {
 
   private final StudioBoastCommentService studioBoastCommentService;
+  private final ReportService reportService;
 
   @Override
   @PostMapping
@@ -55,7 +59,8 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
   ) {
     // 최신순 정렬 고정
     Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-    Page<StudioBoastCommentResponse> response = studioBoastCommentService.getComments(studioBoastId, musicianId, pageable);
+    Page<StudioBoastCommentResponse> response = studioBoastCommentService.getComments(studioBoastId,
+        musicianId, pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
 
@@ -99,6 +104,17 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
       @AuthenticationPrincipal Long musicianId
   ) {
     studioBoastCommentService.unlikeComment(commentId, musicianId);
+    return ApiResponse.success();
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/{commentId}/report")
+  public ApiResponse<Void> reportComment(
+      @PathVariable Long commentId,
+      @AuthenticationPrincipal Long musicianId,
+      @RequestBody RegisterReportRequest request) {
+    reportService.registerReport(ReportDomainType.STUDIO_BOAST_COMMENT, commentId,
+        musicianId, request);
     return ApiResponse.success();
   }
 }
