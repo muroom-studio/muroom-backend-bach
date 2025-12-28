@@ -19,6 +19,7 @@ import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastC
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastCommentRequest;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastCommentRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentReplyResponse;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse.CreatorUserInfo;
@@ -78,7 +79,8 @@ public class StudioBoastCommentService {
   }
 
   @Transactional
-  public void updateComment(Long commentId, String content, Long musicianId) {
+  public void updateComment(Long commentId, UpdateStudioBoastCommentRequest request,
+      Long musicianId) {
     StudioBoastComment comment = studioBoastCommentRepository.findById(commentId)
         .orElseThrow(
             () -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
@@ -86,7 +88,9 @@ public class StudioBoastCommentService {
     if (!comment.getCreatorUserId().equals(musicianId)) {
       throw new BusinessException(AuthErrorCode.FORBIDDEN);
     }
-    comment.updateContent(content);
+
+    comment.updateIsSecret(request.isSecret());
+    comment.updateContent(request.content());
   }
 
   @Transactional

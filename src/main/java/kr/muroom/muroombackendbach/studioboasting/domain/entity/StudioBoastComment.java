@@ -26,7 +26,8 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Table(name = "studio_boast_comments")
 @SQLRestriction("deleted_at IS NULL")
-@SQLDelete(sql = "UPDATE studio_boast_comments SET deleted_at = NOW() WHERE studio_boast_comment_id = ?")
+@SQLDelete(sql = "UPDATE studio_boast_comments SET deleted_at = NOW() WHERE "
+    + "studio_boast_comment_id = ?")
 public class StudioBoastComment extends SoftDeletableEntity {
 
   @Id
@@ -48,7 +49,8 @@ public class StudioBoastComment extends SoftDeletableEntity {
   private Long taggedUserId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "studio_boast_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+  @JoinColumn(name = "studio_boast_id", nullable = false, foreignKey =
+  @ForeignKey(ConstraintMode.NO_CONSTRAINT))
   private StudioBoast studioBoast;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -57,5 +59,9 @@ public class StudioBoastComment extends SoftDeletableEntity {
 
   public void updateContent(String content) {
     this.content = content;
+  }
+
+  public void updateIsSecret(Boolean isSecret) {
+    this.isSecret = isSecret;
   }
 }

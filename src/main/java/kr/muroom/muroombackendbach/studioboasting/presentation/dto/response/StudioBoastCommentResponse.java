@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.List;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import lombok.Builder;
 
@@ -54,14 +55,58 @@ public record StudioBoastCommentResponse(
       String id,
 
       @Schema(description = "작성자 닉네임", example = "뮤지션닉네임")
-      String nickname
+      String nickname,
+
+      @Schema(description = "작성자 악기 정보")
+      InstrumentInfo instrumentInfo
   ) {
 
     public static CreatorUserInfo from(Musician creator) {
       if (creator == null) {
-        return new CreatorUserInfo(null, "탈퇴한 사용자");
+        return new CreatorUserInfo(
+            null,
+            "탈퇴한 사용자",
+            null
+        );
       }
-      return new CreatorUserInfo(creator.getId().toString(), creator.getNickname());
+
+      InstrumentInfo instrumentInfo = null;
+      if (creator.getInstrument() != null) {
+        instrumentInfo = InstrumentInfo.from(creator.getInstrument());
+      }
+
+      return new CreatorUserInfo(
+          creator.getId().toString(),
+          creator.getNickname(),
+          instrumentInfo
+      );
+    }
+
+    @Schema(description = "악기 정보")
+    public record InstrumentInfo(
+        @Schema(description = "악기 ID", example = "12345678901234")
+        String id,
+
+        @Schema(description = "악기 코드", example = "GUITAR")
+        String code,
+
+        @Schema(description = "악기 설명", example = "기타")
+        String description
+    ) {
+
+      public static InstrumentInfo from(
+          Instrument instrument
+      ) {
+        if (instrument == null) {
+          return null;
+        }
+
+        return new InstrumentInfo(
+            instrument.getId().toString(),
+            instrument.getCode(),
+            instrument.getDescription()
+        );
+      }
     }
   }
 
