@@ -72,7 +72,7 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
       @AuthenticationPrincipal Long musicianId,
       @Validated @RequestBody UpdateStudioBoastCommentRequest request
   ) {
-    studioBoastCommentService.updateComment(commentId, request.content(), musicianId);
+    studioBoastCommentService.updateComment(commentId, request, musicianId);
     return ApiResponse.success();
   }
 
