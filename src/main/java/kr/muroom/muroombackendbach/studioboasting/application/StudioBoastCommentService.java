@@ -186,6 +186,7 @@ public class StudioBoastCommentService {
           .id(comment.getId().toString())
           .content("삭제된 댓글입니다.")
           .isDeleted(true)
+          .createdAt(comment.getCreatedAt())
           .isVisible(false)
           .replies(replies)
           .build();
@@ -199,6 +200,7 @@ public class StudioBoastCommentService {
           .content("비밀 댓글입니다.")
           .isSecret(true)
           .isDeleted(false)
+          .createdAt(comment.getCreatedAt())
           .isVisible(false)
           .replies(replies)
           .build();
@@ -255,6 +257,7 @@ public class StudioBoastCommentService {
       return StudioBoastCommentReplyResponse.builder()
           .id(reply.getId().toString())
           .content("삭제된 댓글입니다.")
+          .createdAt(reply.getCreatedAt())
           .isDeleted(true)
           .isVisible(false)
           .build();
@@ -267,6 +270,7 @@ public class StudioBoastCommentService {
           .id(reply.getId().toString())
           .content("비밀 댓글입니다.")
           .isSecret(true)
+          .createdAt(reply.getCreatedAt())
           .isDeleted(false)
           .isVisible(false)
           .build();
