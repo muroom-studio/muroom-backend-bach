@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class StdioBoastCommentReportTargetHandler implements ReportTargetHandler {
+public class StudioBoastCommentReportTargetHandler implements ReportTargetHandler {
 
   private final StudioBoastCommentRepository studioBoastCommentRepository;
   private final MusicianRepository musicianRepository;
@@ -31,10 +31,7 @@ public class StdioBoastCommentReportTargetHandler implements ReportTargetHandler
 
   @Override
   public void validateTarget(Long studioBoastCommentId, Musician reporter) {
-    StudioBoastComment studioBoastComment = studioBoastCommentRepository.findById(
-            studioBoastCommentId)
-        .orElseThrow(
-            () -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+    StudioBoastComment studioBoastComment = findStudioBoastCommentById(studioBoastCommentId);
 
     if (studioBoastComment.getCreatorUserId() != null
         && studioBoastComment.getCreatorUserId().equals(reporter.getId())) {
@@ -44,9 +41,7 @@ public class StdioBoastCommentReportTargetHandler implements ReportTargetHandler
 
   @Override
   public JsonNode buildSnapshot(Long studioBoastCommentId) {
-    StudioBoastComment c = studioBoastCommentRepository.findById(studioBoastCommentId)
-        .orElseThrow(
-            () -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+    StudioBoastComment c = findStudioBoastCommentById(studioBoastCommentId);
 
     ObjectNode root = objectMapper.createObjectNode();
 
@@ -80,5 +75,11 @@ public class StdioBoastCommentReportTargetHandler implements ReportTargetHandler
     node.put("id", m.getId());
     node.put("nickname", m.getNickname());
     return node;
+  }
+
+  private StudioBoastComment findStudioBoastCommentById(Long commentId) {
+    return studioBoastCommentRepository.findById(commentId)
+        .orElseThrow(
+            () -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
   }
 }
