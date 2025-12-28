@@ -44,7 +44,7 @@ public class StudioViewService {
     if (musicianId != null) {
       musicianProxy = musicianRepository.getReferenceById(musicianId);
       alreadyViewedToday = studioViewLogRepository.existsByStudioAndMusicianAndViewedAtAfter(
-          musicianProxy, studio, startOfTodayUtc);
+          studio, musicianProxy, startOfTodayUtc);
     } else {
       anonymousUserId = AnonymousUserContext.getAnonymousUserId();
 
