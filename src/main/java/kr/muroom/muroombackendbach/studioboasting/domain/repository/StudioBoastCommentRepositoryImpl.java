@@ -42,4 +42,15 @@ public class StudioBoastCommentRepositoryImpl implements StudioBoastCommentQuery
         ));
   }
 
+  @Override
+  public Long countTopLevelCommentsByStudioBoast(StudioBoast studioBoast) {
+    return queryFactory
+        .select(studioBoastComment.count())
+        .from(studioBoastComment)
+        .where(
+            studioBoastComment.studioBoast.eq(studioBoast),
+            studioBoastComment.parent.isNull()
+        )
+        .fetchOne();
+  }
 }

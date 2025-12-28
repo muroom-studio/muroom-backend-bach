@@ -459,7 +459,7 @@ public class StudioBoastService {
       isLiked = studioBoastLikeRepository.existsByMusicianAndStudioBoast(requestUser, studioBoast);
     }
 
-    long commentCount = studioBoastCommentRepository.countByStudioBoast(studioBoast);
+    long commentCount = studioBoastCommentRepository.countTopLevelCommentsByStudioBoast(studioBoast);
 
     return StudioBoastDetailResponse.builder()
         .id(String.valueOf(studioBoast.getId()))
