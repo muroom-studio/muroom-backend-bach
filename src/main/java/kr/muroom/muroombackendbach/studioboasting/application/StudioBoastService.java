@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStatio
 import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse.StationInfo;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -62,6 +64,7 @@ public class StudioBoastService {
   private final StudioBoastLikeRepository studioBoastLikeRepository;
   private final StudioBoastCommentRepository studioBoastCommentRepository;
   private final StudioBoastCommentLikeRepository studioBoastCommentLikeRepository;
+  private final MusicianRepository musicianRepository;
 
   public GeneratePresignedPutUrlResponse generateStudioImagePresignedPutUrl(StudioBoastImageUploadRequest request) {
     return fileStorageService.generatePresignedPutUrlForPublic(request, FileStorageService::validateImageContentType);
@@ -296,13 +299,22 @@ public class StudioBoastService {
 
       // 작성자 정보 DTO 생성
       Musician creator = musiciansById.get(studioBoast.getCreatorUserId());
-      CreatorUserInfo creatorUserInfo = CreatorUserInfo.builder()
-          .id(String.valueOf(creator.getId()))
-          .nickname(creator.getNickname())
-          .instrument(creator.getInstrument().getDescription())
-          .build();
-
-      Boolean isWrittenByRequestUser = (musicianId != null) && musicianId.equals(creator.getId());
+      CreatorUserInfo creatorUserInfo;
+      Boolean isWrittenByRequestUser = false;
+      if (creator != null) {
+        creatorUserInfo = CreatorUserInfo.builder()
+            .id(String.valueOf(creator.getId()))
+            .nickname(creator.getNickname())
+            .instrument(creator.getInstrument().getDescription())
+            .build();
+        isWrittenByRequestUser = (musicianId != null) && musicianId.equals(creator.getId());
+      } else {
+        creatorUserInfo = CreatorUserInfo.builder()
+            .id(null)
+            .nickname("탈퇴한 사용자")
+            .instrument(null)
+            .build();
+      }
 
       // 스튜디오 정보 DTO 생성 (등록/미등록 분기 처리)
       boolean isStudioUploaded = studioBoast.getStudioId() != null;
@@ -358,6 +370,7 @@ public class StudioBoastService {
     }).toList();
   }
 
+  @Transactional(readOnly = true, noRollbackFor = BusinessException.class)
   public StudioBoastDetailResponse getStudioBoastDetail(Long studioBoastId, Long musicianId) {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
@@ -367,16 +380,23 @@ public class StudioBoastService {
         .map(studioBoastImage -> fileStorageService.getPublicFileUrl(studioBoastImage.getImageFileKey()))
         .toList();
 
-    Musician creatorUser = musicianService.getMusicianById(studioBoast.getCreatorUserId());
-    CreatorUserInfo creatorUserInfo = CreatorUserInfo.builder()
-        .id(String.valueOf(creatorUser.getId()))
-        .nickname(creatorUser.getNickname())
-        .instrument(creatorUser.getInstrument().getDescription())
-        .agreedToEventTerms(studioBoast.isAgreedToEventTerms())
-        .instagramAccount(studioBoast.getInstagramAccount())
-        .build();
-
-    Boolean isWrittenByRequestUser = (musicianId != null) && musicianId.equals(creatorUser.getId());
+    // 작성자 정보 DTO 생성
+    Optional<Musician> creatorOptional = musicianRepository.findById(studioBoast.getCreatorUserId());
+    CreatorUserInfo creatorUserInfo;
+    Boolean isWrittenByRequestUser = false;
+    if (creatorOptional.isPresent()) {
+      Musician creator = creatorOptional.get();
+      creatorUserInfo = CreatorUserInfo.builder()
+          .id(String.valueOf(creator.getId()))
+          .nickname(creator.getNickname())
+          .instrument(creator.getInstrument().getDescription())
+          .build();
+      isWrittenByRequestUser = (musicianId != null) && musicianId.equals(creator.getId());
+    } else {
+      creatorUserInfo = CreatorUserInfo.builder()
+          .nickname("탈퇴한 사용자")
+          .build();
+    }
 
     boolean isStudioUploaded = studioBoast.getStudioId() != null;
     StudioInfo studioInfo = null;

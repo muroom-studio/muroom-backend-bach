@@ -26,7 +26,7 @@ public final class TermDto {
       String version,
 
       @Schema(description = "약관 내용", requiredMode = Schema.RequiredMode.REQUIRED)
-      boolean isMandatory,
+      Boolean isMandatory,
 
       @Schema(description = "약관 내용", nullable = true)
       OffsetDateTime effectiveAt

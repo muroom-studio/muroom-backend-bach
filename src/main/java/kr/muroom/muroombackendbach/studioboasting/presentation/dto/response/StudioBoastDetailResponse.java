@@ -63,7 +63,7 @@ public record StudioBoastDetailResponse(
       @Schema(description = "작성자 닉네임", example = "뮤룸작가", requiredMode = RequiredMode.REQUIRED)
       String nickname,
 
-      @Schema(description = "작성자 대표 악기", example = "GUITAR", requiredMode = RequiredMode.REQUIRED)
+      @Schema(description = "작성자 대표 악기", example = "GUITAR", nullable = true)
       String instrument,
 
       @Schema(description = "이벤트 약관 동의 여부", example = "true", nullable = true)

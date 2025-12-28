@@ -47,7 +47,7 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
     return queryFactory
         .select(Projections.constructor(
             TermsWithContentDto.class,
-            t.id,
+            t.id.stringValue(),
             t.code,
             t.targetRole,
             t.version,
