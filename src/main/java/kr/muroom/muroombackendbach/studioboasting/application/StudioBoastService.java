@@ -66,8 +66,10 @@ public class StudioBoastService {
   private final StudioBoastCommentLikeRepository studioBoastCommentLikeRepository;
   private final MusicianRepository musicianRepository;
 
-  public GeneratePresignedPutUrlResponse generateStudioImagePresignedPutUrl(StudioBoastImageUploadRequest request) {
-    return fileStorageService.generatePresignedPutUrlForPublic(request, FileStorageService::validateImageContentType);
+  public GeneratePresignedPutUrlResponse generateStudioImagePresignedPutUrl(
+      StudioBoastImageUploadRequest request) {
+    return fileStorageService.generatePresignedPutUrlForPublic(request,
+        FileStorageService::validateImageContentType);
   }
 
   @Transactional
@@ -76,7 +78,8 @@ public class StudioBoastService {
       throw new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND);
     }
 
-    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && !request.agreedToEventTerms()) {
+    if (request.instagramAccount() != null && !request.instagramAccount().isBlank()
+        && !request.agreedToEventTerms()) {
       throw new BusinessException(StudioBoastErrorCode.EVENT_TERMS_NOT_AGREED);
     }
 
@@ -113,7 +116,8 @@ public class StudioBoastService {
   }
 
   @Transactional
-  public Long updateStudioBoast(Long studioBoastId, UpdateStudioBoastRequest request, Long currentUserId) {
+  public Long updateStudioBoast(Long studioBoastId, UpdateStudioBoastRequest request,
+      Long currentUserId) {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
 
@@ -121,7 +125,8 @@ public class StudioBoastService {
       throw new BusinessException(AuthErrorCode.FORBIDDEN);
     }
 
-    if (request.instagramAccount() != null && !request.instagramAccount().isBlank() && !request.agreedToEventTerms()) {
+    if (request.instagramAccount() != null && !request.instagramAccount().isBlank()
+        && !request.agreedToEventTerms()) {
       throw new BusinessException(StudioBoastErrorCode.EVENT_TERMS_NOT_AGREED);
     }
 
@@ -151,7 +156,9 @@ public class StudioBoastService {
   private void syncImages(StudioBoast studioBoast, List<String> newImageFileKeys) {
 
     // 1. DB에 저장된 기존 이미지 목록 조회
-    List<StudioBoastImage> oldImages = studioBoastImageRepository.findByStudioBoastOrderBySequenceAsc(studioBoast);
+    List<StudioBoastImage> oldImages =
+        studioBoastImageRepository.findByStudioBoastOrderBySequenceAsc(
+            studioBoast);
     Map<String, StudioBoastImage> oldImageMap = oldImages.stream()
         .collect(Collectors.toMap(StudioBoastImage::getImageFileKey, image -> image));
 
@@ -199,7 +206,8 @@ public class StudioBoastService {
     if (studioBoastPage.isEmpty()) {
       return Page.empty(pageable);
     }
-    List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(studioBoastPage.getContent(), musicianId);
+    List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(
+        studioBoastPage.getContent(), musicianId);
     return new PageImpl<>(studioBoastDetails, pageable, studioBoastPage.getTotalElements());
   }
 
@@ -216,7 +224,8 @@ public class StudioBoastService {
     // 3. 기존의 enrichStudioBoasts 헬퍼 메소드를 재사용하여
     //    조회된 StudioBoast 엔티티 리스트를 StudioBoastDetailResponse DTO 리스트로 변환
     //    (작성자 정보, 이미지 URL, 좋아요 여부 등의 추가 정보를 채워넣는 과정)
-    List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(studioBoastPage.getContent(), musicianId);
+    List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(
+        studioBoastPage.getContent(), musicianId);
 
     // 4. 변환된 DTO 리스트와 페이지네이션 정보를 포함하는 새로운 Page 객체를 생성하여 반환
     return new PageImpl<>(studioBoastDetails, pageable, studioBoastPage.getTotalElements());
@@ -240,17 +249,21 @@ public class StudioBoastService {
   }
 
   public Page<StudioBoastDetailResponse> getMyStudioBoasts(Pageable pageable, Long musicianId) {
-    Page<StudioBoast> studioBoastPage = studioBoastRepository.findAllByCreatorUserId(musicianId, pageable);
+    Page<StudioBoast> studioBoastPage = studioBoastRepository.findAllByCreatorUserId(musicianId,
+        pageable);
     if (studioBoastPage.isEmpty()) {
       return Page.empty(pageable);
     }
-    List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(studioBoastPage.getContent(), musicianId);
+    List<StudioBoastDetailResponse> studioBoastDetails = enrichStudioBoasts(
+        studioBoastPage.getContent(), musicianId);
     return new PageImpl<>(studioBoastDetails, pageable, studioBoastPage.getTotalElements());
   }
 
-  private List<StudioBoastDetailResponse> enrichStudioBoasts(List<StudioBoast> studioBoasts, Long musicianId) {
+  private List<StudioBoastDetailResponse> enrichStudioBoasts(List<StudioBoast> studioBoasts,
+      Long musicianId) {
     // 2. 후속 처리에 필요한 ID들을 일괄 수집
-    List<Long> creatorUserIds = studioBoasts.stream().map(StudioBoast::getCreatorUserId).distinct().toList();
+    List<Long> creatorUserIds = studioBoasts.stream().map(StudioBoast::getCreatorUserId).distinct()
+        .toList();
     List<Long> studioIds = studioBoasts.stream()
         .map(StudioBoast::getStudioId)
         .filter(Objects::nonNull)
@@ -259,39 +272,51 @@ public class StudioBoastService {
 
     // 3. 수집한 ID를 사용하여 연관 데이터 일괄 조회 (In-clause 쿼리)
     // 3-1. 이미지 정보 조회
-    Map<Long, List<StudioBoastImage>> imagesByBoastId = studioBoastImageRepository.findAllByStudioBoastIn(studioBoasts).stream()
-        .collect(Collectors.groupingBy(studioBoastImage -> studioBoastImage.getStudioBoast().getId()));
+    Map<Long, List<StudioBoastImage>> imagesByBoastId =
+        studioBoastImageRepository.findAllByStudioBoastIn(
+                studioBoasts).stream()
+            .collect(
+                Collectors.groupingBy(
+                    studioBoastImage -> studioBoastImage.getStudioBoast().getId()));
 
     // 3-2. 작성자 정보 조회
     Map<Long, Musician> musiciansById = musicianService.getMusiciansAsMapByIds(creatorUserIds);
 
     // 3-3. 등록된 스튜디오 정보 조회
-    Map<Long, StudioListElementResponse> studioInfosById = studioService.getStudioInfoByIds(studioIds).stream()
-        .collect(Collectors.toMap(studio -> Long.parseLong(studio.studioId()), Function.identity()));
+    Map<Long, StudioListElementResponse> studioInfosById = studioService.getStudioInfoByIds(
+            studioIds).stream()
+        .collect(
+            Collectors.toMap(studio -> Long.parseLong(studio.studioId()), Function.identity()));
 
     List<String> unknownStudioAddresses = studioBoasts.stream()
         .filter(studioBoast -> studioBoast.getStudioId() == null)
         .map(StudioBoast::getRoadNameAddress)
         .distinct()
         .toList();
-    Map<String, NearbyStationsResponse> nearbyStationsResult = subwayService.findNearbyStationsInBulk(unknownStudioAddresses);
+    Map<String, NearbyStationsResponse> nearbyStationsResult =
+        subwayService.findNearbyStationsInBulk(
+            unknownStudioAddresses);
 
     // 3-4. 현재 사용자의 '좋아요' 정보 조회
     final Set<Long> likedBoastIds;
     if (musicianId != null) {
       Musician requestMusician = musicianService.getMusicianById(musicianId);
-      likedBoastIds = studioBoastLikeRepository.findAllByMusicianAndStudioBoastIn(requestMusician, studioBoasts).stream()
+      likedBoastIds = studioBoastLikeRepository.findAllByMusicianAndStudioBoastIn(requestMusician,
+              studioBoasts).stream()
           .map(like -> like.getStudioBoast().getId())
           .collect(Collectors.toSet());
     } else {
       likedBoastIds = Collections.emptySet();
     }
 
-    Map<Long, Long> commentCountsByStudioBoast = studioBoastCommentRepository.findCommentCountsByStudioBoastIn(studioBoasts);
+    Map<Long, Long> commentCountsByStudioBoast =
+        studioBoastCommentRepository.findCommentCountsByStudioBoastIn(
+            studioBoasts);
 
     return studioBoasts.stream().map(studioBoast -> {
       // 이미지 URL 목록 생성
-      List<String> imageUrls = imagesByBoastId.getOrDefault(studioBoast.getId(), Collections.emptyList())
+      List<String> imageUrls = imagesByBoastId.getOrDefault(studioBoast.getId(),
+              Collections.emptyList())
           .stream()
           .sorted(Comparator.comparing(StudioBoastImage::getSequence))
           .map(image -> fileStorageService.getPublicFileUrl(image.getImageFileKey()))
@@ -322,12 +347,14 @@ public class StudioBoastService {
       UnknownStudioInfo unknownStudioInfo = null;
 
       if (isStudioUploaded) {
-        StudioListElementResponse studioListElement = studioInfosById.get(studioBoast.getStudioId());
+        StudioListElementResponse studioListElement = studioInfosById.get(
+            studioBoast.getStudioId());
         if (studioListElement != null) {
           studioInfo = StudioInfo.from(studioListElement);
         }
       } else {
-        NearbyStationsResponse nearbyStations = nearbyStationsResult.get(studioBoast.getRoadNameAddress());
+        NearbyStationsResponse nearbyStations = nearbyStationsResult.get(
+            studioBoast.getRoadNameAddress());
         StudioSubwayStationInfo nearestSubwayStation = null;
 
         if (nearbyStations != null && !nearbyStations.getStations().isEmpty()) {
@@ -377,11 +404,13 @@ public class StudioBoastService {
     List<StudioBoastImage> studioBoastImages =
         studioBoastImageRepository.findByStudioBoastOrderBySequenceAsc(studioBoast);
     List<String> studioBoastImageFileUrls = studioBoastImages.stream()
-        .map(studioBoastImage -> fileStorageService.getPublicFileUrl(studioBoastImage.getImageFileKey()))
+        .map(studioBoastImage -> fileStorageService.getPublicFileUrl(
+            studioBoastImage.getImageFileKey()))
         .toList();
 
     // 작성자 정보 DTO 생성
-    Optional<Musician> creatorOptional = musicianRepository.findById(studioBoast.getCreatorUserId());
+    Optional<Musician> creatorOptional = musicianRepository.findById(
+        studioBoast.getCreatorUserId());
     CreatorUserInfo creatorUserInfo;
     Boolean isWrittenByRequestUser = false;
     if (creatorOptional.isPresent()) {
@@ -404,7 +433,8 @@ public class StudioBoastService {
     if (isStudioUploaded) {
       studioInfo = StudioInfo.from(studioService.getStudioInfoById(studioBoast.getStudioId()));
     } else {
-      List<StationInfo> nearbySubwayStations = subwayService.findNearbyStations(studioBoast.getRoadNameAddress()).getStations();
+      List<StationInfo> nearbySubwayStations = subwayService.findNearbyStations(
+          studioBoast.getRoadNameAddress()).getStations();
       StudioSubwayStationInfo nearestSubwayStation = null;
       if (!nearbySubwayStations.isEmpty()) {
         StationInfo stationInfo = nearbySubwayStations.getFirst();
@@ -460,7 +490,8 @@ public class StudioBoastService {
     }
 
     // 1. 연관된 이미지 Soft Delete
-    List<StudioBoastImage> studioBoastImages = studioBoastImageRepository.findAllByStudioBoast(studioBoast);
+    List<StudioBoastImage> studioBoastImages = studioBoastImageRepository.findAllByStudioBoast(
+        studioBoast);
     if (studioBoastImages != null && !studioBoastImages.isEmpty()) {
       studioBoastImages.stream()
           .map(StudioBoastImage::getImageFileKey)
