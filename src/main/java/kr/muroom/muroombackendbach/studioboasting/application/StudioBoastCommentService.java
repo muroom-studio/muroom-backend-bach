@@ -8,6 +8,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.report.application.ReportService;
+import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
+import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastComment;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastCommentLike;
@@ -38,19 +41,23 @@ public class StudioBoastCommentService {
   private final StudioBoastRepository studioBoastRepository;
   private final StudioBoastCommentLikeRepository studioBoastCommentLikeRepository;
   private final MusicianService musicianService;
+  private final ReportService reportService;
 
   @Transactional
-  public Long createComment(Long studioBoastId, Long musicianId, CreateStudioBoastCommentRequest request) {
+  public Long createComment(Long studioBoastId, Long musicianId,
+      CreateStudioBoastCommentRequest request) {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
 
     StudioBoastComment parentComment = null;
     if (request.parentId() != null) {
       parentComment = studioBoastCommentRepository.findById(request.parentId())
-          .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+          .orElseThrow(
+              () -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
 
       if (parentComment.getParent() != null) {
-        throw new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_CANNOT_REPLY_TO_REPLY);
+        throw new BusinessException(
+            StudioBoastErrorCode.STUDIO_BOAST_COMMENT_CANNOT_REPLY_TO_REPLY);
       }
       if (!parentComment.getStudioBoast().getId().equals(studioBoastId)) {
         throw new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_PARENT_MISMATCH);
@@ -73,7 +80,8 @@ public class StudioBoastCommentService {
   @Transactional
   public void updateComment(Long commentId, String content, Long musicianId) {
     StudioBoastComment comment = studioBoastCommentRepository.findById(commentId)
-        .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+        .orElseThrow(
+            () -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
 
     if (!comment.getCreatorUserId().equals(musicianId)) {
       throw new BusinessException(AuthErrorCode.FORBIDDEN);
@@ -84,7 +92,8 @@ public class StudioBoastCommentService {
   @Transactional
   public void deleteComment(Long commentId, Long musicianId) {
     StudioBoastComment comment = studioBoastCommentRepository.findById(commentId)
-        .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+        .orElseThrow(
+            () -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
 
     if (!comment.getCreatorUserId().equals(musicianId)) {
       throw new BusinessException(AuthErrorCode.FORBIDDEN);
@@ -92,13 +101,16 @@ public class StudioBoastCommentService {
     studioBoastCommentRepository.delete(comment);
   }
 
-  public Page<StudioBoastCommentResponse> getComments(Long studioBoastId, Long requestUserId, Pageable pageable) {
+  public Page<StudioBoastCommentResponse> getComments(Long studioBoastId, Long requestUserId,
+      Pageable pageable) {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));
     Long postAuthorId = studioBoast.getCreatorUserId();
 
     // 1. 최상위 댓글 페이징 조회
-    Page<StudioBoastComment> rootCommentPage = studioBoastCommentRepository.findByStudioBoastAndParentIsNull(studioBoast, pageable);
+    Page<StudioBoastComment> rootCommentPage =
+        studioBoastCommentRepository.findByStudioBoastAndParentIsNull(
+            studioBoast, pageable);
     List<StudioBoastComment> rootComments = rootCommentPage.getContent();
     if (rootComments.isEmpty()) {
       return Page.empty(pageable);
@@ -106,18 +118,23 @@ public class StudioBoastCommentService {
 
     // 2. 최상위 댓글에 대한 모든 대댓글 조회
     List<StudioBoastComment> commentsOnPage = new ArrayList<>(rootComments);
-    List<StudioBoastComment> allReplies = studioBoastCommentRepository.findByParentInOrderByCreatedAtAsc(rootComments);
+    List<StudioBoastComment> allReplies =
+        studioBoastCommentRepository.findByParentInOrderByCreatedAtAsc(
+            rootComments);
     commentsOnPage.addAll(allReplies);
 
     // 3. 요청 사용자가 좋아요 누른 댓글 ID 일괄 조회
     final Set<Long> likedCommentIds;
     if (requestUserId != null) {
-      likedCommentIds = studioBoastCommentLikeRepository.findLikedCommentIdsByCreatorUserIdAndCommentIn(requestUserId, commentsOnPage);
+      likedCommentIds =
+          studioBoastCommentLikeRepository.findLikedCommentIdsByCreatorUserIdAndCommentIn(
+              requestUserId, commentsOnPage);
     } else {
       likedCommentIds = Collections.emptySet();
     }
 
-    Map<Long, Long> likeCounts = studioBoastCommentLikeRepository.findLikeCountsByCommentIn(commentsOnPage);
+    Map<Long, Long> likeCounts = studioBoastCommentLikeRepository.findLikeCountsByCommentIn(
+        commentsOnPage);
 
     // 4. 댓글 작성자 및 태그된 사용자 정보 일괄 조회
     Set<Long> allMusicianIds = commentsOnPage.stream()
@@ -127,7 +144,8 @@ public class StudioBoastCommentService {
         .filter(comment -> comment.getTaggedUserId() != null)
         .map(StudioBoastComment::getTaggedUserId)
         .forEach(allMusicianIds::add);
-    Map<Long, Musician> musiciansById = musicianService.getMusiciansAsMapByIds(new ArrayList<>(allMusicianIds));
+    Map<Long, Musician> musiciansById = musicianService.getMusiciansAsMapByIds(
+        new ArrayList<>(allMusicianIds));
 
     // 5. 댓글 및 대댓글 DTO 변환 및 계층 구조 빌드
     Map<Long, List<StudioBoastComment>> repliesByParentId = allReplies.stream()
@@ -135,7 +153,8 @@ public class StudioBoastCommentService {
 
     List<StudioBoastCommentResponse> commentResponses = rootComments.stream()
         .map(rootComment -> {
-          List<StudioBoastComment> directReplies = repliesByParentId.getOrDefault(rootComment.getId(), Collections.emptyList());
+          List<StudioBoastComment> directReplies = repliesByParentId.getOrDefault(
+              rootComment.getId(), Collections.emptyList());
 
           List<StudioBoastCommentReplyResponse> replyResponses = directReplies.stream()
               .map(reply -> buildReplyResponse(
@@ -143,7 +162,8 @@ public class StudioBoastCommentService {
               ))
               .toList();
 
-          return buildCommentResponse(rootComment, postAuthorId, requestUserId, musiciansById, likedCommentIds, likeCounts, replyResponses);
+          return buildCommentResponse(rootComment, postAuthorId, requestUserId, musiciansById,
+              likedCommentIds, likeCounts, replyResponses);
         })
         .toList();
 
@@ -151,8 +171,10 @@ public class StudioBoastCommentService {
   }
 
   private StudioBoastCommentResponse buildCommentResponse(
-      StudioBoastComment comment, Long postAuthorId, Long requestUserId, Map<Long, Musician> musiciansById,
-      Set<Long> likedCommentIds, Map<Long, Long> likeCounts, List<StudioBoastCommentReplyResponse> replies
+      StudioBoastComment comment, Long postAuthorId, Long requestUserId,
+      Map<Long, Musician> musiciansById,
+      Set<Long> likedCommentIds, Map<Long, Long> likeCounts,
+      List<StudioBoastCommentReplyResponse> replies
   ) {
     // 삭제된 댓글 처리
     if (comment.getDeletedAt() != null) {
@@ -184,7 +206,8 @@ public class StudioBoastCommentService {
       Musician taggedUser = musiciansById.get(comment.getTaggedUserId());
       taggedUserInfo = TaggedUserInfo.from(taggedUser);
     }
-    Boolean isWritten = (requestUserId != null) ? requestUserId.equals(comment.getCreatorUserId()) : null;
+    Boolean isWritten =
+        (requestUserId != null) ? requestUserId.equals(comment.getCreatorUserId()) : null;
     Boolean isLiked = (requestUserId != null) ? likedCommentIds.contains(comment.getId()) : null;
     Long likeCount = likeCounts.getOrDefault(comment.getId(), 0L);
 
@@ -205,7 +228,8 @@ public class StudioBoastCommentService {
         .build();
   }
 
-  private boolean canViewComment(StudioBoastComment comment, Long postAuthorId, Long requestUserId) {
+  private boolean canViewComment(StudioBoastComment comment, Long postAuthorId,
+      Long requestUserId) {
     if (!comment.getIsSecret()) {
       return true;
     }
@@ -250,7 +274,8 @@ public class StudioBoastCommentService {
       Musician taggedUser = musiciansById.get(reply.getTaggedUserId());
       taggedUserInfo = TaggedUserInfo.from(taggedUser);
     }
-    Boolean isWritten = (requestUserId != null) ? requestUserId.equals(reply.getCreatorUserId()) : null;
+    Boolean isWritten =
+        (requestUserId != null) ? requestUserId.equals(reply.getCreatorUserId()) : null;
     Boolean isLiked = (requestUserId != null) ? likedCommentIds.contains(reply.getId()) : null;
     Long likeCount = likeCounts.getOrDefault(reply.getId(), 0L);
 
@@ -273,14 +298,16 @@ public class StudioBoastCommentService {
   @Transactional
   public void likeComment(Long commentId, Long musicianId) {
     StudioBoastComment comment = studioBoastCommentRepository.findById(commentId)
-        .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+        .orElseThrow(
+            () -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
 
     Long postAuthorId = comment.getStudioBoast().getCreatorUserId();
     if (!canViewComment(comment, postAuthorId, musicianId)) {
       throw new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND);
     }
 
-    if (studioBoastCommentLikeRepository.findByMusicianIdAndComment(musicianId, comment).isPresent()) {
+    if (studioBoastCommentLikeRepository.findByMusicianIdAndComment(musicianId, comment)
+        .isPresent()) {
       return;
     }
 
@@ -294,7 +321,8 @@ public class StudioBoastCommentService {
   @Transactional
   public void unlikeComment(Long commentId, Long musicianId) {
     StudioBoastComment comment = studioBoastCommentRepository.findById(commentId)
-        .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
+        .orElseThrow(
+            () -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_COMMENT_NOT_FOUND));
 
     Long postAuthorId = comment.getStudioBoast().getCreatorUserId();
     if (!canViewComment(comment, postAuthorId, musicianId)) {
