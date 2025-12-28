@@ -341,3 +341,6 @@ public class StudioBoastCommentService {
         .ifPresent(studioBoastCommentLikeRepository::delete);
   }
 }
+
+// 관리자페이지랑
+// 사장님들 스튜디오 정보 수정

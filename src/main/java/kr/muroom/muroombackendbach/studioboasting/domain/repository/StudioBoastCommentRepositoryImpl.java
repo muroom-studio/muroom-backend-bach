@@ -21,9 +21,15 @@ public class StudioBoastCommentRepositoryImpl implements StudioBoastCommentQuery
     }
 
     return queryFactory
-        .select(studioBoastComment.studioBoast.id, studioBoastComment.count())
+        .select(
+            studioBoastComment.studioBoast.id,
+            studioBoastComment.count()
+        )
         .from(studioBoastComment)
-        .where(studioBoastComment.studioBoast.in(studioBoasts))
+        .where(
+            studioBoastComment.studioBoast.in(studioBoasts),
+            studioBoastComment.parent.isNull()
+        )
         .groupBy(studioBoastComment.studioBoast.id)
         .fetch()
         .stream()
@@ -35,4 +41,5 @@ public class StudioBoastCommentRepositoryImpl implements StudioBoastCommentQuery
             }
         ));
   }
+
 }
