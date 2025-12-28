@@ -179,7 +179,11 @@ public class StudioBoastCommentService {
     }
 
     Musician creator = musiciansById.get(comment.getCreatorUserId());
-    Musician taggedUser = (comment.getTaggedUserId() != null) ? musiciansById.get(comment.getTaggedUserId()) : null;
+    TaggedUserInfo taggedUserInfo = null;
+    if (comment.getTaggedUserId() != null) {
+      Musician taggedUser = musiciansById.get(comment.getTaggedUserId());
+      taggedUserInfo = TaggedUserInfo.from(taggedUser);
+    }
     Boolean isWritten = (requestUserId != null) ? requestUserId.equals(comment.getCreatorUserId()) : null;
     Boolean isLiked = (requestUserId != null) ? likedCommentIds.contains(comment.getId()) : null;
     Long likeCount = likeCounts.getOrDefault(comment.getId(), 0L);
@@ -193,7 +197,7 @@ public class StudioBoastCommentService {
         .isDeleted(false)
         .isVisible(true)
         .creatorUserInfo(CreatorUserInfo.from(creator))
-        .taggedUserInfo(TaggedUserInfo.from(taggedUser))
+        .taggedUserInfo(taggedUserInfo)
         .replies(replies)
         .likeCount(likeCount)
         .isWrittenByRequestUser(isWritten)
@@ -241,7 +245,11 @@ public class StudioBoastCommentService {
     }
 
     Musician creator = musiciansById.get(reply.getCreatorUserId());
-    Musician taggedUser = (reply.getTaggedUserId() != null) ? musiciansById.get(reply.getTaggedUserId()) : null;
+    TaggedUserInfo taggedUserInfo = null;
+    if (reply.getTaggedUserId() != null) {
+      Musician taggedUser = musiciansById.get(reply.getTaggedUserId());
+      taggedUserInfo = TaggedUserInfo.from(taggedUser);
+    }
     Boolean isWritten = (requestUserId != null) ? requestUserId.equals(reply.getCreatorUserId()) : null;
     Boolean isLiked = (requestUserId != null) ? likedCommentIds.contains(reply.getId()) : null;
     Long likeCount = likeCounts.getOrDefault(reply.getId(), 0L);
@@ -254,7 +262,7 @@ public class StudioBoastCommentService {
         .isDeleted(false)
         .isVisible(true)
         .creatorUserInfo(CreatorUserInfo.from(creator))
-        .taggedUserInfo(TaggedUserInfo.from(taggedUser))
+        .taggedUserInfo(taggedUserInfo)
         .likeCount(likeCount)
         .isWrittenByRequestUser(isWritten)
         .isLikedByRequestUser(isLiked)

@@ -59,7 +59,7 @@ public record StudioBoastCommentResponse(
 
     public static CreatorUserInfo from(Musician creator) {
       if (creator == null) {
-        return null;
+        return new CreatorUserInfo(null, "탈퇴한 사용자");
       }
       return new CreatorUserInfo(creator.getId().toString(), creator.getNickname());
     }
@@ -76,7 +76,7 @@ public record StudioBoastCommentResponse(
 
     public static TaggedUserInfo from(Musician taggedUser) {
       if (taggedUser == null) {
-        return null;
+        return new TaggedUserInfo(null, "탈퇴한 사용자");
       }
       return new TaggedUserInfo(taggedUser.getId().toString(), taggedUser.getNickname());
     }
