@@ -19,7 +19,7 @@ public class FaqCategoryService {
   public List<FaqCategoryResponse> getAllFaqCategory() {
     return faqCategoryRepository.findAllByIsActiveTrue(
             Sort.by(
-                Sort.Order.asc("displayOrder"),
+                Sort.Order.asc("sequence"),
                 Sort.Order.asc("id")
             )
         )

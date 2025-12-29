@@ -21,7 +21,7 @@ public class WithdrawalReasonService {
 
   public List<WithdrawalReasonResponse> getAllWithdrawalReason() {
     List<WithdrawalReason> withdrawalReasons =
-        withdrawalReasonRepository.findAllByOrderByDisplayOrderAscIdAsc();
+        withdrawalReasonRepository.findAllByOrderBySequenceOrderAscIdAsc();
 
     return withdrawalReasons.stream()
         .map(reason -> WithdrawalReasonResponse.builder()

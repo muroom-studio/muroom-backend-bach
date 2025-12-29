@@ -13,7 +13,7 @@ public class InquiryCategoryService {
   private final InquiryCategoryRepository inquiryCategoryRepository;
 
   public List<InquiryCategoryResponse> getAllInquiryCategories() {
-    return inquiryCategoryRepository.findAllByOrderByDisplayOrderAscIdAsc()
+    return inquiryCategoryRepository.findAllByOrderBySequenceOrderAscIdAsc()
         .stream()
         .map(category -> InquiryCategoryResponse.builder()
             .id(String.valueOf(category.getId()))
