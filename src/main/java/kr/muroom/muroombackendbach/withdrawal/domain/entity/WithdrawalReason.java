@@ -6,6 +6,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class WithdrawalReason {
+public class WithdrawalReason extends AuditableEntity {
 
   @Id
   @Tsid
@@ -37,9 +38,7 @@ public class WithdrawalReason {
   @Column(nullable = false)
   private Boolean isActive;
 
-  @Column(nullable = false)
-  private OffsetDateTime createdAt;
-
-  @Column(nullable = false)
-  private OffsetDateTime updatedAt;
+  @Builder.Default
+  @Column(name = "display_order", nullable = false)
+  private Integer displayOrder = 0;
 }
