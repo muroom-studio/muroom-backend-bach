@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReportReasonRepository extends JpaRepository<ReportReason, Long> {
 
-  List<ReportReason> findAllByOrderBySequenceOrderAscIdAsc();
+  List<ReportReason> findAllByOrderBySequenceAscIdAsc();
 }

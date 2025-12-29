@@ -13,7 +13,7 @@ public class ReportReasonService {
   private final ReportReasonRepository reportReasonRepository;
 
   public List<ReportReasonResponse> getAllReportReason() {
-    return reportReasonRepository.findAllByOrderBySequenceOrderAscIdAsc()
+    return reportReasonRepository.findAllByOrderBySequenceAscIdAsc()
         .stream()
         .map(reason -> ReportReasonResponse.builder()
             .id(String.valueOf(reason.getId()))
