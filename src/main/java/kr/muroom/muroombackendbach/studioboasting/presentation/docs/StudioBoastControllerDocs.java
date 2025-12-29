@@ -239,8 +239,7 @@ public interface StudioBoastControllerDocs {
       parameters = {
           @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
           @Parameter(name = "size", description = "페이지 당 항목 수. 생략 시 기본값은 12입니다.", example = "12"),
-          @Parameter(name = "sort", description = "정렬 기준 (예: 'likes,desc', 'latest,desc', 'random'). 생략 시 "
-              + "기본값은 'latest,desc' (최신순) 입니다.",
+          @Parameter(name = "sort", description = "정렬 기준 (예: 'likes,desc', 'latest,desc'). 생략 시 기본값은 'latest,desc' (최신순) 입니다.",
               example = "likes,desc")
       }
   )
