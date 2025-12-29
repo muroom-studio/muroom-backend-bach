@@ -1,12 +1,13 @@
 package kr.muroom.muroombackendbach.admin.studio.presentation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.request.FileUploadRequest;
 import kr.muroom.muroombackendbach.studio.domain.enums.StudioImageCategory;
 
 public record StudioImageUploadRequest(
     @NotBlank String fileName,
-    @NotBlank StudioImageCategory category,
+    @NotNull StudioImageCategory category,
     @NotBlank String contentType
 ) implements FileUploadRequest {
 
