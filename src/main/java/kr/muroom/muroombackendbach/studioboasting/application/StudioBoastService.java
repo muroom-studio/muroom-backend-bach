@@ -330,8 +330,7 @@ public class StudioBoastService {
     }
 
     Map<Long, Long> commentCountsByStudioBoast =
-        studioBoastCommentRepository.findCommentCountsByStudioBoastIn(
-            studioBoasts);
+        studioBoastCommentRepository.countTopLevelCommentsByStudioBoastIn(studioBoasts);
 
     return studioBoasts.stream().map(studioBoast -> {
       // 이미지 URL 목록 생성

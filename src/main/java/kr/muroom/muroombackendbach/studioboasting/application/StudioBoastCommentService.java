@@ -8,9 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
-import kr.muroom.muroombackendbach.report.application.ReportService;
-import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
-import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastComment;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastCommentLike;
@@ -42,7 +39,6 @@ public class StudioBoastCommentService {
   private final StudioBoastRepository studioBoastRepository;
   private final StudioBoastCommentLikeRepository studioBoastCommentLikeRepository;
   private final MusicianService musicianService;
-  private final ReportService reportService;
 
   @Transactional
   public Long createComment(Long studioBoastId, Long musicianId,
@@ -123,8 +119,7 @@ public class StudioBoastCommentService {
     // 2. 최상위 댓글에 대한 모든 대댓글 조회
     List<StudioBoastComment> commentsOnPage = new ArrayList<>(rootComments);
     List<StudioBoastComment> allReplies =
-        studioBoastCommentRepository.findByParentInOrderByCreatedAtAsc(
-            rootComments);
+        studioBoastCommentRepository.findByParentInOrderByCreatedAtAsc(rootComments);
     commentsOnPage.addAll(allReplies);
 
     // 3. 요청 사용자가 좋아요 누른 댓글 ID 일괄 조회
