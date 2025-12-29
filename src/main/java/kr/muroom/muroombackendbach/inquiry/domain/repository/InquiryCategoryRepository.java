@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InquiryCategoryRepository extends JpaRepository<InquiryCategory, Long> {
 
-  List<InquiryCategory> findAllByOrderBySequenceOrderAscIdAsc();
+  List<InquiryCategory> findAllByOrderBySequenceAscIdAsc();
 }

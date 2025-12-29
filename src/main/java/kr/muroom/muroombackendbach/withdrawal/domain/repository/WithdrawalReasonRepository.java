@@ -8,6 +8,6 @@ public interface WithdrawalReasonRepository extends JpaRepository<WithdrawalReas
 
   boolean existsByCode(String code);
 
-  List<WithdrawalReason> findAllByOrderBySequenceOrderAscIdAsc();
+  List<WithdrawalReason> findAllByOrderBySequenceAscIdAsc();
 
 }
