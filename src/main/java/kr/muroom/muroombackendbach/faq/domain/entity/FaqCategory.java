@@ -33,6 +33,7 @@ public class FaqCategory {
   @Column(name = "is_active", nullable = false)
   private boolean isActive;
 
+  @Builder.Default
   @Column(name = "display_order", nullable = false)
-  private Integer displayOrder;
+  private Integer displayOrder = 0;
 }

@@ -34,6 +34,7 @@ public class ReportReason extends AuditableEntity {
   @Column(nullable = false)
   private String description;
 
+  @Builder.Default
   @Column(name = "display_order", nullable = false)
-  private Integer displayOrder;
+  private Integer displayOrder = 0;
 }
