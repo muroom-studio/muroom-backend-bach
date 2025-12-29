@@ -21,6 +21,7 @@ import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioAddressSearchResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
@@ -434,5 +435,18 @@ public class StudioService {
         .minPrice(minPrice)
         .maxPrice(maxPrice)
         .build();
+  }
+
+  public List<StudioAddressSearchResponse> getStudiosByRoadNameAddress(String roadNameAddress) {
+    List<Studio> studios = studioRepository.findByRoadNameAddressContaining(roadNameAddress);
+    return studios.stream()
+        .map(studio -> StudioAddressSearchResponse.builder()
+            .id(String.valueOf(studio.getId()))
+            .name(studio.getName())
+            .roadNameAddress(studio.getRoadNameAddress())
+            .lotNumberAddress(studio.getLotNumberAddress())
+            .detailedAddress(studio.getDetailedAddress())
+            .build()
+        ).toList();
   }
 }

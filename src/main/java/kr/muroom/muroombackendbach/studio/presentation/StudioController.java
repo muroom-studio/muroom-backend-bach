@@ -5,12 +5,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
-import kr.muroom.muroombackendbach.report.application.ReportService;
-import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
-import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.studio.application.StudioDetailsService;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioAddressSearchResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
@@ -24,8 +22,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,6 +69,15 @@ public class StudioController {
       @AuthenticationPrincipal Long musicianId) {
     StudioDetailResponse response = studioDetailsService.getStudio(studioId, musicianId);
 
+    return ApiResponse.success(response);
+  }
+
+  @Operation(summary = "도로명 주소로 스튜디오 검색", description = "입력한 도로명 주소(일부분 가능)를 포함하는 스튜디오들을 검색합니다.")
+  @GetMapping("/search/address")
+  public ApiResponse<List<StudioAddressSearchResponse>> searchStudiosByAddress(
+      @Parameter(description = "도로명 주소(일부분도 가능)") @Validated String roadNameAddress
+  ) {
+    List<StudioAddressSearchResponse> response = studioService.getStudiosByRoadNameAddress(roadNameAddress);
     return ApiResponse.success(response);
   }
 }
