@@ -435,6 +435,8 @@ public class StudioBoastService {
           .id(String.valueOf(creator.getId()))
           .nickname(creator.getNickname())
           .instrument(creator.getInstrument().getDescription())
+          .agreedToEventTerms(studioBoast.isAgreedToEventTerms())
+          .instagramAccount(studioBoast.getInstagramAccount())
           .build();
       isWrittenByRequestUser = (musicianId != null) && musicianId.equals(creator.getId());
     } else {
