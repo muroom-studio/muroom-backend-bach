@@ -36,7 +36,6 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastListElementResponse;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastSimpleResponse;
 import kr.muroom.muroombackendbach.subway.application.SubwayService;
-import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
@@ -318,15 +317,6 @@ public class StudioBoastService {
         .collect(
             Collectors.toMap(studio -> Long.parseLong(studio.studioId()), Function.identity()));
 
-    List<String> unknownStudioAddresses = studioBoasts.stream()
-        .filter(studioBoast -> studioBoast.getStudioId() == null)
-        .map(StudioBoast::getRoadNameAddress)
-        .distinct()
-        .toList();
-    Map<String, NearbyStationsResponse> nearbyStationsResult =
-        subwayService.findNearbyStationsInBulk(
-            unknownStudioAddresses);
-
     // 3-4. 현재 사용자의 '좋아요' 정보 조회
     final Set<Long> likedBoastIds;
     if (musicianId != null) {
@@ -431,14 +421,14 @@ public class StudioBoastService {
     Boolean isWrittenByRequestUser = false;
     if (creatorOptional.isPresent()) {
       Musician creator = creatorOptional.get();
+      isWrittenByRequestUser = (musicianId != null) && musicianId.equals(creator.getId());
       creatorUserInfo = CreatorUserInfo.builder()
           .id(String.valueOf(creator.getId()))
           .nickname(creator.getNickname())
           .instrument(creator.getInstrument().getDescription())
-          .agreedToEventTerms(studioBoast.isAgreedToEventTerms())
-          .instagramAccount(studioBoast.getInstagramAccount())
+          .agreedToEventTerms(isWrittenByRequestUser ? studioBoast.isAgreedToEventTerms() : null)
+          .instagramAccount(isWrittenByRequestUser ? studioBoast.getInstagramAccount() : null)
           .build();
-      isWrittenByRequestUser = (musicianId != null) && musicianId.equals(creator.getId());
     } else {
       creatorUserInfo = CreatorUserInfo.builder()
           .nickname("탈퇴한 사용자")
