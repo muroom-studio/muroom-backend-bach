@@ -34,6 +34,6 @@ public class FaqCategory {
   private boolean isActive;
 
   @Builder.Default
-  @Column(name = "display_order", nullable = false)
-  private Integer displayOrder = 0;
+  @Column(name = "sequence", nullable = false)
+  private Integer sequence = 0;
 }
