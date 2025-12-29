@@ -17,7 +17,6 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.Creat
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.StudioBoastImageUploadRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.UpdateStudioBoastRequest;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse;
-import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastListElementResponse;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastSimpleResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -234,25 +233,8 @@ public interface StudioBoastControllerDocs {
       @PathVariable Long studioBoastId, @AuthenticationPrincipal Long musicianId
   );
 
-  @Operation(summary = "[데스크톱뷰에 적합] 작업실 소개(자랑) 게시글 목록 페이지네이션 조회",
-      description = "[데스크톱뷰에 적합] 작업실 소개(자랑) 게시글의 상세 정보를 담는 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
-      parameters = {
-          @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-          @Parameter(name = "size", description = "페이지 당 항목 수. 생략 시 기본값은 12입니다.", example = "12"),
-          @Parameter(name = "sort", description = "정렬 기준 (예: 'likes,desc', 'latest,desc'). 생략 시 기본값은 'latest,desc' (최신순) 입니다.",
-              example = "likes,desc")
-      }
-  )
-  @GetMapping
-  ApiResponse<PaginatedData<StudioBoastListElementResponse>> getStudioBoasts(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "12") int size,
-      @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
-      @AuthenticationPrincipal Long musicianId
-  );
-
-  @Operation(summary = "[모바일뷰에 적합] 작업실 소개(자랑) 게시글 목록 페이지네이션 조회",
-      description = "[모바일뷰에 적합] 작업실 소개(자랑) 게시글의 상세 정보를 담는 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
+  @Operation(summary = "작업실 소개(자랑) 게시글 목록 페이지네이션 조회",
+      description = "작업실 소개(자랑) 게시글의 상세 정보를 담는 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
       parameters = {
           @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
           @Parameter(name = "size", description = "페이지 당 항목 수. 생략 시 기본값은 2입니다.", example = "2"),
@@ -261,7 +243,7 @@ public interface StudioBoastControllerDocs {
               example = "likes,desc")
       }
   )
-  @GetMapping("/detailed")
+  @GetMapping
   ApiResponse<PaginatedData<StudioBoastDetailResponse>> getDetailedStudioBoasts(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "2") int size,
@@ -286,8 +268,8 @@ public interface StudioBoastControllerDocs {
       @RequestParam(name = "sort", defaultValue = "latest,desc") String sort
   );
 
-  @Operation(summary = "[모바일뷰에 적합] 내가 작성한 작업실 소개(자랑) 게시글 목록 페이지네이션 조회",
-      description = "[모바일뷰에 적합] 내가 작성한 작업실 소개(자랑) 게시글 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
+  @Operation(summary = "내가 작성한 작업실 소개(자랑) 게시글 목록 페이지네이션 조회",
+      description = "내가 작성한 작업실 소개(자랑) 게시글 목록을 페이지네이션하여 조회합니다. 기본 정렬은 최신순입니다.",
       parameters = {
           @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
           @Parameter(name = "size", description = "페이지 당 항목 수. 생략 시 기본값은 2입니다.", example = "2"),
