@@ -115,9 +115,6 @@ public record StudioBoastDetailResponse(
       @Schema(description = "작업실(스튜디오) 이름", example = "뮤룸 스튜디오 홍대점", requiredMode = RequiredMode.REQUIRED)
       String name,
 
-      @Schema(description = "인근 지하철역 정보", requiredMode = RequiredMode.REQUIRED)
-      StudioSubwayStationInfo nearestSubwayStation,
-
       @Schema(description = "도로명 주소", example = "서울특별시 마포구 양화로 123", requiredMode = RequiredMode.REQUIRED)
       String roadNameAddress,
 

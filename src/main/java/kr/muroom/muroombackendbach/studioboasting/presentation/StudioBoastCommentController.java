@@ -57,8 +57,8 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size
   ) {
-    // 최신순 정렬 고정
-    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+    // 정렬 순서: 먼저 작성된 댓글이 먼저 보임
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt"));
     Page<StudioBoastCommentResponse> response = studioBoastCommentService.getComments(studioBoastId,
         musicianId, pageable);
     return ApiResponse.success(PaginatedData.from(response));

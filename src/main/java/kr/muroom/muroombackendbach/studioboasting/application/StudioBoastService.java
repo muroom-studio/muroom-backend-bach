@@ -17,7 +17,6 @@ import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage;
@@ -34,10 +33,10 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.CreatorUserInfo;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.UnknownStudioInfo;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastListElementResponse;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastSimpleResponse;
 import kr.muroom.muroombackendbach.subway.application.SubwayService;
 import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse;
-import kr.muroom.muroombackendbach.subway.presentation.dto.response.NearbyStationsResponse.StationInfo;
 import kr.muroom.muroombackendbach.user.application.MusicianService;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
@@ -201,7 +200,38 @@ public class StudioBoastService {
     studioBoastImageRepository.saveAll(imagesToUpdate);
   }
 
-  public Page<StudioBoastDetailResponse> getStudioBoasts(Pageable pageable, Long musicianId) {
+  public Page<StudioBoastListElementResponse> getStudioBoasts(Pageable pageable, Long musicianId) {
+    Page<StudioBoast> studioBoastPage = studioBoastRepository.findAll(pageable);
+    if (studioBoastPage.isEmpty()) {
+      return Page.empty(pageable);
+    }
+
+    Set<Long> likedBoastIds;
+    if (musicianId != null) {
+      Musician requestMusician = musicianService.getMusicianById(musicianId);
+      likedBoastIds = studioBoastLikeRepository.findAllByMusicianAndStudioBoastIn(requestMusician,
+              studioBoastPage.getContent()).stream()
+          .map(like -> like.getStudioBoast().getId())
+          .collect(Collectors.toSet());
+    } else {
+      likedBoastIds = Collections.emptySet();
+    }
+
+    List<StudioBoastListElementResponse> studioBoastListElements = studioBoastPage.getContent()
+        .stream()
+        .map(studioBoast -> StudioBoastListElementResponse.builder()
+            .id(String.valueOf(studioBoast.getId()))
+            .thumbnailImageFileUrl(
+                fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey())
+            )
+            .isLikedByRequestUser(likedBoastIds.contains(studioBoast.getId()))
+            .build())
+        .toList();
+
+    return new PageImpl<>(studioBoastListElements, pageable, studioBoastPage.getTotalElements());
+  }
+
+  public Page<StudioBoastDetailResponse> getDetailedStudioBoasts(Pageable pageable, Long musicianId) {
     Page<StudioBoast> studioBoastPage = studioBoastRepository.findAll(pageable);
     if (studioBoastPage.isEmpty()) {
       return Page.empty(pageable);
@@ -211,7 +241,7 @@ public class StudioBoastService {
     return new PageImpl<>(studioBoastDetails, pageable, studioBoastPage.getTotalElements());
   }
 
-  public Page<StudioBoastDetailResponse> getRandomStudioBoasts(Pageable pageable, Long musicianId) {
+  public Page<StudioBoastDetailResponse> getRandomDetailedStudioBoasts(Pageable pageable, Long musicianId) {
     // 1. QueryDSL로 구현된 레포지토리의 findAllRandomly 메소드를 호출
     //    DB에서 직접 'ORDER BY RANDOM()'을 실행하여 무작위로 정렬된 데이터 페이지를 조회
     Page<StudioBoast> studioBoastPage = studioBoastRepository.findAllRandomly(pageable);
@@ -345,7 +375,6 @@ public class StudioBoastService {
       boolean isStudioUploaded = studioBoast.getStudioId() != null;
       StudioInfo studioInfo = null;
       UnknownStudioInfo unknownStudioInfo = null;
-
       if (isStudioUploaded) {
         StudioListElementResponse studioListElement = studioInfosById.get(
             studioBoast.getStudioId());
@@ -353,21 +382,8 @@ public class StudioBoastService {
           studioInfo = StudioInfo.from(studioListElement);
         }
       } else {
-        NearbyStationsResponse nearbyStations = nearbyStationsResult.get(
-            studioBoast.getRoadNameAddress());
-        StudioSubwayStationInfo nearestSubwayStation = null;
-
-        if (nearbyStations != null && !nearbyStations.getStations().isEmpty()) {
-          NearbyStationsResponse.StationInfo stationInfo = nearbyStations.getStations().getFirst();
-          nearestSubwayStation = StudioSubwayStationInfo.builder()
-              .stationName(stationInfo.getStationName())
-              .lines(stationInfo.getLines())
-              .distanceInMeters(stationInfo.getDistanceInMeters())
-              .build();
-        }
         unknownStudioInfo = UnknownStudioInfo.builder()
             .name(studioBoast.getStudioName())
-            .nearestSubwayStation(nearestSubwayStation)
             .roadNameAddress(studioBoast.getRoadNameAddress())
             .lotNumberAddress(studioBoast.getLotNumberAddress())
             .detailedAddress(studioBoast.getDetailedAddress())
@@ -433,20 +449,8 @@ public class StudioBoastService {
     if (isStudioUploaded) {
       studioInfo = StudioInfo.from(studioService.getStudioInfoById(studioBoast.getStudioId()));
     } else {
-      List<StationInfo> nearbySubwayStations = subwayService.findNearbyStations(
-          studioBoast.getRoadNameAddress()).getStations();
-      StudioSubwayStationInfo nearestSubwayStation = null;
-      if (!nearbySubwayStations.isEmpty()) {
-        StationInfo stationInfo = nearbySubwayStations.getFirst();
-        nearestSubwayStation = StudioSubwayStationInfo.builder()
-            .stationName(stationInfo.getStationName())
-            .lines(stationInfo.getLines())
-            .distanceInMeters(stationInfo.getDistanceInMeters())
-            .build();
-      }
       unknownStudioInfo = UnknownStudioInfo.builder()
           .name(studioBoast.getStudioName())
-          .nearestSubwayStation(nearestSubwayStation)
           .roadNameAddress(studioBoast.getRoadNameAddress())
           .lotNumberAddress(studioBoast.getLotNumberAddress())
           .detailedAddress(studioBoast.getDetailedAddress())
