@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.withdrawal.presentation;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.withdrawal.application.MusicianWithdrawalService;
 import kr.muroom.muroombackendbach.withdrawal.presentation.dto.RegisterMusicianWithdrawalRequest;
@@ -23,7 +23,7 @@ public class MusicianWithdrawalController implements MusicianWithdrawalControlle
   @PostMapping
   public ApiResponse<Void> register(
       @AuthenticationPrincipal Long musicianId,
-      @RequestBody RegisterMusicianWithdrawalRequest request) {
+      @Valid @RequestBody RegisterMusicianWithdrawalRequest request) {
     musicianWithdrawalService.register(musicianId, request);
     return ApiResponse.success();
   }
