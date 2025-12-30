@@ -23,6 +23,7 @@ import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.MusicianAgreementRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
+import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
 import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.MyStudio;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
@@ -31,6 +32,7 @@ import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.MyStudioRepository;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
+import kr.muroom.muroombackendbach.user.exception.MusicianErrorCode;
 import kr.muroom.muroombackendbach.user.presentation.dto.request.MusicianSignupRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.request.UpdateMusicianProfileRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianProfileResponse;
@@ -167,7 +169,7 @@ public class MusicianService {
    */
   private void validateNickname(String nickname) {
     if (!userService.isNicknameAvailable(nickname)) {
-      throw new IllegalArgumentException("이미 존재하는 닉네임 입니다.");
+      throw new BusinessException(MusicianErrorCode.ALREADY_EXIST_NICKNAME);
     }
   }
 
@@ -178,7 +180,7 @@ public class MusicianService {
     List<Term> terms = termRepository.findAllById(termIds);
 
     if (terms.size() != termIds.size()) {
-      throw new IllegalArgumentException("존재하지 않는 약관 ID가 포함되어 있습니다.");
+      throw new BusinessException(TermErrorCode.NOT_EXIST_TERM);
     }
 
     return terms;

@@ -14,7 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "뮤지션 탈퇴 API", description = "로그인된 뮤지션 탈퇴 관련 API")
+@Tag(name = "musician withdrawal - 뮤지션 탈퇴 API")
 public interface MusicianWithdrawalControllerDocs {
 
   @Operation(
