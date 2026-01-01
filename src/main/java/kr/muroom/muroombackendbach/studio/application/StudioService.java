@@ -27,6 +27,7 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.S
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
+import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
@@ -337,7 +338,7 @@ public class StudioService {
   }
 
   @Transactional(readOnly = true)
-  public List<StudioListElementResponse> getStudioInfoByIds(List<Long> studioIds) {
+  public List<StudioBoastDetailResponse.StudioInfo> getStudioInfoByIds(List<Long> studioIds) {
     if (studioIds == null || studioIds.isEmpty()) {
       return Collections.emptyList();
     }
@@ -401,10 +402,14 @@ public class StudioService {
       }
 
       // 최종 빌드
-      return StudioListElementResponse.builder()
-          .studioId(String.valueOf(studio.getId()))
-          .studioName(studio.getName())
-          .nearbySubwayStationInfo(nearestSubwayStation)
+      return StudioBoastDetailResponse.StudioInfo.builder()
+          .id(String.valueOf(studio.getId()))
+          .name(studio.getName())
+          .thumbnailImageFileUrl(fileStorageService.getPublicFileUrl(studio.getThumbnailImageKey()))
+          .roadNameAddress(studio.getRoadNameAddress())
+          .lotNumberAddress(studio.getLotNumberAddress())
+          .detailedAddress(studio.getDetailedAddress())
+          .nearestSubwayStation(nearestSubwayStation)
           .minPrice(studioPriceInfo.minPrice())
           .maxPrice(studioPriceInfo.maxPrice())
           .build();

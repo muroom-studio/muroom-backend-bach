@@ -87,6 +87,15 @@ public record StudioBoastDetailResponse(
       @Schema(description = "작업실(스튜디오) 썸네일 이미지 파일 URL", requiredMode = RequiredMode.REQUIRED)
       String thumbnailImageFileUrl,
 
+      @Schema(description = "도로명 주소", example = "서울특별시 마포구 양화로 123", requiredMode = RequiredMode.REQUIRED)
+      String roadNameAddress,
+
+      @Schema(description = "지번 주소", example = "서울특별시 마포구 서교동 123-45", requiredMode = RequiredMode.REQUIRED)
+      String lotNumberAddress,
+
+      @Schema(description = "상세 주소", example = "101호", requiredMode = RequiredMode.REQUIRED)
+      String detailedAddress,
+
       @Schema(description = "인근 지하철역 정보", requiredMode = RequiredMode.REQUIRED)
       StudioSubwayStationInfo nearestSubwayStation,
 

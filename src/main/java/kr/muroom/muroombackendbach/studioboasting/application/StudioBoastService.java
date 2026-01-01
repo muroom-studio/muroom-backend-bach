@@ -17,7 +17,6 @@ import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastCommentLikeRepository;
@@ -312,10 +311,8 @@ public class StudioBoastService {
     Map<Long, Musician> musiciansById = musicianService.getMusiciansAsMapByIds(creatorUserIds);
 
     // 3-3. 등록된 스튜디오 정보 조회
-    Map<Long, StudioListElementResponse> studioInfosById = studioService.getStudioInfoByIds(
-            studioIds).stream()
-        .collect(
-            Collectors.toMap(studio -> Long.parseLong(studio.studioId()), Function.identity()));
+    Map<Long, StudioInfo> studioInfosById = studioService.getStudioInfoByIds(studioIds).stream()
+        .collect(Collectors.toMap(studio -> Long.parseLong(studio.id()), Function.identity()));
 
     // 3-4. 현재 사용자의 '좋아요' 정보 조회
     final Set<Long> likedBoastIds;
@@ -365,11 +362,7 @@ public class StudioBoastService {
       StudioInfo studioInfo = null;
       UnknownStudioInfo unknownStudioInfo = null;
       if (isStudioUploaded) {
-        StudioListElementResponse studioListElement = studioInfosById.get(
-            studioBoast.getStudioId());
-        if (studioListElement != null) {
-          studioInfo = StudioInfo.from(studioListElement);
-        }
+        studioInfo = studioInfosById.get(studioBoast.getStudioId());
       } else {
         unknownStudioInfo = UnknownStudioInfo.builder()
             .name(studioBoast.getStudioName())
