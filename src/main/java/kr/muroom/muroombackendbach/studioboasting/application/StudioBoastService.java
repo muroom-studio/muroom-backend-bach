@@ -431,7 +431,7 @@ public class StudioBoastService {
     StudioInfo studioInfo = null;
     UnknownStudioInfo unknownStudioInfo = null;
     if (isStudioUploaded) {
-      studioInfo = StudioInfo.from(studioService.getStudioInfoById(studioBoast.getStudioId()));
+      studioInfo = studioService.getStudioInfoById(studioBoast.getStudioId());
     } else {
       unknownStudioInfo = UnknownStudioInfo.builder()
           .name(studioBoast.getStudioName())

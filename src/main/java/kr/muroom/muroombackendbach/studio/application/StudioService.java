@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
@@ -20,6 +21,7 @@ import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
 import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
+import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioAddressSearchResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioPriceInfo;
@@ -302,9 +304,10 @@ public class StudioService {
    *
    * <p>다른 서비스 에서 사용할 용도로만 존재하는 메서드입니다.
    */
-  public StudioListElementResponse getStudioInfoById(Long studioId) {
+  public StudioBoastDetailResponse.StudioInfo getStudioInfoById(Long studioId) {
+    // TODO: 삭제된 스튜디오인 경우 처리해야됨
     Studio studio = studioRepository.findById(studioId)
-        .orElseThrow(() -> new IllegalArgumentException("Studio not found with id: " + studioId));
+        .orElseThrow(() -> new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND));
 
     StudioPriceInfo studioPriceInfo = calculatePrice(studio);
 
@@ -327,11 +330,14 @@ public class StudioService {
           .build();
     }
 
-    return StudioListElementResponse.builder()
-        .studioId(String.valueOf(studio.getId()))
-        .studioName(studio.getName())
-        .thumbnailImageUrl(fileStorageService.getPublicFileUrl(studio.getThumbnailImageKey()))
-        .nearbySubwayStationInfo(nearestSubwayStation)
+    return StudioBoastDetailResponse.StudioInfo.builder()
+        .id(String.valueOf(studio.getId()))
+        .name(studio.getName())
+        .thumbnailImageFileUrl(fileStorageService.getPublicFileUrl(studio.getThumbnailImageKey()))
+        .roadNameAddress(studio.getRoadNameAddress())
+        .lotNumberAddress(studio.getLotNumberAddress())
+        .detailedAddress(studio.getDetailedAddress())
+        .nearestSubwayStation(nearestSubwayStation)
         .minPrice(studioPriceInfo.minPrice())
         .maxPrice(studioPriceInfo.maxPrice())
         .build();
