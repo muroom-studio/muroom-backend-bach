@@ -52,7 +52,7 @@ public interface MusicianWithdrawalControllerDocs {
                       value = """
                           {
                             "code": "MC-404-02",
-                            "message": "존재하지 않는 존재하지 않는 소셜 계정입니다.입니다."
+                            "message": "존재하지 않는 소셜 계정입니다."
                           }
                           """,
                       description = "인증 정보는 있으나 소셜 로그인 정보가 존재하지 않는 경우"

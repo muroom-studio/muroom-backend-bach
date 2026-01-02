@@ -18,7 +18,7 @@ import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianPr
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
 import kr.muroom.muroombackendbach.user.presentation.dto.request.LogoutRequest;
-import kr.muroom.muroombackendbach.user.presentation.dto.request.UpdateMusicianProfileRequest;
+import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;

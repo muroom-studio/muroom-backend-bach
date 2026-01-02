@@ -40,7 +40,7 @@ import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
-import kr.muroom.muroombackendbach.user.presentation.dto.request.UpdateMusicianProfileRequest;
+import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

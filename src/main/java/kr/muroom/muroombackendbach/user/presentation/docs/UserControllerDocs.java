@@ -70,7 +70,7 @@ public interface UserControllerDocs {
           )
       )
   })
-  ApiResponse<Void> checkPhone(@RequestParam String nickname);
+  ApiResponse<Void> checkPhone(@RequestParam String phone);
 
   @Operation(summary = "SMS 인증번호 발송", description = "입력한 휴대폰 번호로 인증번호를 발송합니다.")
   @ApiResponses({

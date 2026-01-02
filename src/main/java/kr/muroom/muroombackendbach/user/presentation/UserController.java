@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.user.presentation;
 import static kr.muroom.muroombackendbach.user.presentation.dto.UserDto.NicknameCheckResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Locale;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
@@ -96,7 +97,7 @@ public class UserController implements UserControllerDocs {
 
     // Forwarded: for=1.2.3.4;proto=https 형태 → for= 값 파싱(간단 버전)
     // for="1.2.3.4:1234" 또는 for=1.2.3.4 등 다양
-    if (v.toLowerCase().contains("for=")) {
+    if (v.toLowerCase(Locale.ROOT).contains("for=")) {
       int idx = v.toLowerCase().indexOf("for=");
       v = v.substring(idx + 4);
       int end = v.indexOf(';');

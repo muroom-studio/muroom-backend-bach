@@ -12,7 +12,7 @@ import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianPr
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
 import kr.muroom.muroombackendbach.user.presentation.dto.request.LogoutRequest;
-import kr.muroom.muroombackendbach.user.presentation.dto.request.UpdateMusicianProfileRequest;
+import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
