@@ -46,9 +46,7 @@ public class UserController implements UserControllerDocs {
   }
 
   @PostMapping("/refresh")
-  public ApiResponse<TokenPair> refresh(
-      @RequestHeader("refreshToken") String refreshToken
-  ) {
+  public ApiResponse<TokenPair> refresh(@RequestHeader("refreshToken") String refreshToken) {
     return ApiResponse.success(refreshTokenService.rotate(refreshToken));
   }
 

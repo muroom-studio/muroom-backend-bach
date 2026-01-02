@@ -2,6 +2,7 @@ package kr.muroom.muroombackendbach.user.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class UserDto {
 
@@ -24,6 +25,7 @@ public class UserDto {
       String phone,
 
       @Schema(description = "인증번호 6자리", example = "123456")
+      @Size(min = 6, max = 6)
       @NotBlank
       String code
   ) {

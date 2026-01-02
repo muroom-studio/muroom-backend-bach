@@ -36,6 +36,42 @@ public interface UserControllerDocs {
   })
   ApiResponse<NicknameCheckResponse> checkNickname(@RequestParam String nickname);
 
+  @Operation(
+      summary = "핸드폰 등록 확인",
+      description = "회원가입 또는 프로필 설정시 사용 가능한 핸드폰번호인지 확인합니다."
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "200",
+          description = "닉네임 사용 가능 여부 반환"
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "핸드폰 형식에 맞지 않습니다. 하이픈을 포함한 전화번호가 필요합니다.",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = {
+                  @ExampleObject(name = "잘못된 핸드폰 번호입니다.", value = "{ \"code\": \"SM-400-01\", "
+                      + "\"message\": \"잘못된 핸드폰 번호 형식 입니다.\" }"),
+              }
+          )
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "409",
+          description = "이미 등록된 핸드폰 입니다.",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = {
+                  @ExampleObject(name = "이미 존재하는 전화번호 입니다.", value = "{ \"code\": \"US-409-03\", "
+                      + "\"message\": \"이미 존재하는 전화번호 입니다.\" }"),
+              }
+          )
+      )
+  })
+  ApiResponse<Void> checkPhone(@RequestParam String nickname);
+
   @Operation(summary = "SMS 인증번호 발송", description = "입력한 휴대폰 번호로 인증번호를 발송합니다.")
   @ApiResponses({
       @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description =
