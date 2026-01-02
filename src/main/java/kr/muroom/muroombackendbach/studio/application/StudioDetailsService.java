@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
@@ -40,7 +41,6 @@ import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationsNearbyStudioRepository;
-import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
@@ -113,7 +113,7 @@ public class StudioDetailsService {
 
     StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto =
         StudioForbiddenInstrumentsDto.from(
-        studio);
+            studio);
 
     StudioRoomsDto studioRoomsDto = StudioRoomsDto.from(rooms);
 

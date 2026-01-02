@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.user.application;
 
-import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.*;
+import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.PHONE_NUMBER_ALREADY_EXISTS;
 
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;

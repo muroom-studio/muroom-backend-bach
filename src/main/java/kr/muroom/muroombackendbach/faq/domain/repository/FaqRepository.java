@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.faq.domain.repository;
 
-import feign.Param;
 import kr.muroom.muroombackendbach.faq.domain.entity.Faq;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

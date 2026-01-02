@@ -5,16 +5,16 @@ import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_E
 
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
+import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
+import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.terms.domain.entity.OwnerAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.OwnerAgreementRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
 import kr.muroom.muroombackendbach.user.application.UserService;
-import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
-import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
-import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.response.EmailCheckResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

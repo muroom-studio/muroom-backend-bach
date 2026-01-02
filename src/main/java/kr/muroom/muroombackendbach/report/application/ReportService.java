@@ -6,6 +6,9 @@ import static kr.muroom.muroombackendbach.report.exception.ReportErrorCode.REPOR
 
 import com.fasterxml.jackson.databind.JsonNode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
+import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
+import kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode;
 import kr.muroom.muroombackendbach.report.domain.entity.Report;
 import kr.muroom.muroombackendbach.report.domain.entity.ReportReason;
 import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
@@ -19,9 +22,6 @@ import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterRepor
 import kr.muroom.muroombackendbach.report.presentation.dto.request.UpdateReportRequest;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.ReportsResponse;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.SearchReportResponse;
-import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
-import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
-import kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

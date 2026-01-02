@@ -2,8 +2,8 @@ package kr.muroom.muroombackendbach.musician.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.muroom.muroombackendbach.musician.domain.entity.MyStudio;
-import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse.InstrumentSimpleInfo;
+import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import lombok.Builder;
 
 @Builder

@@ -2,9 +2,9 @@ package kr.muroom.muroombackendbach.studioboasting.domain.repository;
 
 import java.util.List;
 import java.util.Optional;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastLike;
-import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StudioBoastLikeRepository extends JpaRepository<StudioBoastLike, Long> {

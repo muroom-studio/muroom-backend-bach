@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
 import kr.muroom.muroombackendbach.report.exception.ReportErrorCode;
 import kr.muroom.muroombackendbach.report.handler.ReportTargetHandler;
@@ -14,7 +15,6 @@ import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastImageRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
-import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

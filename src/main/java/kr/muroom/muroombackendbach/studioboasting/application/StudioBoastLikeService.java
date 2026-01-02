@@ -1,13 +1,13 @@
 package kr.muroom.muroombackendbach.studioboasting.application;
 
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.musician.application.MusicianService;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastLike;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastLikeRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
-import kr.muroom.muroombackendbach.musician.application.MusicianService;
-import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
