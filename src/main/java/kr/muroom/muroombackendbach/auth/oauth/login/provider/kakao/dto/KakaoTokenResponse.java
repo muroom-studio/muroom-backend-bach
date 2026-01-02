@@ -1,8 +1,6 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
 
 public record KakaoTokenResponse(
 

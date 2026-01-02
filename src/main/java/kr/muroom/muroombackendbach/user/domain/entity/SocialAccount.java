@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

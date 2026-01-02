@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.List;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
-import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReply;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryStatus;
-import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse.CategoryDto;
 import lombok.Builder;
 
 @Builder

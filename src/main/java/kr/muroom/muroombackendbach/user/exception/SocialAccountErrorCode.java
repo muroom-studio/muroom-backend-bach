@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum SocialAccountErrorCode implements ErrorCode {
-  SOCIAL_ACCOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "SA-400-01", "존재하지 않는 소셜 계정입니다.");
+  SOCIAL_ACCOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "SA-404-01", "존재하지 않는 소셜 계정입니다.");
 
   private final HttpStatus status;
   private final String code;

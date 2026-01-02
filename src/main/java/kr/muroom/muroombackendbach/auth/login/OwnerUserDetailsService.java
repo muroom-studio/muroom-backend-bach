@@ -1,7 +1,7 @@
 package kr.muroom.muroombackendbach.auth.login;
 
-import kr.muroom.muroombackendbach.user.domain.entity.Owner;
-import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
+import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

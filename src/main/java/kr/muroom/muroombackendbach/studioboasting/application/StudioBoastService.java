@@ -15,6 +15,9 @@ import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
+import kr.muroom.muroombackendbach.musician.application.MusicianService;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
+import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
@@ -35,9 +38,6 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastListElementResponse;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastSimpleResponse;
 import kr.muroom.muroombackendbach.subway.application.SubwayService;
-import kr.muroom.muroombackendbach.user.application.MusicianService;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
-import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -229,7 +229,8 @@ public class StudioBoastService {
     return new PageImpl<>(studioBoastListElements, pageable, studioBoastPage.getTotalElements());
   }
 
-  public Page<StudioBoastDetailResponse> getDetailedStudioBoasts(Pageable pageable, Long musicianId) {
+  public Page<StudioBoastDetailResponse> getDetailedStudioBoasts(Pageable pageable,
+      Long musicianId) {
     Page<StudioBoast> studioBoastPage = studioBoastRepository.findAll(pageable);
     if (studioBoastPage.isEmpty()) {
       return Page.empty(pageable);
@@ -239,7 +240,8 @@ public class StudioBoastService {
     return new PageImpl<>(studioBoastDetails, pageable, studioBoastPage.getTotalElements());
   }
 
-  public Page<StudioBoastDetailResponse> getRandomDetailedStudioBoasts(Pageable pageable, Long musicianId) {
+  public Page<StudioBoastDetailResponse> getRandomDetailedStudioBoasts(Pageable pageable,
+      Long musicianId) {
     // 1. QueryDSL로 구현된 레포지토리의 findAllRandomly 메소드를 호출
     //    DB에서 직접 'ORDER BY RANDOM()'을 실행하여 무작위로 정렬된 데이터 페이지를 조회
     Page<StudioBoast> studioBoastPage = studioBoastRepository.findAllRandomly(pageable);
@@ -447,7 +449,8 @@ public class StudioBoastService {
       isLiked = studioBoastLikeRepository.existsByMusicianAndStudioBoast(requestUser, studioBoast);
     }
 
-    long commentCount = studioBoastCommentRepository.countTopLevelCommentsByStudioBoast(studioBoast);
+    long commentCount = studioBoastCommentRepository.countTopLevelCommentsByStudioBoast(
+        studioBoast);
 
     return StudioBoastDetailResponse.builder()
         .id(String.valueOf(studioBoast.getId()))

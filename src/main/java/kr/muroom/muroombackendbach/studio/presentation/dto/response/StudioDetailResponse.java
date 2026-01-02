@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
@@ -14,7 +15,6 @@ import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
-import kr.muroom.muroombackendbach.user.domain.entity.Owner;
 import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
 import lombok.Builder;
 import org.locationtech.jts.geom.Point;
@@ -40,31 +40,39 @@ public record StudioDetailResponse(
     @Schema(description = "스튜디오 옵션 정보", nullable = true)
     StudioOptionsDto studioOptions,
 
-    @Schema(description = "스튜디오 이미지 정보 [메인, 건물, 방, 도면, 공용 옵션, 개인 옵션]", requiredMode = RequiredMode.REQUIRED)
+    @Schema(description = "스튜디오 이미지 정보 [메인, 건물, 방, 도면, 공용 옵션, 개인 옵션]", requiredMode =
+        RequiredMode.REQUIRED)
     StudioImagesDto studioImages
 ) {
 
   @Builder
   public record StudioBaseInfoDto(
-      @Schema(description = "스튜디오 ID", example = "791543436721219205", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "스튜디오 ID", example = "791543436721219205", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       String studioId,
 
-      @Schema(description = "스튜디오 이름", example = "뮤룸 스튜디오", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "스튜디오 이름", example = "뮤룸 스튜디오", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       String studioName,
 
-      @Schema(description = "스튜디오 도로명 주소", example = "서울특별시 강남구 테헤란로 427 위워크타워 5층", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "스튜디오 도로명 주소", example = "서울특별시 강남구 테헤란로 427 위워크타워 5층", requiredMode
+          = Schema.RequiredMode.REQUIRED)
       String roadNameAddress,
 
-      @Schema(description = "스튜디오 지번 주소", example = "서울특별시 강남구 역삼동 701-21 위워크타워 5층", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "스튜디오 지번 주소", example = "서울특별시 강남구 역삼동 701-21 위워크타워 5층",
+          requiredMode = Schema.RequiredMode.REQUIRED)
       String lotNumberAddress,
 
-      @Schema(description = "스튜디오 상세 주소", example = "5층", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "스튜디오 상세 주소", example = "5층", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       String detailedAddress,
 
-      @Schema(description = "스튜디오 경도", example = "127.027610", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "스튜디오 경도", example = "127.027610", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       Double studioLongitude,
 
-      @Schema(description = "스튜디오 위도", example = "37.499122", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "스튜디오 위도", example = "37.499122", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       Double studioLatitude,
 
       @Schema(description = "스튜디오 최저 가격", example = "150000", nullable = true)
@@ -122,10 +130,12 @@ public record StudioDetailResponse(
           example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
       Boolean hasRestroom,
 
-      @Schema(description = "화장실 위치 (hasRestroom이 true일 때만)", example = "SHARED_RESTROOM", nullable = true)
+      @Schema(description = "화장실 위치 (hasRestroom이 true일 때만)", example = "SHARED_RESTROOM",
+          nullable = true)
       RestroomLocation restroomLocation,
 
-      @Schema(description = "화장실 성별 구분 (hasRestroom이 true일 때만)", example = "SEPARATE", nullable = true)
+      @Schema(description = "화장실 성별 구분 (hasRestroom이 true일 때만)", example = "SEPARATE", nullable =
+          true)
       RestroomGender restroomGender,
 
       @Schema(description = "주차 요금 유형 (FREE/PAID/NONE)", example = "FREE", nullable = true)
@@ -149,14 +159,17 @@ public record StudioDetailResponse(
       @Schema(description = "주차 위치 위도", example = "37.499000", nullable = true)
       Double parkingLocationLatitude,
 
-      @Schema(description = "숙식 가능 여부", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "숙식 가능 여부", example = "true", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       Boolean isLodgingAvailable,
 
-      @Schema(description = "화재 보험 가입 여부", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "화재 보험 가입 여부", example = "true", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       Boolean hasFireInsurance
   ) {
 
-    public static StudioBuildingInfoDto from(StudioBuildingInfo studioBuildingInfo, Point parkingLocation) {
+    public static StudioBuildingInfoDto from(StudioBuildingInfo studioBuildingInfo,
+        Point parkingLocation) {
 
       return StudioBuildingInfoDto.builder()
           .floorType(studioBuildingInfo.getFloorType())
@@ -179,20 +192,24 @@ public record StudioDetailResponse(
 
   @Builder
   public record StudioNoticeDto(
-      @Schema(description = "소유자 닉네임", example = "뮤루뮤루", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "소유자 닉네임", example = "뮤루뮤루", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       String ownerNickname,
 
-      @Schema(description = "소유자 전화번호", example = "01012345678", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "소유자 전화번호", example = "01012345678", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       String ownerPhoneNumber,
 
       @Schema(description = "운영 경력(년)", example = "5", nullable = true)
       Integer experienceYears,
 
-      @Schema(description = "본인인증 여부", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "본인인증 여부", example = "false", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       Boolean isIdentityVerified,
 
       @Schema(description = "소개글",
-          example = "안녕하세요! 뮤룸 스튜디오입니다.\n저희 스튜디오는 쾌적한 환경과 최신 장비를 갖추고 있어 여러분의 창작 활동을 지원합니다.\n많은 관심 부탁드립니다!",
+          example = "안녕하세요! 뮤룸 스튜디오입니다.\n저희 스튜디오는 쾌적한 환경과 최신 장비를 갖추고 있어 여러분의 창작 활동을 지원합니다.\n많은 관심"
+              + " 부탁드립니다!",
           nullable = true)
       String introduction
   ) {
@@ -262,7 +279,8 @@ public record StudioDetailResponse(
 
   @Builder
   public record RoomInfoDto(
-      @Schema(description = "방 ID", example = "791543436721219205", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "방 ID", example = "791543436721219205", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       String roomId,
 
       @Schema(description = "방 이름", example = "Room A", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -274,10 +292,12 @@ public record StudioDetailResponse(
       @Schema(description = "입주 가능 일자", example = "2024-11-15", nullable = true)
       LocalDate availableAt,
 
-      @Schema(description = "방 가로 길이 (mm)", example = "5000", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "방 가로 길이 (mm)", example = "5000", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       Integer widthMm,
 
-      @Schema(description = "방 세로 길이 (mm)", example = "4000", requiredMode = Schema.RequiredMode.REQUIRED)
+      @Schema(description = "방 세로 길이 (mm)", example = "4000", requiredMode =
+          Schema.RequiredMode.REQUIRED)
       Integer heightMm,
 
       @Schema(description = "방 기본 가격 (원)", example = "250000", nullable = true)
@@ -338,13 +358,15 @@ public record StudioDetailResponse(
 
   @Builder
   public record OptionDto(
-      @Schema(description = "옵션 코드", example = "WATER_PURIFIER", requiredMode = RequiredMode.REQUIRED)
+      @Schema(description = "옵션 코드", example = "WATER_PURIFIER", requiredMode =
+          RequiredMode.REQUIRED)
       String code,
 
       @Schema(description = "옵션 설명", example = "정수기", requiredMode = RequiredMode.REQUIRED)
       String description,
 
-      @Schema(description = "옵션 아이콘 이미지 URL", example = "/systems/icons/WATER_PURIFIER.svg", requiredMode = RequiredMode.REQUIRED)
+      @Schema(description = "옵션 아이콘 이미지 URL", example = "/systems/icons/WATER_PURIFIER.svg",
+          requiredMode = RequiredMode.REQUIRED)
       String iconImageKey
   ) {
 
@@ -379,12 +401,14 @@ public record StudioDetailResponse(
       String blueprintImageKey,
 
       @Schema(description = "공용 옵션(시설) 이미지 URL 목록",
-          example = "[\"/studios/common_options/image1.jpg\", \"/studios/common_options/image2.jpg\"]",
+          example = "[\"/studios/common_options/image1.jpg\", \"/studios/common_options/image2"
+              + ".jpg\"]",
           defaultValue = "[]")
       List<String> commonOptionImageKeys,
 
       @Schema(description = "개인 옵션(시설) 이미지 URL 목록",
-          example = "[\"/studios/individual_options/image1.jpg\", \"/studios/individual_options/image2.jpg\"]",
+          example = "[\"/studios/individual_options/image1.jpg\", "
+              + "\"/studios/individual_options/image2.jpg\"]",
           defaultValue = "[]")
       List<String> individualOptionImageKeys) {
 

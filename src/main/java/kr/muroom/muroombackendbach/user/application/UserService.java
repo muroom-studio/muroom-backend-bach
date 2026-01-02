@@ -1,9 +1,10 @@
 package kr.muroom.muroombackendbach.user.application;
 
+import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.PHONE_NUMBER_ALREADY_EXISTS;
+
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
-import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
-import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
-import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
+import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
+import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
   private final MusicianRepository musicianRepository;
-  private final OwnerRepository ownerRepository;
 
   public boolean isNicknameAvailable(String nickname) {
     boolean existsInMusician = musicianRepository.existsByNickname(nickname);
@@ -20,12 +20,10 @@ public class UserService {
   }
 
   public void isPhoneAvailable(String phone) {
-    if (musicianRepository.existsByPhoneNumber(phone)) {
-      throw new BusinessException(UserErrorCode.PHONE_NUMBER_ALREADY_EXISTS);
-    }
-  }
+    PhoneNumberUtil.isValidHyphenPhoneNumber(phone);
 
-  public boolean isExistingMusicianId(Long musicianId) {
-    return musicianRepository.existsById(musicianId);
+    if (musicianRepository.existsByPhoneNumber(phone)) {
+      throw new BusinessException(PHONE_NUMBER_ALREADY_EXISTS);
+    }
   }
 }

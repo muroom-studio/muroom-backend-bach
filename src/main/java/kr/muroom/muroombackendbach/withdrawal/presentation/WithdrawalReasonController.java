@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/withdrawal/reasons")
 @RequiredArgsConstructor
-@Tag(name = "탈퇴 사유 API", description = "회원 탈퇴 시 선택 가능한 사유 관련 API")
+@Tag(name = "musician withdrawal reason - 탈퇴 사유 API")
 public class WithdrawalReasonController {
 
   private final WithdrawalReasonService withdrawalReasonService;

@@ -15,6 +15,8 @@ import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
+import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
@@ -32,8 +34,6 @@ import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationRepository;
 import kr.muroom.muroombackendbach.subway.exception.SubwayErrorCode;
-import kr.muroom.muroombackendbach.user.domain.entity.Owner;
-import kr.muroom.muroombackendbach.user.domain.repository.OwnerRepository;
 import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
@@ -54,7 +54,8 @@ public class AdminStudioService {
   private final FileStorageService fileStorageService;
 
   public GeneratePresignedPutUrlResponse generatePresignedPutUrl(StudioImageUploadRequest request) {
-    return fileStorageService.generatePresignedPutUrlForPublic(request, FileStorageService::validateImageContentType);
+    return fileStorageService.generatePresignedPutUrlForPublic(request,
+        FileStorageService::validateImageContentType);
   }
 
   public Long createStudio(StudioCreateRequest request) {
@@ -67,7 +68,8 @@ public class AdminStudioService {
 
     List<StudioImage> studioImages = buildStudioImages(request.imageKeys());
     String thumbnailImageKey = studioImages.stream()
-        .filter(image -> image.getCategory() == StudioImageCategory.MAIN && image.getSequence() == 1)
+        .filter(
+            image -> image.getCategory() == StudioImageCategory.MAIN && image.getSequence() == 1)
         .findFirst()
         .map(StudioImage::getImageKey)
         .orElse(null);

@@ -1,7 +1,7 @@
 package kr.muroom.muroombackendbach.user.application;
 
 import jakarta.validation.Valid;
-import kr.muroom.muroombackendbach.user.presentation.dto.request.OwnerLoginRequest;
+import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerLoginRequest;
 import org.springframework.stereotype.Service;
 
 @Service

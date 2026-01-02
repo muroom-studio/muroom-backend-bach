@@ -1,7 +1,6 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.provider.google;
 
 import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
-import kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.google.dto.GoogleTokenResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.RequiredArgsConstructor;

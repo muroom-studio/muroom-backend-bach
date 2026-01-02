@@ -1,7 +1,7 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.application;
 
 import static kr.muroom.muroombackendbach.auth.jwt.exception.JwtErrorCode.MISMATCH_REFRESH_TOKEN_OWNER;
-import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
+import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 
 import jakarta.annotation.PostConstruct;
 import java.util.List;
@@ -15,7 +15,7 @@ import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthClientService;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthTokenResult;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;

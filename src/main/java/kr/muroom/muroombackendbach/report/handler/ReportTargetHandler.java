@@ -1,8 +1,8 @@
 package kr.muroom.muroombackendbach.report.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 
 public interface ReportTargetHandler {
 

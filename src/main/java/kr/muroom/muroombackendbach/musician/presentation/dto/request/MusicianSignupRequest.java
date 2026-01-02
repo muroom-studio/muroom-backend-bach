@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.user.presentation.dto.request;
+package kr.muroom.muroombackendbach.musician.presentation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

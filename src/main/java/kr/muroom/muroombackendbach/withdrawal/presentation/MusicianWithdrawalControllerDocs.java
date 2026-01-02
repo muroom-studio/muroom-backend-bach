@@ -14,15 +14,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "뮤지션 탈퇴 API", description = "로그인된 뮤지션 탈퇴 관련 API")
+@Tag(name = "musician withdrawal - 뮤지션 탈퇴 API")
 public interface MusicianWithdrawalControllerDocs {
 
   @Operation(
       summary = "뮤지션 탈퇴 요청",
       description = """
           로그인한 뮤지션이 탈퇴를 요청합니다.
-          
-          - 탈퇴 사유는 필수이며, 사전에 정의된 탈퇴 사유만 사용할 수 있습니다.
+          - 탈퇴 사유(withdrawalReasonId)는 필수이며, 사전에 정의된 탈퇴 사유만 사용할 수 있습니다.
           - 탈퇴 시 계정은 즉시 탈퇴 처리됩니다.
           """
   )
@@ -42,21 +41,21 @@ public interface MusicianWithdrawalControllerDocs {
                       name = "존재하지 않는 탈퇴 사유",
                       value = """
                           {
-                            "code": "WR-400-01",
+                            "code": "WR-404-01",
                             "message": "존재하지 않는 탈퇴 사유입니다."
                           }
                           """,
                       description = "요청한 withdrawalReasonId가 존재하지 않는 경우"
                   ),
                   @ExampleObject(
-                      name = "존재하지 않는 뮤지션",
+                      name = "존재하지 않는 소셜 아이디",
                       value = """
                           {
-                            "code": "MC-400-02",
-                            "message": "존재하지 않는 뮤지션입니다."
+                            "code": "MC-404-02",
+                            "message": "존재하지 않는 소셜 계정입니다."
                           }
                           """,
-                      description = "인증 정보는 있으나 실제 뮤지션 정보가 존재하지 않는 경우"
+                      description = "인증 정보는 있으나 소셜 로그인 정보가 존재하지 않는 경우"
                   )
               }
           )

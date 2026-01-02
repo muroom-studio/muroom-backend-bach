@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.user.presentation.dto.response;
+package kr.muroom.muroombackendbach.musician.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;

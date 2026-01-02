@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.musician.application.MusicianService;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastComment;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastCommentLike;
@@ -21,8 +23,6 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse.CreatorUserInfo;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastCommentResponse.TaggedUserInfo;
-import kr.muroom.muroombackendbach.user.application.MusicianService;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

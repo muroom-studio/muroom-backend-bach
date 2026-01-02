@@ -3,7 +3,7 @@ package kr.muroom.muroombackendbach.inquiry.application;
 import static kr.muroom.muroombackendbach.inquiry.exception.InquiryCategoryErrorCode.INQUIRY_CATEGORY_NOT_FOUND;
 import static kr.muroom.muroombackendbach.inquiry.exception.InquiryErrorCode.INQUIRY_FORBIDDEN;
 import static kr.muroom.muroombackendbach.inquiry.exception.InquiryErrorCode.INQUIRY_NOT_FOUND;
-import static kr.muroom.muroombackendbach.user.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
+import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
@@ -22,8 +22,8 @@ import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInqu
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
-import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
+import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
