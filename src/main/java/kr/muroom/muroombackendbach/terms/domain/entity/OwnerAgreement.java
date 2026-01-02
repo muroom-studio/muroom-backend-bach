@@ -10,7 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
-import kr.muroom.muroombackendbach.user.domain.entity.Owner;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

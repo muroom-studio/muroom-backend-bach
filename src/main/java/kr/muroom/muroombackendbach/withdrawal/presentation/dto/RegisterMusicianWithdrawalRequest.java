@@ -3,7 +3,7 @@ package kr.muroom.muroombackendbach.withdrawal.presentation.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.MusicianWithdrawal;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.WithdrawalReason;
 

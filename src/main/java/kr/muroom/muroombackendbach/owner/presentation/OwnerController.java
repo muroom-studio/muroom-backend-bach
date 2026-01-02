@@ -1,11 +1,11 @@
-package kr.muroom.muroombackendbach.user.presentation;
+package kr.muroom.muroombackendbach.owner.presentation;
 
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.user.application.OwnerService;
+import kr.muroom.muroombackendbach.owner.application.OwnerService;
 import kr.muroom.muroombackendbach.user.presentation.dto.request.EmailCheckRequest;
-import kr.muroom.muroombackendbach.user.presentation.dto.request.OwnerLoginRequest;
-import kr.muroom.muroombackendbach.user.presentation.dto.request.OwnerSignupRequest;
+import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerLoginRequest;
+import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.response.EmailCheckResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

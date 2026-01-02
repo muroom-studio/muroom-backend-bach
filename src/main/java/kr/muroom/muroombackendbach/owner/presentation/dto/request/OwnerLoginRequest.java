@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.user.presentation.dto.request;
+package kr.muroom.muroombackendbach.owner.presentation.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

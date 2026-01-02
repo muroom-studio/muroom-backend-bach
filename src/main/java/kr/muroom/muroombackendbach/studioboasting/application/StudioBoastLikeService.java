@@ -6,8 +6,8 @@ import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastLike;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastLikeRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
-import kr.muroom.muroombackendbach.user.application.MusicianService;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.musician.application.MusicianService;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +38,7 @@ public class StudioBoastLikeService {
 
     studioBoast.adjustLikeCount(1);
   }
-  
+
   public void unlikeStudioBoast(Long studioBoastId, Long musicianId) {
     StudioBoast studioBoast = studioBoastRepository.findById(studioBoastId)
         .orElseThrow(() -> new BusinessException(StudioBoastErrorCode.STUDIO_BOAST_NOT_FOUND));

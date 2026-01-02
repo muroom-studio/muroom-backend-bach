@@ -1,9 +1,8 @@
-package kr.muroom.muroombackendbach.user.domain.repository;
+package kr.muroom.muroombackendbach.owner.domain.repository;
 
 import java.util.Optional;
-import kr.muroom.muroombackendbach.user.domain.entity.Owner;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 public interface OwnerRepository extends JpaRepository<Owner, Long> {
 

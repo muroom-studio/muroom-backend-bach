@@ -40,7 +40,7 @@ import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationsNearbyStudioRepository;
-import kr.muroom.muroombackendbach.user.domain.entity.Owner;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
@@ -101,15 +101,19 @@ public class StudioDetailsService {
         .build();
 
     Point parkingLocation = null;
-    if (studioBuildingInfo.getParkingFeeType() != null && !ParkingFeeType.NONE.equals(studioBuildingInfo.getParkingFeeType())) {
+    if (studioBuildingInfo.getParkingFeeType() != null && !ParkingFeeType.NONE.equals(
+        studioBuildingInfo.getParkingFeeType())) {
       String parkingLocationAddress = studioBuildingInfo.getParkingLocationAddress();
       parkingLocation = mapGeocodingService.getPointFromAddress(parkingLocationAddress);
     }
-    StudioBuildingInfoDto studioBuildingInfoDto = StudioBuildingInfoDto.from(studioBuildingInfo, parkingLocation);
+    StudioBuildingInfoDto studioBuildingInfoDto = StudioBuildingInfoDto.from(studioBuildingInfo,
+        parkingLocation);
 
     StudioNoticeDto studioNoticeDto = StudioNoticeDto.from(owner, studio);
 
-    StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto = StudioForbiddenInstrumentsDto.from(studio);
+    StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto =
+        StudioForbiddenInstrumentsDto.from(
+        studio);
 
     StudioRoomsDto studioRoomsDto = StudioRoomsDto.from(rooms);
 
@@ -119,17 +123,24 @@ public class StudioDetailsService {
             .map(studioOption -> OptionDto.from(studioOption.getOption()))
             .toList())
         .individualOptions(studioOptions.stream()
-            .filter(studioOption -> studioOption.getOption().getCategory() == OptionCategory.INDIVIDUAL)
+            .filter(
+                studioOption -> studioOption.getOption().getCategory() == OptionCategory.INDIVIDUAL)
             .map(studioOption -> OptionDto.from(studioOption.getOption()))
             .toList())
         .build();
 
-    List<String> studioMainImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.MAIN);
-    List<String> studioBuildingImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.BUILDING);
-    List<String> studioRoomImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.ROOM);
-    String studioBlueprintImageKey = getPresignedUrlsForType(studioImages, StudioImageCategory.BLUEPRINT).getFirst();
-    List<String> studioCommonOptionImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.COMMON_OPTION);
-    List<String> studioIndividualOptionImageKeys = getPresignedUrlsForType(studioImages, StudioImageCategory.INDIVIDUAL_OPTION);
+    List<String> studioMainImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.MAIN);
+    List<String> studioBuildingImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.BUILDING);
+    List<String> studioRoomImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.ROOM);
+    String studioBlueprintImageKey = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.BLUEPRINT).getFirst();
+    List<String> studioCommonOptionImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.COMMON_OPTION);
+    List<String> studioIndividualOptionImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.INDIVIDUAL_OPTION);
     StudioImagesDto studioImagesDto = StudioImagesDto.builder()
         .mainImageKeys(studioMainImageKeys)
         .buildingImageKeys(studioBuildingImageKeys)
@@ -202,7 +213,8 @@ public class StudioDetailsService {
     return nearbyStations.stream()
         .map(nearby -> {
           SubwayStation subwayStation = nearby.getSubwayStation();
-          Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
+          Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(
+              studio.getLocation(), subwayStation.getLocation());
 
           return StudioSubwayStationInfo.builder()
               .stationName(subwayStation.getName())
@@ -213,14 +225,16 @@ public class StudioDetailsService {
         .toList();
   }
 
-  private List<String> getPresignedUrlsForType(List<StudioImage> images, StudioImageCategory category) {
+  private List<String> getPresignedUrlsForType(List<StudioImage> images,
+      StudioImageCategory category) {
     if (images == null) {
       return Collections.emptyList();
     }
 
     List<String> keys = images.stream()
         .filter(image -> image.getCategory() == category)
-        .sorted(Comparator.comparing(StudioImage::getSequence, Comparator.nullsLast(Comparator.naturalOrder())))
+        .sorted(Comparator.comparing(StudioImage::getSequence,
+            Comparator.nullsLast(Comparator.naturalOrder())))
         .map(StudioImage::getImageKey)
         .toList();
 

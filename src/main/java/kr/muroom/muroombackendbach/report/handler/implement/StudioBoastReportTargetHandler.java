@@ -14,7 +14,7 @@ import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastImageRepository;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastRepository;
 import kr.muroom.muroombackendbach.studioboasting.exception.StudioBoastErrorCode;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

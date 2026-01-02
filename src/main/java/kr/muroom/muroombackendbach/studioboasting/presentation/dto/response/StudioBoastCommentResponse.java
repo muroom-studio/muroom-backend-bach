@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.List;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import lombok.Builder;
 
 @Schema(description = "작업실 소개(자랑) 댓글 응답 DTO")

@@ -1,18 +1,18 @@
-package kr.muroom.muroombackendbach.user.presentation;
+package kr.muroom.muroombackendbach.musician.presentation;
 
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.oauth.login.application.OAuthLoginService;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.user.application.MusicianService;
-import kr.muroom.muroombackendbach.user.presentation.docs.MusicianControllerDocs;
+import kr.muroom.muroombackendbach.musician.application.MusicianService;
+import kr.muroom.muroombackendbach.musician.presentation.docs.MusicianControllerDocs;
 import kr.muroom.muroombackendbach.user.presentation.dto.request.LogoutRequest;
-import kr.muroom.muroombackendbach.user.presentation.dto.request.MusicianSignupRequest;
+import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
 import kr.muroom.muroombackendbach.user.presentation.dto.request.UpdateMusicianProfileRequest;
-import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianProfileResponse;
-import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSignupResponse;
-import kr.muroom.muroombackendbach.user.presentation.dto.response.MusicianSimpleProfileResponse;
+import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse;
+import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
+import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
