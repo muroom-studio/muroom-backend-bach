@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
@@ -39,7 +40,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
         WHERE musician_id = ?
         """
 )
-public class Musician extends SoftDeletableEntity {
+public class Musician extends AuditableEntity {
 
   @Id
   @Tsid

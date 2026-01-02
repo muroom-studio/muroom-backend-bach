@@ -41,8 +41,8 @@ public class WithdrawalReasonService {
 
     WithdrawalReason withdrawalReason = WithdrawalReason.builder()
         .code(request.code())
-        .description(request.description())
         .isActive(request.isActive())
+        .description(request.description())
         .build();
 
     withdrawalReasonRepository.save(withdrawalReason);
