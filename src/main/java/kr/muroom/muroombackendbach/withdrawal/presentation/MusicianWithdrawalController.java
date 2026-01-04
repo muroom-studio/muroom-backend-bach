@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/withdrawals/musicians")
+@RequestMapping("/api/v1/withdrawals/musician")
 @RequiredArgsConstructor
 public class MusicianWithdrawalController implements MusicianWithdrawalControllerDocs {
 
