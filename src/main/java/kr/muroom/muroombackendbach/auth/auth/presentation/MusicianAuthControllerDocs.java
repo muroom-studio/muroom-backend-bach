@@ -191,7 +191,6 @@ public interface MusicianAuthControllerDocs {
           )
       )
   })
-  @PostMapping("/refresh")
   ApiResponse<TokenPair> refresh(
       @Parameter(hidden = true)
       @RequestHeader("refreshToken") String refreshToken
