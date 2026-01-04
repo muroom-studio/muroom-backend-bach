@@ -38,13 +38,14 @@ public class GoogleOAuthClientService implements OAuthClientService {
     if (tokenResult.idToken() == null) {
       throw new IllegalStateException("구글 ID Token 이 존재하지 않습니다.");
     }
-    GoogleIdTokenPayload payload = decode(tokenResult.idToken());
+
+    DecodedJWT verifiedJwt = googleOAuthClient.verifyIdToken(tokenResult.idToken());
+
+    GoogleIdTokenPayload payload = toPayload(verifiedJwt);
     return payload.getSub();
   }
 
-  private GoogleIdTokenPayload decode(String idToken) {
-    DecodedJWT jwt = JWT.decode(idToken);
-
+  private GoogleIdTokenPayload toPayload(DecodedJWT jwt) {
     GoogleIdTokenPayload payload = new GoogleIdTokenPayload();
     payload.setIss(jwt.getIssuer());
     payload.setAud(jwt.getClaim("aud").asString());
