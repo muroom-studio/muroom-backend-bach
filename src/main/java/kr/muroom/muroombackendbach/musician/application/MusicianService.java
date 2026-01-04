@@ -4,8 +4,9 @@ import static kr.muroom.muroombackendbach.instrument.exception.InstrumentErrorCo
 import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.DUPLICATE_PHONE_NUMBER;
 import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 import static kr.muroom.muroombackendbach.musician.exception.MyStudioErrorCode.MY_STUDIO_NOT_FOUND;
-import static kr.muroom.muroombackendbach.user.exception.SocialAccountErrorCode.SOCIAL_ACCOUNT_NOT_FOUND;
-import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
+import static kr.muroom.muroombackendbach.auth.auth.exception.SocialAccountErrorCode.SOCIAL_ACCOUNT_NOT_FOUND;
+import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
+import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.PHONE_NUMBER_ALREADY_EXISTS;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
@@ -35,11 +37,10 @@ import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.MusicianAgreementRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
-import kr.muroom.muroombackendbach.user.application.UserService;
-import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
-import kr.muroom.muroombackendbach.user.domain.entity.SocialAccount;
-import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
-import kr.muroom.muroombackendbach.user.domain.repository.SocialAccountRepository;
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.SocialAccount;
+import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
+import kr.muroom.muroombackendbach.auth.auth.domain.repository.SocialAccountRepository;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class MusicianService {
 
   private final MusicianRepository musicianRepository;
-  private final UserService userService;
   private final MusicianAgreementRepository musicianAgreementRepository;
   private final TermRepository termRepository;
   private final SocialAccountRepository socialAccountRepository;
@@ -169,7 +169,7 @@ public class MusicianService {
    * 닉네임 중복 검증
    */
   private void validateNickname(String nickname) {
-    if (!userService.isNicknameAvailable(nickname)) {
+    if (!isNicknameAvailable(nickname)) {
       throw new BusinessException(MusicianErrorCode.ALREADY_EXIST_NICKNAME);
     }
   }
@@ -332,5 +332,18 @@ public class MusicianService {
     List<Musician> musicians = getMusiciansByIds(musicianIds);
     return musicians.stream()
         .collect(Collectors.toMap(Musician::getId, musician -> musician));
+  }
+
+  public boolean isNicknameAvailable(String nickname) {
+    boolean existsInMusician = musicianRepository.existsByNickname(nickname);
+    return !(existsInMusician);
+  }
+
+  public void isPhoneAvailable(String phone) {
+    PhoneNumberUtil.isValidHyphenPhoneNumber(phone);
+
+    if (musicianRepository.existsByPhoneNumber(phone)) {
+      throw new BusinessException(PHONE_NUMBER_ALREADY_EXISTS);
+    }
   }
 }

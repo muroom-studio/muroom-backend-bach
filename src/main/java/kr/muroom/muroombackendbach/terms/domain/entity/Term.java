@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
@@ -15,6 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -23,8 +26,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "terms")
-@EntityListeners(AuditingEntityListener.class)
-public class Term extends CreatedDateEntity {
+@SQLRestriction("is_active = true")
+@SQLDelete(sql = "UPDATE terms SET is_active = false WHERE term_id = ?")
+public class Term extends AuditableEntity {
 
   @Id
   @Tsid
@@ -45,8 +49,9 @@ public class Term extends CreatedDateEntity {
   @Column(nullable = false)
   private boolean isMandatory;
 
-  @Column
-  private boolean isActive;
+  @Builder.Default
+  @Column(nullable = false)
+  private boolean isActive = true;
 
   private OffsetDateTime effectiveAt;
 

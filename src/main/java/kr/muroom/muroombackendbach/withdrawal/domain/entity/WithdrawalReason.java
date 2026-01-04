@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -23,6 +24,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @SQLRestriction("is_active = true")
+@SQLDelete(sql = "UPDATE withdrawal_reasons SET is_active = false WHERE withdrawal_reason_id = ?")
 public class WithdrawalReason extends AuditableEntity {
 
   @Id

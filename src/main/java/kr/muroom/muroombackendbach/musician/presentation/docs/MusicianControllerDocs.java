@@ -17,7 +17,7 @@ import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSig
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
-import kr.muroom.muroombackendbach.user.presentation.dto.request.LogoutRequest;
+import kr.muroom.muroombackendbach.auth.auth.presentation.dto.request.LogoutRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,7 +54,7 @@ public interface MusicianControllerDocs {
           리다이렉트 URL에 포함된 `access_token` 값을 `providerId` 필드에 입력해주세요.
           
           🔗 구글 로그인 페이지  
-          [구글 로그인 바로가기](https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20email%20profile&response_type=token&redirect_uri=http://localhost:3001/redirect/oauth/google&client_id=857075964668-3uqbevha9k2ctfrr6rd272jj9h637ce8.apps.googleusercontent.com)
+          [구글 로그인 바로가기](https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20email%20profile&response_type=code&redirect_uri=http://localhost:3001/redirect/oauth/google&client_id=857075964668-3uqbevha9k2ctfrr6rd272jj9h637ce8.apps.googleusercontent.com)
           """
   )
   ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByGoogle(

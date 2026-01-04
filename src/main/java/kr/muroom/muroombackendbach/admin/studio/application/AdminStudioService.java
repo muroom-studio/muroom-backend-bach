@@ -34,7 +34,7 @@ import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationRepository;
 import kr.muroom.muroombackendbach.subway.exception.SubwayErrorCode;
-import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
+import kr.muroom.muroombackendbach.musician.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
