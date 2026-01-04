@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth/musician")
 @RequiredArgsConstructor
 @Slf4j
-public class MusicianAuthController {
+public class MusicianAuthController implements MusicianAuthControllerDocs {
 
   private final OAuthLoginService oAuthLoginService;
   private final RefreshTokenService refreshTokenService;
