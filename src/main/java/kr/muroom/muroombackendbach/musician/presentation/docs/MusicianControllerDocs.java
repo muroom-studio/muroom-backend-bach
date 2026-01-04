@@ -14,6 +14,7 @@ import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
+import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianNicknameCheckResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
@@ -33,109 +34,6 @@ public interface MusicianControllerDocs {
   )
   ApiResponse<MusicianSignupResponse> registerMusician(
       @Valid @RequestBody MusicianSignupRequest request
-  );
-
-  @Operation(
-      summary = "뮤지션 로그인",
-      description = "인가 코드를 기반으로 소셜 로그인을 시도합니다."
-  )
-  ApiResponse<OAuthLoginResponse> oauthLogin(
-      @Valid @RequestBody OAuthLoginRequest request,
-      @RequestHeader(value = "Origin") String origin
-  );
-
-  @Operation(
-      summary = "뮤지션 로그인 (Swagger 테스트용)",
-      description = """
-          Swagger 테스트 전용 로그인 API입니다.  
-          운영/개발 환경에서는 redirect 기반 로그인 플로우를 사용해야 합니다.
-          
-          아래 구글 로그인 페이지에서 인증 후,
-          리다이렉트 URL에 포함된 `access_token` 값을 `providerId` 필드에 입력해주세요.
-          
-          🔗 구글 로그인 페이지  
-          [구글 로그인 바로가기](https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20email%20profile&response_type=code&redirect_uri=http://localhost:3001/redirect/oauth/google&client_id=857075964668-3uqbevha9k2ctfrr6rd272jj9h637ce8.apps.googleusercontent.com)
-          """
-  )
-  ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByGoogle(
-      @Valid @RequestBody OAuthLoginRequest request,
-      @Parameter(
-          description = "요청이 발생한 origin (Swagger 테스트용)",
-          example = "http://localhost:3001",
-          schema = @Schema(defaultValue = "http://localhost:3001")
-      )
-      @RequestParam String origin
-  );
-
-  @Operation(
-      summary = "뮤지션 로그인 (Swagger 테스트용)",
-      description = """
-          Swagger 테스트 전용 로그인 API입니다.  
-          운영/개발 환경에서는 redirect 기반 로그인 플로우를 사용해야 합니다.
-          
-          아래 카카오 로그인 페이지에서 인증 후,
-          리다이렉트 URL에 포함된 `code` 값을 `providerId` 필드에 입력해주세요.
-          
-          🔗 카카오 로그인 페이지  
-          [카카오 로그인 바로가기](https://kauth.kakao.com/oauth/authorize?client_id=a87a624a98805882ce612eed7c018237&redirect_uri=http://localhost:3001/redirect/oauth/kakao&response_type=code)
-          """
-  )
-  ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByKakao(
-      @Valid @RequestBody OAuthLoginRequest request,
-      @Parameter(
-          description = "요청이 발생한 origin (Swagger 테스트용)",
-          example = "http://localhost:3001",
-          schema = @Schema(defaultValue = "http://localhost:3001")
-      )
-      @RequestParam String origin
-  );
-
-  @Operation(
-      summary = "로그아웃",
-      description =
-          """
-              현재 로그인한 뮤지션의 소셜 토큰을 만료(삭제)합니다.
-              클라이언트는 JWT를 로컬에서 삭제해야 합니다.
-              
-              - 요청 쿠키(refresh)가 존재하면 해당 Refresh Token을 서버에서 폐기합니다.
-              - Refresh Token의 소유자가 현재 로그인 사용자와 다르면 요청이 거부됩니다.
-              """
-  )
-  @SecurityRequirement(name = "Authentication")
-  @ApiResponses({
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "200",
-          description = "로그아웃 성공"
-      ),
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "403",
-          description = "리프레시 토큰 소유자 불일치",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = BusinessException.class),
-              examples = {
-                  @ExampleObject(
-                      name = "Refresh Token 소유자 불일치",
-                      value = """
-                          {
-                            "code": "JWT-403-01",
-                            "message": "리프레시 토큰의 소유자가 아닙니다."
-                          }
-                          """,
-                      description =
-                          """
-                              - 쿠키(refresh)로 전달된 Refresh Token의 musicianId(소유자)와
-                                현재 인증된 사용자(@AuthenticationPrincipal)의 musicianId가 다른 경우
-                              """
-                  )
-              }
-          )
-      )
-  })
-  @SecurityRequirement(name = "Authentication")
-  ApiResponse<Void> logout(
-      @AuthenticationPrincipal Long musicianId,
-      @RequestBody(required = false) LogoutRequest request
   );
 
   @Operation(
@@ -288,6 +186,89 @@ public interface MusicianControllerDocs {
   ApiResponse<Void> updateMyProfile(
       @AuthenticationPrincipal Long musicianId,
       @RequestBody UpdateMusicianProfileRequest request
+  );
+
+  @Operation(
+      summary = "닉네임 중복 확인",
+      description = """
+          닉네임 사용 가능 여부를 확인합니다.
+          
+          - available = true  : 사용 가능
+          - available = false : 이미 사용 중
+          
+          예외는 발생하지 않습니다.
+          """
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "200",
+          description = "닉네임 중복 확인 성공"
+      )
+  })
+  ApiResponse<MusicianNicknameCheckResponse> checkNickname(
+      @Parameter(
+          description = "검사할 닉네임",
+          example = "muroom_artist"
+      )
+      @RequestParam String nickname
+  );
+
+  @Operation(
+      summary = "전화번호 중복 확인",
+      description = """
+          전화번호 사용 가능 여부를 확인합니다.
+          
+          - 사용 가능한 경우: 200 OK
+          - 이미 존재하는 전화번호: 409 CONFLICT
+          - 잘못된 전화번호 형식: 400 BAD_REQUEST
+          """
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "200",
+          description = "전화번호 사용 가능"
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "409",
+          description = "이미 존재하는 전화번호",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  name = "전화번호 중복",
+                  value = """
+                      {
+                        "code": "US-409-03",
+                        "message": "이미 존재하는 전화번호 입니다."
+                      }
+                      """
+              )
+          )
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "잘못된 전화번호 형식",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  name = "잘못된 핸드폰 번호",
+                  value = """
+                      {
+                        "code": "SM-400-01",
+                        "message": "잘못된 핸드폰 번호입니다."
+                      }
+                      """
+              )
+          )
+      )
+  })
+  ApiResponse<Void> checkPhone(
+      @Parameter(
+          description = "검사할 전화번호 (하이픈 없이)",
+          example = "01012345678"
+      )
+      @RequestParam String phone
   );
 
 }

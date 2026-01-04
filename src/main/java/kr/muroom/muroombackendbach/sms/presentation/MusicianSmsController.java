@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Locale;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.sms.application.SmsVerificationService;
+import kr.muroom.muroombackendbach.sms.presentation.docs.MusicianSmsControllerDocs;
 import kr.muroom.muroombackendbach.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsSendRequest;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsVerifyRequest;
@@ -19,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class MusicianSmsController {
+public class MusicianSmsController implements MusicianSmsControllerDocs {
 
   private final SmsVerificationService smsVerificationService;
 
-  @PostMapping("/sms/send-verification")
+  @PostMapping("/send-verification")
   public ApiResponse<SmsAuthResponse> authSend(
       @Validated @RequestBody MusicianSmsSendRequest request,
       HttpServletRequest httpRequest) {
@@ -38,7 +39,7 @@ public class MusicianSmsController {
     return ApiResponse.success(smsVerificationService.sendVerificationCode(request.phone(), ip));
   }
 
-  @PostMapping("/sms/verify")
+  @PostMapping("/verify")
   public ApiResponse<Void> verify(@Validated @RequestBody MusicianSmsVerifyRequest request) {
     smsVerificationService.verifyCode(request.phone(), request.code());
     return ApiResponse.success();
