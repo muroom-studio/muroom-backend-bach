@@ -1,11 +1,14 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.provider.google;
 
+import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.PROVIDER_USER_TOKEN_NOT_FOUND;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthClientService;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthTokenResult;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.google.dto.GoogleIdTokenPayload;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.google.dto.GoogleTokenResponse;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +39,7 @@ public class GoogleOAuthClientService implements OAuthClientService {
   @Override
   public String extractProviderUserId(OAuthTokenResult tokenResult) {
     if (tokenResult.idToken() == null) {
-      throw new IllegalStateException("구글 ID Token 이 존재하지 않습니다.");
+      throw new BusinessException(PROVIDER_USER_TOKEN_NOT_FOUND);
     }
 
     DecodedJWT verifiedJwt = googleOAuthClient.verifyIdToken(tokenResult.idToken());

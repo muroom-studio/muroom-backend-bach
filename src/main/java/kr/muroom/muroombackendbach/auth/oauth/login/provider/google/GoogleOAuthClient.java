@@ -1,5 +1,9 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.provider.google;
 
+import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.FAIL_MAKE_PUBLIC_KEY;
+import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.PROVIDER_INVALID_RESPONSE;
+import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.PROVIDER_NOT_RESPONSE;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -24,6 +28,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -61,12 +66,13 @@ public class GoogleOAuthClient {
 
     HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-    ResponseEntity<GoogleTokenResponse> response =
-        restTemplate.postForEntity(TOKEN_URI, request, GoogleTokenResponse.class);
-
-    log.info("[Google OAuth] token response={}", response.getBody());
-
-    return response.getBody();
+    try {
+      ResponseEntity<GoogleTokenResponse> response =
+          restTemplate.postForEntity(TOKEN_URI, request, GoogleTokenResponse.class);
+      return response.getBody();
+    } catch (Exception e) {
+      throw new BusinessException(AuthErrorCode.LOGIN_FAIL);
+    }
   }
 
   /**
@@ -98,7 +104,7 @@ public class GoogleOAuthClient {
   private RSAPublicKey getGooglePublicKey(String kid) {
     Map<String, Object> jwks = restTemplate.getForObject(CERTS_URI, Map.class);
     if (jwks == null || !jwks.containsKey("keys")) {
-      throw new IllegalStateException("Google certs 응답이 비정상입니다.");
+      throw new BusinessException(PROVIDER_NOT_RESPONSE);
     }
 
     List<Map<String, Object>> keys = (List<Map<String, Object>>) jwks.get("keys");
@@ -107,7 +113,7 @@ public class GoogleOAuthClient {
         .filter(k -> kid.equals(String.valueOf(k.get("kid"))))
         .findFirst()
         .orElseThrow(
-            () -> new IllegalStateException("Google certs에서 kid에 해당하는 키를 찾지 못했습니다. kid=" + kid));
+            () -> new BusinessException(PROVIDER_INVALID_RESPONSE));
 
     String n = String.valueOf(matched.get("n"));
     String e = String.valueOf(matched.get("e"));
@@ -123,7 +129,7 @@ public class GoogleOAuthClient {
       KeyFactory keyFactory = KeyFactory.getInstance("RSA");
       return (RSAPublicKey) keyFactory.generatePublic(new RSAPublicKeySpec(modulus, exponent));
     } catch (Exception ex) {
-      throw new IllegalStateException("Google 공개키 생성 실패", ex);
+      throw new BusinessException(FAIL_MAKE_PUBLIC_KEY);
     }
   }
 }

@@ -41,7 +41,6 @@ public class KakaoOAuthClient {
     body.add("redirect_uri", origin + REDIRECT_URI);
     body.add("code", authorizationCode);
 
-    log.info("[소셜 로그인 시도] RedirectURL : {}", origin + REDIRECT_URI);
     if (clientSecret != null && !clientSecret.isBlank()) {
       body.add("client_secret", clientSecret);
     }
