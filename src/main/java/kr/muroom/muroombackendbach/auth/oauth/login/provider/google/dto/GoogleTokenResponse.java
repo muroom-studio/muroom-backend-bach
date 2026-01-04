@@ -5,20 +5,22 @@ import lombok.Builder;
 
 @Builder
 public record GoogleTokenResponse(
-    @JsonProperty("sub")
-    String sub,
+    @JsonProperty("access_token")
+    String accessToken,
 
-    @JsonProperty("name")
-    String name,
+    @JsonProperty("expires_in")
+    Long expiresIn,
 
-    @JsonProperty("email")
-    String email,
+    String scope,
 
-    @JsonProperty("email_verified")
-    Boolean emailVerified,
+    @JsonProperty("token_type")
+    String tokenType,
 
-    @JsonProperty("picture")
-    String picture
+    @JsonProperty("id_token")
+    String idToken,
+
+    @JsonProperty("refresh_token")
+    String refreshToken
 ) {
 
 }
