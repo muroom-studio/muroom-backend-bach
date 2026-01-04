@@ -1,7 +1,7 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
 
 @Schema(name = "소셜 로그인 응답", description = "OAuth 로그인 결과 응답. 로그인 성공 또는 회원가입 필요 여부를 나타냅니다.")
 public record OAuthLoginResponse(

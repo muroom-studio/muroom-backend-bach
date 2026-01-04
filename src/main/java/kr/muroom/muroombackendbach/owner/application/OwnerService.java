@@ -1,10 +1,11 @@
 package kr.muroom.muroombackendbach.owner.application;
 
-import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_EMAIL;
-import static kr.muroom.muroombackendbach.user.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
+import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.ALREADY_EXIST_EMAIL;
+import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
 
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.musician.application.MusicianService;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
@@ -13,9 +14,8 @@ import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.OwnerAgreementRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
-import kr.muroom.muroombackendbach.user.application.UserService;
-import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
-import kr.muroom.muroombackendbach.user.presentation.dto.response.EmailCheckResponse;
+import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
+import kr.muroom.muroombackendbach.musician.presentation.dto.response.EmailCheckResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,13 +28,13 @@ public class OwnerService {
 
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
   private final OwnerRepository ownerRepository;
-  private final UserService userService;
   private final OwnerAgreementRepository ownerAgreementRepository;
   private final TermRepository termRepository;
+  private final MusicianService musicianService;
 
   @Transactional
   public Long registerOwner(OwnerSignupRequest request) {
-    if (!userService.isNicknameAvailable(request.nickname())) {
+    if (!musicianService.isNicknameAvailable(request.nickname())) {
       throw new BusinessException(ALREADY_EXIST_NICKNAME);
     }
 

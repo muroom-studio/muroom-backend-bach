@@ -5,8 +5,8 @@ import kr.muroom.muroombackendbach.admin.owner.presentation.request.OwnerCreateR
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
-import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
-import kr.muroom.muroombackendbach.user.exception.UserErrorCode;
+import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
+import kr.muroom.muroombackendbach.musician.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

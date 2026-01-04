@@ -17,10 +17,9 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
+import kr.muroom.muroombackendbach.auth.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.google.dto.GoogleTokenResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
-import kr.muroom.muroombackendbach.user.exception.SocialAccountErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +27,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Component

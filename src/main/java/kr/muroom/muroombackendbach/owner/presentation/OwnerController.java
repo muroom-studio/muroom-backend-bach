@@ -5,8 +5,8 @@ import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.owner.application.OwnerService;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerLoginRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
-import kr.muroom.muroombackendbach.user.presentation.dto.request.EmailCheckRequest;
-import kr.muroom.muroombackendbach.user.presentation.dto.response.EmailCheckResponse;
+import kr.muroom.muroombackendbach.musician.presentation.dto.request.EmailCheckRequest;
+import kr.muroom.muroombackendbach.musician.presentation.dto.response.EmailCheckResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/owner")
+@RequestMapping("/api/v1/owners")
 @RequiredArgsConstructor
 public class OwnerController {
 

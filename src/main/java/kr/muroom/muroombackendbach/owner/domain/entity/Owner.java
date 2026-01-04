@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
-import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
+import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

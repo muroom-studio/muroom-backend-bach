@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "report reason - 신고 유형 API")
 @RestController
-@RequestMapping("/api/v1/report-reason")
+@RequestMapping("/api/v1/report-reasons")
 @RequiredArgsConstructor
 public class ReportReasonController {
 

@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.provider;
 
-import kr.muroom.muroombackendbach.user.domain.entity.OAuthProvider;
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
 
 public interface OAuthClientService {
 

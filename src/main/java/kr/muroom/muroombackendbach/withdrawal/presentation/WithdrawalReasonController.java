@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/withdrawal/reasons")
+@RequestMapping("/api/v1/withdrawal-reasons")
 @RequiredArgsConstructor
 @Tag(name = "musician withdrawal reason - 탈퇴 사유 API")
 public class WithdrawalReasonController {

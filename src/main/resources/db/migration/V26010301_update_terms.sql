@@ -1,0 +1,2 @@
+-- terms isActive 삭제
+-- faq sequnece 추가

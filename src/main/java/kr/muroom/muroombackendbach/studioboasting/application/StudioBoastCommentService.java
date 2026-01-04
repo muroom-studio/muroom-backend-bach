@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
+import kr.muroom.muroombackendbach.auth.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.musician.application.MusicianService;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;

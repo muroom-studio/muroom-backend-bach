@@ -44,11 +44,7 @@ public class SecurityConfig {
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/v3/api-docs/**",
-                "/api/v1/musician/register",
-                "/api/v1/musician/register/swagger",
                 "/oauth2/**",
-                "/api/v1/owner/register",
-                "/api/v1/owner/check-email",
                 "/api/**",
                 "/docs"
             ).permitAll()

@@ -15,7 +15,7 @@ import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
-import kr.muroom.muroombackendbach.user.domain.entity.UserStatus;
+import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import lombok.Builder;
 import org.locationtech.jts.geom.Point;
 
