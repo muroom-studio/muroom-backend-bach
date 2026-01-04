@@ -1,17 +1,16 @@
 package kr.muroom.muroombackendbach.auth.oauth.login.provider.google;
 
-import kr.muroom.muroombackendbach.auth.exception.AuthErrorCode;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.google.dto.GoogleTokenResponse;
-import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestClientException;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -19,33 +18,38 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class GoogleOAuthClient {
 
-  private static final String USERINFO_URI = "https://openidconnect.googleapis.com/v1/userinfo";
+  @Value("${oauth2.google.client-id}")
+  private String clientId;
+
+  @Value("${oauth2.google.client-secret}")
+  private String clientSecret;
+
+  // 카카오처럼 origin 기반으로 redirect_uri를 만들 거면 동일한 패턴으로 두는 게 안전함
+  private static final String REDIRECT_URI = "/redirect/oauth/google";
+  private static final String TOKEN_URI = "https://oauth2.googleapis.com/token";
 
   private final RestTemplate restTemplate = new RestTemplate();
 
-  public GoogleTokenResponse exchangeCodeForToken(String accessToken) {
-    if (accessToken == null || accessToken.isBlank()) {
-      throw new IllegalArgumentException("Google AccessToken이 비어있습니다.");
-    }
-    try {
-      HttpHeaders headers = new HttpHeaders();
-      headers.setBearerAuth(accessToken);
+  public GoogleTokenResponse exchangeCodeForToken(String authorizationCode, String origin) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    String decodedCode = URLDecoder.decode(authorizationCode, StandardCharsets.UTF_8);
 
-      HttpEntity<Void> request = new HttpEntity<>(headers);
+    MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+    body.add("grant_type", "authorization_code");
+    body.add("client_id", clientId);
+    body.add("client_secret", clientSecret);
 
-      ResponseEntity<GoogleTokenResponse> response =
-          restTemplate.exchange(USERINFO_URI, HttpMethod.GET, request, GoogleTokenResponse.class);
+    body.add("redirect_uri", origin + REDIRECT_URI);
+    body.add("code", decodedCode);
 
-      return response.getBody();
+    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-    } catch (HttpStatusCodeException e) {
-      log.warn("[Google userinfo 실패] status={}, body={}", e.getStatusCode(),
-          e.getResponseBodyAsString());
-      throw new BusinessException(AuthErrorCode.LOGIN_FAIL);
+    ResponseEntity<GoogleTokenResponse> response =
+        restTemplate.postForEntity(TOKEN_URI, request, GoogleTokenResponse.class);
 
-    } catch (RestClientException e) {
-      log.warn("[Google userinfo 실패] RestClientException", e);
-      throw new BusinessException(AuthErrorCode.LOGIN_FAIL);
-    }
+    log.info("[Google OAuth] token response={}", response.getBody());
+
+    return response.getBody();
   }
 }
