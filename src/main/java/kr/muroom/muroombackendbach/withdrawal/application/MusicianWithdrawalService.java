@@ -13,7 +13,8 @@ import kr.muroom.muroombackendbach.withdrawal.domain.entity.MusicianWithdrawal;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.WithdrawalReason;
 import kr.muroom.muroombackendbach.withdrawal.domain.repository.MusicianWithdrawalRepository;
 import kr.muroom.muroombackendbach.withdrawal.domain.repository.WithdrawalReasonRepository;
-import kr.muroom.muroombackendbach.withdrawal.presentation.dto.RegisterMusicianWithdrawalRequest;
+import kr.muroom.muroombackendbach.withdrawal.presentation.dto.WithdrawalAssembler;
+import kr.muroom.muroombackendbach.withdrawal.presentation.dto.request.RegisterMusicianWithdrawalRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class MusicianWithdrawalService {
   private final WithdrawalReasonRepository withdrawalReasonRepository;
   private final SocialAccountRepository socialAccountRepository;
   private final MusicianRepository musicianRepository;
+  private final WithdrawalAssembler withdrawalAssembler;
 
   @Transactional
   public void register(Long musicianId, RegisterMusicianWithdrawalRequest request) {
@@ -36,8 +38,8 @@ public class MusicianWithdrawalService {
             request.withdrawalReasonId())
         .orElseThrow(() -> new BusinessException(NOT_EXIST_WITHDRAWAL_REASON));
 
-    MusicianWithdrawal withdrawal =
-        RegisterMusicianWithdrawalRequest.toEntity(musician, withdrawalReason, request.opinion());
+    MusicianWithdrawal withdrawal = withdrawalAssembler.toRegisterMusicianWithdrawal(
+        musician, withdrawalReason, request.opinion());
 
     // 소셜 계정만 삭제 (다시 회원가입 할 수 있도록)
     SocialAccount socialAccount = socialAccountRepository.findByMusicianId(musician.getId())

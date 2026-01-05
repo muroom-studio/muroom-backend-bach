@@ -33,20 +33,5 @@ public final class TermDto {
   ) {
 
   }
-
-  @Builder
-  public record TermContentDto(
-      @Schema(description = "약관 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-      String termId,
-
-      @Schema(description = "약관 제목", requiredMode = Schema.RequiredMode.REQUIRED)
-      String title,
-
-      @Schema(description = "약관 내용", requiredMode = Schema.RequiredMode.REQUIRED)
-      String content
-  ) {
-
-  }
-
 }
 

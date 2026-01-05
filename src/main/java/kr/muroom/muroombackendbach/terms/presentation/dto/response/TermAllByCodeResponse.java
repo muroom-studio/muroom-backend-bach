@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.terms.presentation.dto;
+package kr.muroom.muroombackendbach.terms.presentation.dto.response;
 
 import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;

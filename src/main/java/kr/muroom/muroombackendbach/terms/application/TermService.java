@@ -1,6 +1,5 @@
 package kr.muroom.muroombackendbach.terms.application;
 
-import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermContentDto;
 import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermsWithContentDto;
 
 import java.util.Comparator;
@@ -14,9 +13,10 @@ import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermContentRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermAllByCodeResponse;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermRegisterRequest;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermUpdateRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermAllByCodeResponse;
+import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermRegisterRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermUpdateRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermSimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +30,8 @@ public class TermService {
   private final TermContentRepository termContentRepository;
 
   public List<TermsWithContentDto> getTermsMusicianByType() {
-    List<TermsWithContentDto> terms = termRepository.findLatestTermsByRoleAndTypes(TargetRole.MUSICIAN);
+    List<TermsWithContentDto> terms = termRepository.findLatestTermsByRoleAndTypes(
+        TargetRole.MUSICIAN);
     List<TermsType> desiredOrder = List.of(TermsType.TERMS_OF_USE, TermsType.PRIVACY_COLLECTION,
         TermsType.MARKETING_RECEIVE);
     terms.sort(Comparator.comparingInt(term -> desiredOrder.indexOf(term.code())));
@@ -41,12 +42,12 @@ public class TermService {
     return termRepository.findLatestTermsByRoleAndTypes(TargetRole.OWNER);
   }
 
-  public TermContentDto getTermContent(Long termId) {
+  public TermSimpleResponse getTermContent(Long termId) {
     TermContent termContent = termContentRepository.findById(termId)
         .orElseThrow(() -> new BusinessException(
             TermErrorCode.NOT_EXIST_TERM));
 
-    return TermContentDto.builder()
+    return TermSimpleResponse.builder()
         .termId(String.valueOf(termId))
         .title(termContent.getTitle())
         .content(termContent.getContent())

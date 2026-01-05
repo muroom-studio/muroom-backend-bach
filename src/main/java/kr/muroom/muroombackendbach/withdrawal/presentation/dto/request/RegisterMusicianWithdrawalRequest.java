@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.withdrawal.presentation.dto;
+package kr.muroom.muroombackendbach.withdrawal.presentation.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -17,15 +17,4 @@ public record RegisterMusicianWithdrawalRequest(
     String opinion
 ) {
 
-  public static MusicianWithdrawal toEntity(
-      Musician musician,
-      WithdrawalReason withdrawalReason,
-      String opinion
-  ) {
-    return MusicianWithdrawal.builder()
-        .musician(musician)
-        .withdrawalReason(withdrawalReason)
-        .opinion(opinion)
-        .build();
-  }
 }
