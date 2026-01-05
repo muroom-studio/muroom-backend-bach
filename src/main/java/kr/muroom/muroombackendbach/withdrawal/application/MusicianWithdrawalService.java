@@ -1,19 +1,20 @@
 package kr.muroom.muroombackendbach.withdrawal.application;
 
-import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 import static kr.muroom.muroombackendbach.auth.auth.exception.SocialAccountErrorCode.SOCIAL_ACCOUNT_NOT_FOUND;
+import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 import static kr.muroom.muroombackendbach.withdrawal.exception.WithdrawalReasonErrorCode.NOT_EXIST_WITHDRAWAL_REASON;
 
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.SocialAccount;
+import kr.muroom.muroombackendbach.auth.auth.domain.repository.SocialAccountRepository;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
-import kr.muroom.muroombackendbach.auth.auth.domain.entity.SocialAccount;
-import kr.muroom.muroombackendbach.auth.auth.domain.repository.SocialAccountRepository;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.MusicianWithdrawal;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.WithdrawalReason;
 import kr.muroom.muroombackendbach.withdrawal.domain.repository.MusicianWithdrawalRepository;
 import kr.muroom.muroombackendbach.withdrawal.domain.repository.WithdrawalReasonRepository;
-import kr.muroom.muroombackendbach.withdrawal.presentation.dto.RegisterMusicianWithdrawalRequest;
+import kr.muroom.muroombackendbach.withdrawal.presentation.dto.WithdrawalAssembler;
+import kr.muroom.muroombackendbach.withdrawal.presentation.dto.request.RegisterMusicianWithdrawalRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class MusicianWithdrawalService {
   private final WithdrawalReasonRepository withdrawalReasonRepository;
   private final SocialAccountRepository socialAccountRepository;
   private final MusicianRepository musicianRepository;
+  private final WithdrawalAssembler withdrawalAssembler;
 
   @Transactional
   public void register(Long musicianId, RegisterMusicianWithdrawalRequest request) {
@@ -36,8 +38,8 @@ public class MusicianWithdrawalService {
             request.withdrawalReasonId())
         .orElseThrow(() -> new BusinessException(NOT_EXIST_WITHDRAWAL_REASON));
 
-    MusicianWithdrawal withdrawal =
-        RegisterMusicianWithdrawalRequest.toEntity(musician, withdrawalReason, request.opinion());
+    MusicianWithdrawal withdrawal = withdrawalAssembler.toRegisterMusicianWithdrawal(
+        musician, withdrawalReason, request.opinion());
 
     // 소셜 계정만 삭제 (다시 회원가입 할 수 있도록)
     SocialAccount socialAccount = socialAccountRepository.findByMusicianId(musician.getId())

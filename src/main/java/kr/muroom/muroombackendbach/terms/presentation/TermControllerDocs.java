@@ -10,10 +10,10 @@ import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermContentDto;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermsWithContentDto;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermRegisterRequest;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermUpdateRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermRegisterRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermUpdateRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermSimpleResponse;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +36,7 @@ public interface TermControllerDocs {
       )
   })
   @GetMapping("/musician/signup")
-  ApiResponse<List<TermsWithContentDto>> getMusicianTerms();
+  ApiResponse<List<TermDetailResponse>> getMusicianTerms();
 
   @Operation(
       summary = "약관 상세 조회",
@@ -69,7 +69,7 @@ public interface TermControllerDocs {
       )
   })
   @GetMapping("/{termId}")
-  ApiResponse<TermContentDto> getTermById(@PathVariable Long termId);
+  ApiResponse<TermSimpleResponse> getTermById(@PathVariable Long termId);
 
   @Operation(
       summary = "뮤지션 약관 등록",
@@ -133,7 +133,7 @@ public interface TermControllerDocs {
       )
   })
   @GetMapping("/owner")
-  ApiResponse<List<TermsWithContentDto>> getOwnerTerms(
+  ApiResponse<List<TermDetailResponse>> getOwnerTerms(
       @RequestParam List<TermsType> types
   );
 }

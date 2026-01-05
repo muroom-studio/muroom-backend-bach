@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.withdrawal.application.WithdrawalReasonService;
-import kr.muroom.muroombackendbach.withdrawal.presentation.dto.WithdrawalReasonResponse;
+import kr.muroom.muroombackendbach.withdrawal.presentation.dto.response.WithdrawalReasonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

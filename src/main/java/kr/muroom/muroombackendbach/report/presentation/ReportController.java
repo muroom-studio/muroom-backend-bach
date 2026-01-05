@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.report.presentation;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.report.application.ReportService;
+import kr.muroom.muroombackendbach.report.presentation.docs.ReportControllerDocs;
 import kr.muroom.muroombackendbach.report.presentation.dto.request.UpdateReportRequest;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.ReportsResponse;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.SearchReportResponse;

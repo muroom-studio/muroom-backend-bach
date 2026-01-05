@@ -2,11 +2,11 @@ package kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthClientService;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthTokenResult;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao.dto.KakaoIdTokenPayload;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao.dto.KakaoTokenResponse;
-import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

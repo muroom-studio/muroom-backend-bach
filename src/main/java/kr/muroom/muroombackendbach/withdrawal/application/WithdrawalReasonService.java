@@ -7,7 +7,8 @@ import kr.muroom.muroombackendbach.admin.withdrawal.presentation.dto.request.Reg
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.WithdrawalReason;
 import kr.muroom.muroombackendbach.withdrawal.domain.repository.WithdrawalReasonRepository;
-import kr.muroom.muroombackendbach.withdrawal.presentation.dto.WithdrawalReasonResponse;
+import kr.muroom.muroombackendbach.withdrawal.presentation.dto.WithdrawalAssembler;
+import kr.muroom.muroombackendbach.withdrawal.presentation.dto.response.WithdrawalReasonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,18 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class WithdrawalReasonService {
 
   private final WithdrawalReasonRepository withdrawalReasonRepository;
+  private final WithdrawalAssembler withdrawalAssembler;
 
   public List<WithdrawalReasonResponse> getAllWithdrawalReason() {
     List<WithdrawalReason> withdrawalReasons =
         withdrawalReasonRepository.findAllByOrderBySequenceAscIdAsc();
 
     return withdrawalReasons.stream()
-        .map(reason -> WithdrawalReasonResponse.builder()
-            .id(String.valueOf(reason.getId()))
-            .code(reason.getCode())
-            .description(reason.getDescription())
-            .build()
-        )
+        .map(withdrawalAssembler::toResponse)
         .toList();
   }
 
@@ -39,12 +36,7 @@ public class WithdrawalReasonService {
       throw new BusinessException(ALREADY_EXIST_WITHDRAWAL_REASON_CODE);
     }
 
-    WithdrawalReason withdrawalReason = WithdrawalReason.builder()
-        .code(request.code())
-        .isActive(request.isActive())
-        .description(request.description())
-        .build();
-
+    WithdrawalReason withdrawalReason = withdrawalAssembler.toRegisterWithdrawalReason(request);
     withdrawalReasonRepository.save(withdrawalReason);
   }
 }

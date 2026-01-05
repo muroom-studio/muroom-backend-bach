@@ -1,14 +1,13 @@
 package kr.muroom.muroombackendbach.terms.presentation;
 
-import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermContentDto;
-import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermsWithContentDto;
-
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.terms.application.TermService;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermRegisterRequest;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermUpdateRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermRegisterRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermUpdateRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermSimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,12 +27,12 @@ public class TermController implements TermControllerDocs {
   private final TermService termService;
 
   @GetMapping("/musician/signup")
-  public ApiResponse<List<TermsWithContentDto>> getMusicianTerms() {
+  public ApiResponse<List<TermDetailResponse>> getMusicianTerms() {
     return ApiResponse.success(termService.getTermsMusicianByType());
   }
 
   @GetMapping("/{termId}")
-  public ApiResponse<TermContentDto> getTermById(@PathVariable Long termId) {
+  public ApiResponse<TermSimpleResponse> getTermById(@PathVariable Long termId) {
     return ApiResponse.success(termService.getTermContent(termId));
   }
 
@@ -52,7 +51,7 @@ public class TermController implements TermControllerDocs {
   }
 
   @GetMapping("/owner")
-  public ApiResponse<List<TermsWithContentDto>> getOwnerTerms(
+  public ApiResponse<List<TermDetailResponse>> getOwnerTerms(
       @RequestParam List<TermsType> types) {
     return ApiResponse.success(termService.getTermsOwnerByType(types));
   }
