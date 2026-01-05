@@ -1,11 +1,10 @@
 package kr.muroom.muroombackendbach.terms.presentation.dto;
 
-import org.springframework.stereotype.Component;
-
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermContent;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermRegisterRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermSimpleResponse;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TermAssembler {

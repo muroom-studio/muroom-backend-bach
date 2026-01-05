@@ -7,6 +7,7 @@ import kr.muroom.muroombackendbach.report.domain.entity.ReportReason;
 import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
 import kr.muroom.muroombackendbach.report.domain.enums.ReportStatus;
 import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
+import kr.muroom.muroombackendbach.report.presentation.dto.response.ReportReasonDto;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.ReportsResponse;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.SearchReportResponse;
 import org.springframework.stereotype.Component;
@@ -44,18 +45,10 @@ public class ReportAssembler {
         report.getId(),
         report.getTargetType(),
         report.getTargetId(),
-        toReportsReason(report.getReportReason()),
+        toReportReason(report.getReportReason()),
         report.getDescription(),
         report.getStatus(),
         report.getSnapshot()
-    );
-  }
-
-  private ReportsResponse.Reason toReportsReason(ReportReason reason) {
-    return new ReportsResponse.Reason(
-        reason.getId(),
-        reason.getCode(),
-        reason.getDescription()
     );
   }
 
@@ -68,14 +61,17 @@ public class ReportAssembler {
         .targetType(report.getTargetType())
         .targetId(report.getTargetId())
         .status(report.getStatus())
-        .reason(toSearchReason(report.getReportReason()))
+        .reason(toReportReason(report.getReportReason()))
         .description(report.getDescription())
         .snapshot(report.getSnapshot())
         .build();
   }
 
-  private SearchReportResponse.Reason toSearchReason(ReportReason reason) {
-    return new SearchReportResponse.Reason(
+  /**
+   * 신고 사유 DTO
+   */
+  private ReportReasonDto toReportReason(ReportReason reason) {
+    return new ReportReasonDto(
         reason.getId(),
         reason.getCode(),
         reason.getDescription()

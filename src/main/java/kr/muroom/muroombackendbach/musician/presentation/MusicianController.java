@@ -1,16 +1,15 @@
 package kr.muroom.muroombackendbach.musician.presentation;
 
 import jakarta.validation.Valid;
-import kr.muroom.muroombackendbach.auth.auth.presentation.MusicianAuthControllerDocs;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.musician.application.MusicianService;
 import kr.muroom.muroombackendbach.musician.presentation.docs.MusicianControllerDocs;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
+import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianNicknameCheckResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
-import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;

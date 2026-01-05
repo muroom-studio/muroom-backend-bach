@@ -5,7 +5,6 @@ import static kr.muroom.muroombackendbach.withdrawal.exception.WithdrawalReasonE
 import java.util.List;
 import kr.muroom.muroombackendbach.admin.withdrawal.presentation.dto.request.RegisterWithdrawalReasonRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
-import kr.muroom.muroombackendbach.sms.presentation.SmsSender;
 import kr.muroom.muroombackendbach.withdrawal.domain.entity.WithdrawalReason;
 import kr.muroom.muroombackendbach.withdrawal.domain.repository.WithdrawalReasonRepository;
 import kr.muroom.muroombackendbach.withdrawal.presentation.dto.WithdrawalAssembler;

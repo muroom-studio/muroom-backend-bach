@@ -3,12 +3,12 @@ package kr.muroom.muroombackendbach.auth.oauth.login.provider.google;
 import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.PROVIDER_USER_TOKEN_NOT_FOUND;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthClientService;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthTokenResult;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.google.dto.GoogleIdTokenPayload;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.google.dto.GoogleTokenResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
-import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

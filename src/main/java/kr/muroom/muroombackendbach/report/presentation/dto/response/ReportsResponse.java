@@ -8,17 +8,10 @@ public record ReportsResponse(
     Long reportId,
     ReportDomainType targetType,
     Long targetId,
-    Reason reason,
+    ReportReasonDto reason,
     String description,
     ReportStatus status,
     JsonNode snapshot
 ) {
 
-  public record Reason(
-      Long id,
-      String code,
-      String description
-  ) {
-
-  }
 }

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.studio.domain.entity.Option;
@@ -15,7 +16,6 @@ import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
-import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import lombok.Builder;
 import org.locationtech.jts.geom.Point;
 
