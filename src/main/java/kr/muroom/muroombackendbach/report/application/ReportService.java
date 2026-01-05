@@ -18,6 +18,7 @@ import kr.muroom.muroombackendbach.report.domain.repository.ReportRepository;
 import kr.muroom.muroombackendbach.report.exception.ReportErrorCode;
 import kr.muroom.muroombackendbach.report.handler.ReportTargetHandler;
 import kr.muroom.muroombackendbach.report.handler.ReportTargetHandlerRegistry;
+import kr.muroom.muroombackendbach.report.presentation.dto.ReportAssembler;
 import kr.muroom.muroombackendbach.report.presentation.dto.request.RegisterReportRequest;
 import kr.muroom.muroombackendbach.report.presentation.dto.request.UpdateReportRequest;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.ReportsResponse;
@@ -37,6 +38,24 @@ public class ReportService {
   private final ReportReasonRepository reportReasonRepository;
   private final MusicianRepository musicianRepository;
   private final ReportTargetHandlerRegistry handlerRegistry;
+  private final ReportAssembler reportAssembler;
+
+  public Page<ReportsResponse> getMyReports(Long musicianId, Pageable pageable) {
+    Page<Report> reports = reportRepository.findByReporterId(musicianId, pageable);
+    return reports.map(reportAssembler::toReportsResponse);
+  }
+
+  public Page<SearchReportResponse> searchReports(Long musicianId,
+      String keyword, Pageable pageable) {
+    if (keyword == null || keyword.isBlank()) {
+      keyword = "";
+    }
+
+    Page<Report> reports =
+        reportRepository.searchByDescription(musicianId, keyword, pageable);
+
+    return reports.map(reportAssembler::toSearchReportResponse);
+  }
 
   @Transactional
   public void registerReport(ReportDomainType type, Long domainId, Long musicianId,
@@ -64,76 +83,11 @@ public class ReportService {
     // 운영용 snapshot(JSONB)
     JsonNode snapshotJson = handler.buildSnapshot(domainId);
 
-    Report report = Report.builder()
-        .reporter(reporter)
-        .targetType(type)
-        .targetId(domainId)
-        .reportReason(reportReason)
-        .description(request.description())
-        .status(ReportStatus.SUBMITTED)
-        .snapshot(snapshotJson)
-        .build();
+    Report report = reportAssembler.createReportForRegister(reporter, type, domainId, reportReason,
+        request, snapshotJson
+    );
 
     reportRepository.save(report);
-  }
-
-  public Page<ReportsResponse> getMyReports(Long musicianId, Pageable pageable) {
-    Page<Report> reports = reportRepository.findByReporterId(musicianId,
-        pageable);
-
-    return reports.map(this::toListItem);
-  }
-
-  @Transactional
-  public void deleteMyReport(Long musicianId, Long reportId) {
-    Report report = reportRepository.findById(reportId)
-        .orElseThrow(() -> new BusinessException(REPORT_NOT_FOUND));
-
-    if (!report.getReporter().getId().equals(musicianId)) {
-      throw new BusinessException(REPORT_FORBIDDEN);
-    }
-
-    reportRepository.delete(report);
-  }
-
-  private ReportsResponse toListItem(Report report) {
-    return new ReportsResponse(
-        report.getId(),
-        report.getTargetType(),
-        report.getTargetId(),
-        new ReportsResponse.Reason(
-            report.getReportReason().getId(),
-            report.getReportReason().getCode(),
-            report.getReportReason().getDescription()
-        ),
-        report.getDescription(),
-        report.getStatus(),
-        report.getSnapshot()
-    );
-  }
-
-  public Page<SearchReportResponse> searchReports(Long musicianId,
-      String keyword, Pageable pageable) {
-    if (keyword == null || keyword.isBlank()) {
-      keyword = "";
-    }
-
-    Page<Report> reports = reportRepository.searchByDescription(musicianId, keyword, pageable);
-
-    return reports.map(report -> SearchReportResponse.builder()
-        .reportId(report.getId())
-        .targetType(report.getTargetType())
-        .targetId(report.getTargetId())
-        .status(report.getStatus())
-        .reason(new SearchReportResponse.Reason(
-            report.getReportReason().getId(),
-            report.getReportReason().getCode(),
-            report.getReportReason().getDescription()
-        ))
-        .description(report.getDescription())
-        .snapshot(report.getSnapshot())
-        .build()
-    );
   }
 
   @Transactional
@@ -167,5 +121,17 @@ public class ReportService {
     if (!updated) {
       throw new BusinessException(ReportErrorCode.REPORT_INVALID_REQUEST);
     }
+  }
+
+  @Transactional
+  public void deleteMyReport(Long musicianId, Long reportId) {
+    Report report = reportRepository.findById(reportId)
+        .orElseThrow(() -> new BusinessException(REPORT_NOT_FOUND));
+
+    if (!report.getReporter().getId().equals(musicianId)) {
+      throw new BusinessException(REPORT_FORBIDDEN);
+    }
+
+    reportRepository.delete(report);
   }
 }

@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.report.presentation;
+package kr.muroom.muroombackendbach.report.presentation.docs;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
