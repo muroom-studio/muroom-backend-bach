@@ -10,9 +10,9 @@ import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
-import kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermsWithContentDto;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermRegisterRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermUpdateRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
 import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermSimpleResponse;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +36,7 @@ public interface TermControllerDocs {
       )
   })
   @GetMapping("/musician/signup")
-  ApiResponse<List<TermsWithContentDto>> getMusicianTerms();
+  ApiResponse<List<TermDetailResponse>> getMusicianTerms();
 
   @Operation(
       summary = "약관 상세 조회",
@@ -133,7 +133,7 @@ public interface TermControllerDocs {
       )
   })
   @GetMapping("/owner")
-  ApiResponse<List<TermsWithContentDto>> getOwnerTerms(
+  ApiResponse<List<TermDetailResponse>> getOwnerTerms(
       @RequestParam List<TermsType> types
   );
 }

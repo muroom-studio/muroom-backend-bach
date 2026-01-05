@@ -1,7 +1,5 @@
 package kr.muroom.muroombackendbach.terms.application;
 
-import static kr.muroom.muroombackendbach.terms.presentation.dto.TermDto.TermsWithContentDto;
-
 import java.util.Comparator;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
@@ -16,6 +14,7 @@ import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
 import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermAllByCodeResponse;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermRegisterRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermUpdateRequest;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
 import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermSimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,8 +28,8 @@ public class TermService {
   private final TermRepository termRepository;
   private final TermContentRepository termContentRepository;
 
-  public List<TermsWithContentDto> getTermsMusicianByType() {
-    List<TermsWithContentDto> terms = termRepository.findLatestTermsByRoleAndTypes(
+  public List<TermDetailResponse> getTermsMusicianByType() {
+    List<TermDetailResponse> terms = termRepository.findLatestTermsByRoleAndTypes(
         TargetRole.MUSICIAN);
     List<TermsType> desiredOrder = List.of(TermsType.TERMS_OF_USE, TermsType.PRIVACY_COLLECTION,
         TermsType.MARKETING_RECEIVE);
@@ -38,7 +37,7 @@ public class TermService {
     return terms;
   }
 
-  public List<TermsWithContentDto> getTermsOwnerByType(List<TermsType> types) {
+  public List<TermDetailResponse> getTermsOwnerByType(List<TermsType> types) {
     return termRepository.findLatestTermsByRoleAndTypes(TargetRole.OWNER);
   }
 
@@ -56,10 +55,10 @@ public class TermService {
 
   @Transactional
   public void registerMusicianTerms(TermRegisterRequest request) {
-    List<TermsWithContentDto> latestTerm = termRepository.findLatestTermsByRoleAndTypes(
+    List<TermDetailResponse> latestTerm = termRepository.findLatestTermsByRoleAndTypes(
         request.targetRole());
 
-    TermsWithContentDto latestForCode = latestTerm.stream()
+    TermDetailResponse latestForCode = latestTerm.stream()
         .filter(t -> t.code() == request.code()) // code가 enum이면 '==' 가능, 아니면 equals() 사용
         .findFirst()
         .orElse(null);
