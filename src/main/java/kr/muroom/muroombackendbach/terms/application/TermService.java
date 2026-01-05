@@ -11,7 +11,7 @@ import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermContentRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
-import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermAllByCodeResponse;
+import kr.muroom.muroombackendbach.terms.presentation.dto.TermAssembler;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermRegisterRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermUpdateRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
@@ -27,6 +27,7 @@ public class TermService {
 
   private final TermRepository termRepository;
   private final TermContentRepository termContentRepository;
+  private final TermAssembler termAssembler;
 
   public List<TermDetailResponse> getTermsMusicianByType() {
     List<TermDetailResponse> terms = termRepository.findLatestTermsByRoleAndTypes(
@@ -46,20 +47,16 @@ public class TermService {
         .orElseThrow(() -> new BusinessException(
             TermErrorCode.NOT_EXIST_TERM));
 
-    return TermSimpleResponse.builder()
-        .termId(String.valueOf(termId))
-        .title(termContent.getTitle())
-        .content(termContent.getContent())
-        .build();
+    return termAssembler.toTermSimpleResponse(termId, termContent);
   }
 
   @Transactional
   public void registerMusicianTerms(TermRegisterRequest request) {
-    List<TermDetailResponse> latestTerm = termRepository.findLatestTermsByRoleAndTypes(
-        request.targetRole());
+    List<TermDetailResponse> latestTerm =
+        termRepository.findLatestTermsByRoleAndTypes(request.targetRole());
 
     TermDetailResponse latestForCode = latestTerm.stream()
-        .filter(t -> t.code() == request.code()) // code가 enum이면 '==' 가능, 아니면 equals() 사용
+        .filter(t -> t.code() == request.code())
         .findFirst()
         .orElse(null);
 
@@ -67,18 +64,15 @@ public class TermService {
         ? "0.0.1"
         : VersionUtil.nextVersion(latestForCode.version());
 
-    Term term = Term.builder()
-        .effectiveAt(request.effectiveAt())
-        .targetRole(request.targetRole())
-        .isMandatory(request.isMandatory())
-        .version(nextVersion)
-        .code(request.code()).build();
-    Term save = termRepository.save(term);
+    Term term = termAssembler.createTermFromRegisterRequest(
+        request,
+        nextVersion
+    );
+    Term savedTerm = termRepository.save(term);
 
-    TermContent termContent = TermContent.builder()
-        .term(save)
-        .title(request.title())
-        .content(request.content()).build();
+    TermContent termContent =
+        termAssembler.createTermContent(savedTerm, request);
+
     termContentRepository.save(termContent);
   }
 
@@ -91,19 +85,6 @@ public class TermService {
     termContent.updateContent(request.content());
 
     Term term = termContent.getTerm();
-    term.updateTerm(
-        request.code(),
-        request.targetRole(),
-        request.effectiveAt()
-    );
-  }
-
-  public List<TermAllByCodeResponse> getAllTermByCode(TermsType code, TargetRole targetRole) {
-    List<Term> terms = termRepository.findByCodeAndTargetRoleOrderByVersionAsc(code,
-        targetRole);
-
-    return terms.stream()
-        .map(TermAllByCodeResponse::from)
-        .toList();
+    term.updateTerm(request.code(), request.targetRole(), request.effectiveAt());
   }
 }
