@@ -10,6 +10,7 @@ import kr.muroom.muroombackendbach.faq.domain.entity.FaqCategory;
 import kr.muroom.muroombackendbach.faq.domain.repository.FaqCategoryRepository;
 import kr.muroom.muroombackendbach.faq.domain.repository.FaqRepository;
 import kr.muroom.muroombackendbach.faq.exception.FaqErrorCode;
+import kr.muroom.muroombackendbach.faq.presentation.dto.FaqAssembler;
 import kr.muroom.muroombackendbach.faq.presentation.dto.response.FaqResponse;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -24,6 +25,7 @@ public class FaqService {
 
   private final FaqRepository faqRepository;
   private final FaqCategoryRepository faqCategoryRepository;
+  private final FaqAssembler faqAssembler;
 
   @Transactional(readOnly = true)
   public Page<FaqResponse> findFaqs(String keyword, Long categoryId, Pageable pageable) {
@@ -33,25 +35,25 @@ public class FaqService {
 
     if (!hasKeyword && !hasCategory) {
       return faqRepository.findAllByDeletedAtIsNullAndCategory_IsActiveTrue(pageable)
-          .map(FaqResponse::from);
+          .map(faqAssembler::toResponse);
     }
 
     if (hasKeyword && !hasCategory) {
       return faqRepository.searchForClient(keyword.trim(), pageable)
-          .map(FaqResponse::from);
+          .map(faqAssembler::toResponse);
     }
 
     if (!hasKeyword) {
       return faqRepository.findAllByCategory(
               categoryId, pageable
           )
-          .map(FaqResponse::from);
+          .map(faqAssembler::toResponse);
     }
 
     return faqRepository.searchByKeywordAndCategory(
             keyword.trim(), categoryId, pageable
         )
-        .map(FaqResponse::from);
+        .map(faqAssembler::toResponse);
   }
 
   @Transactional
@@ -60,12 +62,7 @@ public class FaqService {
         .orElseThrow(() -> new BusinessException(
             FaqErrorCode.FAQ_CATEGORY_NOT_FOUND));
 
-    Faq faq = Faq.builder()
-        .question(request.question())
-        .answer(request.answer())
-        .category(faqCategory)
-        .build();
-
+    Faq faq = faqAssembler.toEntity(request, faqCategory);
     faqRepository.save(faq);
   }
 

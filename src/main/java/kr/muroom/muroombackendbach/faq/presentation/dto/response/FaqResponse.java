@@ -25,21 +25,5 @@ public record FaqResponse(
       String name
   ) {
 
-    public static Category from(FaqCategory category) {
-      return Category.builder()
-          .categoryId(String.valueOf(category.getId()))
-          .code(category.getCode())
-          .name(category.getName())
-          .build();
-    }
-  }
-
-  public static FaqResponse from(Faq faq) {
-    return FaqResponse.builder()
-        .faqId(String.valueOf(faq.getId()))
-        .category(Category.from(faq.getCategory()))
-        .question(faq.getQuestion())
-        .answer(faq.getAnswer())
-        .build();
   }
 }
