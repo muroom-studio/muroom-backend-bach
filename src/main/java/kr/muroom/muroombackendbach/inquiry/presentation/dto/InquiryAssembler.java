@@ -41,22 +41,6 @@ public class InquiryAssembler {
         .build();
   }
 
-  public List<InquiryImage> toInquiryImages(Inquiry inquiry, List<String> permanentImageFileKeys) {
-    if (permanentImageFileKeys == null || permanentImageFileKeys.isEmpty()) {
-      return List.of();
-    }
-
-    return permanentImageFileKeys.stream()
-        .filter(k -> k != null && !k.isBlank())
-        .map(String::trim)
-        .distinct()
-        .map(permanentKey -> InquiryImage.builder()
-            .inquiry(inquiry)
-            .imageKey(permanentKey)
-            .build())
-        .toList();
-  }
-
   public SearchInquiryResponse toSearchInquiryResponse(Inquiry inquiry) {
     return SearchInquiryResponse.builder()
         .id(String.valueOf(inquiry.getId()))

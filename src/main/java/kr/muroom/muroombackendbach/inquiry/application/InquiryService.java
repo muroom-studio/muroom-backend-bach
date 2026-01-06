@@ -80,12 +80,14 @@ public class InquiryService {
       return;
     }
 
-    List<InquiryImage> inquiryImages = inquiryAssembler.toInquiryImages(inquiry,
-        permanentImageFileKeys);
+    List<InquiryImage> inquiryImages = permanentImageFileKeys.stream()
+        .map(permanentKey -> InquiryImage.builder()
+            .inquiry(inquiry)
+            .imageKey(permanentKey)
+            .build())
+        .toList();
 
-    if (!inquiryImages.isEmpty()) {
-      inquiryImageRepository.saveAll(inquiryImages);
-    }
+    inquiryImageRepository.saveAll(inquiryImages);
   }
 
   public Page<InquiryAllResponse> getAllMyInquiry(Long musicianId, Pageable pageable) {
