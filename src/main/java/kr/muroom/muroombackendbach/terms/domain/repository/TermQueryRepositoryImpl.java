@@ -56,7 +56,6 @@ public class TermQueryRepositoryImpl implements TermQueryRepository {
         .from(t)
         .where(
             t.targetRole.eq(role),
-            t.isActive.isTrue(),
 
             // 1) code별 최댓 버전 (major, minor, patch)
             major.eq(

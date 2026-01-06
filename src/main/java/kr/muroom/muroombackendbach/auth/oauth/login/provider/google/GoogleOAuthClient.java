@@ -20,6 +20,7 @@ import java.util.Map;
 import kr.muroom.muroombackendbach.auth.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.google.dto.GoogleTokenResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.common.exception.ExternalApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,7 +73,7 @@ public class GoogleOAuthClient {
           restTemplate.postForEntity(TOKEN_URI, request, GoogleTokenResponse.class);
       return response.getBody();
     } catch (Exception e) {
-      throw new BusinessException(AuthErrorCode.LOGIN_FAIL);
+      throw new ExternalApiException("구글 로그인을 실패했습니다.", "OAUTH2.GOOGLEAPIS.COM/TOKEN", e);
     }
   }
 
@@ -105,7 +106,7 @@ public class GoogleOAuthClient {
   private RSAPublicKey getGooglePublicKey(String kid) {
     Map<String, Object> jwks = restTemplate.getForObject(CERTS_URI, Map.class);
     if (jwks == null || !jwks.containsKey("keys")) {
-      throw new BusinessException(PROVIDER_NOT_RESPONSE);
+      throw new ExternalApiException("구글 로그인 서명인증에 실패했습니다.", "GOOGLEAPIS.COM/OAUTH2/V3/CERTS");
     }
 
     List<Map<String, Object>> keys = (List<Map<String, Object>>) jwks.get("keys");

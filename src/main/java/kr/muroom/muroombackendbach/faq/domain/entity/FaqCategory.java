@@ -10,11 +10,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@SQLDelete(sql = "UPDATE faq_categories SET is_active = false WHERE faq_category_id = ?")
+@SQLRestriction("is_active = true")
 @Entity
 @Table(name = "faq_categories")
 public class FaqCategory {

@@ -42,11 +42,15 @@ public interface MusicianAuthControllerDocs {
           리다이렉트 URL에 포함된 `code` 값을 `providerId` 필드에 입력해주세요.
           
           🔗 카카오 로그인 페이지
-          https://kauth.kakao.com/oauth/authorize?client_id=a87a624a98805882ce612eed7c018237&redirect_uri=http://localhost:3001/redirect/oauth/kakao&response_type=code
+          [카카오 로그인 바로가기](https://kauth.kakao.com/oauth/authorize?client_id=a87a624a98805882ce612eed7c018237&redirect_uri=http://localhost:3001/redirect/oauth/kakao&response_type=code)
           """
   )
   ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByKakao(
       @Valid @RequestBody OAuthLoginRequest request,
+      @Parameter(
+          description = "OAuth redirect_uri의 origin 값",
+          example = "http://localhost:3001"
+      )
       @RequestParam String origin
   );
 
@@ -60,11 +64,15 @@ public interface MusicianAuthControllerDocs {
           리다이렉트 URL에 포함된 `code` 값을 `providerId` 필드에 입력해주세요.
           
           🔗 구글 로그인 페이지
-          https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20email%20profile&response_type=code&redirect_uri=http://localhost:3001/redirect/oauth/google&client_id=857075964668-3uqbevha9k2ctfrr6rd272jj9h637ce8.apps.googleusercontent.com
+          <https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20email%20profile&response_type=code&redirect_uri=http://localhost:3001/redirect/oauth/google&client_id=857075964668-3uqbevha9k2ctfrr6rd272jj9h637ce8.apps.googleusercontent.com>
           """
   )
   ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByGoogle(
       @Valid @RequestBody OAuthLoginRequest request,
+      @Parameter(
+          description = "OAuth redirect_uri의 origin 값",
+          example = "http://localhost:3001"
+      )
       @RequestParam String origin
   );
 

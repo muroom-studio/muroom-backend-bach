@@ -9,7 +9,7 @@ import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
-import kr.muroom.muroombackendbach.inquiry.application.mapper.InquiryResponseMapper;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.InquiryAssembler;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryImage;
@@ -40,7 +40,7 @@ public class InquiryService {
   private final InquiryCategoryRepository inquiryCategoryRepository;
   private final InquiryImageRepository inquiryImageRepository;
   private final FileStorageService fileStorageService;
-  private final InquiryResponseMapper inquiryResponseMapper;
+  private final InquiryAssembler inquiryAssembler;
 
   public Page<SearchInquiryResponse> searchInquiry(Long musicianId, String keyword,
       Pageable pageable) {
@@ -49,7 +49,7 @@ public class InquiryService {
     }
 
     return inquiryRepository.searchByKeyword(musicianId, keyword, pageable)
-        .map(inquiryResponseMapper::toSearchInquiryResponse);
+        .map(inquiryAssembler::toSearchInquiryResponse);
   }
 
   @Transactional
@@ -60,13 +60,7 @@ public class InquiryService {
     InquiryCategory inquiryCategory = inquiryCategoryRepository.findById(request.categoryId())
         .orElseThrow(() -> new BusinessException(INQUIRY_CATEGORY_NOT_FOUND));
 
-    Inquiry inquiry = Inquiry.builder()
-        .musician(musician)
-        .category(inquiryCategory)
-        .title(request.title())
-        .content(request.content())
-        .status(InquiryStatus.PROCESSING)
-        .build();
+    Inquiry inquiry = inquiryAssembler.toEntity(musician, inquiryCategory, request);
 
     inquiryRepository.save(inquiry);
 
@@ -102,7 +96,7 @@ public class InquiryService {
     }
 
     return inquiryRepository.findAllByMusicianId(musicianId, pageable)
-        .map(inquiryResponseMapper::toInquiryAllResponse);
+        .map(inquiryAssembler::toInquiryAllResponse);
   }
 
   public InquiryResponse getInquiry(Long musicianId, Long inquiryId) {
@@ -117,7 +111,7 @@ public class InquiryService {
       throw new BusinessException(INQUIRY_FORBIDDEN);
     }
 
-    return inquiryResponseMapper.toInquiryResponse(inquiry);
+    return inquiryAssembler.toInquiryResponse(inquiry);
   }
 
   public GeneratePresignedPutUrlResponse generatePresignedPutUrl(

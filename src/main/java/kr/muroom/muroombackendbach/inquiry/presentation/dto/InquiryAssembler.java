@@ -1,21 +1,25 @@
-package kr.muroom.muroombackendbach.inquiry.application.mapper;
+package kr.muroom.muroombackendbach.inquiry.presentation.dto;
 
 import java.util.List;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
+import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryImage;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReply;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryReplyImage;
+import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryStatus;
+import kr.muroom.muroombackendbach.inquiry.presentation.dto.request.RegisterInquiryRequest;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.ImageDto;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryAllResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.InquiryResponse;
 import kr.muroom.muroombackendbach.inquiry.presentation.dto.response.SearchInquiryResponse;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class InquiryResponseMapper {
+public class InquiryAssembler {
 
   private final FileStorageService fileStorageService;
 
@@ -26,9 +30,16 @@ public class InquiryResponseMapper {
 
   }
 
-  // =========================
-  // Public mapping methods
-  // =========================
+  public Inquiry toEntity(Musician musician, InquiryCategory category,
+      RegisterInquiryRequest request) {
+    return Inquiry.builder()
+        .musician(musician)
+        .category(category)
+        .title(request.title())
+        .content(request.content())
+        .status(InquiryStatus.PROCESSING)
+        .build();
+  }
 
   public SearchInquiryResponse toSearchInquiryResponse(Inquiry inquiry) {
     return SearchInquiryResponse.builder()
@@ -71,10 +82,6 @@ public class InquiryResponseMapper {
         .updatedAt(inquiry.getUpdatedAt())
         .build();
   }
-
-  // =========================
-  // Reply mapping (DTO 분리 유지)
-  // =========================
 
   private SearchInquiryResponse.Reply toSearchReply(Inquiry inquiry) {
     ReplyView v = toReplyView(inquiry);
