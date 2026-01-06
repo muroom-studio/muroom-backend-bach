@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.faq.domain.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -7,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
@@ -47,6 +49,10 @@ public class Faq extends SoftDeletableEntity {
 
   @Column(name = "answer", nullable = false, columnDefinition = "TEXT")
   private String answer;
+
+  @NotNull
+  @Schema(description = "순서 (숫자가 낮을수록 우선순위 높음)")
+  Integer sequence;
 
   public void updateFaq(String question, String answer) {
     this.question = question;
