@@ -46,6 +46,10 @@ public class Term extends AuditableEntity {
   @Column(nullable = false)
   private boolean isMandatory;
 
+  @Builder.Default
+  @Column(nullable = false)
+  private boolean isActive = true;
+
   private OffsetDateTime effectiveAt;
 
   public void updateTerm(TermsType code, TargetRole targetRole, OffsetDateTime effectiveAt) {

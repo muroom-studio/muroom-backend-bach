@@ -51,8 +51,10 @@ public class Faq extends SoftDeletableEntity {
   private String answer;
 
   @NotNull
+  @Column(nullable = false)
+  @Builder.Default
   @Schema(description = "순서 (숫자가 낮을수록 우선순위 높음)")
-  Integer sequence;
+  private Integer sequence = 0;
 
   public void updateFaq(String question, String answer) {
     this.question = question;
