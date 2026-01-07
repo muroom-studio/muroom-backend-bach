@@ -10,8 +10,6 @@ public interface MusicianRepository extends JpaRepository<Musician, Long> {
 
   boolean existsByNickname(String nickname);
 
-  Optional<Musician> findByPhoneNumber(String phoneNumber);
-
   boolean existsByPhoneNumber(String phone);
 
 }

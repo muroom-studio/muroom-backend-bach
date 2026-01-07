@@ -42,7 +42,7 @@ public class AdminOwnerService {
   public void createOwner(OwnerCreateRequest request) {
     Boolean existsByPhoneNumber = ownerRepository.existsByPhoneNumber(request.phoneNumber());
     if (existsByPhoneNumber) {
-      throw new BusinessException(UserErrorCode.PHONE_NUMBER_ALREADY_EXISTS);
+      throw new BusinessException(UserErrorCode.PHONENUMBER_ALREADY_EXISTS);
     }
 
     Owner newOwner = Owner.builder()

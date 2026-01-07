@@ -5,8 +5,8 @@ import static kr.muroom.muroombackendbach.instrument.exception.InstrumentErrorCo
 import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.DUPLICATE_PHONE_NUMBER;
 import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 import static kr.muroom.muroombackendbach.musician.exception.MyStudioErrorCode.MY_STUDIO_NOT_FOUND;
-import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.ALREADY_EXIST_NICKNAME;
-import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.PHONE_NUMBER_ALREADY_EXISTS;
+import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.NICKNAME_ALREADY_EXIST;
+import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.PHONENUMBER_ALREADY_EXISTS;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -145,7 +145,7 @@ public class MusicianService {
    * 신규 뮤지션 가입 + 약관 동의 처리 (소셜 계정 연결은 바깥에서 처리)
    */
   private Musician registerNewMusician(MusicianSignupRequest request) {
-    validateNickname(request.nickname());
+    isNicknameAvailable(request.nickname());
     List<Term> terms = loadAndValidateTerms(request.termIds());
 
     Instrument instrument = instrumentRepository.findById(request.instrumentId())
@@ -169,9 +169,6 @@ public class MusicianService {
    * 닉네임 중복 검증
    */
   private void validateNickname(String nickname) {
-    if (!isNicknameAvailable(nickname)) {
-      throw new BusinessException(MusicianErrorCode.ALREADY_EXIST_NICKNAME);
-    }
   }
 
   /**
@@ -248,7 +245,7 @@ public class MusicianService {
     }
 
     if (musicianRepository.existsByNickname(request.nickname())) {
-      throw new BusinessException(ALREADY_EXIST_NICKNAME);
+      throw new BusinessException(NICKNAME_ALREADY_EXIST);
     }
 
     musician.changeNickname(request.nickname());
@@ -334,16 +331,17 @@ public class MusicianService {
         .collect(Collectors.toMap(Musician::getId, musician -> musician));
   }
 
-  public boolean isNicknameAvailable(String nickname) {
-    boolean existsInMusician = musicianRepository.existsByNickname(nickname);
-    return !(existsInMusician);
+  public void isNicknameAvailable(String nickname) {
+    if (musicianRepository.existsByNickname(nickname)) {
+      throw new BusinessException(NICKNAME_ALREADY_EXIST);
+    }
   }
 
   public void isPhoneAvailable(String phone) {
     PhoneNumberUtil.isValidHyphenPhoneNumber(phone);
 
     if (musicianRepository.existsByPhoneNumber(phone)) {
-      throw new BusinessException(PHONE_NUMBER_ALREADY_EXISTS);
+      throw new BusinessException(PHONENUMBER_ALREADY_EXISTS);
     }
   }
 }

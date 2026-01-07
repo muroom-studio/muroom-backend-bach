@@ -188,20 +188,34 @@ public interface MusicianControllerDocs {
       summary = "닉네임 중복 확인",
       description = """
           닉네임 사용 가능 여부를 확인합니다.
-          
-          - available = true  : 사용 가능
-          - available = false : 이미 사용 중
-          
-          예외는 발생하지 않습니다.
+          - 사용 가능한 경우: 200 OK
+          - 이미 존재하는 닉네임: 409 CONFLICT
           """
   )
   @ApiResponses({
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
           responseCode = "200",
           description = "닉네임 중복 확인 성공"
-      )
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "409",
+          description = "이미 존재하는 닉네임",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  name = "닉네임 중복",
+                  value = """
+                      {
+                        "code": "US-409-01",
+                        "message": "이미 존재하는 닉네임 입니다."
+                      }
+                      """
+              )
+          )
+      ),
   })
-  ApiResponse<MusicianNicknameCheckResponse> checkNickname(
+  ApiResponse<Void> checkNickname(
       @Parameter(
           description = "검사할 닉네임",
           example = "muroom_artist"
@@ -261,8 +275,8 @@ public interface MusicianControllerDocs {
   })
   ApiResponse<Void> checkPhone(
       @Parameter(
-          description = "검사할 전화번호 (하이픈 없이)",
-          example = "01012345678"
+          description = "검사할 전화번호 (하이픈 넣어야함)",
+          example = "010-1234-5678"
       )
       @RequestParam String phone
   );
