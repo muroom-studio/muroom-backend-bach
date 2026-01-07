@@ -5,7 +5,7 @@ import static kr.muroom.muroombackendbach.instrument.exception.InstrumentErrorCo
 import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.DUPLICATE_PHONE_NUMBER;
 import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 import static kr.muroom.muroombackendbach.musician.exception.MyStudioErrorCode.MY_STUDIO_NOT_FOUND;
-import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.NICKNAME_ALREADY_EXIST;
+import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.NICKNAME_ALREADY_EXISTS;
 import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.PHONENUMBER_ALREADY_EXISTS;
 
 import java.util.Collection;
@@ -29,7 +29,6 @@ import kr.muroom.muroombackendbach.musician.domain.entity.MyStudio;
 import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.musician.domain.repository.MyStudioRepository;
-import kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse;
@@ -166,12 +165,6 @@ public class MusicianService {
   }
 
   /**
-   * 닉네임 중복 검증
-   */
-  private void validateNickname(String nickname) {
-  }
-
-  /**
    * 약관 ID로 Term 조회 + 검증
    */
   private List<Term> loadAndValidateTerms(List<Long> termIds) {
@@ -244,9 +237,7 @@ public class MusicianService {
       return;
     }
 
-    if (musicianRepository.existsByNickname(request.nickname())) {
-      throw new BusinessException(NICKNAME_ALREADY_EXIST);
-    }
+    isNicknameAvailable(request.nickname());
 
     musician.changeNickname(request.nickname());
   }
@@ -333,7 +324,7 @@ public class MusicianService {
 
   public void isNicknameAvailable(String nickname) {
     if (musicianRepository.existsByNickname(nickname)) {
-      throw new BusinessException(NICKNAME_ALREADY_EXIST);
+      throw new BusinessException(NICKNAME_ALREADY_EXISTS);
     }
   }
 
