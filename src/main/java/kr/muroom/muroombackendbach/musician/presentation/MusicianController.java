@@ -66,9 +66,9 @@ public class MusicianController implements MusicianControllerDocs {
   }
 
   @GetMapping("/nickname/check")
-  public ApiResponse<MusicianNicknameCheckResponse> checkNickname(@RequestParam String nickname) {
-    boolean available = musicianService.isNicknameAvailable(nickname);
-    return ApiResponse.success(new MusicianNicknameCheckResponse(available));
+  public ApiResponse<Void> checkNickname(@RequestParam String nickname) {
+    musicianService.isNicknameAvailable(nickname);
+    return ApiResponse.success();
   }
 
   @GetMapping("/phone/check")
