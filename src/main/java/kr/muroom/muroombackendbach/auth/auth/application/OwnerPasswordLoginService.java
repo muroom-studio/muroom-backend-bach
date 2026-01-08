@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OwnerPasswordLoginService {
 
-  private final AuthenticationManager authenticationManager;
+  private final AuthenticationManager ownerAuthenticationManager;
   private final JwtTokenProvider jwtTokenProvider;
   private final RefreshTokenService refreshTokenService;
 
@@ -29,17 +29,18 @@ public class OwnerPasswordLoginService {
   public OwnerLoginResponse login(OwnerLoginRequest request) {
     Authentication authentication;
     try {
-      authentication = authenticationManager.authenticate(
+      authentication = ownerAuthenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(request.email(), request.password())
       );
     } catch (BadCredentialsException e) {
       throw new BusinessException(LOGIN_FAIL);
     }
 
-    Object principal = authentication.getPrincipal();
+    if (!(authentication.getPrincipal() instanceof OwnerPrincipal ownerPrincipal)) {
+      throw new BusinessException(LOGIN_FAIL);
+    }
 
-    // OwnerPrincipal에서 ownerId 추출
-    Long ownerId = ((OwnerPrincipal) principal).getOwnerId();
+    Long ownerId = ownerPrincipal.getOwnerId();
 
     // access/refresh 발급 + redis 저장 (OAuth와 동일 패턴)
     String accessToken = jwtTokenProvider.createAccessToken(ownerId);

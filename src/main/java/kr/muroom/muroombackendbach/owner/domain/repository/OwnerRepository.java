@@ -12,7 +12,7 @@ public interface OwnerRepository extends JpaRepository<Owner, Long> {
 
   Optional<Owner> findByPhoneNumber(String phoneNumber);
 
-  Boolean existsByPhoneNumber(String phoneNumber);
+  boolean existsByPhoneNumber(String phoneNumber);
 
   boolean existsByEmail(String email);
 }
