@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum MusicianErrorCode implements ErrorCode {
   MUSICIAN_NOT_FOUND(HttpStatus.BAD_REQUEST, "MC-400-02", "존재하지 않는 뮤지션입니다."),
-  DUPLICATE_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "MC-400-03", "이미 존재하는 핸드폰 번호입니다."),
   ALREADY_EXIST_NICKNAME(HttpStatus.BAD_REQUEST, "MC-400-04", "이미 존재하는 닉네임 입니다."),
   ;
   private final HttpStatus status;

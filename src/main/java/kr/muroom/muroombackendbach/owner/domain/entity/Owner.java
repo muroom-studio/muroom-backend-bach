@@ -42,8 +42,6 @@ public class Owner extends AuditableEntity {
   @Column(length = 50)
   private String name;
 
-  private LocalDate birthdate;
-
   @Column(length = 16)
   private String phoneNumber;
 

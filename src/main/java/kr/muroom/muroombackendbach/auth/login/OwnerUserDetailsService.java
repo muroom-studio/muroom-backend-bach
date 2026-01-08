@@ -1,9 +1,10 @@
 package kr.muroom.muroombackendbach.auth.login;
 
+import java.util.List;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,10 +22,12 @@ public class OwnerUserDetailsService implements UserDetailsService {
         .filter(Owner::isActive)
         .orElseThrow(() -> new UsernameNotFoundException("사장님 계정을 찾을 수 없습니다."));
 
-    return User.builder()
-        .username(owner.getEmail())
-        .password(owner.getPassword())
-        .roles("OWNER")
-        .build();
+    return new OwnerPrincipal(
+        owner.getId(),
+        owner.getEmail(),
+        owner.getPassword(),
+        List.of(new SimpleGrantedAuthority("ROLE_OWNER")),
+        true
+    );
   }
 }
