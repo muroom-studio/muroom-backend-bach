@@ -2,7 +2,6 @@ package kr.muroom.muroombackendbach.musician.application;
 
 import static kr.muroom.muroombackendbach.auth.auth.exception.SocialAccountErrorCode.SOCIAL_ACCOUNT_NOT_FOUND;
 import static kr.muroom.muroombackendbach.instrument.exception.InstrumentErrorCode.NOT_EXIST_INSTRUMENT;
-import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.DUPLICATE_PHONE_NUMBER;
 import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.MUSICIAN_NOT_FOUND;
 import static kr.muroom.muroombackendbach.musician.exception.MyStudioErrorCode.MY_STUDIO_NOT_FOUND;
 import static kr.muroom.muroombackendbach.musician.exception.UserErrorCode.NICKNAME_ALREADY_EXISTS;
@@ -93,7 +92,7 @@ public class MusicianService {
   private Musician findOrRegisterMusician(MusicianSignupRequest request) {
 
     if (musicianRepository.existsByPhoneNumber(request.phoneNumber())) {
-      throw new BusinessException(DUPLICATE_PHONE_NUMBER);
+      throw new BusinessException(PHONENUMBER_ALREADY_EXISTS);
     }
 
     return registerNewMusician(request);
@@ -265,7 +264,7 @@ public class MusicianService {
 
     // 중복 체크
     if (musicianRepository.existsByPhoneNumber(request.phone())) {
-      throw new BusinessException(DUPLICATE_PHONE_NUMBER);
+      throw new BusinessException(PHONENUMBER_ALREADY_EXISTS);
     }
 
     musician.changePhone(request.phone());
