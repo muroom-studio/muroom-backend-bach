@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Locale;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.sms.application.SmsVerificationService;
-import kr.muroom.muroombackendbach.sms.presentation.docs.MusicianSmsControllerDocs;
+import kr.muroom.muroombackendbach.sms.presentation.docs.SmsControllerDocs;
 import kr.muroom.muroombackendbach.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsSendRequest;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsVerifyRequest;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class SmsController implements MusicianSmsControllerDocs {
+public class SmsController implements SmsControllerDocs {
 
   private final SmsVerificationService smsVerificationService;
 

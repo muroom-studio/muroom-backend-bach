@@ -188,13 +188,9 @@ public class MusicianService {
         .filter(TermDetailResponse::isMandatory)
         .map(TermDetailResponse::termId)
         .map(Long::valueOf)
-        .collect(java.util.stream.Collectors.toSet());
-
-    Set<Long> agreedTermIds = new java.util.HashSet<>(termIds);
-
-    requiredTermIds.removeAll(agreedTermIds);
-
-    if (!requiredTermIds.isEmpty()) {
+        .collect(Collectors.toSet());
+    
+    if (!Set.copyOf(termIds).containsAll(requiredTermIds)) {
       throw new BusinessException(TermErrorCode.REQUIRED_TERM_NOT_AGREED);
     }
 
