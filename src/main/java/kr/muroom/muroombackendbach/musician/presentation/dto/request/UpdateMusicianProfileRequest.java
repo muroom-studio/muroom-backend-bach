@@ -21,7 +21,6 @@ public record UpdateMusicianProfileRequest(
     )
     Long instrumentId,
 
-    @NotBlank(message = "전화번호 토큰값을 입력해주세요.")
     String smsVerifyToken,
 
     @Schema(example = "뮤룸 스튜디오")

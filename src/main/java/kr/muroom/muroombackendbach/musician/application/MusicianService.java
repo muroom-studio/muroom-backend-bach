@@ -274,6 +274,10 @@ public class MusicianService {
   }
 
   private void updatePhone(Musician musician, UpdateMusicianProfileRequest request) {
+    if (request.smsVerifyToken() == null || request.smsVerifyToken().isBlank()) {
+      return;
+    }
+
     PhoneVerifyPayload phoneVerifyPayload = jwtTokenProvider.parsePhoneVerifyToken(
         request.smsVerifyToken());
 
