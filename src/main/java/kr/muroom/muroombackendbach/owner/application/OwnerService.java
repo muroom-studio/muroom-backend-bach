@@ -5,9 +5,7 @@ import static kr.muroom.muroombackendbach.owner.exception.OwnerErrorCode.NICKNAM
 import static kr.muroom.muroombackendbach.owner.exception.OwnerErrorCode.PHONENUMBER_ALREADY_EXISTS;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
@@ -50,7 +48,7 @@ public class OwnerService {
 
     List<Long> agreedTermIds = distinctTermIds(request.termIds());
     List<Term> agreedTerms = loadAndValidateTerms(agreedTermIds);
-    validateRequiredTermsAgreed(TargetRole.OWNER, agreedTermIds);
+    validateRequiredTermsAgreed(agreedTermIds);
 
     Owner savedOwner = saveOwner(request);
     saveOwnerAgreements(savedOwner, agreedTerms);
@@ -94,8 +92,9 @@ public class OwnerService {
   /**
    * 최신 약관 기준으로 필수 약관이 모두 동의되었는지 검증
    */
-  private void validateRequiredTermsAgreed(TargetRole role, List<Long> agreedTermIds) {
-    Set<Long> requiredTermIds = termRepository.findLatestTermsByRoleAndTypes(role).stream()
+  private void validateRequiredTermsAgreed(List<Long> agreedTermIds) {
+    Set<Long> requiredTermIds = termRepository.findLatestTermsByRoleAndTypes(TargetRole.OWNER)
+        .stream()
         .filter(TermDetailResponse::isMandatory)
         .map(TermDetailResponse::termId)
         .map(Long::valueOf)
