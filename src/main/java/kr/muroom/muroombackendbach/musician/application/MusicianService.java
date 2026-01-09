@@ -41,7 +41,6 @@ import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.MusicianAgreementRepository;
-import kr.muroom.muroombackendbach.terms.domain.repository.TermQueryRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
 import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
@@ -189,7 +188,7 @@ public class MusicianService {
         .map(TermDetailResponse::termId)
         .map(Long::valueOf)
         .collect(Collectors.toSet());
-    
+
     if (!Set.copyOf(termIds).containsAll(requiredTermIds)) {
       throw new BusinessException(TermErrorCode.REQUIRED_TERM_NOT_AGREED);
     }
@@ -275,21 +274,28 @@ public class MusicianService {
   }
 
   private void updatePhone(Musician musician, UpdateMusicianProfileRequest request) {
-    if (request.phone() == null) {
+    if (request.smsVerifyToken() == null || request.smsVerifyToken().isBlank()) {
+      return;
+    }
+
+    PhoneVerifyPayload phoneVerifyPayload = jwtTokenProvider.parsePhoneVerifyToken(
+        request.smsVerifyToken());
+
+    if (phoneVerifyPayload.phoneNumber() == null) {
       return;
     }
 
     // 동일 번호면 스킵 (불필요 검증/변경 방지)
-    if (request.phone().equals(musician.getPhoneNumber())) {
+    if (phoneVerifyPayload.phoneNumber().equals(musician.getPhoneNumber())) {
       return;
     }
 
     // 중복 체크
-    if (musicianRepository.existsByPhoneNumber(request.phone())) {
+    if (musicianRepository.existsByPhoneNumber(phoneVerifyPayload.phoneNumber())) {
       throw new BusinessException(PHONENUMBER_ALREADY_EXISTS);
     }
 
-    musician.changePhone(request.phone());
+    musician.changePhone(phoneVerifyPayload.phoneNumber());
   }
 
   private void updateStudioIfNeeded(Musician musician, UpdateMusicianProfileRequest request) {
