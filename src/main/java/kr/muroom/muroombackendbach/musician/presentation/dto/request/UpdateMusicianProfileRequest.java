@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.musician.presentation.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
@@ -20,9 +21,8 @@ public record UpdateMusicianProfileRequest(
     )
     Long instrumentId,
 
-    @Schema(example = "010-1234-6071", description = "변경할 전화번호")
-    @Size(max = 16, message = "전화번호는 최대 16자까지 가능합니다.")
-    String phone,
+    @NotBlank(message = "전화번호 토큰값을 입력해주세요.")
+    String smsVerifyToken,
 
     @Schema(example = "뮤룸 스튜디오")
     @Size(max = 255, message = "작업실 이름은 최대 255자까지 가능합니다.")

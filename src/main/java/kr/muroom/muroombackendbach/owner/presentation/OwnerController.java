@@ -42,5 +42,4 @@ public class OwnerController implements OwnerControllerDocs {
     ownerService.isPhoneAvailable(phone);
     return ApiResponse.success();
   }
-
 }
