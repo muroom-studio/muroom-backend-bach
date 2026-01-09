@@ -12,6 +12,7 @@ import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsSendRequest;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsVerifyRequest;
+import kr.muroom.muroombackendbach.sms.presentation.dto.response.SmsVerifyResponse;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "musician sms - 뮤지션 sms API")
@@ -80,6 +81,6 @@ public interface MusicianSmsControllerDocs {
           )
       )
   })
-  ApiResponse<Void> verify(@RequestBody MusicianSmsVerifyRequest request);
+  ApiResponse<SmsVerifyResponse> verify(@RequestBody MusicianSmsVerifyRequest request);
 
 }

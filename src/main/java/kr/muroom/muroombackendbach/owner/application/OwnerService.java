@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
+import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.PhoneVerifyPayload;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
@@ -39,28 +40,41 @@ public class OwnerService {
   private final OwnerAgreementRepository ownerAgreementRepository;
 
   /**
-   * Owner 회원가입 1) 중복(전화/이메일/닉네임) 검증 2) 약관 존재 + 필수 약관 미동의 검증 3) Owner 저장 4) 약관 동의(OwnerAgreement) 저장
-   * 5) JWT 발급 및 RefreshToken 저장
+   * Owner 회원가입
+   * <p>
+   * 1) 휴대폰 인증 토큰 파싱 → 인증된 phoneNumber 확보 2) 중복(전화/이메일/닉네임) 검증 3) 약관 존재 + 필수 약관 미동의 검증 4) Owner 저장
+   * 5) 약관 동의 저장 6) JWT 발급
    */
   @Transactional
   public OwnerSignupResponse registerOwner(OwnerSignupRequest request) {
-    validateUniqueOwner(request);
+    // 1. 휴대폰 인증 토큰 검증 (여기서 인증 보장)
+    PhoneVerifyPayload phoneVerifyPayload = jwtTokenProvider.parsePhoneVerifyToken(
+        request.smsVerifyToken());
+    String verifiedPhone = phoneVerifyPayload.phoneNumber();
 
+    // 2. 중복 검증 (검증된 phone 사용)
+    validateUniqueOwner(request, verifiedPhone);
+
+    // 3. 약관 검증
     List<Long> agreedTermIds = distinctTermIds(request.termIds());
     List<Term> agreedTerms = loadAndValidateTerms(agreedTermIds);
     validateRequiredTermsAgreed(agreedTermIds);
 
-    Owner savedOwner = saveOwner(request);
+    // 4. Owner 저장 (검증된 phone 사용)
+    Owner savedOwner = saveOwner(request, verifiedPhone);
+
+    // 5. 약관 동의 저장
     saveOwnerAgreements(savedOwner, agreedTerms);
 
+    // 6. 토큰 발급
     return issueTokens(savedOwner.getId());
   }
 
   /**
-   * 전화번호/이메일/닉네임 중복 검증
+   * 전화번호/이메일/닉네임 중복 검증 - phoneNumber는 반드시 "인증된 번호"를 사용
    */
-  private void validateUniqueOwner(OwnerSignupRequest request) {
-    if (ownerRepository.existsByPhoneNumber(request.phoneNumber())) {
+  private void validateUniqueOwner(OwnerSignupRequest request, String verifiedPhone) {
+    if (ownerRepository.existsByPhoneNumber(verifiedPhone)) {
       throw new BusinessException(PHONENUMBER_ALREADY_EXISTS);
     }
     if (ownerRepository.existsByEmail(request.email())) {
@@ -90,20 +104,17 @@ public class OwnerService {
   }
 
   /**
-   * 최신 약관 기준으로 필수 약관이 모두 동의되었는지 검증
+   * 최신 약관 기준 필수 약관 동의 여부 검증
    */
   private void validateRequiredTermsAgreed(List<Long> agreedTermIds) {
-    Set<Long> requiredTermIds = termRepository.findLatestTermsByRoleAndTypes(TargetRole.OWNER)
-        .stream()
-        .filter(TermDetailResponse::isMandatory)
-        .map(TermDetailResponse::termId)
-        .map(Long::valueOf)
-        .collect(Collectors.toSet());
+    Set<Long> requiredTermIds =
+        termRepository.findLatestTermsByRoleAndTypes(TargetRole.OWNER).stream()
+            .filter(TermDetailResponse::isMandatory)
+            .map(TermDetailResponse::termId)
+            .map(Long::valueOf)
+            .collect(Collectors.toSet());
 
-    Set<Long> agreed = Set.copyOf(agreedTermIds);
-
-    boolean hasMissingRequired = requiredTermIds.stream().anyMatch(id -> !agreed.contains(id));
-    if (hasMissingRequired) {
+    if (!Set.copyOf(agreedTermIds).containsAll(requiredTermIds)) {
       throw new BusinessException(TermErrorCode.REQUIRED_TERM_NOT_AGREED);
     }
   }
@@ -111,13 +122,13 @@ public class OwnerService {
   /**
    * 비밀번호 암호화 후 Owner 저장
    */
-  private Owner saveOwner(OwnerSignupRequest request) {
+  private Owner saveOwner(OwnerSignupRequest request, String verifiedPhone) {
     String encodedPassword = passwordEncoder.encode(request.password());
 
     Owner owner = Owner.builder()
         .nickname(request.nickname())
         .status(UserStatus.ACTIVE)
-        .phoneNumber(request.phoneNumber())
+        .phoneNumber(verifiedPhone)
         .email(request.email())
         .name(request.name())
         .experienceYears(1)
@@ -128,7 +139,7 @@ public class OwnerService {
   }
 
   /**
-   * Owner와 약관 간 동의 관계(OwnerAgreement) 저장
+   * Owner ↔ 약관 동의 관계 저장
    */
   private void saveOwnerAgreements(Owner owner, List<Term> terms) {
     List<OwnerAgreement> agreements = terms.stream()
@@ -139,7 +150,7 @@ public class OwnerService {
   }
 
   /**
-   * Access/Refresh 토큰 발급 및 RefreshToken 저장 후 응답 생성
+   * Access / Refresh 토큰 발급
    */
   private OwnerSignupResponse issueTokens(Long ownerId) {
     String accessToken = jwtTokenProvider.createAccessToken(ownerId);

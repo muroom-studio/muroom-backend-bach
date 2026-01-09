@@ -2,8 +2,6 @@ package kr.muroom.muroombackendbach.owner.presentation;
 
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
-import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.owner.application.OwnerService;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerSignupResponse;

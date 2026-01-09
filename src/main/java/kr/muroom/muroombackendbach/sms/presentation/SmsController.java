@@ -8,6 +8,7 @@ import kr.muroom.muroombackendbach.sms.presentation.docs.MusicianSmsControllerDo
 import kr.muroom.muroombackendbach.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsSendRequest;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsVerifyRequest;
+import kr.muroom.muroombackendbach.sms.presentation.dto.response.SmsVerifyResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class MusicianSmsController implements MusicianSmsControllerDocs {
+public class SmsController implements MusicianSmsControllerDocs {
 
   private final SmsVerificationService smsVerificationService;
 
@@ -40,9 +41,9 @@ public class MusicianSmsController implements MusicianSmsControllerDocs {
   }
 
   @PostMapping("/verify")
-  public ApiResponse<Void> verify(@Validated @RequestBody MusicianSmsVerifyRequest request) {
-    smsVerificationService.verifyCode(request.phone(), request.code());
-    return ApiResponse.success();
+  public ApiResponse<SmsVerifyResponse> verify(
+      @Validated @RequestBody MusicianSmsVerifyRequest request) {
+    return ApiResponse.success(smsVerificationService.verifyCode(request.phone(), request.code()));
   }
 
   private String firstValidIp(String... candidates) {
