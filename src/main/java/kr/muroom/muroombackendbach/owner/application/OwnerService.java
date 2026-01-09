@@ -11,9 +11,12 @@ import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.PhoneVerifyPayload;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
+import kr.muroom.muroombackendbach.musician.exception.UserErrorCode;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
+import kr.muroom.muroombackendbach.owner.exception.OwnerErrorCode;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerSignupResponse;
 import kr.muroom.muroombackendbach.terms.domain.entity.OwnerAgreement;
@@ -159,5 +162,19 @@ public class OwnerService {
     refreshTokenService.save(ownerId, refreshIssue.jti(), refreshIssue.expiresAt());
 
     return new OwnerSignupResponse(accessToken, refreshIssue.token(), String.valueOf(ownerId));
+  }
+
+  public void isNicknameAvailable(String nickname) {
+    if (ownerRepository.existsByNickname(nickname)) {
+      throw new BusinessException(OwnerErrorCode.NICKNAME_ALREADY_EXISTS);
+    }
+  }
+
+  public void isPhoneAvailable(String phone) {
+    PhoneNumberUtil.isValidHyphenPhoneNumber(phone);
+
+    if (ownerRepository.existsByPhoneNumber(phone)) {
+      throw new BusinessException(OwnerErrorCode.PHONENUMBER_ALREADY_EXISTS);
+    }
   }
 }
