@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.auth.auth.domain.entity.SocialAccount;
@@ -36,10 +37,13 @@ import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSi
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse.InstrumentSimpleInfo;
 import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
+import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.MusicianAgreementRepository;
+import kr.muroom.muroombackendbach.terms.domain.repository.TermQueryRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -168,9 +172,26 @@ public class MusicianService {
    */
   private List<Term> loadAndValidateTerms(List<Long> termIds) {
     List<Term> terms = termRepository.findAllById(termIds);
-
     if (terms.size() != termIds.size()) {
       throw new BusinessException(TermErrorCode.NOT_EXIST_TERM);
+    }
+
+    // 2. 최신 약관 중 필수 약관 누락 검증
+    List<TermDetailResponse> latestTerms =
+        termRepository.findLatestTermsByRoleAndTypes(TargetRole.MUSICIAN);
+
+    Set<Long> requiredTermIds = latestTerms.stream()
+        .filter(TermDetailResponse::isMandatory)
+        .map(TermDetailResponse::termId)
+        .map(Long::valueOf)
+        .collect(java.util.stream.Collectors.toSet());
+
+    Set<Long> agreedTermIds = new java.util.HashSet<>(termIds);
+
+    requiredTermIds.removeAll(agreedTermIds);
+
+    if (!requiredTermIds.isEmpty()) {
+      throw new BusinessException(TermErrorCode.REQUIRED_TERM_NOT_AGREED);
     }
 
     return terms;
@@ -180,6 +201,7 @@ public class MusicianService {
    * MusicianAgreement 생성 & 저장
    */
   private void saveAgreements(Musician musician, List<Term> terms) {
+
     List<MusicianAgreement> agreements = terms.stream()
         .map(term -> MusicianAgreement.of(musician, term))
         .toList();

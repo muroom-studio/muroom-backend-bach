@@ -38,8 +38,13 @@ public class TermService {
     return terms;
   }
 
-  public List<TermDetailResponse> getTermsOwnerByType(List<TermsType> types) {
-    return termRepository.findLatestTermsByRoleAndTypes(TargetRole.OWNER);
+  public List<TermDetailResponse> getTermsOwnerByType() {
+    List<TermDetailResponse> terms = termRepository.findLatestTermsByRoleAndTypes(
+        TargetRole.OWNER);
+    List<TermsType> desiredOrder = List.of(TermsType.TERMS_OF_USE, TermsType.PRIVACY_COLLECTION,
+        TermsType.MARKETING_RECEIVE);
+    terms.sort(Comparator.comparingInt(term -> desiredOrder.indexOf(term.code())));
+    return terms;
   }
 
   public TermSimpleResponse getTermContent(Long termId) {

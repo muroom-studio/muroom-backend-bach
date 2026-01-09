@@ -3,7 +3,6 @@ package kr.muroom.muroombackendbach.terms.presentation;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.terms.application.TermService;
-import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermRegisterRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermUpdateRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,6 +27,11 @@ public class TermController implements TermControllerDocs {
   @GetMapping("/musician/signup")
   public ApiResponse<List<TermDetailResponse>> getMusicianTerms() {
     return ApiResponse.success(termService.getTermsMusicianByType());
+  }
+
+  @GetMapping("/owner/signup")
+  public ApiResponse<List<TermDetailResponse>> getOwnerTerms() {
+    return ApiResponse.success(termService.getTermsOwnerByType());
   }
 
   @GetMapping("/{termId}")
@@ -49,11 +52,4 @@ public class TermController implements TermControllerDocs {
     termService.updateMusicianTerms(termId, request);
     return ApiResponse.success();
   }
-
-  @GetMapping("/owner")
-  public ApiResponse<List<TermDetailResponse>> getOwnerTerms(
-      @RequestParam List<TermsType> types) {
-    return ApiResponse.success(termService.getTermsOwnerByType(types));
-  }
-
 }
