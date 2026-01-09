@@ -8,12 +8,15 @@ import static kr.muroom.muroombackendbach.sms.exception.SmsErrorCode.SMS_VERIFIC
 
 import java.security.SecureRandom;
 import java.time.Duration;
+import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
+import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.PhoneVerifyIssue;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.sms.domain.repository.SmsVerificationCodeStore;
 import kr.muroom.muroombackendbach.sms.exception.SmsErrorCode;
 import kr.muroom.muroombackendbach.sms.presentation.SmsSender;
 import kr.muroom.muroombackendbach.sms.presentation.dto.SmsAuthResponse;
+import kr.muroom.muroombackendbach.sms.presentation.dto.response.SmsVerifyResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class SmsVerificationService {
 
   private final SmsSender smsSender;
   private final SmsVerificationCodeStore codeStore;
+  private final JwtTokenProvider jwtTokenProvider;
 
   private static final SecureRandom SECURE_RANDOM = new SecureRandom();
   private static final int CODE_LENGTH = 6;
@@ -71,7 +75,7 @@ public class SmsVerificationService {
   }
 
   @Transactional
-  public void verifyCode(String phone, String code) {
+  public SmsVerifyResponse verifyCode(String phone, String code) {
     // 1. 전화번호 - 하이픈 제거
     String normalizedPhone = normalizePhone(phone);
 
@@ -88,7 +92,10 @@ public class SmsVerificationService {
       // 3.1 저장된 인증 코드 삭제 / 실패 횟수 초기화
       codeStore.deleteCode(normalizedPhone);
       codeStore.resetFailCount(normalizedPhone);
-      return;
+
+      // 3.2 토큰 발급
+      PhoneVerifyIssue phoneVerifyToken = jwtTokenProvider.createPhoneVerifyToken(phone);
+      return new SmsVerifyResponse(phoneVerifyToken.token());
     }
 
     // 4. 실패 실패 횟수 증가

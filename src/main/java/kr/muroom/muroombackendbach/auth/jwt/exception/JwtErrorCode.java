@@ -15,6 +15,12 @@ public enum JwtErrorCode implements ErrorCode {
       "유효하지 않은 회원가입 토큰입니다."
   ),
 
+  INVALID_SMS_VERIFY_TOKEN(
+      HttpStatus.BAD_REQUEST,
+      "JWT-400-03",
+      "유효하지 않은 전화번호 인증 토큰입니다."
+  ),
+
   MISSING_SIGNUP_TOKEN_CLAIMS(
       HttpStatus.BAD_REQUEST,
       "JWT-400-02",

@@ -11,6 +11,7 @@ import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import java.util.UUID;
 import javax.crypto.SecretKey;
+import kr.muroom.muroombackendbach.auth.jwt.exception.JwtErrorCode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,6 +87,24 @@ public class JwtTokenProvider {
     return buildToken(claims, signupExpirationMs);
   }
 
+  /**
+   * 휴대폰 인증 완료 후 회원가입에서 사용하는 phoneVerifyToken - phoneNumber 기반 - jti 포함(1회 사용 처리용)
+   */
+  public PhoneVerifyIssue createPhoneVerifyToken(String phoneNumber) {
+    String jti = UUID.randomUUID().toString();
+
+    Claims claims = Jwts.claims()
+        .add("type", "PHONE_VERIFY")
+        .add("phoneNumber", phoneNumber)
+        .add("jti", jti)
+        .build();
+
+    String token = buildToken(claims, signupExpirationMs);
+    Date expiresAt = new Date(System.currentTimeMillis() + signupExpirationMs);
+
+    return new PhoneVerifyIssue(token, jti, expiresAt);
+  }
+
   private String buildToken(Claims claims, long ttlMs) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + ttlMs);
@@ -132,6 +151,27 @@ public class JwtTokenProvider {
     }
 
     return new RefreshPayload(Long.valueOf(sub), jti);
+  }
+
+  /**
+   * phoneVerifyToken에서 payload 추출 (phoneNumber, jti)
+   */
+  public PhoneVerifyPayload parsePhoneVerifyToken(String phoneVerifyToken) {
+    Claims claims = parseClaims(phoneVerifyToken);
+
+    Object type = claims.get("type");
+    if (!"PHONE_VERIFY".equals(type)) {
+      throw new BusinessException(JwtErrorCode.INVALID_SMS_VERIFY_TOKEN);
+    }
+
+    String phoneNumber = (String) claims.get("phoneNumber");
+    String jti = (String) claims.get("jti");
+
+    if (phoneNumber == null || jti == null) {
+      throw new BusinessException(JwtErrorCode.INVALID_SMS_VERIFY_TOKEN);
+    }
+
+    return new PhoneVerifyPayload(phoneNumber, jti);
   }
 
   /**
@@ -211,6 +251,20 @@ public class JwtTokenProvider {
    * refresh 발급 결과(토큰, jti, 만료시각)
    */
   public record RefreshIssue(String token, String jti, Date expiresAt) {
+
+  }
+
+  /**
+   * phoneVerifyToken에서 꺼낸 값 전달용
+   */
+  public record PhoneVerifyPayload(String phoneNumber, String jti) {
+
+  }
+
+  /**
+   * phoneVerifyToken 발급 결과(토큰, jti, 만료시각)
+   */
+  public record PhoneVerifyIssue(String token, String jti, Date expiresAt) {
 
   }
 }

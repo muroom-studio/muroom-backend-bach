@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.auth.auth.presentation;
 
 import jakarta.validation.Valid;
+import kr.muroom.muroombackendbach.auth.auth.presentation.docs.MusicianAuthControllerDocs;
 import kr.muroom.muroombackendbach.auth.auth.presentation.dto.request.LogoutRequest;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;

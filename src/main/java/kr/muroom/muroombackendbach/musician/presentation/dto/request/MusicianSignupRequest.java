@@ -9,8 +9,8 @@ public record MusicianSignupRequest(
     @NotBlank(message = "이름을 입력해주세요.")
     String name,
 
-    @NotBlank(message = "전화번호를 입력해주세요.")
-    String phoneNumber,
+    @NotBlank(message = "전화번호 토큰값을 입력해주세요.")
+    String smsVerifyToken,
 
     String detailJuso,
 

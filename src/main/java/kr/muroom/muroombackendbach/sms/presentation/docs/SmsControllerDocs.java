@@ -12,10 +12,11 @@ import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.sms.presentation.dto.SmsAuthResponse;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsSendRequest;
 import kr.muroom.muroombackendbach.sms.presentation.dto.request.MusicianSmsVerifyRequest;
+import kr.muroom.muroombackendbach.sms.presentation.dto.response.SmsVerifyResponse;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "musician sms - 뮤지션 sms API")
-public interface MusicianSmsControllerDocs {
+@Tag(name = "Sms - Sms API")
+public interface SmsControllerDocs {
 
   @Operation(summary = "SMS 인증번호 발송", description = "입력한 휴대폰 번호로 인증번호를 발송합니다.")
   @ApiResponses({
@@ -80,6 +81,6 @@ public interface MusicianSmsControllerDocs {
           )
       )
   })
-  ApiResponse<Void> verify(@RequestBody MusicianSmsVerifyRequest request);
+  ApiResponse<SmsVerifyResponse> verify(@RequestBody MusicianSmsVerifyRequest request);
 
 }

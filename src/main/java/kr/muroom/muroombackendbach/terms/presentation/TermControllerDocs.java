@@ -133,7 +133,5 @@ public interface TermControllerDocs {
       )
   })
   @GetMapping("/owner")
-  ApiResponse<List<TermDetailResponse>> getOwnerTerms(
-      @RequestParam List<TermsType> types
-  );
+  ApiResponse<List<TermDetailResponse>> getOwnerTerms();
 }

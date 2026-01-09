@@ -11,11 +11,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.auth.auth.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.auth.auth.domain.repository.SocialAccountRepository;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
+import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.PhoneVerifyPayload;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
@@ -36,10 +38,13 @@ import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSi
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse.InstrumentSimpleInfo;
 import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
+import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
 import kr.muroom.muroombackendbach.terms.domain.repository.MusicianAgreementRepository;
+import kr.muroom.muroombackendbach.terms.domain.repository.TermQueryRepository;
 import kr.muroom.muroombackendbach.terms.domain.repository.TermRepository;
 import kr.muroom.muroombackendbach.terms.exception.TermErrorCode;
+import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,12 +66,15 @@ public class MusicianService {
   public MusicianSignupResponse registerMusician(MusicianSignupRequest request) {
     // 0. token 검증
     SignupPayload signupPayload = jwtTokenProvider.parseSignupToken(request.signupToken());
+    PhoneVerifyPayload phoneVerifyPayload = jwtTokenProvider.parsePhoneVerifyToken(
+        request.smsVerifyToken());
 
     OAuthProvider provider = OAuthProvider.fromRegistrationId(signupPayload.provider());
     String providerUserId = signupPayload.providerId();
+    String phone = phoneVerifyPayload.phoneNumber();
 
     // 1. 이름/전화번호로 기존 뮤지션 조회, 없으면 신규 생성
-    Musician musician = findOrRegisterMusician(request);
+    Musician musician = findOrRegisterMusician(request, phone);
 
     // 2. 토큰 발급
     Long musicianId = musician.getId();
@@ -89,13 +97,13 @@ public class MusicianService {
   /**
    * 이름 + 전화번호로 기존 뮤지션 조회, 없으면 신규 가입
    */
-  private Musician findOrRegisterMusician(MusicianSignupRequest request) {
+  private Musician findOrRegisterMusician(MusicianSignupRequest request, String phone) {
 
-    if (musicianRepository.existsByPhoneNumber(request.phoneNumber())) {
+    if (musicianRepository.existsByPhoneNumber(phone)) {
       throw new BusinessException(PHONENUMBER_ALREADY_EXISTS);
     }
 
-    return registerNewMusician(request);
+    return registerNewMusician(request, phone);
   }
 
   /**
@@ -142,7 +150,7 @@ public class MusicianService {
   /**
    * 신규 뮤지션 가입 + 약관 동의 처리 (소셜 계정 연결은 바깥에서 처리)
    */
-  private Musician registerNewMusician(MusicianSignupRequest request) {
+  private Musician registerNewMusician(MusicianSignupRequest request, String phone) {
     isNicknameAvailable(request.nickname());
     List<Term> terms = loadAndValidateTerms(request.termIds());
 
@@ -151,7 +159,7 @@ public class MusicianService {
 
     Musician musician = Musician.builder()
         .name(request.name())
-        .phoneNumber(request.phoneNumber())
+        .phoneNumber(phone)
         .nickname(request.nickname())
         .status(UserStatus.ACTIVE)
         .instrument(instrument)
@@ -168,9 +176,22 @@ public class MusicianService {
    */
   private List<Term> loadAndValidateTerms(List<Long> termIds) {
     List<Term> terms = termRepository.findAllById(termIds);
-
     if (terms.size() != termIds.size()) {
       throw new BusinessException(TermErrorCode.NOT_EXIST_TERM);
+    }
+
+    // 2. 최신 약관 중 필수 약관 누락 검증
+    List<TermDetailResponse> latestTerms =
+        termRepository.findLatestTermsByRoleAndTypes(TargetRole.MUSICIAN);
+
+    Set<Long> requiredTermIds = latestTerms.stream()
+        .filter(TermDetailResponse::isMandatory)
+        .map(TermDetailResponse::termId)
+        .map(Long::valueOf)
+        .collect(Collectors.toSet());
+    
+    if (!Set.copyOf(termIds).containsAll(requiredTermIds)) {
+      throw new BusinessException(TermErrorCode.REQUIRED_TERM_NOT_AGREED);
     }
 
     return terms;
@@ -180,6 +201,7 @@ public class MusicianService {
    * MusicianAgreement 생성 & 저장
    */
   private void saveAgreements(Musician musician, List<Term> terms) {
+
     List<MusicianAgreement> agreements = terms.stream()
         .map(term -> MusicianAgreement.of(musician, term))
         .toList();
