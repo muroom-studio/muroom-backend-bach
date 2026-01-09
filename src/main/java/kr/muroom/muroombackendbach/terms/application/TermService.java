@@ -35,6 +35,12 @@ public class TermService {
     List<TermsType> desiredOrder = List.of(TermsType.TERMS_OF_USE, TermsType.PRIVACY_COLLECTION,
         TermsType.MARKETING_RECEIVE);
     terms.sort(Comparator.comparingInt(term -> desiredOrder.indexOf(term.code())));
+
+    // 아무것도 등록되지 않았을 경우에 회원가입 진행되지 않도록 방지
+    if (terms.isEmpty()) {
+      throw new BusinessException(TermErrorCode.TERMS_NOT_REGISTER);
+    }
+    
     return terms;
   }
 
@@ -44,6 +50,12 @@ public class TermService {
     List<TermsType> desiredOrder = List.of(TermsType.TERMS_OF_USE, TermsType.PRIVACY_COLLECTION,
         TermsType.MARKETING_RECEIVE);
     terms.sort(Comparator.comparingInt(term -> desiredOrder.indexOf(term.code())));
+
+    // 아무것도 등록되지 않았을 경우에 회원가입 진행되지 않도록 방지
+    if (terms.isEmpty()) {
+      throw new BusinessException(TermErrorCode.TERMS_NOT_REGISTER);
+    }
+
     return terms;
   }
 
