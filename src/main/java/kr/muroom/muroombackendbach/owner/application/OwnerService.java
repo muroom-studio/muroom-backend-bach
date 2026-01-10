@@ -177,4 +177,11 @@ public class OwnerService {
       throw new BusinessException(OwnerErrorCode.PHONENUMBER_ALREADY_EXISTS);
     }
   }
+
+  public void getMyProfile(Long ownerId) {
+    Owner owner = ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new BusinessException(OwnerErrorCode.OWNER_NOT_FOUND));
+
+  }
+
 }

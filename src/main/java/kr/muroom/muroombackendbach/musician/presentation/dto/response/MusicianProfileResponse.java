@@ -45,12 +45,5 @@ public record MusicianProfileResponse(
       String detailAddress
   ) {
 
-    public static MyStudioInfo from(MyStudio myStudio) {
-      return MyStudioInfo.builder()
-          .name(myStudio.getName())
-          .roadAddress(myStudio.getRoadAddress())
-          .detailAddress(myStudio.getDetailAddress())
-          .build();
-    }
   }
 }

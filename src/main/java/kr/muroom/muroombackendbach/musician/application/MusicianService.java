@@ -30,6 +30,7 @@ import kr.muroom.muroombackendbach.musician.domain.entity.MyStudio;
 import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.musician.domain.repository.MyStudioRepository;
+import kr.muroom.muroombackendbach.musician.presentation.assembler.MusicianAssembler;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse;
@@ -60,6 +61,7 @@ public class MusicianService {
   private final InstrumentRepository instrumentRepository;
   private final MyStudioRepository myStudioRepository;
   private final RefreshTokenService refreshTokenService;
+  private final MusicianAssembler musicianAssembler;
 
   @Transactional
   public MusicianSignupResponse registerMusician(MusicianSignupRequest request) {
@@ -156,13 +158,7 @@ public class MusicianService {
     Instrument instrument = instrumentRepository.findById(request.instrumentId())
         .orElseThrow(() -> new BusinessException(NOT_EXIST_INSTRUMENT));
 
-    Musician musician = Musician.builder()
-        .name(request.name())
-        .phoneNumber(phone)
-        .nickname(request.nickname())
-        .status(UserStatus.ACTIVE)
-        .instrument(instrument)
-        .build();
+    Musician musician = musicianAssembler.toNewMusician(request, phone, instrument);
 
     musicianRepository.save(musician);
     saveAgreements(musician, terms);
@@ -213,11 +209,7 @@ public class MusicianService {
     Musician musician = musicianRepository.findById(musicianId)
         .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
 
-    return MusicianSimpleProfileResponse.builder()
-        .musicianId(String.valueOf(musician.getId()))
-        .nickname(musician.getNickname())
-        .musicianInstrument(InstrumentSimpleInfo.from(musician.getInstrument()))
-        .build();
+    return musicianAssembler.toMusicianSimpleProfileResponse(musician);
   }
 
   @Transactional(readOnly = true)
@@ -231,14 +223,7 @@ public class MusicianService {
     MyStudio myStudio = myStudioRepository.findFirstByMusicianId(musicianId)
         .orElseThrow(() -> new BusinessException(MY_STUDIO_NOT_FOUND));
 
-    return MusicianProfileResponse.builder()
-        .musicianId(String.valueOf(musician.getId()))
-        .phone(musician.getPhoneNumber())
-        .nickname(musician.getNickname())
-        .musicianInstrument(InstrumentSimpleInfo.from(musician.getInstrument()))
-        .snsAccount(socialAccount.getProvider())
-        .myStudio(MyStudioInfo.from(myStudio))
-        .build();
+    return musicianAssembler.toMusicianProfileResponse(musician, socialAccount, myStudio);
   }
 
   @Transactional
