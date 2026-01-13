@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.withdrawal.presentation.dto.request.RegisterMusicianWithdrawalRequest;
@@ -64,7 +65,7 @@ public interface MusicianWithdrawalControllerDocs {
   @PostMapping
   ApiResponse<Void> register(
       @Parameter(hidden = true)
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestBody RegisterMusicianWithdrawalRequest request
   );
 }

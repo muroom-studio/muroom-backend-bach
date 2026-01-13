@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.report.presentation;
 
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.report.application.ReportService;
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -30,20 +30,20 @@ public class ReportController implements ReportControllerDocs {
 
   private final ReportService reportService;
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @GetMapping
   public ApiResponse<PaginatedData<ReportsResponse>> getMyReports(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   ) {
     return ApiResponse.success(
         PaginatedData.from(reportService.getMyReports(musicianId, pageable)));
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @GetMapping("/search")
   public ApiResponse<PaginatedData<SearchReportResponse>> searchReport(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestParam(required = false) String keyword,
       @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   ) {
@@ -52,10 +52,10 @@ public class ReportController implements ReportControllerDocs {
     return ApiResponse.success(PaginatedData.from(responses));
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @PatchMapping("/{reportId}")
   public ApiResponse<Void> updateMyReport(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @PathVariable Long reportId,
       @RequestBody UpdateReportRequest request
   ) {
@@ -63,10 +63,10 @@ public class ReportController implements ReportControllerDocs {
     return ApiResponse.success();
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @DeleteMapping("/{reportId}")
   public ApiResponse<Void> deleteMyReport(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @PathVariable Long reportId
   ) {
     reportService.deleteMyReport(musicianId, reportId);

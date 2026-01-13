@@ -13,11 +13,13 @@ import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
-import kr.muroom.muroombackendbach.musician.exception.UserErrorCode;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
 import kr.muroom.muroombackendbach.owner.exception.OwnerErrorCode;
+import kr.muroom.muroombackendbach.owner.presentation.assembler.OwnerAssembler;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
+import kr.muroom.muroombackendbach.owner.presentation.dto.request.UpdateOwnerProfileRequest;
+import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerProfileResponse;
 import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerSignupResponse;
 import kr.muroom.muroombackendbach.terms.domain.entity.OwnerAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
@@ -41,6 +43,7 @@ public class OwnerService {
   private final RefreshTokenService refreshTokenService;
   private final TermRepository termRepository;
   private final OwnerAgreementRepository ownerAgreementRepository;
+  private final OwnerAssembler ownerAssembler;
 
   /**
    * Owner 회원가입
@@ -156,12 +159,13 @@ public class OwnerService {
    * Access / Refresh 토큰 발급
    */
   private OwnerSignupResponse issueTokens(Long ownerId) {
-    String accessToken = jwtTokenProvider.createAccessToken(ownerId);
-    JwtTokenProvider.RefreshIssue refreshIssue = jwtTokenProvider.createRefreshToken(ownerId);
-
-    refreshTokenService.save(ownerId, refreshIssue.jti(), refreshIssue.expiresAt());
-
-    return new OwnerSignupResponse(accessToken, refreshIssue.token(), String.valueOf(ownerId));
+//    String accessToken = jwtTokenProvider.createAccessToken(ownerId);
+//    JwtTokenProvider.RefreshIssue refreshIssue = jwtTokenProvider.createRefreshToken(ownerId);
+//
+//    refreshTokenService.save(ownerId, refreshIssue.jti(), refreshIssue.expiresAt());
+//
+//    return new OwnerSignupResponse(accessToken, refreshIssue.token(), String.valueOf(ownerId));
+    return null;
   }
 
   public void isNicknameAvailable(String nickname) {
@@ -178,10 +182,14 @@ public class OwnerService {
     }
   }
 
-  public void getMyProfile(Long ownerId) {
+  public OwnerProfileResponse getMyProfile(Long ownerId) {
     Owner owner = ownerRepository.findById(ownerId)
         .orElseThrow(() -> new BusinessException(OwnerErrorCode.OWNER_NOT_FOUND));
 
+    return ownerAssembler.toOwnerProfileResponse(owner);
   }
 
+  public void updateMyProfile(Long ownerId, UpdateOwnerProfileRequest request) {
+
+  }
 }

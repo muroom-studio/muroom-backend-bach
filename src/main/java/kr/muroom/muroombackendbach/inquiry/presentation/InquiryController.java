@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.inquiry.presentation;
 
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,20 +40,20 @@ public class InquiryController implements InquiryControllerDocs {
     return ApiResponse.success(response);
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @GetMapping("/my")
   public ApiResponse<PaginatedData<InquiryAllResponse>> getMyInquiry(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   ) {
     return ApiResponse.success(
         PaginatedData.from(inquiryService.getAllMyInquiry(musicianId, pageable)));
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @GetMapping("/search")
   public ApiResponse<PaginatedData<SearchInquiryResponse>> searchInquiry(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestParam(required = false) String keyword,
       @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
   ) {
@@ -62,20 +62,20 @@ public class InquiryController implements InquiryControllerDocs {
     return ApiResponse.success(PaginatedData.from(responses));
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @PostMapping
   public ApiResponse<Void> registerInquiry(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @Validated @RequestBody RegisterInquiryRequest request
   ) {
     inquiryService.registerInquiry(musicianId, request);
     return ApiResponse.success();
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @GetMapping("/{inquiryId}")
   public ApiResponse<InquiryResponse> getInquiry(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @PathVariable Long inquiryId
   ) {
     return ApiResponse.success(inquiryService.getInquiry(musicianId, inquiryId));

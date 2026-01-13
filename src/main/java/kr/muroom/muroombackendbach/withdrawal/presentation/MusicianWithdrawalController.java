@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.withdrawal.presentation;
 
 import jakarta.validation.Valid;
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.withdrawal.application.MusicianWithdrawalService;
 import kr.muroom.muroombackendbach.withdrawal.presentation.docs.MusicianWithdrawalControllerDocs;
@@ -20,10 +21,10 @@ public class MusicianWithdrawalController implements MusicianWithdrawalControlle
 
   private final MusicianWithdrawalService musicianWithdrawalService;
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @PostMapping
   public ApiResponse<Void> register(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @Valid @RequestBody RegisterMusicianWithdrawalRequest request) {
     musicianWithdrawalService.register(musicianId, request);
     return ApiResponse.success();

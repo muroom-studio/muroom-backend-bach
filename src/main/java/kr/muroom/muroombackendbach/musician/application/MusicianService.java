@@ -77,22 +77,13 @@ public class MusicianService {
     // 1. 이름/전화번호로 기존 뮤지션 조회, 없으면 신규 생성
     Musician musician = findOrRegisterMusician(request, phone);
 
-    // 2. 토큰 발급
-    Long musicianId = musician.getId();
-    String accessToken = jwtTokenProvider.createAccessToken(musicianId);
-    RefreshIssue refreshToken = jwtTokenProvider.createRefreshToken(musicianId);
-
     // 3. 소셜 계정 연결 (이미 연결되어 있으면 아무 작업 안 함)
     linkSocialAccountIfNecessary(musician, provider, providerUserId);
-
-    // 3 Redis 토큰 저장
-    refreshTokenService.save(musicianId, refreshToken.jti(), refreshToken.expiresAt());
 
     // 4. 나의 작업실 생성
     createMyStudio(request, musician);
 
-    return new MusicianSignupResponse(accessToken, refreshToken.token(),
-        String.valueOf(musicianId));
+    return new MusicianSignupResponse(String.valueOf(musician.getId()));
   }
 
   /**

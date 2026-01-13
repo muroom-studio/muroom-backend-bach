@@ -37,9 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
       if (musicianRepository.existsById(musicianId)) {
         UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken(
-                musicianId,
-                null,
+            new UsernamePasswordAuthenticationToken(musicianId, null,
                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
             );
 

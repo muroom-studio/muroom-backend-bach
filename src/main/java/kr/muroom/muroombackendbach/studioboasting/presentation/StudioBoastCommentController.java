@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation;
 
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.report.application.ReportService;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,10 +38,10 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
 
   @Override
   @PostMapping
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<String> createComment(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @Validated @RequestBody CreateStudioBoastCommentRequest request
   ) {
     Long commentId = studioBoastCommentService.createComment(studioBoastId, musicianId, request);
@@ -50,10 +50,10 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
 
   @Override
   @GetMapping
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<PaginatedData<StudioBoastCommentResponse>> getComments(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size
   ) {
@@ -66,10 +66,10 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
 
   @Override
   @PutMapping("/{commentId}")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<Void> updateComment(
       @PathVariable Long commentId,
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @Validated @RequestBody UpdateStudioBoastCommentRequest request
   ) {
     studioBoastCommentService.updateComment(commentId, request, musicianId);
@@ -78,40 +78,40 @@ public class StudioBoastCommentController implements StudioBoastCommentControlle
 
   @Override
   @DeleteMapping("/{commentId}")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<Void> deleteComment(
       @PathVariable Long commentId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     studioBoastCommentService.deleteComment(commentId, musicianId);
     return ApiResponse.deleted();
   }
 
   @PostMapping("/{commentId}/likes")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<Void> likeComment(
       @PathVariable Long commentId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     studioBoastCommentService.likeComment(commentId, musicianId);
     return ApiResponse.success();
   }
 
   @DeleteMapping("/{commentId}/likes")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<Void> unlikeComment(
       @PathVariable Long commentId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     studioBoastCommentService.unlikeComment(commentId, musicianId);
     return ApiResponse.success();
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @PostMapping("/{commentId}/report")
   public ApiResponse<Void> reportComment(
       @PathVariable Long commentId,
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestBody RegisterReportRequest request) {
     reportService.registerReport(ReportDomainType.STUDIO_BOAST_COMMENT, commentId,
         musicianId, request);

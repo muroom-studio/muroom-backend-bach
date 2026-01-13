@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
@@ -95,7 +96,7 @@ public interface StudioBoastControllerDocs {
   @PostMapping
   ApiResponse<String> createStudioBoast(
       @Validated @RequestBody CreateStudioBoastRequest request,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 
   @Operation(
@@ -197,7 +198,7 @@ public interface StudioBoastControllerDocs {
   ApiResponse<String> updateStudioBoast(
       @PathVariable Long studioBoastId,
       @Validated @RequestBody UpdateStudioBoastRequest request,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 
   @Operation(
@@ -230,7 +231,7 @@ public interface StudioBoastControllerDocs {
   })
   @GetMapping("/{studioBoastId}")
   ApiResponse<StudioBoastDetailResponse> getStudioBoastDetail(
-      @PathVariable Long studioBoastId, @AuthenticationPrincipal Long musicianId
+      @PathVariable Long studioBoastId, @CurrentUserId Long musicianId
   );
 
   @Operation(summary = "작업실 소개(자랑) 게시글 목록 페이지네이션 조회",
@@ -238,8 +239,9 @@ public interface StudioBoastControllerDocs {
       parameters = {
           @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
           @Parameter(name = "size", description = "페이지 당 항목 수. 생략 시 기본값은 2입니다.", example = "2"),
-          @Parameter(name = "sort", description = "정렬 기준 (예: 'likes,desc', 'latest,desc', 'random'). 생략 시 "
-              + "기본값은 'latest,desc' (최신순) 입니다.",
+          @Parameter(name = "sort", description =
+              "정렬 기준 (예: 'likes,desc', 'latest,desc', 'random'). 생략 시 "
+                  + "기본값은 'latest,desc' (최신순) 입니다.",
               example = "likes,desc")
       }
   )
@@ -248,7 +250,7 @@ public interface StudioBoastControllerDocs {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "2") int size,
       @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 
   @Operation(summary = "작업실 자랑 간단 정보 목록 페이지네이션 조회",
@@ -308,7 +310,7 @@ public interface StudioBoastControllerDocs {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "2") int size,
       @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 
   @Operation(
@@ -365,7 +367,7 @@ public interface StudioBoastControllerDocs {
   @SecurityRequirement(name = "Authentication")
   ApiResponse<Void> deleteStudioBoast(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 
   @Operation(
@@ -478,7 +480,7 @@ public interface StudioBoastControllerDocs {
   @SecurityRequirement(name = "Authentication")
   ApiResponse<Void> reportStudioBoast(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestBody RegisterReportRequest request
   );
 
@@ -514,7 +516,7 @@ public interface StudioBoastControllerDocs {
   @PostMapping("/{studioBoastId}/likes")
   ApiResponse<Void> likeStudioBoast(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 
   @Operation(
@@ -549,6 +551,6 @@ public interface StudioBoastControllerDocs {
   @DeleteMapping("/{studioBoastId}/likes")
   ApiResponse<Void> unlikeStudioBoast(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 }

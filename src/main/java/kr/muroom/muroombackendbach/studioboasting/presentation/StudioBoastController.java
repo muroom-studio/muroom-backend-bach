@@ -1,5 +1,6 @@
 package kr.muroom.muroombackendbach.studioboasting.presentation;
 
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +44,7 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   private final static String SORT_KEY_RANDOM = "random";
 
   @PostMapping("/presigned-url")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<GeneratePresignedPutUrlResponse> generateStudioBoastImagePresignedUrls(
       @Validated @RequestBody StudioBoastImageUploadRequest request) {
     GeneratePresignedPutUrlResponse response =
@@ -54,10 +54,10 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   }
 
   @PostMapping
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<String> createStudioBoast(
       @Validated @RequestBody CreateStudioBoastRequest request,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     Long newStudioBoastId = studioBoastService.createStudioBoast(request, musicianId);
     String response = String.valueOf(newStudioBoastId);
@@ -65,11 +65,11 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   }
 
   @PutMapping("/{studioBoastId}")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<String> updateStudioBoast(
       @PathVariable Long studioBoastId,
       @Validated @RequestBody UpdateStudioBoastRequest request,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     Long updatedStudioBoastId = studioBoastService.updateStudioBoast(studioBoastId, request,
         musicianId);
@@ -79,7 +79,7 @@ public class StudioBoastController implements StudioBoastControllerDocs {
 
   @GetMapping("/{studioBoastId}")
   public ApiResponse<StudioBoastDetailResponse> getStudioBoastDetail(
-      @PathVariable Long studioBoastId, @AuthenticationPrincipal Long musicianId
+      @PathVariable Long studioBoastId, @CurrentUserId Long musicianId
   ) {
     StudioBoastDetailResponse response = studioBoastService.getStudioBoastDetail(studioBoastId,
         musicianId);
@@ -91,13 +91,14 @@ public class StudioBoastController implements StudioBoastControllerDocs {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "2") int size,
       @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     String sortKey = sort.split(",")[0];
 
     if (SORT_KEY_RANDOM.equalsIgnoreCase(sortKey)) {
       Pageable pageable = PageRequest.of(page, size);
-      Page<StudioBoastDetailResponse> response = studioBoastService.getRandomDetailedStudioBoasts(pageable, musicianId);
+      Page<StudioBoastDetailResponse> response = studioBoastService.getRandomDetailedStudioBoasts(
+          pageable, musicianId);
       return ApiResponse.success(PaginatedData.from(response));
     }
 
@@ -108,12 +109,12 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   }
 
   @GetMapping("/my")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<PaginatedData<StudioBoastDetailResponse>> getMyDetailedStudioBoasts(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "2") int size,
       @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     Pageable pageable = buildStudioBoastPageable(page, size, sort);
     Page<StudioBoastDetailResponse> response = studioBoastService.getMyStudioBoasts(pageable,
@@ -133,20 +134,20 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   }
 
   @DeleteMapping("/{studioBoastId}")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<Void> deleteStudioBoast(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     studioBoastService.deleteStudioBoast(studioBoastId, musicianId);
     return ApiResponse.deleted();
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @PostMapping("/{studioBoastId}/report")
   public ApiResponse<Void> reportStudioBoast(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestBody RegisterReportRequest request) {
     reportService.registerReport(ReportDomainType.STUDIO_BOAST, studioBoastId, musicianId, request);
     return ApiResponse.success();
@@ -168,20 +169,20 @@ public class StudioBoastController implements StudioBoastControllerDocs {
   }
 
   @PostMapping("/{studioBoastId}/likes")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<Void> likeStudioBoast(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     studioBoastLikeService.likeStudioBoast(studioBoastId, musicianId);
     return ApiResponse.success();
   }
 
   @DeleteMapping("/{studioBoastId}/likes")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   public ApiResponse<Void> unlikeStudioBoast(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     studioBoastLikeService.unlikeStudioBoast(studioBoastId, musicianId);
     return ApiResponse.success();

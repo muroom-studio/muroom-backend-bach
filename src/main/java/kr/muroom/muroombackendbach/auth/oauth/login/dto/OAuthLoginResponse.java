@@ -11,19 +11,6 @@ public record OAuthLoginResponse(
     ResultType type,
 
     @Schema(
-        description = "엑세스 토큰 (로그인 성공 시에만 반환)",
-        example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        nullable = true
-    )
-    String accessToken,
-
-    @Schema(
-        description = "리프레쉬 토큰 (로그인 성공 시에만 반환)",
-        nullable = true
-    )
-    String refreshToken,
-
-    @Schema(
         description = "회원가입 진행을 위한 임시 토큰 (회원가입 필요 시에만 반환)",
         example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         nullable = true
@@ -54,15 +41,13 @@ public record OAuthLoginResponse(
   }
 
   // 로그인 성공용 팩토리 메서드
-  public static OAuthLoginResponse login(String accessToken, String refreshToken, String userId,
+  public static OAuthLoginResponse login(String userId,
       OAuthProvider provider) {
-    return new OAuthLoginResponse(ResultType.LOGIN, accessToken, refreshToken, null, userId,
-        provider);
+    return new OAuthLoginResponse(ResultType.LOGIN, null, userId, provider);
   }
 
   // 회원가입 필요용 팩토리 메서드
   public static OAuthLoginResponse signupRequired(String signupToken, OAuthProvider provider) {
-    return new OAuthLoginResponse(ResultType.SIGNUP_REQUIRED, null, null, signupToken, null,
-        provider);
+    return new OAuthLoginResponse(ResultType.SIGNUP_REQUIRED, signupToken, null, provider);
   }
 }

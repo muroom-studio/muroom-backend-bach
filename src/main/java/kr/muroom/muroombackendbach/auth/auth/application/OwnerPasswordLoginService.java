@@ -2,6 +2,7 @@ package kr.muroom.muroombackendbach.auth.auth.application;
 
 import static kr.muroom.muroombackendbach.auth.auth.exception.AuthErrorCode.*;
 
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.UserType;
 import kr.muroom.muroombackendbach.auth.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.auth.auth.presentation.dto.request.OwnerLoginRequest;
 import kr.muroom.muroombackendbach.auth.auth.presentation.dto.response.OwnerLoginResponse;
@@ -43,8 +44,9 @@ public class OwnerPasswordLoginService {
     Long ownerId = ownerPrincipal.getOwnerId();
 
     // access/refresh 발급 + redis 저장 (OAuth와 동일 패턴)
-    String accessToken = jwtTokenProvider.createAccessToken(ownerId);
-    JwtTokenProvider.RefreshIssue refreshIssue = jwtTokenProvider.createRefreshToken(ownerId);
+    String accessToken = jwtTokenProvider.createAccessToken(UserType.OWNER, ownerId);
+    JwtTokenProvider.RefreshIssue refreshIssue = jwtTokenProvider.createRefreshToken(UserType.OWNER,
+        ownerId);
 
     refreshTokenService.save(ownerId, refreshIssue.jti(), refreshIssue.expiresAt());
 
