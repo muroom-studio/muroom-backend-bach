@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.auth.presentation.dto.request.LogoutRequest;
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
@@ -22,15 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "musician auth - 뮤지션 인증 API")
 public interface MusicianAuthControllerDocs {
-
-  @Operation(
-      summary = "뮤지션 로그인",
-      description = "인가 코드를 기반으로 소셜 로그인을 시도합니다."
-  )
-  ApiResponse<OAuthLoginResponse> oauthLogin(
-      @Valid @RequestBody OAuthLoginRequest request,
-      @RequestHeader(value = "Origin") String origin
-  );
 
   @Operation(
       summary = "뮤지션 로그인 (Swagger 테스트용 - Kakao)",
@@ -51,7 +45,9 @@ public interface MusicianAuthControllerDocs {
           description = "OAuth redirect_uri의 origin 값",
           example = "http://localhost:3001"
       )
-      @RequestParam String origin
+      @RequestParam String origin,
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse
   );
 
   @Operation(
@@ -73,7 +69,9 @@ public interface MusicianAuthControllerDocs {
           description = "OAuth redirect_uri의 origin 값",
           example = "http://localhost:3001"
       )
-      @RequestParam String origin
+      @RequestParam String origin,
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse
   );
 
   @Operation(
@@ -108,14 +106,14 @@ public interface MusicianAuthControllerDocs {
                       """,
                   description = """
                       - 전달된 Refresh Token의 소유자(musicianId)와
-                        현재 인증된 사용자(@AuthenticationPrincipal)의 musicianId가 다른 경우
+                        현재 인증된 사용자(@CurrentUserId)의 musicianId가 다른 경우
                       """
               )
           )
       )
   })
   ApiResponse<Void> logout(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestBody(required = false) LogoutRequest request
   );
 

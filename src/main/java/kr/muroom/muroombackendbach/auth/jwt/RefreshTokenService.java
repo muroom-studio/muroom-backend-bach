@@ -10,6 +10,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Set;
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.UserType;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -46,10 +47,10 @@ public class RefreshTokenService {
     redisTemplate.expire(userSetKey, Duration.ofMillis(ttlMs));
   }
 
-  public boolean isValid(Long musicianId, String jti) {
+  public boolean isValid(UserType userType, Long userId, String jti) {
     String jtiKey = REFRESH_JTI_KEY_PREFIX + jti;
     String stored = redisTemplate.opsForValue().get(jtiKey);
-    return stored != null && stored.equals(String.valueOf(musicianId));
+    return stored != null && stored.equals(String.valueOf(userId));
   }
 
   public void revoke(Long musicianId, String jti) {
@@ -98,20 +99,20 @@ public class RefreshTokenService {
     }
 
     // Redis에 없는 jti면: 이미 폐기된 토큰(재사용 시도) or TTL 만료
-    if (!isValid(payload.musicianId(), payload.jti())) {
+    if (!isValid(payload.userType(), payload.userId(), payload.jti())) {
       throw new BusinessException(REUSED_REFRESH_TOKEN);
     }
 
     // rotation: 기존 refresh 폐기
-    revoke(payload.musicianId(), payload.jti());
+    revoke(payload.userId(), payload.jti());
 
     // 새 토큰 발급
-    String newAccess = jwtTokenProvider.createAccessToken(payload.musicianId());
+    String newAccess = jwtTokenProvider.createAccessToken(payload.userType(), payload.userId());
     RefreshIssue newRefresh = jwtTokenProvider.createRefreshToken(
-        payload.musicianId());
+        payload.userType(), payload.userId());
 
     // 새 refresh 저장
-    save(payload.musicianId(), newRefresh.jti(), newRefresh.expiresAt());
+    save(payload.userId(), newRefresh.jti(), newRefresh.expiresAt());
 
     return new TokenPair(newAccess, newRefresh.token());
   }

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
@@ -38,7 +39,7 @@ public interface MusicianControllerDocs {
   )
   @SecurityRequirement(name = "Authentication")
   ApiResponse<MusicianSimpleProfileResponse> getMySimpleProfile(
-      @AuthenticationPrincipal Long musicianId
+      Long musicianId
   );
 
   @Operation(
@@ -113,7 +114,7 @@ public interface MusicianControllerDocs {
       )
   })
   ApiResponse<MusicianProfileResponse> getMyProfile(
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 
   @SecurityRequirement(name = "Authentication")
@@ -180,7 +181,7 @@ public interface MusicianControllerDocs {
       )
   })
   ApiResponse<Void> updateMyProfile(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestBody UpdateMusicianProfileRequest request
   );
 

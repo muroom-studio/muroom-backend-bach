@@ -1,13 +1,19 @@
 package kr.muroom.muroombackendbach.auth.auth.presentation;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.UserType;
 import kr.muroom.muroombackendbach.auth.auth.presentation.docs.MusicianAuthControllerDocs;
 import kr.muroom.muroombackendbach.auth.auth.presentation.dto.request.LogoutRequest;
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;
 import kr.muroom.muroombackendbach.auth.oauth.login.application.OAuthLoginService;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
+import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse.ResultType;
+import kr.muroom.muroombackendbach.auth.session.SessionAuthService;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,35 +34,59 @@ public class MusicianAuthController implements MusicianAuthControllerDocs {
 
   private final OAuthLoginService oAuthLoginService;
   private final RefreshTokenService refreshTokenService;
+  private final SessionAuthService sessionAuthService;
 
   @PostMapping("/login")
   public ApiResponse<OAuthLoginResponse> oauthLogin(
       @Valid @RequestBody OAuthLoginRequest request,
-      @RequestHeader(value = "Origin") String origin
+      @RequestHeader(value = "Origin") String origin, HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse
   ) {
-    return ApiResponse.success(oAuthLoginService.login(request, origin));
+    OAuthLoginResponse response = oAuthLoginService.login(request, origin);
+
+    if (response.type() == ResultType.LOGIN) {
+      sessionAuthService.login(httpRequest, httpResponse, UserType.MUSICIAN,
+          Long.valueOf(response.userId()));
+    }
+
+    return ApiResponse.success(response);
   }
 
   @PostMapping("/login/kakao/swagger")
   public ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByKakao(
-      @Valid @RequestBody OAuthLoginRequest request,
-      @RequestParam String origin
+      @Valid @RequestBody OAuthLoginRequest request, @RequestParam String origin,
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse
   ) {
-    return ApiResponse.success(oAuthLoginService.login(request, origin));
+    OAuthLoginResponse response = oAuthLoginService.login(request, origin);
+
+    if (response.type() == ResultType.LOGIN) {
+      sessionAuthService.login(httpRequest, httpResponse, UserType.MUSICIAN,
+          Long.valueOf(response.userId()));
+    }
+
+    return ApiResponse.success(response);
   }
 
   @PostMapping("/login/google/swagger")
   public ApiResponse<OAuthLoginResponse> oauthLoginForSwaggerByGoogle(
       @Valid @RequestBody OAuthLoginRequest request,
-      @RequestParam String origin
+      @RequestParam String origin, HttpServletRequest httpRequest, HttpServletResponse httpResponse
   ) {
-    return ApiResponse.success(oAuthLoginService.login(request, origin));
+    OAuthLoginResponse response = oAuthLoginService.login(request, origin);
+
+    if (response.type() == ResultType.LOGIN) {
+      sessionAuthService.login(httpRequest, httpResponse, UserType.MUSICIAN,
+          Long.valueOf(response.userId()));
+    }
+
+    return ApiResponse.success(response);
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @PostMapping("/logout")
   public ApiResponse<Void> logout(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @RequestBody(required = false) LogoutRequest request
   ) {
     String refreshToken = request != null ? request.refreshToken() : null;

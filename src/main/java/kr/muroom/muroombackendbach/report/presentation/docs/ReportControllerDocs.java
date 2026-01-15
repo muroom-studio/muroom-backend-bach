@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.report.presentation.dto.request.UpdateReportRequest;
@@ -342,7 +343,7 @@ public interface ReportControllerDocs {
   @PatchMapping("/{reportId}")
   ApiResponse<Void> updateMyReport(
       @Parameter(hidden = true)
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
 
       @Parameter(description = "수정할 신고 ID", example = "123")
       @PathVariable Long reportId,

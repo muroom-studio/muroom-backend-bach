@@ -17,6 +17,7 @@ import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthClientService;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthTokenResult;
+import kr.muroom.muroombackendbach.auth.session.SessionAuthService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;
@@ -67,16 +68,12 @@ public class OAuthLoginService {
 
     var payload = jwtTokenProvider.parseRefreshToken(refreshToken);
 
-    if (!payload.musicianId().equals(musicianId)) {
+    if (!payload.userId().equals(musicianId)) {
       throw new BusinessException(MISMATCH_REFRESH_TOKEN_OWNER);
     }
 
     // Redis Refresh Token 삭제
     refreshTokenService.revoke(musicianId, payload.jti());
-  }
-
-  public void logoutAll(Long musicianId) {
-    refreshTokenService.revokeAll(musicianId);
   }
 
   /**
@@ -89,14 +86,7 @@ public class OAuthLoginService {
         .map(Musician::getId)
         .orElseThrow(() -> new BusinessException(MUSICIAN_NOT_FOUND));
 
-    // Jwt 토큰 발급
-    String accessToken = jwtTokenProvider.createAccessToken(userId);
-    JwtTokenProvider.RefreshIssue refreshIssue = jwtTokenProvider.createRefreshToken(userId);
-
-    // refresh redis 저장
-    refreshTokenService.save(userId, refreshIssue.jti(), refreshIssue.expiresAt());
-
-    return OAuthLoginResponse.login(accessToken, refreshIssue.token(), String.valueOf(userId),
+    return OAuthLoginResponse.login(String.valueOf(userId),
         socialAccount.getProvider());
   }
 

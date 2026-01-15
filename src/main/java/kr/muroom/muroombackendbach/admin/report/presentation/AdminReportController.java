@@ -22,7 +22,6 @@ public class AdminReportController {
 
   private final ReportReplyService reportReplyService;
 
-  @PreAuthorize("isAuthenticated()")
   @PostMapping("/{reportId}/reply")
   public ApiResponse<Void> registerReportReply(
       @PathVariable Long reportId,

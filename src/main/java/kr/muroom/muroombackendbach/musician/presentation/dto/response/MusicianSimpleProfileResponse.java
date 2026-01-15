@@ -24,11 +24,5 @@ public record MusicianSimpleProfileResponse(
       String description
   ) {
 
-    public static InstrumentSimpleInfo from(Instrument instrument) {
-      return InstrumentSimpleInfo.builder()
-          .code(instrument.getCode())
-          .description(instrument.getDescription())
-          .build();
-    }
   }
 }

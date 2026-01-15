@@ -11,6 +11,7 @@ import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import java.util.UUID;
 import javax.crypto.SecretKey;
+import kr.muroom.muroombackendbach.auth.auth.domain.entity.UserType;
 import kr.muroom.muroombackendbach.auth.jwt.exception.JwtErrorCode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
@@ -46,10 +47,11 @@ public class JwtTokenProvider {
   /**
    * 로그인 후 사용하는 accessToken (musicianId 기반)
    */
-  public String createAccessToken(Long musicianId) {
+  public String createAccessToken(UserType userType, Long actorId) {
     Claims claims = Jwts.claims()
-        .subject(String.valueOf(musicianId))
+        .subject(String.valueOf(actorId))
         .add("type", "ACCESS")
+        .add("userType", userType.name())
         .build();
 
     return buildToken(claims, accessExpirationMs);
@@ -59,12 +61,13 @@ public class JwtTokenProvider {
    * refreshToken 생성 - jti: refresh 토큰 식별자(저장소 키로 사용) - (권장) refresh는 서버 저장소에 jti를 저장/회전시켜야 진짜 의미가
    * 생김
    */
-  public RefreshIssue createRefreshToken(Long musicianId) {
+  public RefreshIssue createRefreshToken(UserType userType, Long actorId) {
     String jti = UUID.randomUUID().toString();
 
     Claims claims = Jwts.claims()
-        .subject(String.valueOf(musicianId))
+        .subject(String.valueOf(actorId))
         .add("type", "REFRESH")
+        .add("userType", userType.name())
         .add("jti", jti)
         .build();
 
@@ -150,7 +153,7 @@ public class JwtTokenProvider {
       throw new JwtException("Missing refresh claims");
     }
 
-    return new RefreshPayload(Long.valueOf(sub), jti);
+    return new RefreshPayload(UserType.MUSICIAN, Long.valueOf(sub), jti);
   }
 
   /**
@@ -243,7 +246,7 @@ public class JwtTokenProvider {
   /**
    * refreshToken에서 꺼낸 값 전달용
    */
-  public record RefreshPayload(Long musicianId, String jti) {
+  public record RefreshPayload(UserType userType, Long userId, String jti) {
 
   }
 

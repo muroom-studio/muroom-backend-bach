@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.request.CreateStudioBoastCommentRequest;
@@ -39,11 +40,12 @@ public interface StudioBoastCommentControllerDocs {
   @PostMapping
   ApiResponse<String> createComment(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @Validated @RequestBody CreateStudioBoastCommentRequest request
   );
 
-  @Operation(summary = "댓글 목록 페이지네이션 조회", description = "지정된 작업실 자랑 게시글의 댓글 목록을 페이지네이션하여 조회합니다. (최신순 고정)")
+  @Operation(summary = "댓글 목록 페이지네이션 조회", description = "지정된 작업실 자랑 게시글의 댓글 목록을 페이지네이션하여 조회합니다. "
+      + "(최신순 고정)")
   @ApiResponses(value = {
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
           responseCode = "200", description = "댓글 목록 페이지네이션 조회 성공"),
@@ -54,7 +56,7 @@ public interface StudioBoastCommentControllerDocs {
   @GetMapping
   ApiResponse<PaginatedData<StudioBoastCommentResponse>> getComments(
       @PathVariable Long studioBoastId,
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") @RequestParam(defaultValue = "0") int page,
       @Parameter(description = "페이지 당 항목 수", example = "10") @RequestParam(defaultValue = "10") int size
   );
@@ -70,7 +72,7 @@ public interface StudioBoastCommentControllerDocs {
   @PutMapping("/{commentId}")
   ApiResponse<Void> updateComment(
       @PathVariable Long commentId,
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @Validated @RequestBody UpdateStudioBoastCommentRequest request
   );
 
@@ -85,7 +87,7 @@ public interface StudioBoastCommentControllerDocs {
   @DeleteMapping("/{commentId}")
   ApiResponse<Void> deleteComment(
       @PathVariable Long commentId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 
   @Operation(summary = "댓글 좋아요", description = "지정된 댓글에 '좋아요'를 누릅니다.")
@@ -93,13 +95,14 @@ public interface StudioBoastCommentControllerDocs {
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
           responseCode = "200", description = "댓글 좋아요 성공"),
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "404", description = "- `SB-404-11`: 해당 작업실 소개(자랑)글의 댓글을 찾을 수 없습니다. (댓글 조회 권한이 없는 경우 포함)")
+          responseCode = "404", description = "- `SB-404-11`: 해당 작업실 소개(자랑)글의 댓글을 찾을 수 없습니다. (댓글 "
+          + "조회 권한이 없는 경우 포함)")
   })
   @SecurityRequirement(name = "Authentication")
   @PostMapping("/{commentId}/likes")
   ApiResponse<Void> likeComment(
       @PathVariable Long commentId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 
   @Operation(summary = "댓글 좋아요 취소", description = "지정된 댓글의 '좋아요'를 취소합니다.")
@@ -107,12 +110,13 @@ public interface StudioBoastCommentControllerDocs {
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
           responseCode = "200", description = "댓글 좋아요 취소 성공"),
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "404", description = "- `SB-404-11`: 해당 작업실 소개(자랑)글의 댓글을 찾을 수 없습니다. (댓글 조회 권한이 없는 경우 포함)")
+          responseCode = "404", description = "- `SB-404-11`: 해당 작업실 소개(자랑)글의 댓글을 찾을 수 없습니다. (댓글 "
+          + "조회 권한이 없는 경우 포함)")
   })
   @SecurityRequirement(name = "Authentication")
   @DeleteMapping("/{commentId}/likes")
   ApiResponse<Void> unlikeComment(
       @PathVariable Long commentId,
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   );
 }

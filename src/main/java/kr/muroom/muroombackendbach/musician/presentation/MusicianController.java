@@ -1,12 +1,12 @@
 package kr.muroom.muroombackendbach.musician.presentation;
 
 import jakarta.validation.Valid;
+import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.musician.application.MusicianService;
 import kr.muroom.muroombackendbach.musician.presentation.docs.MusicianControllerDocs;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
-import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianNicknameCheckResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
@@ -38,27 +38,27 @@ public class MusicianController implements MusicianControllerDocs {
     return ApiResponse.created(response);
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @GetMapping("/me")
   public ApiResponse<MusicianSimpleProfileResponse> getMySimpleProfile(
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     MusicianSimpleProfileResponse response = musicianService.getMusicianSimpleProfile(musicianId);
     return ApiResponse.success(response);
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @GetMapping("/me/detail")
   public ApiResponse<MusicianProfileResponse> getMyProfile(
-      @AuthenticationPrincipal Long musicianId
+      @CurrentUserId Long musicianId
   ) {
     return ApiResponse.success(musicianService.getMusicianProfile(musicianId));
   }
 
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasRole('MUSICIAN')")
   @PatchMapping("/me/detail")
   public ApiResponse<Void> updateMyProfile(
-      @AuthenticationPrincipal Long musicianId,
+      @CurrentUserId Long musicianId,
       @Valid @RequestBody UpdateMusicianProfileRequest request
   ) {
     musicianService.updateMyProfile(musicianId, request);
