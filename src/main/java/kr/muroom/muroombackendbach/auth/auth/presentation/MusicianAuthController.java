@@ -7,8 +7,6 @@ import kr.muroom.muroombackendbach.auth.auth.domain.entity.UserType;
 import kr.muroom.muroombackendbach.auth.auth.presentation.docs.MusicianAuthControllerDocs;
 import kr.muroom.muroombackendbach.auth.auth.presentation.dto.request.LogoutRequest;
 import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
-import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
-import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;
 import kr.muroom.muroombackendbach.auth.oauth.login.application.OAuthLoginService;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
@@ -32,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MusicianAuthController implements MusicianAuthControllerDocs {
 
   private final OAuthLoginService oAuthLoginService;
-  private final RefreshTokenService refreshTokenService;
   private final SessionAuthService sessionAuthService;
 
   @PostMapping("/login")
@@ -85,16 +82,10 @@ public class MusicianAuthController implements MusicianAuthControllerDocs {
   @PreAuthorize("hasRole('MUSICIAN')")
   @PostMapping("/logout")
   public ApiResponse<Void> logout(
-      @CurrentUserId Long musicianId,
-      @RequestBody(required = false) LogoutRequest request
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse
   ) {
-    String refreshToken = request != null ? request.refreshToken() : null;
-    oAuthLoginService.logout(musicianId, refreshToken);
+    sessionAuthService.logout(httpRequest, httpResponse);
     return ApiResponse.success();
-  }
-
-  @PostMapping("/refresh")
-  public ApiResponse<TokenPair> refresh(@RequestHeader("refreshToken") String refreshToken) {
-    return ApiResponse.success(refreshTokenService.rotate(refreshToken));
   }
 }

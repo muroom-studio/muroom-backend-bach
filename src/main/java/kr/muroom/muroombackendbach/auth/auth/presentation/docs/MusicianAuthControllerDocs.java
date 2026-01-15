@@ -13,13 +13,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.auth.presentation.dto.request.LogoutRequest;
 import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
-import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService.TokenPair;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "musician auth - 뮤지션 인증 API")
@@ -112,91 +110,6 @@ public interface MusicianAuthControllerDocs {
       )
   })
   ApiResponse<Void> logout(
-      @CurrentUserId Long musicianId,
-      @RequestBody(required = false) LogoutRequest request
-  );
-
-  @SecurityRequirement(name = "refreshToken")
-  @Operation(
-      summary = "Access Token 재발급 (Refresh Token Rotation)",
-      description =
-          """
-              Refresh Token을 이용해 Access Token을 재발급합니다.
-              
-              본 API는 **Refresh Token Rotation 방식**을 사용합니다.
-              - 요청에 사용된 Refresh Token은 즉시 폐기됩니다.
-              - 새로운 Access Token과 새로운 Refresh Token을 함께 발급합니다.
-              - 이미 사용되었거나 폐기된 Refresh Token을 다시 사용하면 요청이 거부됩니다.
-              
-              요청 헤더:
-              - refreshToken: Refresh Token 문자열
-              """
-  )
-  @ApiResponses({
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "200",
-          description = "토큰 재발급 성공 (새 Access Token + 새 Refresh Token 반환)"
-      ),
-
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(
-          responseCode = "401",
-          description = "리프레시 토큰 인증 실패",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = BusinessException.class),
-              examples = {
-
-                  @ExampleObject(
-                      name = "유효하지 않은 Refresh Token",
-                      value = """
-                          {
-                            "code": "JWT-401-01",
-                            "message": "유효하지 않은 리프레시 토큰입니다."
-                          }
-                          """,
-                      description =
-                          """
-                              - refreshToken 헤더가 없거나 빈 값인 경우
-                              - 토큰 형식이 올바르지 않은 경우
-                              - JWT 서명 검증 실패 또는 변조된 토큰
-                              """
-                  ),
-
-                  @ExampleObject(
-                      name = "만료된 Refresh Token",
-                      value = """
-                          {
-                            "code": "JWT-401-02",
-                            "message": "만료된 리프레시 토큰입니다."
-                          }
-                          """,
-                      description =
-                          """
-                              - Refresh Token의 만료 시간(exp)이 지난 경우
-                              """
-                  ),
-
-                  @ExampleObject(
-                      name = "이미 사용(폐기)된 Refresh Token",
-                      value = """
-                          {
-                            "code": "JWT-401-03",
-                            "message": "이미 사용(폐기)된 리프레시 토큰입니다."
-                          }
-                          """,
-                      description =
-                          """
-                              - 이미 rotation으로 폐기된 Refresh Token을 다시 사용한 경우
-                              - Redis에 해당 jti가 존재하지 않는 경우
-                              - 중복 요청 또는 재사용 공격으로 판단되는 경우
-                              """
-                  )
-              }
-          )
-      )
-  })
-  ApiResponse<TokenPair> refresh(
-      @Parameter(hidden = true)
-      @RequestHeader("refreshToken") String refreshToken
-  );
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse);
 }

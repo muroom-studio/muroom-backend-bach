@@ -12,7 +12,6 @@ import kr.muroom.muroombackendbach.auth.auth.domain.entity.OAuthProvider;
 import kr.muroom.muroombackendbach.auth.auth.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.auth.auth.domain.repository.SocialAccountRepository;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
-import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthClientService;
@@ -31,7 +30,6 @@ public class OAuthLoginService {
 
   private final SocialAccountRepository socialAccountRepository;
   private final JwtTokenProvider jwtTokenProvider;
-  private final RefreshTokenService refreshTokenService;
   private final List<OAuthClientService> clients;
 
   private Map<OAuthProvider, OAuthClientService> clientMap;
@@ -57,22 +55,6 @@ public class OAuthLoginService {
         .findByProviderAndProviderUserId(provider, providerUserId)
         .map(this::loginExistingUser)
         .orElseGet(() -> prepareSignup(provider, providerUserId));
-  }
-
-  @Transactional
-  public void logout(Long musicianId, String refreshToken) {
-    if (musicianId == null || refreshToken == null || refreshToken.isBlank()) {
-      return;
-    }
-
-    var payload = jwtTokenProvider.parseRefreshToken(refreshToken);
-
-    if (!payload.userId().equals(musicianId)) {
-      throw new BusinessException(MISMATCH_REFRESH_TOKEN_OWNER);
-    }
-
-    // Redis Refresh Token 삭제
-    refreshTokenService.revoke(musicianId, payload.jti());
   }
 
   /**

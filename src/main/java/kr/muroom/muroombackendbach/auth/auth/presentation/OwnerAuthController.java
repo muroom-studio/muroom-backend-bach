@@ -12,6 +12,7 @@ import kr.muroom.muroombackendbach.auth.session.SessionAuthService;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,5 +38,15 @@ public class OwnerAuthController implements OwnerAuthControllerDocs {
         Long.valueOf(response.ownerId()));
 
     return ApiResponse.success(response);
+  }
+
+  @PreAuthorize("hasRole('OWNER')")
+  @PostMapping("/logout")
+  public ApiResponse<Void> logout(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse
+  ) {
+    sessionAuthService.logout(httpRequest, httpResponse);
+    return ApiResponse.success();
   }
 }
