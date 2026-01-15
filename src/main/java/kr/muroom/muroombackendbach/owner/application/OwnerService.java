@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.PhoneVerifyPayload;
-import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
@@ -20,7 +19,7 @@ import kr.muroom.muroombackendbach.owner.presentation.assembler.OwnerAssembler;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.UpdateOwnerProfileRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerProfileResponse;
-import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerSignupResponse;
+import kr.muroom.muroombackendbach.sms.application.SmsVerificationService;
 import kr.muroom.muroombackendbach.terms.domain.entity.OwnerAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
@@ -40,7 +39,6 @@ public class OwnerService {
   private final OwnerRepository ownerRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtTokenProvider;
-  private final RefreshTokenService refreshTokenService;
   private final TermRepository termRepository;
   private final OwnerAgreementRepository ownerAgreementRepository;
   private final OwnerAssembler ownerAssembler;
@@ -52,7 +50,7 @@ public class OwnerService {
    * 5) 약관 동의 저장 6) JWT 발급
    */
   @Transactional
-  public OwnerSignupResponse registerOwner(OwnerSignupRequest request) {
+  public Long registerOwner(OwnerSignupRequest request) {
     // 1. 휴대폰 인증 토큰 검증 (여기서 인증 보장)
     PhoneVerifyPayload phoneVerifyPayload = jwtTokenProvider.parsePhoneVerifyToken(
         request.smsVerifyToken());
@@ -73,7 +71,7 @@ public class OwnerService {
     saveOwnerAgreements(savedOwner, agreedTerms);
 
     // 6. 토큰 발급
-    return issueTokens(savedOwner.getId());
+    return savedOwner.getId();
   }
 
   /**
@@ -155,19 +153,6 @@ public class OwnerService {
     ownerAgreementRepository.saveAll(agreements);
   }
 
-  /**
-   * Access / Refresh 토큰 발급
-   */
-  private OwnerSignupResponse issueTokens(Long ownerId) {
-//    String accessToken = jwtTokenProvider.createAccessToken(ownerId);
-//    JwtTokenProvider.RefreshIssue refreshIssue = jwtTokenProvider.createRefreshToken(ownerId);
-//
-//    refreshTokenService.save(ownerId, refreshIssue.jti(), refreshIssue.expiresAt());
-//
-//    return new OwnerSignupResponse(accessToken, refreshIssue.token(), String.valueOf(ownerId));
-    return null;
-  }
-
   public void isNicknameAvailable(String nickname) {
     if (ownerRepository.existsByNickname(nickname)) {
       throw new BusinessException(OwnerErrorCode.NICKNAME_ALREADY_EXISTS);
@@ -189,7 +174,22 @@ public class OwnerService {
     return ownerAssembler.toOwnerProfileResponse(owner);
   }
 
+  @Transactional
   public void updateMyProfile(Long ownerId, UpdateOwnerProfileRequest request) {
+    Owner owner = ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new BusinessException(OwnerErrorCode.OWNER_NOT_FOUND));
 
+    // 1. 닉네임 변경 (값이 있을 때만)
+    if (request.nickname() != null) {
+      owner.changeNickname(request.nickname());
+    }
+
+    // 2. 전화번호 변경 (smsVerifyToken이 있을 때만)
+    if (request.smsVerifyToken() != null) {
+      PhoneVerifyPayload phoneVerifyPayload = jwtTokenProvider.parsePhoneVerifyToken(
+          request.smsVerifyToken()
+      );
+      owner.changePhone(phoneVerifyPayload.phoneNumber());
+    }
   }
 }

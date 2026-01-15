@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.auth.config;
+package kr.muroom.muroombackendbach.auth.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

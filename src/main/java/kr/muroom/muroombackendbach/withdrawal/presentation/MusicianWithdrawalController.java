@@ -1,14 +1,13 @@
 package kr.muroom.muroombackendbach.withdrawal.presentation;
 
 import jakarta.validation.Valid;
-import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.withdrawal.application.MusicianWithdrawalService;
 import kr.muroom.muroombackendbach.withdrawal.presentation.docs.MusicianWithdrawalControllerDocs;
 import kr.muroom.muroombackendbach.withdrawal.presentation.dto.request.RegisterMusicianWithdrawalRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

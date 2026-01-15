@@ -1,18 +1,18 @@
 package kr.muroom.muroombackendbach.owner.presentation;
 
 import jakarta.validation.Valid;
-import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.owner.application.OwnerService;
 import kr.muroom.muroombackendbach.owner.presentation.docs.OwnerControllerDocs;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.UpdateOwnerProfileRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerProfileResponse;
-import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerSignupResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,11 +28,11 @@ public class OwnerController implements OwnerControllerDocs {
   private final OwnerService ownerService;
 
   @PostMapping("/register")
-  public ApiResponse<OwnerSignupResponse> registerOwner(
+  public ApiResponse<Long> registerOwner(
       @Valid @RequestBody OwnerSignupRequest request
   ) {
-    OwnerSignupResponse response = ownerService.registerOwner(request);
-    return ApiResponse.created(response);
+    Long ownerId = ownerService.registerOwner(request);
+    return ApiResponse.created(ownerId);
   }
 
   @GetMapping("/nickname/check")
@@ -54,7 +54,7 @@ public class OwnerController implements OwnerControllerDocs {
   }
 
   @PreAuthorize("hasRole('OWNER')")
-  @PostMapping("/me/detail")
+  @PatchMapping("/me/detail")
   public ApiResponse<Void> updateMyProfile(
       @CurrentUserId Long ownerId,
       @RequestBody UpdateOwnerProfileRequest request

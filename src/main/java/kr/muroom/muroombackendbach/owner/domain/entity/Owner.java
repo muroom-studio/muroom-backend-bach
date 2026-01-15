@@ -7,10 +7,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import kr.muroom.muroombackendbach.common.domain.AuditableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -70,5 +70,13 @@ public class Owner extends AuditableEntity {
 
   public boolean isActive() {
     return this.status == UserStatus.ACTIVE && this.deletedAt == null;
+  }
+
+  public void changeNickname(String nickname) {
+    this.nickname = nickname;
+  }
+
+  public void changePhone(String phone) {
+    this.phoneNumber = phone;
   }
 }

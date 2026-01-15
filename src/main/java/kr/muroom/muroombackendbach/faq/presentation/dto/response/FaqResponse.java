@@ -1,8 +1,6 @@
 package kr.muroom.muroombackendbach.faq.presentation.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.muroom.muroombackendbach.faq.domain.entity.Faq;
-import kr.muroom.muroombackendbach.faq.domain.entity.FaqCategory;
 import lombok.Builder;
 
 @Builder

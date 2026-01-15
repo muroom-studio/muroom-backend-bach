@@ -18,26 +18,21 @@ import kr.muroom.muroombackendbach.auth.auth.domain.entity.SocialAccount;
 import kr.muroom.muroombackendbach.auth.auth.domain.repository.SocialAccountRepository;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.PhoneVerifyPayload;
-import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.RefreshIssue;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.SignupPayload;
-import kr.muroom.muroombackendbach.auth.jwt.RefreshTokenService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.musician.domain.entity.MyStudio;
-import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.musician.domain.repository.MyStudioRepository;
 import kr.muroom.muroombackendbach.musician.presentation.assembler.MusicianAssembler;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse;
-import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse.MyStudioInfo;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
-import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse.InstrumentSimpleInfo;
 import kr.muroom.muroombackendbach.terms.domain.entity.MusicianAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
@@ -60,7 +55,6 @@ public class MusicianService {
   private final JwtTokenProvider jwtTokenProvider;
   private final InstrumentRepository instrumentRepository;
   private final MyStudioRepository myStudioRepository;
-  private final RefreshTokenService refreshTokenService;
   private final MusicianAssembler musicianAssembler;
 
   @Transactional
