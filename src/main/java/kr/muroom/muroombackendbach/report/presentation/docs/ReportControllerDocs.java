@@ -13,7 +13,6 @@ import kr.muroom.muroombackendbach.report.presentation.dto.request.UpdateReportR
 import kr.muroom.muroombackendbach.report.presentation.dto.response.ReportsResponse;
 import kr.muroom.muroombackendbach.report.presentation.dto.response.SearchReportResponse;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;

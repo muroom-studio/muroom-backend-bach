@@ -14,11 +14,9 @@ import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.MusicianSignupRequest;
 import kr.muroom.muroombackendbach.musician.presentation.dto.request.UpdateMusicianProfileRequest;
-import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianNicknameCheckResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianProfileResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSignupResponse;
 import kr.muroom.muroombackendbach.musician.presentation.dto.response.MusicianSimpleProfileResponse;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -37,8 +35,8 @@ public interface MusicianControllerDocs {
       summary = "내 간략 정보 조회",
       description = "현재 로그인한 뮤지션의 간략 정보(프로필 이미지, 닉네임)를 조회합니다."
   )
-  @SecurityRequirement(name = "Authentication")
   ApiResponse<MusicianSimpleProfileResponse> getMySimpleProfile(
+      @Parameter(hidden = true)
       Long musicianId
   );
 
@@ -114,6 +112,7 @@ public interface MusicianControllerDocs {
       )
   })
   ApiResponse<MusicianProfileResponse> getMyProfile(
+      @Parameter(hidden = true)
       @CurrentUserId Long musicianId
   );
 
@@ -181,6 +180,7 @@ public interface MusicianControllerDocs {
       )
   })
   ApiResponse<Void> updateMyProfile(
+      @Parameter(hidden = true)
       @CurrentUserId Long musicianId,
       @RequestBody UpdateMusicianProfileRequest request
   );

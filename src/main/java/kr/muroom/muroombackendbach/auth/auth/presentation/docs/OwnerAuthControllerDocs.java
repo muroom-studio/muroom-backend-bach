@@ -2,6 +2,8 @@ package kr.muroom.muroombackendbach.auth.auth.presentation.docs;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.auth.presentation.dto.request.OwnerLoginRequest;
 import kr.muroom.muroombackendbach.auth.auth.presentation.dto.response.OwnerLoginResponse;
@@ -28,6 +30,7 @@ public interface OwnerAuthControllerDocs {
           """
   )
   ApiResponse<OwnerLoginResponse> login(
-      @Valid @RequestBody OwnerLoginRequest request
+      @Valid @RequestBody OwnerLoginRequest request, HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse
   );
 }

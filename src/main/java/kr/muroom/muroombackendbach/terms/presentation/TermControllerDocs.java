@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.terms.domain.entity.TermsType;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermRegisterRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.request.TermUpdateRequest;
 import kr.muroom.muroombackendbach.terms.presentation.dto.response.TermDetailResponse;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "terms - 약관 API")
 public interface TermControllerDocs {

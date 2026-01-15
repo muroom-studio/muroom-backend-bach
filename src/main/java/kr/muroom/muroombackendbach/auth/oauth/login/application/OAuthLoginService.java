@@ -17,7 +17,6 @@ import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthClientService;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthTokenResult;
-import kr.muroom.muroombackendbach.auth.session.SessionAuthService;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import lombok.RequiredArgsConstructor;

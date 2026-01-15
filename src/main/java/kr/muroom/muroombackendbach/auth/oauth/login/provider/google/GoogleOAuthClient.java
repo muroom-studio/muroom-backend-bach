@@ -2,7 +2,6 @@ package kr.muroom.muroombackendbach.auth.oauth.login.provider.google;
 
 import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.FAIL_MAKE_PUBLIC_KEY;
 import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.PROVIDER_INVALID_RESPONSE;
-import static kr.muroom.muroombackendbach.auth.oauth.login.exception.OAuthLoginErrorCode.PROVIDER_NOT_RESPONSE;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;

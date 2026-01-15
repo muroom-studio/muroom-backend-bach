@@ -11,7 +11,8 @@ import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
-import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerSignupResponse;
+import kr.muroom.muroombackendbach.owner.presentation.dto.request.UpdateOwnerProfileRequest;
+import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerProfileResponse;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -35,7 +36,7 @@ public interface OwnerControllerDocs {
           - 필수 약관이 하나라도 누락되면 회원가입이 실패합니다.
           """
   )
-  ApiResponse<OwnerSignupResponse> registerOwner(
+  ApiResponse<Long> registerOwner(
       @Valid @RequestBody OwnerSignupRequest request
   );
 
@@ -135,4 +136,129 @@ public interface OwnerControllerDocs {
       )
       @RequestParam String phone
   );
+
+  @Operation(
+      summary = "내 프로필 수정",
+      description = """
+          로그인한 사장님의 프로필을 수정합니다.
+          - 요청 바디의 값으로 프로필 정보를 업데이트합니다.
+          """
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "200",
+          description = "프로필 수정 성공"
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400",
+          description = "요청값 검증 실패",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  name = "요청값 검증 실패",
+                  value = """
+                      {
+                        "code": "CM-400-01",
+                        "message": "요청값이 올바르지 않습니다."
+                      }
+                      """
+              )
+          )
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "401",
+          description = "인증 실패(토큰 없음/만료)",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  name = "인증 실패",
+                  value = """
+                      {
+                        "code": "AU-401-01",
+                        "message": "인증이 필요합니다."
+                      }
+                      """
+              )
+          )
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "403",
+          description = "권한 없음(OWNER 아님)",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  name = "권한 없음",
+                  value = """
+                      {
+                        "code": "AU-403-01",
+                        "message": "접근 권한이 없습니다."
+                      }
+                      """
+              )
+          )
+      )
+  })
+  ApiResponse<Void> updateMyProfile(
+      @Parameter(hidden = true)
+      Long ownerId,
+      @RequestBody UpdateOwnerProfileRequest request
+  );
+
+  @Operation(
+      summary = "내 프로필 조회",
+      description = """
+          로그인한 사장님의 프로필 정보를 조회합니다.
+          """
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "200",
+          description = "내 프로필 조회 성공",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = OwnerProfileResponse.class)
+          )
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "401",
+          description = "인증 실패(토큰 없음/만료)",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  name = "인증 실패",
+                  value = """
+                      {
+                        "code": "AU-401-01",
+                        "message": "인증이 필요합니다."
+                      }
+                      """
+              )
+          )
+      ),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "403",
+          description = "권한 없음(OWNER 아님)",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  name = "권한 없음",
+                  value = """
+                      {
+                        "code": "AU-403-01",
+                        "message": "접근 권한이 없습니다."
+                      }
+                      """
+              )
+          )
+      )
+  })
+  ApiResponse<OwnerProfileResponse> getMyProfile(
+      @Parameter(hidden = true) Long ownerId
+  );
+
 }
