@@ -1,7 +1,7 @@
 package kr.muroom.muroombackendbach.owner.presentation;
 
 import jakarta.validation.Valid;
-import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.owner.application.OwnerService;
 import kr.muroom.muroombackendbach.owner.presentation.docs.OwnerControllerDocs;

@@ -1,6 +1,6 @@
 package kr.muroom.muroombackendbach.auth.resolver;
 
-import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import org.springframework.core.MethodParameter;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;

@@ -1,7 +1,7 @@
 package kr.muroom.muroombackendbach.withdrawal.presentation;
 
 import jakarta.validation.Valid;
-import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.withdrawal.application.MusicianWithdrawalService;
 import kr.muroom.muroombackendbach.withdrawal.presentation.docs.MusicianWithdrawalControllerDocs;

@@ -3,7 +3,7 @@ package kr.muroom.muroombackendbach.search.presentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
-import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.search.application.SearchHistoryService;
 import kr.muroom.muroombackendbach.search.presentation.dto.response.RecentSearchResponse;

@@ -19,6 +19,7 @@ import kr.muroom.muroombackendbach.owner.presentation.assembler.OwnerAssembler;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.UpdateOwnerProfileRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerProfileResponse;
+import kr.muroom.muroombackendbach.sms.application.SmsVerificationService;
 import kr.muroom.muroombackendbach.terms.domain.entity.OwnerAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
@@ -173,7 +174,22 @@ public class OwnerService {
     return ownerAssembler.toOwnerProfileResponse(owner);
   }
 
+  @Transactional
   public void updateMyProfile(Long ownerId, UpdateOwnerProfileRequest request) {
+    Owner owner = ownerRepository.findById(ownerId)
+        .orElseThrow(() -> new BusinessException(OwnerErrorCode.OWNER_NOT_FOUND));
 
+    // 1. 닉네임 변경 (값이 있을 때만)
+    if (request.nickname() != null) {
+      owner.changeNickname(request.nickname());
+    }
+
+    // 2. 전화번호 변경 (smsVerifyToken이 있을 때만)
+    if (request.smsVerifyToken() != null) {
+      PhoneVerifyPayload phoneVerifyPayload = jwtTokenProvider.parsePhoneVerifyToken(
+          request.smsVerifyToken()
+      );
+      owner.changePhone(phoneVerifyPayload.phoneNumber());
+    }
   }
 }

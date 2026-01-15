@@ -5,8 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.auth.domain.entity.UserType;
 import kr.muroom.muroombackendbach.auth.auth.presentation.docs.MusicianAuthControllerDocs;
-import kr.muroom.muroombackendbach.auth.auth.presentation.dto.request.LogoutRequest;
-import kr.muroom.muroombackendbach.auth.config.CurrentUserId;
 import kr.muroom.muroombackendbach.auth.oauth.login.application.OAuthLoginService;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
