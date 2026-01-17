@@ -61,7 +61,7 @@ public class MusicianWithdrawalService {
     // hard delete 예정일 계산 및 저장 (delete 호출 전에 세팅)
     OffsetDateTime now = OffsetDateTime.now();
     OffsetDateTime hardDeleteAt = calculateHardDeleteAt(musicianId, now);
-    musician.scheduleHardDeleteAt(hardDeleteAt); // 메서드명 추천
+    musician.scheduleHardDeleteAt(hardDeleteAt);
 
     // soft delete 트리거 (@SQLDelete)
     musicianRepository.delete(musician);

@@ -56,6 +56,10 @@ public class MusicianHardDeleteDao {
   }
 
   public int deleteMusicianByMusicianIds(List<Long> musicianIds) {
+    if (musicianIds.isEmpty()) {
+      return 0;
+    }
+
     String sql = """
         delete from musicians
         where musician_id in (:musicianIds)

@@ -80,3 +80,9 @@ ncp:
     secret-key: ${NAVER_SECRET_KEY}
     service-id: ${NAVER_SENS_SERVICE_ID}
     from: ${NAVER_SENS_FROM}
+
+
+withdrawal:
+  hard-delete:
+    batch-size: 10
+    max-loop: 200
