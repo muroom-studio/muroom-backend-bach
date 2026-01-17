@@ -68,6 +68,8 @@ public class Owner extends AuditableEntity {
 
   private OffsetDateTime deletedAt;
 
+  private OffsetDateTime hardDeleteAt;
+
   public boolean isActive() {
     return this.status == UserStatus.ACTIVE && this.deletedAt == null;
   }
