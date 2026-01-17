@@ -52,8 +52,6 @@ public class StudioBoastService {
 
   private final StudioBoastRepository studioBoastRepository;
   private final StudioBoastImageRepository studioBoastImageRepository;
-  // private final StudioBoastCommentRepository studioBoastCommentRepository;
-  // private final StudioBoastLikeRepository studioBoastLikeRepository;
   private final FileStorageService fileStorageService;
   private final StudioService studioService;
   private final MusicianService musicianService;

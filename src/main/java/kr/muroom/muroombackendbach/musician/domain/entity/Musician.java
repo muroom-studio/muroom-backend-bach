@@ -65,6 +65,8 @@ public class Musician extends AuditableEntity {
 
   private OffsetDateTime deletedAt;
 
+  private OffsetDateTime hardDeleteAt;
+
   public void changeNickname(String nickname) {
     this.nickname = nickname;
   }
@@ -75,5 +77,9 @@ public class Musician extends AuditableEntity {
 
   public void changePhone(String phone) {
     this.phoneNumber = phone;
+  }
+
+  public void scheduleHardDeleteAt(OffsetDateTime hardDeleteAt) {
+    this.hardDeleteAt = hardDeleteAt;
   }
 }
