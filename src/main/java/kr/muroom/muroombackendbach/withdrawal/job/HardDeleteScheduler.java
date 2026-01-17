@@ -11,17 +11,16 @@ import org.springframework.stereotype.Component;
 public class HardDeleteScheduler {
 
   private final HardDeleteCleanupService cleanupService;
+  final static int BATCH_SIZE = 10;
+  final static int MAX_LOOP = 200;
 
   @Scheduled(cron = "0 0 4 * * *", zone = "Asia/Seoul")
   public void runDaily() {
     OffsetDateTime now = OffsetDateTime.now();
-    int batchSize = 500;
 
-    // 한번 실행에 너무 오래 도는 걸 막고 싶으면 maxLoop를 둠
-    int maxLoop = 200;
-
-    for (int i = 0; i < maxLoop; i++) {
-      int deleted = cleanupService.cleanupMusicians(now, batchSize);
+    // 조금씩 여러번 횟수로 반복
+    for (int i = 0; i < MAX_LOOP; i++) {
+      int deleted = cleanupService.cleanupMusicians(now, BATCH_SIZE);
       if (deleted == 0) {
         break;
       }

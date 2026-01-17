@@ -28,7 +28,7 @@ public class MusicianHardDeleteDao {
         .addValue("now", now)
         .addValue("limit", limit);
 
-    return jdbc.query(sql, params, (rs, rowNum) -> rs.getLong("musician_id"));
+    return jdbc.query(sql, params, (rs, _) -> rs.getLong("musician_id"));
   }
 
   public void deleteStudioBoastCommentLikeByMusicianIds(List<Long> musicianIds) {
