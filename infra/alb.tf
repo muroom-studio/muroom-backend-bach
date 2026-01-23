@@ -98,7 +98,7 @@ resource "aws_lb_listener_rule" "dev_host_rule" {
 
   condition {
     host_header {
-      values = ["dev-api.muroom.kr"]
+      values = ["dev.api.muroom.kr"]
     }
   }
 }
