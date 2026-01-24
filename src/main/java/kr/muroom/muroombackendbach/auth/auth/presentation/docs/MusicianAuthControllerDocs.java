@@ -15,11 +15,26 @@ import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginRequest;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "musician auth - 뮤지션 인증 API")
 public interface MusicianAuthControllerDocs {
+
+  @Operation(
+      summary = "로그인",
+      description = """
+          login API 입니다.
+          로그인 성공하면, 자동으로 jssession을 발급합니다.
+          회원가입이 필요하면, signupToken을 발급합니다.
+          """
+  )
+  ApiResponse<OAuthLoginResponse> oauthLogin(
+      @Valid @RequestBody OAuthLoginRequest request,
+      @RequestHeader(value = "Origin") String origin, HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse);
 
   @Operation(
       summary = "뮤지션 로그인 (Swagger 테스트용 - Kakao)",
@@ -72,11 +87,8 @@ public interface MusicianAuthControllerDocs {
   @Operation(
       summary = "로그아웃",
       description = """
-          현재 로그인한 뮤지션의 소셜 토큰을 만료(삭제)합니다.
-          클라이언트는 JWT를 로컬에서 삭제해야 합니다.
-          
-          - 요청 바디(refreshToken)가 존재하면 해당 Refresh Token을 서버에서 폐기합니다.
-          - Refresh Token의 소유자가 현재 로그인 사용자와 다르면 요청이 거부됩니다.
+          현재 로그인한 뮤지션의 세션값을 만료(삭제)합니다.
+          - 세션의 유저와 로그인 사용자와 다르면 요청이 거부됩니다.
           """
   )
   @SecurityRequirement(name = "Authentication")
@@ -87,12 +99,12 @@ public interface MusicianAuthControllerDocs {
       ),
       @io.swagger.v3.oas.annotations.responses.ApiResponse(
           responseCode = "403",
-          description = "리프레시 토큰 소유자 불일치",
+          description = "세션 소유자 불일치",
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(implementation = BusinessException.class),
               examples = @ExampleObject(
-                  name = "Refresh Token 소유자 불일치",
+                  name = "세션 소유자 불일치",
                   value = """
                       {
                         "code": "JWT-403-01",
