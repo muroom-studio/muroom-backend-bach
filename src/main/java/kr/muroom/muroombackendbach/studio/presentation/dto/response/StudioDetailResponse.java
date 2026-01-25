@@ -170,6 +170,9 @@ public record StudioDetailResponse(
 
     public static StudioBuildingInfoDto from(StudioBuildingInfo studioBuildingInfo,
         Point parkingLocation) {
+      if (studioBuildingInfo == null) {
+        return null;
+      }
 
       return StudioBuildingInfoDto.builder()
           .floorType(studioBuildingInfo.getFloorType())

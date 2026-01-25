@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.studio.application;
+package kr.muroom.muroombackendbach.studio.application.query;
 
 import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.STUDIO_NOT_FOUND;
 
@@ -15,6 +15,7 @@ import kr.muroom.muroombackendbach.owner.domain.application.OwnerService;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.room.domain.repository.RoomRepository;
+import kr.muroom.muroombackendbach.studio.application.StudioViewService;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioForbiddenInstrument;
@@ -53,8 +54,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class StudioDetailsService {
+@Transactional(readOnly = true)
+public class StudioQueryService {
 
   private final StudioRepository studioRepository;
   private final SubwayStationNearbyStudioRepository subwayStationNearbyStudioRepository;
@@ -112,13 +113,15 @@ public class StudioDetailsService {
         .build();
 
     Point parkingLocation = null;
-    if (studioBuildingInfo.getParkingFeeType() != null && !ParkingFeeType.NONE.equals(
+    if (studioBuildingInfo != null && studioBuildingInfo.getParkingFeeType() != null && !ParkingFeeType.NONE.equals(
         studioBuildingInfo.getParkingFeeType())) {
       String parkingLocationAddress = studioBuildingInfo.getParkingLocationAddress();
       parkingLocation = mapGeocodingService.getPointFromAddress(parkingLocationAddress);
     }
-    StudioBuildingInfoDto studioBuildingInfoDto = StudioBuildingInfoDto.from(studioBuildingInfo,
-        parkingLocation);
+        StudioBuildingInfoDto studioBuildingInfoDto = studioBuildingInfo != null
+            ? StudioBuildingInfoDto.from(studioBuildingInfo, parkingLocation)
+            : null;
+    
 
     StudioNoticeDto studioNoticeDto = StudioNoticeDto.from(owner, studio);
 

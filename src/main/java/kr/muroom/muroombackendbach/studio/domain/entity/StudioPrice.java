@@ -10,11 +10,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Builder
@@ -22,7 +25,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "studio_prices")
-public class StudioPrice {
+@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE studio_prices SET deleted_at = NOW() WHERE studio_id = ?")
+public class StudioPrice extends SoftDeletableEntity {
 
   @Id
   @Column(name = "studio_id")
@@ -39,7 +44,8 @@ public class StudioPrice {
   @Column
   private Integer maxPrice;
 
-  public void assignStudio(Studio studio) {
-    this.studio = studio;
+  public void update(Integer minPrice, Integer maxPrice) {
+    this.minPrice = minPrice;
+    this.maxPrice = maxPrice;
   }
 }

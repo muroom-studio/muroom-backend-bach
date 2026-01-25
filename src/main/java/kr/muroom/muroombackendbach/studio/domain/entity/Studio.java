@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.locationtech.jts.geom.Point;
 
 /**
@@ -24,6 +26,8 @@ import org.locationtech.jts.geom.Point;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "studios")
+@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE studios SET deleted_at = NOW() WHERE studio_id = ?")
 public class Studio extends SoftDeletableEntity {
 
   @Id
@@ -69,4 +73,20 @@ public class Studio extends SoftDeletableEntity {
 
   @Column(name = "owner_id", nullable = false)
   private Long ownerId;
+
+  public void update(
+      String name, String roadNameAddress, String lotNumberAddress, String detailedAddress,
+      Point location, String introduction, Integer depositAmount,
+      String thumbnailImageKey, String blueprintImageKey
+  ) {
+    this.name = name;
+    this.roadNameAddress = roadNameAddress;
+    this.lotNumberAddress = lotNumberAddress;
+    this.detailedAddress = detailedAddress;
+    this.location = location;
+    this.introduction = introduction;
+    this.depositAmount = depositAmount;
+    this.thumbnailImageKey = thumbnailImageKey;
+    this.blueprintImageKey = blueprintImageKey;
+  }
 }

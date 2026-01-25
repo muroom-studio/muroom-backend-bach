@@ -7,8 +7,8 @@ import java.util.List;
 import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
-import kr.muroom.muroombackendbach.studio.application.StudioDetailsService;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
+import kr.muroom.muroombackendbach.studio.application.query.StudioQueryService;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioAddressSearchResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudioController {
 
   private final StudioService studioService;
-  private final StudioDetailsService studioDetailsService;
+  private final StudioQueryService studioQueryService;
 
   @GetMapping("/map-search")
   public ApiResponse<List<StudioMapResponse>> searchStudiosInMapBounds(
@@ -69,7 +69,7 @@ public class StudioController {
   @GetMapping("/{studioId}")
   public ApiResponse<StudioDetailResponse> getStudio(@PathVariable Long studioId,
       @CurrentUserId Long musicianId) {
-    StudioDetailResponse response = studioDetailsService.getStudio(studioId, musicianId);
+    StudioDetailResponse response = studioQueryService.getStudio(studioId, musicianId);
 
     return ApiResponse.success(response);
   }

@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Builder
@@ -19,6 +21,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "rooms")
+@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE rooms SET deleted_at = NOW() WHERE room_id = ?")
 public class Room extends SoftDeletableEntity {
 
   @Id
@@ -49,4 +53,14 @@ public class Room extends SoftDeletableEntity {
 
   @Column(name = "studio_id", nullable = false)
   private Long studioId;
+
+  public void update(Integer sequence, Integer width, Integer height, Boolean isAvailable,
+      LocalDate availableAt, Integer basePrice) {
+    this.sequence = sequence;
+    this.width = width;
+    this.height = height;
+    this.isAvailable = isAvailable;
+    this.availableAt = availableAt;
+    this.basePrice = basePrice;
+  }
 }

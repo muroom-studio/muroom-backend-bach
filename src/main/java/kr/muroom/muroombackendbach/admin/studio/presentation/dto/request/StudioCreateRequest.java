@@ -69,11 +69,7 @@ public record StudioCreateRequest(
 
       @NotBlank
       @Schema(description = "상세 주소")
-      String detailedAddress,
-
-      @NotBlank
-      @Schema(description = "우편번호")
-      String zipCode
+      String detailedAddress
   ) {
 
   }
