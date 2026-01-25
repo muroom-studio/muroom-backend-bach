@@ -6,11 +6,15 @@ import java.util.List;
 import java.util.Map;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
+import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
+import kr.muroom.muroombackendbach.owner.exception.OwnerErrorCode;
 import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
 import kr.muroom.muroombackendbach.report.exception.ReportErrorCode;
 import kr.muroom.muroombackendbach.report.handler.ReportTargetHandler;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioImage;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioImageRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +27,8 @@ import org.springframework.stereotype.Component;
 public class StudioReportTargetHandler implements ReportTargetHandler {
 
   private final StudioRepository studioRepository;
+  private final StudioImageRepository studioImageRepository;
+  private final OwnerRepository ownerRepository;
   private final ObjectMapper objectMapper;
 
   @Override
@@ -40,7 +46,11 @@ public class StudioReportTargetHandler implements ReportTargetHandler {
   public JsonNode buildSnapshot(Long domainId) {
     Studio studio = getStudio(domainId);
 
-    List<String> imageKeys = studio.getStudioImages().stream()
+    List<StudioImage> studioImages = studioImageRepository.findAllByStudio(studio);
+    Owner owner = ownerRepository.findById(studio.getOwnerId())
+        .orElseThrow(() -> new BusinessException(OwnerErrorCode.OWNER_NOT_FOUND));
+
+    List<String> imageKeys = studioImages.stream() // 조회한 'studioImages' 사용
         .map(StudioImage::getImageKey)
         .filter(key -> key != null && !key.isBlank())
         .toList();
@@ -48,7 +58,7 @@ public class StudioReportTargetHandler implements ReportTargetHandler {
     Map<String, Object> snap = Map.of(
         "title", studio.getName(),
         "imageKeys", imageKeys,
-        "ownerNickname", studio.getOwner().getNickname()
+        "ownerNickname", owner.getNickname() // 조회한 'owner' 사용
     );
 
     try {

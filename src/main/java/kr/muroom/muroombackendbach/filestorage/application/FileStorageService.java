@@ -241,15 +241,7 @@ public class FileStorageService {
       // throw new BusinessException(FileErrorCode.FILE_NOT_FOUND);
     }
 
-    DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-        .bucket(bucket)
-        .key(deletionRequestedFileKey)
-        .build();
-    try {
-      s3Client.deleteObject(deleteRequest);
-    } catch (NoSuchKeyException e) {
-      // ignore
-    }
+    deleteFilePermanently(bucket, deletionRequestedFileKey);
   }
 
   private void deleteFilePermanently(String bucket, String fileKey) {

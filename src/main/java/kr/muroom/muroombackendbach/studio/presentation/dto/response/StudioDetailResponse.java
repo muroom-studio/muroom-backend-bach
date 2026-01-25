@@ -4,13 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
+import kr.muroom.muroombackendbach.studio.domain.entity.StudioForbiddenInstrument;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
@@ -170,6 +170,9 @@ public record StudioDetailResponse(
 
     public static StudioBuildingInfoDto from(StudioBuildingInfo studioBuildingInfo,
         Point parkingLocation) {
+      if (studioBuildingInfo == null) {
+        return null;
+      }
 
       return StudioBuildingInfoDto.builder()
           .floorType(studioBuildingInfo.getFloorType())
@@ -231,10 +234,9 @@ public record StudioDetailResponse(
       List<String> instruments
   ) {
 
-    public static StudioForbiddenInstrumentsDto from(Studio studio) {
+    public static StudioForbiddenInstrumentsDto from(List<StudioForbiddenInstrument> forbiddenInstruments) {
       return StudioForbiddenInstrumentsDto.builder()
-          .instruments(studio.getForbiddenInstruments()
-              .stream()
+          .instruments(forbiddenInstruments.stream()
               .map(forbiddenInstrument -> forbiddenInstrument.getInstrument().getDescription())
               .toList())
           .build();
@@ -270,7 +272,7 @@ public record StudioDetailResponse(
       List<RoomInfoDto> rooms
   ) {
 
-    public static StudioRoomsDto from(Set<Room> rooms) {
+    public static StudioRoomsDto from(List<Room> rooms) {
       return StudioRoomsDto.builder()
           .rooms(rooms.stream().map(RoomInfoDto::from).toList())
           .build();

@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface StudioOptionRepository extends JpaRepository<StudioOption, Long> {
 
   List<StudioOption> findAllByStudio(Studio studio);
+
+  void deleteAllByStudio(Studio studio);
 }

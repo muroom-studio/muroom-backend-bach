@@ -7,14 +7,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
+import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
-import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Builder
@@ -22,7 +23,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "subway_stations_nearby_studios")
-public class SubwayStationNearbyStudio extends CreatedDateEntity {
+@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE subway_stations_nearby_studios SET deleted_at = NOW() WHERE subway_station_nearby_studio_id = ?")
+public class SubwayStationNearbyStudio extends SoftDeletableEntity {
 
   @Id
   @Tsid
@@ -36,11 +39,10 @@ public class SubwayStationNearbyStudio extends CreatedDateEntity {
   @JoinColumn(name = "subway_station_id", nullable = false)
   private SubwayStation subwayStation;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "studio_id", nullable = false)
-  private Studio studio;
+  @Column(name = "studio_id", nullable = false)
+  private Long studioId;
 
-  public void assignStudio(Studio studio) {
-    this.studio = studio;
+  public void updateSequence(Integer sequence) {
+    this.sequence = sequence;
   }
 }

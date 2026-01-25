@@ -3,7 +3,8 @@ package kr.muroom.muroombackendbach.owner.presentation;
 import jakarta.validation.Valid;
 import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
-import kr.muroom.muroombackendbach.owner.application.OwnerService;
+import kr.muroom.muroombackendbach.owner.application.command.OwnerCommandService;
+import kr.muroom.muroombackendbach.owner.application.query.OwnerQueryService;
 import kr.muroom.muroombackendbach.owner.presentation.docs.OwnerControllerDocs;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.UpdateOwnerProfileRequest;
@@ -25,32 +26,33 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class OwnerController implements OwnerControllerDocs {
 
-  private final OwnerService ownerService;
+  private final OwnerCommandService ownerCommandService;
+  private final OwnerQueryService ownerQueryService;
 
   @PostMapping("/register")
   public ApiResponse<Long> registerOwner(
       @Valid @RequestBody OwnerSignupRequest request
   ) {
-    Long ownerId = ownerService.registerOwner(request);
+    Long ownerId = ownerCommandService.registerOwner(request);
     return ApiResponse.created(ownerId);
   }
 
   @GetMapping("/nickname/check")
   public ApiResponse<Void> checkNickname(@RequestParam String nickname) {
-    ownerService.isNicknameAvailable(nickname);
+    ownerQueryService.isNicknameAvailable(nickname);
     return ApiResponse.success();
   }
 
   @GetMapping("/phone/check")
   public ApiResponse<Void> checkPhone(@RequestParam String phone) {
-    ownerService.isPhoneAvailable(phone);
+    ownerQueryService.isPhoneAvailable(phone);
     return ApiResponse.success();
   }
 
   @PreAuthorize("hasRole('OWNER')")
   @GetMapping("/me/detail")
   public ApiResponse<OwnerProfileResponse> getMyProfile(@CurrentUserId Long ownerId) {
-    return ApiResponse.success(ownerService.getMyProfile(ownerId));
+    return ApiResponse.success(ownerQueryService.getMyProfile(ownerId));
   }
 
   @PreAuthorize("hasRole('OWNER')")
@@ -59,7 +61,7 @@ public class OwnerController implements OwnerControllerDocs {
       @CurrentUserId Long ownerId,
       @RequestBody UpdateOwnerProfileRequest request
   ) {
-    ownerService.updateMyProfile(ownerId, request);
+    ownerCommandService.updateMyProfile(ownerId, request);
     return ApiResponse.success();
   }
 }

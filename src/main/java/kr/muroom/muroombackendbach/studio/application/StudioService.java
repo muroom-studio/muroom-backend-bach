@@ -19,6 +19,7 @@ import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
 import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioImageRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
@@ -33,7 +34,7 @@ import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.Stud
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
-import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationsNearbyStudioRepository;
+import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationNearbyStudioRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Page;
@@ -48,9 +49,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudioService {
 
   private final StudioRepository studioRepository;
+  private final StudioImageRepository studioImageRepository;
   private final RoomRepository roomRepository;
   private final StudioPriceRepository studioPriceRepository;
-  private final SubwayStationsNearbyStudioRepository subwayStationsNearbyStudioRepository;
+  private final SubwayStationNearbyStudioRepository subwayStationNearbyStudioRepository;
   private final SubwayStationLineRepository subwayStationLineRepository;
   private final OptionRepository optionRepository;
 
@@ -73,7 +75,7 @@ public class StudioService {
     // 2-1. Room들의 가격 통계 정보를 일괄 조회합니다.
     Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(studioIds).stream()
         .collect(Collectors.groupingBy(
-            room -> room.getStudio().getId(),
+            Room::getStudioId,
             Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull, Collectors.summarizingInt(Integer::intValue)))
         ));
 
@@ -104,8 +106,10 @@ public class StudioService {
     Integer minPrice = null;
     Integer maxPrice = null;
 
-    if (studio.getRooms() != null && !studio.getRooms().isEmpty()) {
-      IntSummaryStatistics priceSummaryStats = studio.getRooms().stream()
+    List<Room> rooms = roomRepository.findAllByStudioId(studio.getId());
+
+    if (rooms != null && !rooms.isEmpty()) {
+      IntSummaryStatistics priceSummaryStats = rooms.stream()
           .filter(room -> room != null && room.getBasePrice() != null)
           .mapToInt(Room::getBasePrice)
           .summaryStatistics();
@@ -117,7 +121,7 @@ public class StudioService {
     }
 
     if (minPrice == null) {
-      StudioPrice studioPrice = studio.getStudioPrice();
+      StudioPrice studioPrice = studioPriceRepository.findById(studio.getId()).orElse(null);
       if (studioPrice != null) {
         minPrice = studioPrice.getMinPrice();
         maxPrice = studioPrice.getMaxPrice();
@@ -147,10 +151,9 @@ public class StudioService {
     List<Long> studioIds = studios.stream().map(Studio::getId).toList();
 
     // 방 가격 통계 일괄 조회 (N+1 문제 해결, Studio fallback 가격과 비교용)
-    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(
-            studioIds).stream()
+    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(studioIds).stream()
         .collect(Collectors.groupingBy(
-            room -> room.getStudio().getId(),
+            Room::getStudioId,
             Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull,
                 Collectors.summarizingInt(Integer::intValue)))
         ));
@@ -163,9 +166,9 @@ public class StudioService {
 
     // (사장님이 설정한) 인증 지하철역 정보 일괄 조회 (N+1 문제 해결)
     Map<Long, SubwayStationNearbyStudio> nearbySubwayStationsByStudioId =
-        subwayStationsNearbyStudioRepository.findAllByStudioIdInWithStation(studioIds).stream()
+        subwayStationNearbyStudioRepository.findAllByStudioIdInWithStation(studioIds).stream()
             .collect(Collectors.toMap(
-                subwayStationNearby -> subwayStationNearby.getStudio().getId(),
+                SubwayStationNearbyStudio::getStudioId,
                 Function.identity(),
                 (station1, station2) -> station1.getSequence() < station2.getSequence()
                     ? station1 : station2
@@ -311,7 +314,7 @@ public class StudioService {
 
     StudioPriceInfo studioPriceInfo = calculatePrice(studio);
 
-    SubwayStationNearbyStudio subwayStationNearbyStudio = subwayStationsNearbyStudioRepository
+    SubwayStationNearbyStudio subwayStationNearbyStudio = subwayStationNearbyStudioRepository
         .findFirstByStudioIdOrderBySequenceAsc(studioId);
     StudioSubwayStationInfo nearestSubwayStation = null;
     if (subwayStationNearbyStudio != null) {
@@ -360,17 +363,18 @@ public class StudioService {
 
     // 단계 2를 위한 데이터: Room 가격, Studio 가격 정보 일괄 조회
     Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(studioIds).stream()
-        .collect(Collectors.groupingBy(room -> room.getStudio().getId(),
+        .collect(Collectors.groupingBy(
+            Room::getStudioId,
             Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull, Collectors.summarizingInt(Integer::intValue)))));
     Map<Long, StudioPrice> studioPricesByStudioId = studioPriceRepository.findAllByStudioIdIn(studioIds).stream()
         .collect(Collectors.toMap(sp -> sp.getStudio().getId(), Function.identity()));
 
     // 단계 3을 위한 데이터: 가장 가까운 지하철역 정보 일괄 조회
     // getStudioInfoById의 `findFirstByStudioIdOrderBySequenceAsc`에 해당
-    Map<Long, SubwayStationNearbyStudio> nearbyStationsByStudioId = subwayStationsNearbyStudioRepository.findAllByStudioIdInWithStation(
+    Map<Long, SubwayStationNearbyStudio> nearbyStationsByStudioId = subwayStationNearbyStudioRepository.findAllByStudioIdInWithStation(
             studioIds).stream()
         .collect(Collectors.toMap(
-            nearby -> nearby.getStudio().getId(),
+            SubwayStationNearbyStudio::getStudioId,
             Function.identity(),
             (s1, s2) -> s1.getSequence() < s2.getSequence() ? s1 : s2
         ));

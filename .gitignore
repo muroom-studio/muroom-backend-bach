@@ -1,3 +1,9 @@
+# terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+terraform.tfvars
+
 # 쿼리 파일
 **/src/main/resources/queries/
 
