@@ -1,6 +1,19 @@
 spring:
   application:
     name: muroom-backend-bach
+  mvc:
+    servlet:
+      load-on-startup: 1
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 cors:
   allowed-origins: "http://localhost:3000,http://localhost:3001,https://muroom.kr,https://www.muroom.kr,https://admin.muroom.kr,https://muroom-frontend-handel-web.vercel.app,https://admin.muroom.kr,https://dev.admin.muroom.kr,
