@@ -88,12 +88,12 @@ public class StudioCommandService {
             image -> image.getCategory() == StudioImageCategory.MAIN && image.getSequence() == 1)
         .findFirst()
         .map(StudioImage::getImageKey)
-        .get();
+        .orElseThrow(() -> new BusinessException(StudioErrorCode.THUMBNAIL_IMAGE_NOT_FOUND));
     String blueprintImageKey = studioImages.stream()
         .filter(image -> image.getCategory() == StudioImageCategory.BLUEPRINT)
         .findFirst()
         .map(StudioImage::getImageKey)
-        .get();
+        .orElseThrow(() -> new BusinessException(StudioErrorCode.BLUEPRINT_IMAGE_NOT_FOUND));
 
     Studio prebuiltStudio = Studio.builder()
         .ownerId(owner.getId())
