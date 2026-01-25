@@ -33,6 +33,7 @@ public class InquiryReply extends AuditableEntity {
   private Long id;
 
   @OneToMany(mappedBy = "inquiryReply", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+  @Builder.Default
   private List<InquiryReplyImage> inquiryReplyImages = new ArrayList<>();
 
   @OneToOne(fetch = FetchType.LAZY)

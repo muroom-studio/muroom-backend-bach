@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.owner.application;
+package kr.muroom.muroombackendbach.owner.application.command;
 
 import static kr.muroom.muroombackendbach.owner.exception.OwnerErrorCode.EMAIL_ALREADY_EXISTS;
 import static kr.muroom.muroombackendbach.owner.exception.OwnerErrorCode.NICKNAME_ALREADY_EXISTS;
@@ -10,16 +10,12 @@ import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider.PhoneVerifyPayload;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
-import kr.muroom.muroombackendbach.common.util.PhoneNumberUtil;
 import kr.muroom.muroombackendbach.musician.domain.entity.UserStatus;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
 import kr.muroom.muroombackendbach.owner.exception.OwnerErrorCode;
-import kr.muroom.muroombackendbach.owner.presentation.assembler.OwnerAssembler;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.OwnerSignupRequest;
 import kr.muroom.muroombackendbach.owner.presentation.dto.request.UpdateOwnerProfileRequest;
-import kr.muroom.muroombackendbach.owner.presentation.dto.response.OwnerProfileResponse;
-import kr.muroom.muroombackendbach.sms.application.SmsVerificationService;
 import kr.muroom.muroombackendbach.terms.domain.entity.OwnerAgreement;
 import kr.muroom.muroombackendbach.terms.domain.entity.TargetRole;
 import kr.muroom.muroombackendbach.terms.domain.entity.Term;
@@ -34,22 +30,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class OwnerService {
+@Transactional
+public class OwnerCommandService {
 
   private final OwnerRepository ownerRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtTokenProvider;
   private final TermRepository termRepository;
   private final OwnerAgreementRepository ownerAgreementRepository;
-  private final OwnerAssembler ownerAssembler;
 
   /**
    * Owner 회원가입
    * <p>
-   * 1) 휴대폰 인증 토큰 파싱 → 인증된 phoneNumber 확보 2) 중복(전화/이메일/닉네임) 검증 3) 약관 존재 + 필수 약관 미동의 검증 4) Owner 저장
-   * 5) 약관 동의 저장 6) JWT 발급
+   * 1) 휴대폰 인증 토큰 파싱 → 인증된 phoneNumber 확보 2) 중복(전화/이메일/닉네임) 검증 3) 약관 존재 + 필수 약관 미동의 검증 4) Owner 저장 5) 약관 동의 저장 6) JWT 발급
    */
-  @Transactional
   public Long registerOwner(OwnerSignupRequest request) {
     // 1. 휴대폰 인증 토큰 검증 (여기서 인증 보장)
     PhoneVerifyPayload phoneVerifyPayload = jwtTokenProvider.parsePhoneVerifyToken(
@@ -153,28 +147,6 @@ public class OwnerService {
     ownerAgreementRepository.saveAll(agreements);
   }
 
-  public void isNicknameAvailable(String nickname) {
-    if (ownerRepository.existsByNickname(nickname)) {
-      throw new BusinessException(OwnerErrorCode.NICKNAME_ALREADY_EXISTS);
-    }
-  }
-
-  public void isPhoneAvailable(String phone) {
-    PhoneNumberUtil.isValidHyphenPhoneNumber(phone);
-
-    if (ownerRepository.existsByPhoneNumber(phone)) {
-      throw new BusinessException(OwnerErrorCode.PHONENUMBER_ALREADY_EXISTS);
-    }
-  }
-
-  public OwnerProfileResponse getMyProfile(Long ownerId) {
-    Owner owner = ownerRepository.findById(ownerId)
-        .orElseThrow(() -> new BusinessException(OwnerErrorCode.OWNER_NOT_FOUND));
-
-    return ownerAssembler.toOwnerProfileResponse(owner);
-  }
-
-  @Transactional
   public void updateMyProfile(Long ownerId, UpdateOwnerProfileRequest request) {
     Owner owner = ownerRepository.findById(ownerId)
         .orElseThrow(() -> new BusinessException(OwnerErrorCode.OWNER_NOT_FOUND));

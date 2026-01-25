@@ -23,7 +23,7 @@ public class SecurityUserConfig {
 
   @Bean
   public DaoAuthenticationProvider ownerDaoAuthenticationProvider(PasswordEncoder passwordEncoder) {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider(); // TODO: deprecated warning
     provider.setUserDetailsService(ownerUserDetailsService);
     provider.setPasswordEncoder(passwordEncoder);
     return provider;

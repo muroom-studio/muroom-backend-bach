@@ -1,25 +1,11 @@
 package kr.muroom.muroombackendbach.studio.domain.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 import kr.muroom.muroombackendbach.common.domain.SoftDeletableEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
-import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
-import kr.muroom.muroombackendbach.room.domain.entity.Room;
-import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -81,96 +67,6 @@ public class Studio extends SoftDeletableEntity {
   @Column(length = 1024)
   private String blueprintImageKey;
 
-  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-      FetchType.LAZY)
-  @OrderBy("category ASC, sequence ASC")
-  @Builder.Default
-  private List<StudioImage> studioImages = new ArrayList<>();
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "owner_id", nullable = false)
-  private Owner owner;
-
-  @OneToOne(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true)
-  StudioBuildingInfo studioBuildingInfo;
-
-  @OneToOne(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true)
-  private StudioPrice studioPrice;
-
-  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-      FetchType.LAZY)
-  @Builder.Default
-  private Set<StudioOption> options = new LinkedHashSet<>();
-
-  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-      FetchType.LAZY)
-  @OrderBy("sequence ASC")
-  @Builder.Default
-  private Set<Room> rooms = new LinkedHashSet<>();
-
-  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-      FetchType.LAZY)
-  @OrderBy("id ASC")
-  @Builder.Default
-  private Set<StudioForbiddenInstrument> forbiddenInstruments = new LinkedHashSet<>();
-
-  @OneToMany(mappedBy = "studio", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-      FetchType.LAZY)
-  @OrderBy("sequence ASC")
-  @Builder.Default
-  private List<SubwayStationNearbyStudio> nearbyStations = new ArrayList<>();
-
-  public void specifyBuildingInfo(StudioBuildingInfo buildingInfo) {
-    this.studioBuildingInfo = buildingInfo;
-    if (buildingInfo != null) {
-      buildingInfo.assignStudio(this);
-    }
-  }
-
-  public void specifyPrice(StudioPrice price) {
-    this.studioPrice = price;
-    if (price != null) {
-      price.assignStudio(this);
-    }
-  }
-
-  public void updateRooms(Set<Room> rooms) {
-    this.rooms.clear();
-    if (rooms != null) {
-      this.rooms.addAll(rooms);
-      rooms.forEach(room -> room.assignStudio(this));
-    }
-  }
-
-  public void applyOptions(Set<StudioOption> options) {
-    this.options.clear();
-    if (options != null) {
-      this.options.addAll(options);
-      options.forEach(option -> option.assignStudio(this));
-    }
-  }
-
-  public void updateForbiddenInstruments(Set<StudioForbiddenInstrument> instruments) {
-    this.forbiddenInstruments.clear();
-    if (instruments != null) {
-      this.forbiddenInstruments.addAll(instruments);
-      instruments.forEach(instrument -> instrument.assignStudio(this));
-    }
-  }
-
-  public void updateImages(List<StudioImage> images) {
-    this.studioImages.clear();
-    if (images != null) {
-      this.studioImages.addAll(images);
-      images.forEach(image -> image.assignStudio(this));
-    }
-  }
-
-  public void updateNearbyStations(List<SubwayStationNearbyStudio> stations) {
-    this.nearbyStations.clear();
-    if (stations != null) {
-      this.nearbyStations.addAll(stations);
-      stations.forEach(station -> station.assignStudio(this));
-    }
-  }
+  @Column(name = "owner_id", nullable = false)
+  private Long ownerId;
 }

@@ -2,7 +2,6 @@ package kr.muroom.muroombackendbach.admin.studio.application;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,10 +14,11 @@ import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
-import kr.muroom.muroombackendbach.musician.exception.UserErrorCode;
+import kr.muroom.muroombackendbach.owner.domain.application.OwnerService;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.owner.domain.repository.OwnerRepository;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
+import kr.muroom.muroombackendbach.room.domain.repository.RoomRepository;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioForbiddenInstrument;
@@ -29,10 +29,16 @@ import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import kr.muroom.muroombackendbach.studio.domain.enums.StudioImageCategory;
 import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioBuildingInfoRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioForbiddenInstrumentRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioImageRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioOptionRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
+import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationNearbyStudioRepository;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationRepository;
 import kr.muroom.muroombackendbach.subway.exception.SubwayErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -47,11 +53,20 @@ public class AdminStudioService {
 
   private final StudioRepository studioRepository;
   private final OwnerRepository ownerRepository;
-  private final MapGeocodingService mapGeocodingService;
   private final OptionRepository optionRepository;
   private final InstrumentRepository instrumentRepository;
   private final SubwayStationRepository subwayStationRepository;
+  private final RoomRepository roomRepository;
+  private final StudioPriceRepository studioPriceRepository;
+  private final StudioBuildingInfoRepository studioBuildingInfoRepository;
+  private final StudioImageRepository studioImageRepository;
+  private final StudioOptionRepository studioOptionRepository;
+  private final StudioForbiddenInstrumentRepository studioForbiddenInstrumentRepository;
+  private final SubwayStationNearbyStudioRepository subwayStationNearbyStudioRepository;
+
   private final FileStorageService fileStorageService;
+  private final MapGeocodingService mapGeocodingService;
+  private final OwnerService ownerService;
 
   public GeneratePresignedPutUrlResponse generatePresignedPutUrl(StudioImageUploadRequest request) {
     return fileStorageService.generatePresignedPutUrlForPublic(request,
@@ -59,8 +74,7 @@ public class AdminStudioService {
   }
 
   public Long createStudio(StudioCreateRequest request) {
-    Owner owner = ownerRepository.findByPhoneNumber(request.ownerPhoneNumber())
-        .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+    Owner owner = ownerService.findByPhoneNumberOrThrowException(request.ownerPhoneNumber());
 
     String roadNameAddress = request.addressInfo().roadNameAddress();
     String lotNumberAddress = request.addressInfo().lotNumberAddress();
@@ -79,8 +93,8 @@ public class AdminStudioService {
         .map(StudioImage::getImageKey)
         .orElse(null);
 
-    Studio studio = Studio.builder()
-        .owner(owner)
+    Studio prebuiltStudio = Studio.builder()
+        .ownerId(owner.getId())
         .name(request.studioName())
         .roadNameAddress(roadNameAddress)
         .lotNumberAddress(lotNumberAddress)
@@ -92,33 +106,53 @@ public class AdminStudioService {
         .blueprintImageKey(blueprintImageKey)
         .build();
 
+    Studio savedStudio = studioRepository.save(prebuiltStudio);
+
     if (request.studioMinPrice() != null || request.studioMaxPrice() != null) {
       if (request.studioMinPrice() != null && request.studioMaxPrice() != null
           && request.studioMinPrice() > request.studioMaxPrice()) {
         throw new BusinessException(StudioErrorCode.INVALID_PRICE_RANGE);
       }
       StudioPrice studioPrice = StudioPrice.builder()
+          .studio(savedStudio)
           .minPrice(request.studioMinPrice())
           .maxPrice(request.studioMaxPrice())
           .build();
-      studio.specifyPrice(studioPrice);
+      studioPriceRepository.save(studioPrice);
     }
 
-    studio.specifyBuildingInfo(buildStudioBuildingInfo(request.buildingInfo()));
-    studio.updateRooms(buildRooms(request.rooms()));
-    studio.applyOptions(buildStudioOptions(request.optionCodes()));
-    studio.updateForbiddenInstruments(
-        buildForbiddenInstruments(request.forbiddenInstrumentCodes()));
-    studio.updateImages(studioImages);
-    studio.updateNearbyStations(buildNearbyStations(request.nearbyStations()));
+    StudioBuildingInfo buildingInfo = buildStudioBuildingInfo(request.buildingInfo());
+    buildingInfo.assignStudio(savedStudio);
+    studioBuildingInfoRepository.save(buildingInfo);
 
-    Studio savedStudio = studioRepository.save(studio);
+    Long studioId = savedStudio.getId();
+    
+    // Rooms 저장
+    List<Room> rooms = buildRooms(request.rooms(), studioId);
+    roomRepository.saveAll(rooms);
+
+    // StudioOptions 저장
+    Set<StudioOption> studioOptions = buildStudioOptions(request.optionCodes());
+    studioOptions.forEach(option -> option.assignStudio(savedStudio));
+    studioOptionRepository.saveAll(studioOptions);
+
+    // ForbiddenInstruments 저장
+    Set<StudioForbiddenInstrument> forbiddenInstruments = buildForbiddenInstruments(request.forbiddenInstrumentCodes());
+    forbiddenInstruments.forEach(instrument -> instrument.assignStudio(savedStudio));
+    studioForbiddenInstrumentRepository.saveAll(forbiddenInstruments);
+
+    // StudioImages 저장 (메모리에 있던 리스트에 studio 정보 설정 후 저장)
+    studioImages.forEach(image -> image.assignStudio(savedStudio));
+    studioImageRepository.saveAll(studioImages);
+
+    // NearbyStations 저장
+    List<SubwayStationNearbyStudio> nearbyStations = buildNearbyStations(request.nearbyStations(), studioId);
+    subwayStationNearbyStudioRepository.saveAll(nearbyStations);
 
     return savedStudio.getId();
   }
 
-  private StudioBuildingInfo buildStudioBuildingInfo(
-      StudioCreateRequest.BuildingInfoRequest request) {
+  private StudioBuildingInfo buildStudioBuildingInfo(StudioCreateRequest.BuildingInfoRequest request) {
     Boolean hasRestroom = request.hasRestroom();
     RestroomLocation restroomLocation = null;
     RestroomGender restroomGender = null;
@@ -148,13 +182,14 @@ public class AdminStudioService {
         .build();
   }
 
-  private Set<Room> buildRooms(List<RoomInfoRequest> request) {
+  private List<Room> buildRooms(List<RoomInfoRequest> request, Long studioId) {
     if (request == null) {
-      return new LinkedHashSet<>();
+      return new ArrayList<>();
     }
     AtomicInteger sequence = new AtomicInteger(1);
     return request.stream()
         .map(roomReq -> Room.builder()
+            .studioId(studioId) // studioId 설정
             .name(roomReq.roomName())
             .basePrice(roomReq.roomBasePrice())
             .isAvailable(roomReq.isAvailable())
@@ -163,7 +198,7 @@ public class AdminStudioService {
             .height(roomReq.heightMm())
             .sequence(sequence.getAndIncrement())
             .build())
-        .collect(Collectors.toSet());
+        .toList();
   }
 
   private Set<StudioOption> buildStudioOptions(List<String> optionCodes) {
@@ -249,8 +284,7 @@ public class AdminStudioService {
     return images;
   }
 
-  private List<SubwayStationNearbyStudio> buildNearbyStations(
-      List<StudioCreateRequest.NearbyStationRequest> request) {
+  private List<SubwayStationNearbyStudio> buildNearbyStations(List<StudioCreateRequest.NearbyStationRequest> request, Long studioId) {
     if (request == null) {
       return new ArrayList<>();
     }
@@ -259,6 +293,7 @@ public class AdminStudioService {
           SubwayStation station = subwayStationRepository.findById(stationReq.subwayStationId())
               .orElseThrow(() -> new BusinessException(SubwayErrorCode.SUBWAY_NOT_FOUND));
           return SubwayStationNearbyStudio.builder()
+              .studioId(studioId)
               .subwayStation(station)
               .sequence(stationReq.sequence())
               .build();

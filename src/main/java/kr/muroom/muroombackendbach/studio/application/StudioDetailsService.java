@@ -7,23 +7,28 @@ import java.util.Comparator;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
+import kr.muroom.muroombackendbach.owner.domain.application.OwnerService;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
+import kr.muroom.muroombackendbach.room.domain.repository.RoomRepository;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
+import kr.muroom.muroombackendbach.studio.domain.entity.StudioForbiddenInstrument;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioImage;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioOption;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
 import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.domain.enums.StudioImageCategory;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioBuildingInfoRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioForbiddenInstrumentRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioImageRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioOptionRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.OptionDto;
@@ -40,7 +45,7 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.S
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
-import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationsNearbyStudioRepository;
+import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationNearbyStudioRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
@@ -52,7 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudioDetailsService {
 
   private final StudioRepository studioRepository;
-  private final SubwayStationsNearbyStudioRepository subwayStationsNearbyStudioRepository;
+  private final SubwayStationNearbyStudioRepository subwayStationNearbyStudioRepository;
   private final SubwayStationLineRepository subwayStationLineRepository;
   private final StudioImageRepository studioImageRepository;
   private final StudioOptionRepository studioOptionRepository;
@@ -60,6 +65,11 @@ public class StudioDetailsService {
   private final FileStorageService fileStorageService;
   private final StudioViewService studioViewService;
   private final MapGeocodingService mapGeocodingService;
+  private final RoomRepository roomRepository;
+  private final StudioPriceRepository studioPriceRepository;
+  private final StudioBuildingInfoRepository studioBuildingInfoRepository;
+  private final StudioForbiddenInstrumentRepository studioForbiddenInstrumentRepository;
+  private final OwnerService ownerService;
 
   private record PriceRange(Integer minPrice, Integer maxPrice) {
 
@@ -70,21 +80,22 @@ public class StudioDetailsService {
     studioViewService.incrementViewCount(studioId, musicianId);
 
     // 2. Studio와 대부분의 연관 데이터를 한번의 쿼리로 조회
-    Studio studio = studioRepository.findStudioDetailsById(studioId)
+    Studio studio = studioRepository.findById(studioId)
         .orElseThrow(() -> new BusinessException(STUDIO_NOT_FOUND));
 
     // 3. 별도 쿼리가 필요한 연관 데이터들을 조회 (N+1 방지)
+    List<Room> rooms = roomRepository.findAllByStudioId(studioId);
+    StudioPrice studioPrice = studioPriceRepository.findById(studioId).orElse(null);
+    StudioBuildingInfo studioBuildingInfo = studioBuildingInfoRepository.findById(studioId).orElse(null);
     List<StudioImage> studioImages = studioImageRepository.findAllByStudio(studio);
     List<StudioOption> studioOptions = studioOptionRepository.findAllByStudio(studio);
+    List<StudioForbiddenInstrument> forbiddenInstruments = studioForbiddenInstrumentRepository.findAllByStudio(studio);
+    List<SubwayStationNearbyStudio> nearbyStations = subwayStationNearbyStudioRepository.findAllByStudioOrderBySequenceAsc(studioId);
 
     // 4. 나머지 데이터들을 변수에 할당
-    Owner owner = studio.getOwner();
-    StudioBuildingInfo studioBuildingInfo = studio.getStudioBuildingInfo();
-    StudioPrice studioPrice = studio.getStudioPrice();
-    Set<Room> rooms = studio.getRooms();
-
+    Owner owner = ownerService.findByIdOrThrowException(studio.getOwnerId());
     PriceRange priceRange = calculateStudioPriceRange(studioPrice, rooms);
-    List<StudioSubwayStationInfo> nearbySubwayStations = getNearbySubwayStations(studio);
+    List<StudioSubwayStationInfo> nearbySubwayStationInfos = getNearbySubwayStations(studio, nearbyStations);
 
     StudioBaseInfoDto studioBaseInfoDto = StudioBaseInfoDto.builder()
         .studioId(String.valueOf(studio.getId()))
@@ -97,7 +108,7 @@ public class StudioDetailsService {
         .studioMinPrice(priceRange.minPrice())
         .studioMaxPrice(priceRange.maxPrice())
         .depositAmount(studio.getDepositAmount())
-        .nearbySubwayStations(nearbySubwayStations)
+        .nearbySubwayStations(nearbySubwayStationInfos)
         .build();
 
     Point parkingLocation = null;
@@ -111,9 +122,7 @@ public class StudioDetailsService {
 
     StudioNoticeDto studioNoticeDto = StudioNoticeDto.from(owner, studio);
 
-    StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto =
-        StudioForbiddenInstrumentsDto.from(
-            studio);
+    StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto = StudioForbiddenInstrumentsDto.from(forbiddenInstruments);
 
     StudioRoomsDto studioRoomsDto = StudioRoomsDto.from(rooms);
 
@@ -161,7 +170,7 @@ public class StudioDetailsService {
         .build();
   }
 
-  private PriceRange calculateStudioPriceRange(StudioPrice studioPrice, Set<Room> rooms) {
+  private PriceRange calculateStudioPriceRange(StudioPrice studioPrice, List<Room> rooms) {
     Integer minPrice = null;
     Integer maxPrice = null;
 
@@ -185,11 +194,7 @@ public class StudioDetailsService {
     return new PriceRange(minPrice, maxPrice);
   }
 
-  private List<StudioSubwayStationInfo> getNearbySubwayStations(Studio studio) {
-    // 1. 특정 스튜디오에 연결된 모든 '인근 지하철역' 엔티티를 순서대로 조회합니다.
-    List<SubwayStationNearbyStudio> nearbyStations =
-        subwayStationsNearbyStudioRepository.findAllByStudioOrderBySequenceAsc(studio);
-
+  private List<StudioSubwayStationInfo> getNearbySubwayStations(Studio studio, List<SubwayStationNearbyStudio> nearbyStations) {
     if (nearbyStations.isEmpty()) {
       return Collections.emptyList();
     }

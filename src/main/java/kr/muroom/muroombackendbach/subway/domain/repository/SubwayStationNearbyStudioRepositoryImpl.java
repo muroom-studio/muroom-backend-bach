@@ -6,12 +6,11 @@ import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStationNea
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.Collection;
 import java.util.List;
-import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class SubwayStationsNearbyStudioRepositoryImpl implements SubwayStationsNearbyStudioQueryRepository {
+public class SubwayStationNearbyStudioRepositoryImpl implements SubwayStationNearbyStudioQueryRepository {
 
   private final JPAQueryFactory queryFactory;
 
@@ -21,16 +20,16 @@ public class SubwayStationsNearbyStudioRepositoryImpl implements SubwayStationsN
         .select(subwayStationNearbyStudio)
         .from(subwayStationNearbyStudio)
         .join(subwayStationNearbyStudio.subwayStation).fetchJoin()
-        .where(subwayStationNearbyStudio.studio.id.in(studioIds))
+        .where(subwayStationNearbyStudio.studioId.in(studioIds))
         .fetch();
   }
 
   @Override
-  public List<SubwayStationNearbyStudio> findAllByStudioOrderBySequenceAsc(Studio studio) {
+  public List<SubwayStationNearbyStudio> findAllByStudioOrderBySequenceAsc(Long studioId) {
     return queryFactory
         .selectFrom(subwayStationNearbyStudio)
         .join(subwayStationNearbyStudio.subwayStation, subwayStation).fetchJoin()
-        .where(subwayStationNearbyStudio.studio.eq(studio))
+        .where(subwayStationNearbyStudio.studioId.eq(studioId))
         .orderBy(subwayStationNearbyStudio.sequence.asc())
         .fetch();
   }
@@ -40,7 +39,7 @@ public class SubwayStationsNearbyStudioRepositoryImpl implements SubwayStationsN
     return queryFactory
         .selectFrom(subwayStationNearbyStudio)
         .join(subwayStationNearbyStudio.subwayStation, subwayStation).fetchJoin()
-        .where(subwayStationNearbyStudio.studio.id.eq(studioId))
+        .where(subwayStationNearbyStudio.studioId.eq(studioId))
         .orderBy(subwayStationNearbyStudio.sequence.asc())
         .fetchFirst();
   }

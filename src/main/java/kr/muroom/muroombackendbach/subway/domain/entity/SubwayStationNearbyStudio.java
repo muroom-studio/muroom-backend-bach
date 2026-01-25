@@ -9,7 +9,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
-import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,11 +35,6 @@ public class SubwayStationNearbyStudio extends CreatedDateEntity {
   @JoinColumn(name = "subway_station_id", nullable = false)
   private SubwayStation subwayStation;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "studio_id", nullable = false)
-  private Studio studio;
-
-  public void assignStudio(Studio studio) {
-    this.studio = studio;
-  }
+  @Column(name = "studio_id", nullable = false)
+  private Long studioId;
 }
