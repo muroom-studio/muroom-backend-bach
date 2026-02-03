@@ -30,12 +30,14 @@ systemctl start amazon-ssm-agent
 systemctl enable amazon-ssm-agent
 systemctl start crond
 systemctl enable crond
+
 usermod -a -G docker ec2-user
+id -u ssm-user &>/dev/null || useradd -m ssm-user
+usermod -a -G docker ssm-user
 
 # --- 3. Terraform 변수 주입 (일관성 유지) ---
 EBS_VOLUME_ID="${ebs_volume_id}"
 MOUNT_POINT="${mount_point}"
-VALKEY_VERSION="${valkey_version}"
 VALKEY_SECRET_ARN="${valkey_secret_arn}"
 AWS_REGION="${aws_region}"
 BACKUP_S3_BUCKET_NAME="${backup_s3_bucket_name}"
@@ -121,7 +123,7 @@ docker run -d --name muroom-valkey \
   -p 6379:6379 \
   -v $MOUNT_POINT:/data \
   --restart always \
-  valkey/valkey:$VALKEY_VERSION \
+  valkey/valkey:8.1.5 \
   valkey-server \
   --user default off \
   --user "$VALKEY_USERNAME" on ">$VALKEY_PASSWORD" ~* +@all \
@@ -153,8 +155,8 @@ TIMEOUT=120
 COUNTER=0
 
 echo "INFO: Waiting for BGSAVE to complete..."
-while [ "$(docker exec muroom-valkey valkey-cli --user '$VALKEY_USERNAME' -a '$VALKEY_PASSWORD' info persistence | grep rdb_bgsave_in_progress | cut -d: -f2 | tr -d '\r')" == "1" ]; do
-    if [ $COUNTER -gt $TIMEOUT ]; then
+while [ "\$(docker exec muroom-valkey valkey-cli --user '$VALKEY_USERNAME' -a '$VALKEY_PASSWORD' info persistence | grep rdb_bgsave_in_progress | cut -d: -f2 | tr -d '\r')" == "1" ]; do
+    if [ "\$COUNTER" -gt "\$TIMEOUT" ]; then
         echo "ERROR: BGSAVE timed out after 120 seconds."
         exit 1
     fi

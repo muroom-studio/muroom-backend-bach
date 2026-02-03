@@ -160,10 +160,10 @@ resource "aws_vpc_security_group_egress_rule" "ecs_egress_to_nat" {
     prod = aws_security_group.muroom_ecs_instance_prod_sg.id,
     dev  = aws_security_group.muroom_ecs_instance_dev_sg.id
   }
-  description                  = "Allow egress to the internet via NAT"
-  security_group_id            = each.value
-  ip_protocol                  = "-1"
-  referenced_security_group_id = aws_security_group.muroom_nat_sg.id
+  description       = "Allow egress to the internet via NAT"
+  security_group_id = each.value
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 # --- 4. Postgres Instance 보안 그룹 규칙 ---
@@ -196,10 +196,10 @@ resource "aws_vpc_security_group_egress_rule" "postgres_egress_to_nat" {
     prod = aws_security_group.muroom_postgres_prod_sg.id,
     dev  = aws_security_group.muroom_postgres_dev_sg.id
   }
-  description                  = "Allow egress to the internet via NAT for backups"
-  security_group_id            = each.value
-  ip_protocol                  = "-1"
-  referenced_security_group_id = aws_security_group.muroom_nat_sg.id
+  description       = "Allow egress to the internet via NAT for backups"
+  security_group_id = each.value
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 # --- 5. Valkey Instance 보안 그룹 규칙 ---
@@ -220,10 +220,10 @@ resource "aws_vpc_security_group_egress_rule" "valkey_egress_to_nat" {
     prod = aws_security_group.muroom_valkey_prod_sg.id,
     dev  = aws_security_group.muroom_valkey_dev_sg.id
   }
-  description                  = "Allow egress to the internet via NAT for backups"
-  security_group_id            = each.value
-  ip_protocol                  = "-1"
-  referenced_security_group_id = aws_security_group.muroom_nat_sg.id
+  description       = "Allow egress to the internet via NAT for backups"
+  security_group_id = each.value
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 # --- 6. Lambda 보안 그룹 규칙 ---

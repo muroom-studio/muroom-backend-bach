@@ -26,9 +26,9 @@ services:
   #    networks:
   #      - muroom-network
 
-  # 2. Database (Postgres 17 + PostGIS 3.4)
+  # 2. Database (Postgres 17 + PostGIS 3.5)
   db:
-    image: postgis/postgis:17-3.4
+    image: kartoza/postgis:17-3.5
     container_name: muroom-postgres
     restart: always
     ports:

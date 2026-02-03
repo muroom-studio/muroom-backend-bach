@@ -36,6 +36,10 @@ resource "aws_launch_template" "muroom_ecs_prod_launch_template" {
 
       # 3. 메타데이터 활성화 설정 추가
       echo "ECS_ENABLE_CONTAINER_METADATA=true" >> /etc/ecs/ecs.config
+
+      # 4. ssm-user에게 docker 권한 부여
+      id -u ssm-user &>/dev/null || useradd -m ssm-user
+      usermod -a -G docker ssm-user
     EOF
   )
 
@@ -67,6 +71,10 @@ resource "aws_launch_template" "muroom_ecs_dev_launch_template" {
 
       # 3. 메타데이터 활성화 설정 추가
       echo "ECS_ENABLE_CONTAINER_METADATA=true" >> /etc/ecs/ecs.config
+
+      # 4. ssm-user에게 docker 권한 부여
+      id -u ssm-user &>/dev/null || useradd -m ssm-user
+      usermod -a -G docker ssm-user
     EOF
   )
 

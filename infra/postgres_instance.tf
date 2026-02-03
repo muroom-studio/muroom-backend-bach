@@ -11,9 +11,7 @@ resource "aws_launch_template" "muroom_postgres_prod_launch_template" {
   }
 
   lifecycle {
-    ignore_changes = [
-      image_id,
-    ]
+    # ignore_changes = [image_id]
   }
 
   block_device_mappings {
@@ -28,7 +26,6 @@ resource "aws_launch_template" "muroom_postgres_prod_launch_template" {
   user_data = base64encode(templatefile("${path.module}/shell-script/postgres_user_data.sh.tpl", {
     ebs_volume_id         = aws_ebs_volume.muroom_postgres_prod_storage.id
     mount_point           = var.postgres_ebs_mount_point
-    pg_version            = "17"
     postgres_secret_arn   = aws_secretsmanager_secret.muroom_postgres_prod_secret_manager.arn
     aws_region            = data.aws_region.current.id
     backup_s3_bucket_name = aws_s3_bucket.muroom_prod_postgres_backup.id
@@ -64,7 +61,7 @@ resource "aws_instance" "muroom_postgres_prod_instance" {
   vpc_security_group_ids = [aws_security_group.muroom_postgres_prod_sg.id]
 
   lifecycle {
-    ignore_changes  = [ami, user_data, launch_template]
+    # ignore_changes  = [ami, user_data, launch_template]
     prevent_destroy = false
   }
 
@@ -163,9 +160,7 @@ resource "aws_launch_template" "muroom_postgres_dev_launch_template" {
   }
 
   lifecycle {
-    ignore_changes = [
-      image_id,
-    ]
+    # ignore_changes = [image_id]
   }
 
   block_device_mappings {
@@ -180,7 +175,6 @@ resource "aws_launch_template" "muroom_postgres_dev_launch_template" {
   user_data = base64encode(templatefile("${path.module}/shell-script/postgres_user_data.sh.tpl", {
     ebs_volume_id         = aws_ebs_volume.muroom_postgres_dev_storage.id
     mount_point           = var.postgres_ebs_mount_point
-    pg_version            = "17"
     postgres_secret_arn   = aws_secretsmanager_secret.muroom_postgres_dev_secret_manager.arn
     aws_region            = data.aws_region.current.id
     backup_s3_bucket_name = aws_s3_bucket.muroom_dev_postgres_backup.id
@@ -214,7 +208,7 @@ resource "aws_instance" "muroom_postgres_dev_instance" {
   vpc_security_group_ids = [aws_security_group.muroom_postgres_dev_sg.id]
 
   lifecycle {
-    ignore_changes  = [ami, user_data, launch_template]
+    # ignore_changes  = [ami, user_data, launch_template]
     prevent_destroy = false
   }
 
