@@ -27,7 +27,8 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: local-redis-password
+      username: muroomadmin
+      password: muroom1234
 
 cloud:
   aws:
