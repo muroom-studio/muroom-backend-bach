@@ -43,8 +43,8 @@ services:
     networks:
       - muroom-network
 
-  # 3. Redis
-  redis:
+  # 3. Valkey (Redis 호환 인메모리 데이터베이스)
+  valkey:
     image: valkey/valkey:8.1.5
     container_name: muroom-valkey
     restart: always
@@ -53,7 +53,7 @@ services:
     command: valkey-server /usr/local/etc/redis/valkey.conf
     volumes:
       - ${HOME}/muroom/development/docker-volumes/valkey_data:/data
-      - ./valkey/redis.conf:/usr/local/etc/redis/valkey.conf
+      - ./valkey/valkey.conf:/usr/local/etc/redis/valkey.conf
       - ./valkey/users.acl:/usr/local/etc/redis/users.acl
     networks:
       - muroom-network
