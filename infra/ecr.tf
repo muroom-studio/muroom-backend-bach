@@ -10,7 +10,7 @@ resource "aws_ecr_repository" "muroom_backend_bach" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
   force_delete = false
 

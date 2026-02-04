@@ -17,10 +17,10 @@ resource "aws_s3_bucket" "terraform_state" {
   bucket = "muroom-terraform-state-backend"
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
-  force_destroy = true
+  force_destroy = false
 
   tags = {
     Name = "muroom-terraform-state-backend"
@@ -61,10 +61,10 @@ resource "aws_dynamodb_table" "terraform_state_lock" {
   name                        = "muroom-terraform-state-lock"
   billing_mode                = "PAY_PER_REQUEST"
   hash_key                    = "LockID"
-  deletion_protection_enabled = false
+  deletion_protection_enabled = true
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
   attribute {

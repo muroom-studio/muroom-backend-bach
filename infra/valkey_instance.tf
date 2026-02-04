@@ -45,7 +45,7 @@ resource "aws_ebs_volume" "muroom_valkey_prod_storage" {
   encrypted         = true
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
   tags = {
@@ -60,7 +60,7 @@ resource "aws_instance" "muroom_valkey_prod_instance" {
 
   lifecycle {
     # ignore_changes  = [ami, user_data, launch_template]
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
   launch_template {
@@ -127,7 +127,7 @@ resource "aws_ebs_volume" "muroom_valkey_dev_storage" {
   encrypted         = true
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
   tags = {
@@ -142,7 +142,7 @@ resource "aws_instance" "muroom_valkey_dev_instance" {
 
   lifecycle {
     # ignore_changes  = [ami, user_data, launch_template]
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
   launch_template {
