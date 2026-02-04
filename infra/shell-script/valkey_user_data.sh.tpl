@@ -149,13 +149,13 @@ S3_PATH="s3://$BACKUP_S3_BUCKET_NAME/backups/valkey/\$TIMESTAMP/muroom_valkey_ba
 
 echo "INFO: Initiating Valkey BGSAVE for backup..."
 # ACL 환경에서는 유저명과 패스워드를 모두 명시해야 SAVE 가능
-docker exec muroom-valkey valkey-cli --user '$VALKEY_USERNAME' -a '$VALKEY_PASSWORD' BGSAVE
+docker exec -e REDISCLI_AUTH="$VALKEY_PASSWORD" muroom-valkey valkey-cli --user '$VALKEY_USERNAME' BGSAVE
 
 TIMEOUT=120
 COUNTER=0
 
 echo "INFO: Waiting for BGSAVE to complete..."
-while [ "\$(docker exec muroom-valkey valkey-cli --user '$VALKEY_USERNAME' -a '$VALKEY_PASSWORD' info persistence | grep rdb_bgsave_in_progress | cut -d: -f2 | tr -d '\r')" == "1" ]; do
+while [ "\$(docker exec -e REDISCLI_AUTH="$VALKEY_PASSWORD" muroom-valkey valkey-cli --user '$VALKEY_USERNAME' info persistence | grep rdb_bgsave_in_progress | cut -d: -f2 | tr -d '\r')" == "1" ]; do
     if [ "\$COUNTER" -gt "\$TIMEOUT" ]; then
         echo "ERROR: BGSAVE timed out after 120 seconds."
         exit 1

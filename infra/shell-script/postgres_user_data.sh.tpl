@@ -85,6 +85,16 @@ DB_NAME=$(echo $SECRET_JSON | jq -r .dbname)
 DB_USERNAME=$(echo $SECRET_JSON | jq -r .username)
 DB_PASSWORD=$(echo $SECRET_JSON | jq -r .password)
 
+# .pgpass 파일 생성 (보안 강화) ---
+# 형식: hostname:port:database:username:password
+# (호스트네임은 로컬 접속이므로 127.0.0.1 또는 localhost 사용)
+echo "127.0.0.1:5432:*:$DB_USERNAME:$DB_PASSWORD" > /home/ec2-user/.pgpass
+echo "localhost:5432:*:$DB_USERNAME:$DB_PASSWORD" >> /home/ec2-user/.pgpass
+
+# 권한 설정 (매우 중요! 600 아니면 pg_dump가 파일을 무시함)
+chmod 600 /home/ec2-user/.pgpass
+chown ec2-user:ec2-user /home/ec2-user/.pgpass
+
 # --- 6. WAL 아카이브 경로 준비 ---
 echo "INFO: Preparing WAL archive directory..."
 DATA_DIR="$MOUNT_POINT/data"
@@ -185,7 +195,11 @@ BACKUP_FILE="muroom_dump_\$TIMESTAMP.sql.gz"
 
 mkdir -p \$BACKUP_DIR
 
-if docker exec -e PGPASSWORD='$DB_PASSWORD' muroom-postgres pg_dump -U '$DB_USERNAME' '$DB_NAME' | gzip > "\$BACKUP_DIR/\$BACKUP_FILE"; then
+# .pgpass 파일을 컨테이너 안으로 복사 (일회성 실행)
+docker cp /home/ec2-user/.pgpass muroom-postgres:/root/.pgpass
+docker exec muroom-postgres chmod 600 /root/.pgpass
+
+if docker exec muroom-postgres pg_dump -h 127.0.0.1 -U '$DB_USERNAME' '$DB_NAME' | gzip > "\$BACKUP_DIR/\$BACKUP_FILE"; then
     aws s3 cp "\$BACKUP_DIR/\$BACKUP_FILE" "s3://$BACKUP_S3_BUCKET_NAME/backups/postgres/\$TIMESTAMP/" --storage-class INTELLIGENT_TIERING
     rm -rf "\$BACKUP_DIR"
     echo "SUCCESS: Backup uploaded to S3 at \$(date)"
@@ -233,7 +247,12 @@ echo "INFO: PostgreSQL backup service and timer created successfully!"
 # --- 10. PostGIS Extension 활성화 ---
 sleep 30
 echo "INFO: Enabling PostGIS extension..."
-docker exec -e PGPASSWORD='$DB_PASSWORD' muroom-postgres psql -U "$DB_USERNAME" -d "$DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+
+# [추가] 컨테이너에 .pgpass 파일 주입 (초기화 시점용)
+docker cp /home/ec2-user/.pgpass muroom-postgres:/root/.pgpass
+docker exec muroom-postgres chmod 600 /root/.pgpass
+
+docker exec muroom-postgres psql -h 127.0.0.1 -U "$DB_USERNAME" -d "$DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS postgis;"
 echo "INFO: PostGIS extension enabled."
 
 echo "INFO: All Setup Completed Successfully!"
