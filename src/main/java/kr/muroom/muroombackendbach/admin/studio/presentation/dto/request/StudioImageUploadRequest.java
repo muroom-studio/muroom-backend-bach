@@ -11,7 +11,7 @@ public record StudioImageUploadRequest(
     @NotBlank String contentType
 ) implements FileUploadRequest {
 
-  private static final String DOMAIN_DIRECTORY_PREFIX = "studios";
+  private static final String DOMAIN_DIRECTORY_PREFIX = "studios/";
 
   @Override
   public String getFileName() {
