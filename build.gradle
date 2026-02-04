@@ -44,20 +44,24 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+    // DB
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.h2database:h2'
+    implementation 'software.amazon.jdbc:aws-advanced-jdbc-wrapper:2.6.8'
+    // SQL Logging
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
+
     // Performance
     annotationProcessor 'org.springframework:spring-context-indexer'
 
     // ID Generation (TSID)
     implementation 'com.github.f4b6a3:tsid-creator:5.2.6'
-    
+
     // JWT
     implementation 'io.jsonwebtoken:jjwt:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
     implementation 'com.auth0:java-jwt:4.4.0'
-
-    // SQL Logging
-    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
     //Phone Number
     implementation 'com.googlecode.libphonenumber:libphonenumber:5.5'
@@ -86,10 +90,6 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-
-    // DB
-    runtimeOnly 'org.postgresql:postgresql'
-    runtimeOnly 'com.h2database:h2'
 
     //Flyway
     implementation 'org.flywaydb:flyway-core'

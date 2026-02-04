@@ -5,10 +5,14 @@ spring:
     password: local-postgres-password
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 30000
-      connection-timeout: 60000
+      maximum-pool-size: 10
+      minimum-idle: 10
+      connection-timeout: 3000
+      validation-timeout: 2000
+      max-lifetime: 1800000
+      keep-alive-time: 60000
+      idle-timeout: 0
+      pool-name: HikariPool-Postgres
 
   jpa:
     open-in-view: false
@@ -29,6 +33,13 @@ spring:
       port: 6379
       username: muroomadmin
       password: muroom1234
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 2
+          max-wait: 1000ms
 
 cloud:
   aws:

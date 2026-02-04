@@ -3,12 +3,20 @@ spring:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: software.amazon.jdbc.Driver
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 30000
-      connection-timeout: 60000
+      maximum-pool-size: 10
+      minimum-idle: 10
+      connection-timeout: 3000
+      validation-timeout: 2000
+      max-lifetime: 1800000
+      keep-alive-time: 60000
+      idle-timeout: 0
+      pool-name: HikariPool-Postgres
+      data-source-properties:
+        wrapperPlugins: awsSecretsManager
+        secretsManagerSecretId: muroom/postgres-prod/credentials
+        secretsManagerRegion: ${AWS_REGION}
 
   data:
     redis:
@@ -16,6 +24,13 @@ spring:
       port: ${VALKEY_PORT}
       username: ${VALKEY_USERNAME}
       password: ${VALKEY_PASSWORD}
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 2
+          max-wait: 1000ms
       ssl:
         enabled: true
 
