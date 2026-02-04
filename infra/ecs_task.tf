@@ -97,7 +97,7 @@ resource "aws_ecs_task_definition" "muroom_ecs_task_definition_dev" {
   container_definitions = jsonencode([
     {
       name         = "muroom-backend-bach-container-dev"
-      image        = "${aws_ecr_repository.muroom_backend_bach.repository_url}:dev-71fd7fa"
+      image        = "${aws_ecr_repository.muroom_backend_bach.repository_url}:dev-b45f1d1"
       cpu          = 1024
       memory       = 1536
       essential    = true
