@@ -100,10 +100,6 @@ resource "aws_secretsmanager_secret_version" "muroom_valkey_prod_secret_version"
     username = var.valkey_prod_username
     password = random_password.muroom_valkey_prod_password.result
   })
-
-  lifecycle {
-    ignore_changes = [secret_string]
-  }
 }
 
 # --------------------------------------------------------
@@ -126,10 +122,6 @@ resource "aws_secretsmanager_secret_version" "muroom_valkey_dev_secret_version" 
     username = var.valkey_dev_username
     password = random_password.muroom_valkey_dev_password.result
   })
-
-  lifecycle {
-    ignore_changes = [secret_string]
-  }
 }
 
 # --------------------------------------------------------

@@ -11,7 +11,7 @@ resource "aws_launch_template" "muroom_valkey_prod_launch_template" {
   }
 
   lifecycle {
-    # ignore_changes = [image_id]
+    ignore_changes = [image_id]
   }
 
   block_device_mappings {
@@ -59,7 +59,7 @@ resource "aws_instance" "muroom_valkey_prod_instance" {
   vpc_security_group_ids = [aws_security_group.muroom_valkey_prod_sg.id]
 
   lifecycle {
-    # ignore_changes  = [ami, user_data, launch_template]
+    ignore_changes  = [ami, user_data, launch_template]
     prevent_destroy = true
   }
 

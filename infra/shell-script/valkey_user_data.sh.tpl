@@ -35,6 +35,10 @@ usermod -a -G docker ec2-user
 id -u ssm-user &>/dev/null || useradd -m ssm-user
 usermod -a -G docker ssm-user
 
+# ssm-user에게 비밀번호 없이 sudo 권한 부여
+echo "ssm-user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ssm-user
+chmod 440 /etc/sudoers.d/ssm-user
+
 # --- 3. Terraform 변수 주입 (일관성 유지) ---
 EBS_VOLUME_ID="${ebs_volume_id}"
 MOUNT_POINT="${mount_point}"

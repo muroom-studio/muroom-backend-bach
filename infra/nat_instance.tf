@@ -20,7 +20,7 @@ resource "aws_instance" "muroom_nat_instance" {
   user_data_replace_on_change = false # user_data 변경 시 인스턴스 재생성 방지
 
   lifecycle {
-    # ignore_changes  = [ami, user_data]
+    ignore_changes  = [ami, user_data]
     prevent_destroy = true
   }
 
