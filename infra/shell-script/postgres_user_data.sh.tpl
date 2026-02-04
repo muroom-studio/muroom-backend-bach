@@ -4,7 +4,7 @@ set -e
 # 모든 출력을 로그 파일(/var/log/user-data.log)로 저장합니다.
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
-echo "INFO: PostgreSQL + PostGIS(kartoza) Setup Script Starting..."
+echo "INFO: PostgreSQL + PostGIS Setup Script Starting..."
 
 # --- 1. 필수 패키지 설치 ---
 echo "INFO: Installing Docker, JQ, NVMe-CLI, and SSM Agent..."
@@ -34,6 +34,10 @@ systemctl enable crond
 usermod -a -G docker ec2-user
 id -u ssm-user &>/dev/null || useradd -m ssm-user # ssm-user가 없으면 생성 (보통 있음)
 usermod -a -G docker ssm-user
+
+# ssm-user에게 비밀번호 없이 sudo 권한 부여
+echo "ssm-user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ssm-user
+chmod 440 /etc/sudoers.d/ssm-user
 
 # --- 3. Terraform 변수 주입 (templatefile에서 넘겨받는 값들) ---
 EBS_VOLUME_ID="${ebs_volume_id}"
@@ -89,20 +93,41 @@ WAL_ARCHIVE_PATH="$MOUNT_POINT/wal_archive"
 mkdir -p $WAL_ARCHIVE_PATH
 
 chmod 777 $DATA_DIR
+chown -R 999:999 $DATA_DIR
 chmod 777 $WAL_ARCHIVE_PATH
-# chown -R 999:999 $WAL_ARCHIVE_PATH # kartoza UID와 충돌 방지 위해 주석 처리
+chown -R 999:999 $WAL_ARCHIVE_PATH
 
-# --- 7. TimescaleDB/PostgreSQL 컨테이너 실행 ---
+# --- 7. Custom PostGIS Image Build & Run (Official Postgres Base) ---
+echo "INFO: Building custom PostGIS image from official postgres:17-bookworm..."
+
+# Dockerfile 생성
+mkdir -p /home/ec2-user/docker-postgis
+cat <<EOF > /home/ec2-user/docker-postgis/Dockerfile
+FROM postgres:17-bookworm
+
+# 패키지 업데이트 및 PostGIS 설치
+RUN apt-get update \\
+    && apt-get install -y postgis postgresql-17-postgis-3 \\
+    && rm -rf /var/lib/apt/lists/*
+EOF
+
+docker rm -f muroom-postgres || true
+docker rmi muroom/postgis:17 || true
+
+# 이미지 빌드
+docker build -t muroom/postgis:17 /home/ec2-user/docker-postgis
+
+echo "INFO: Starting PostgreSQL container..."
+# 공식 이미지 기반이므로 -c 옵션 사용이 안전함
 docker run -d --name muroom-postgres \
   -p 5432:5432 \
-  -v $DATA_DIR:/var/lib/postgresql \
+  -v $DATA_DIR:/var/lib/postgresql/data \
   -v $WAL_ARCHIVE_PATH:/var/lib/postgresql/wal_archive \
   -e POSTGRES_DB="$DB_NAME" \
   -e POSTGRES_USER="$DB_USERNAME" \
-  -e POSTGRES_PASS="$DB_PASSWORD" \
-  -e ALLOW_IP_RANGE="0.0.0.0/0" \
+  -e POSTGRES_PASSWORD="$DB_PASSWORD" \
   --restart always \
-  kartoza/postgis:17-3.5 \
+  muroom/postgis:17 \
   -c "shared_buffers=512MB" \
   -c "max_connections=60" \
   -c "wal_level=replica" \
