@@ -46,7 +46,7 @@ services:
   # 3. Redis
   redis:
     image: valkey/valkey:8.1.5
-    container_name: muroom-redis
+    container_name: muroom-valkey
     restart: always
     ports:
       - "6379:6379"
