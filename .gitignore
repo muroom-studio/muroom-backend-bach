@@ -1,16 +1,19 @@
-# terraform
+# Environment variables
+*.env
+*.log
+
+# Terraform files
 *.tfstate
-*.tfstate.backup
+*.tfstate.*
+*.tfvars
 .terraform/
-terraform.tfvars
+crash.log
 
 # 쿼리 파일
 **/src/main/resources/queries/
 
-# 환경 설정 파일
-*.env
-*.log
-
+# macOS
+.DS_Store
 
 # 자동 설정
 HELP.md

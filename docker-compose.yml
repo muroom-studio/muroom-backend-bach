@@ -1,14 +1,41 @@
 services:
-  # 1. Database (Postgres 17 + PostGIS 3.4)
+  # 1. Application Server
+  #  app:
+  #    build: .
+  #    container_name: muroom-backend-bach
+  #    restart: always
+  #    ports:
+  #      - "8080:8080"
+  #    environment:
+  #      # Spring Profile
+  #      - SPRING_PROFILES_ACTIVE=local
+  #      # DB Connection
+  #      - DB_HOST=localhost
+  #      - DB_PORT=5432
+  #      - DB_NAME=muroomdb
+  #      - DB_USERNAME=muroomadmin
+  #      - DB_PASSWORD=muroom1234
+  #      # Valkey(Redis) Connection
+  #      - VALKEY_HOST=valkey
+  #      - VALKEY_PORT=6379
+  #      - VALKEY_USERNAME=muroomadmin
+  #      - VALKEY_PASSWORD=muroom1234
+  #    depends_on:
+  #      - postgres
+  #      - valkey
+  #    networks:
+  #      - muroom-network
+
+  # 2. Database (Postgres 17 + PostGIS 3.5)
   db:
-    image: postgis/postgis:17-3.4
+    image: kartoza/postgis:17-3.5
     container_name: muroom-postgres
     restart: always
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: muroomadmin
-      POSTGRES_PASSWORD: local-postgres-password
+      POSTGRES_PASSWORD: muroom1234
       POSTGRES_DB: muroomdb
       TZ: UTC
     volumes:
@@ -16,18 +43,18 @@ services:
     networks:
       - muroom-network
 
-  # 2. Redis
+  # 3. Redis
   redis:
-    image: redis:alpine
+    image: valkey/valkey:8.1.5
     container_name: muroom-redis
     restart: always
     ports:
       - "6379:6379"
-    command: redis-server /usr/local/etc/redis/redis.conf
+    command: valkey-server /usr/local/etc/redis/valkey.conf
     volumes:
-      - ${HOME}/muroom/development/docker-volumes/redis_data:/data
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
-      - ./redis/users.acl:/usr/local/etc/redis/users.acl
+      - ${HOME}/muroom/development/docker-volumes/valkey_data:/data
+      - ./valkey/redis.conf:/usr/local/etc/redis/valkey.conf
+      - ./valkey/users.acl:/usr/local/etc/redis/users.acl
     networks:
       - muroom-network
 
