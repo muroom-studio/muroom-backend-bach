@@ -27,7 +27,7 @@ resource "aws_ecs_task_definition" "muroom_ecs_task_definition_prod" {
   container_definitions = jsonencode([
     {
       name         = "muroom-backend-bach-container-prod"
-      image        = "${aws_ecr_repository.muroom_backend_bach.repository_url}:prod-latest"
+      image        = "${aws_ecr_repository.muroom_backend_bach.repository_url}:prod-latest" #prod-v26.02.04/A"
       cpu          = 2048
       memory       = 3072
       essential    = true
@@ -97,7 +97,7 @@ resource "aws_ecs_task_definition" "muroom_ecs_task_definition_dev" {
   container_definitions = jsonencode([
     {
       name         = "muroom-backend-bach-container-dev"
-      image        = "${aws_ecr_repository.muroom_backend_bach.repository_url}:dev-3a4527e"
+      image        = "${aws_ecr_repository.muroom_backend_bach.repository_url}:dev-0c9d536"
       cpu          = 1024
       memory       = 1536
       essential    = true
