@@ -23,6 +23,10 @@ resource "aws_autoscaling_group" "muroom_ecs_prod_asg" {
     version = "$Latest" # 항상 최신 버전의 런치 템플릿 사용
   }
 
+  lifecycle {
+    ignore_changes = [desired_capacity] # desired_capacity 변경 무시 -> Capacity Provider가 관리하도록 함
+  }
+
   # ECS 관리형 ASG 태그
   tag {
     key                 = "AmazonECSManaged"
@@ -81,7 +85,7 @@ resource "aws_ecs_capacity_provider" "muroom_ecs_prod_cp" {
 
     managed_scaling {
       status                    = "ENABLED"
-      target_capacity           = 80 # 80으로 해두면, 트래픽이 80%에 도달했을 때 스케일 아웃 시작
+      target_capacity           = 100
       minimum_scaling_step_size = 1
       maximum_scaling_step_size = 1
     }

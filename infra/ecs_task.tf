@@ -18,7 +18,7 @@ resource "aws_ecs_task_definition" "muroom_ecs_task_definition_prod" {
   family                   = "muroom-ecs-task-def-prod"
   network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
-  cpu                      = "2048" # t4g.medium (2vCPU, 4GB)에 맞춘 설정
+  cpu                      = "1920" # t4g.medium (2vCPU, 4GB)에서 시스템 여유분을 남긴 설정
   memory                   = "3072" # 3GB (인스턴스에 여유 메모리 확보)
 
   task_role_arn      = aws_iam_role.muroom_ecs_prod_task_role.arn
@@ -28,7 +28,7 @@ resource "aws_ecs_task_definition" "muroom_ecs_task_definition_prod" {
     {
       name         = "muroom-backend-bach-container-prod"
       image        = "${aws_ecr_repository.muroom_backend_bach.repository_url}:prod-v26.02.04.A"
-      cpu          = 2048
+      cpu          = 1920
       memory       = 3072
       essential    = true
       portMappings = [{ containerPort = 8080, hostPort = 8080 }],
