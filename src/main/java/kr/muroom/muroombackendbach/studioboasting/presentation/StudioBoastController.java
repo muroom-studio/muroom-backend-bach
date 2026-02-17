@@ -79,7 +79,7 @@ public class StudioBoastController implements StudioBoastControllerDocs {
 
   @GetMapping("/{studioBoastId}")
   public ApiResponse<StudioBoastDetailResponse> getStudioBoastDetail(
-      @PathVariable Long studioBoastId, @CurrentUserId Long musicianId
+      @PathVariable Long studioBoastId, @CurrentUserId(required = false) Long musicianId
   ) {
     StudioBoastDetailResponse response = studioBoastService.getStudioBoastDetail(studioBoastId,
         musicianId);
@@ -91,7 +91,7 @@ public class StudioBoastController implements StudioBoastControllerDocs {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "2") int size,
       @RequestParam(name = "sort", defaultValue = "latest,desc") String sort,
-      @CurrentUserId Long musicianId
+      @CurrentUserId(required = false) Long musicianId
   ) {
     String sortKey = sort.split(",")[0];
 

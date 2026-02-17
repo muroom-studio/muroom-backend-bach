@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum AuthErrorCode implements ErrorCode {
+  UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AU-401-01", "인증이 필요한 서비스입니다."),
   FORBIDDEN(HttpStatus.FORBIDDEN, "AU-403-01", "해당 리소스에 접근 권한이 없습니다."),
   LOGIN_FAIL(HttpStatus.UNAUTHORIZED, "AU-401-02", "로그인 실패"),
   ;

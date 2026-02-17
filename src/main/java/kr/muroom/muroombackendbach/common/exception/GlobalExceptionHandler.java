@@ -2,6 +2,7 @@ package kr.muroom.muroombackendbach.common.exception;
 
 import java.util.List;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
+import kr.muroom.muroombackendbach.auth.auth.exception.AuthErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -133,7 +134,7 @@ public class GlobalExceptionHandler {
    *
    */
   @ExceptionHandler({AuthorizationDeniedException.class, AccessDeniedException.class})
-  public ResponseEntity<Void> handle(Exception ex) {
+  public ResponseEntity<ApiResponse<ErrorPayload>> handle(Exception ex) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
     boolean notLoggedIn =
@@ -142,9 +143,15 @@ public class GlobalExceptionHandler {
             !auth.isAuthenticated();
 
     if (notLoggedIn) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 401
+      final ErrorCode errorCode = AuthErrorCode.UNAUTHORIZED;
+      final ApiResponse<ErrorPayload> response = ApiResponse.fail(errorCode.getStatus(),
+          errorCode.getCode(), errorCode.getMessage());
+      return new ResponseEntity<>(response, errorCode.getStatus()); // 401
     }
 
-    return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403
+    final ErrorCode errorCode = AuthErrorCode.FORBIDDEN;
+    final ApiResponse<ErrorPayload> response = ApiResponse.fail(errorCode.getStatus(),
+        errorCode.getCode(), errorCode.getMessage());
+    return new ResponseEntity<>(response, errorCode.getStatus()); // 403
   }
 }

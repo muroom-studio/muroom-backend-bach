@@ -35,17 +35,25 @@ public class SecurityConfig {
         )
         .authorizeHttpRequests((auth) -> auth
             .requestMatchers(
-                "/api/beta/**",
                 "/api/ping",
                 "/actuator/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/v3/api-docs/**",
-                "/oauth2/**",
-                "/api/**",
+                "/api/v1/auth/**",
+                "/api/v1/musicians/register",
+                "/api/v1/musicians/nickname/check",
+                "/api/v1/musicians/phone/check",
+                "/api/v1/studios/**",
+                "/api/v1/faq/**",
+                "/api/v1/inquiry-categories/**",
+                "/api/v1/instruments/**",
+                "/api/v1/search-histories/**",
+                "/api/v1/subways/**",
+                "/api/v1/terms/**",
                 "/docs"
             ).permitAll()
-            .anyRequest().permitAll()
+            .anyRequest().authenticated()
         );
     return http.build();
   }
