@@ -51,7 +51,8 @@ public class SecurityConfig {
                 "/api/v1/search-histories/**",
                 "/api/v1/subways/**",
                 "/api/v1/terms/**",
-                "/docs"
+                "/docs",
+                "/api/v1/sms/**"
             ).permitAll()
             .anyRequest().authenticated()
         );

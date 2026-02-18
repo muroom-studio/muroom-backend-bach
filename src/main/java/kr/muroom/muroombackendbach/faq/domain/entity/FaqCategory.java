@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import kr.muroom.muroombackendbach.common.domain.CreatedDateEntity;
 import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("is_active = true")
 @Entity
 @Table(name = "faq_categories")
-public class FaqCategory {
+public class FaqCategory extends CreatedDateEntity {
 
   @Id
   @Tsid

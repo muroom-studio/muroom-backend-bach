@@ -73,21 +73,25 @@ public class StudioService {
     List<Long> studioIds = studiosWithinBounds.stream().map(Studio::getId).toList();
 
     // 2-1. Room들의 가격 통계 정보를 일괄 조회합니다.
-    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(studioIds).stream()
+    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(
+            studioIds).stream()
         .collect(Collectors.groupingBy(
             Room::getStudioId,
-            Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull, Collectors.summarizingInt(Integer::intValue)))
+            Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull,
+                Collectors.summarizingInt(Integer::intValue)))
         ));
 
     // 2-2. Room 가격 정보가 없을 경우를 대비해 StudioPrice 정보를 일괄 조회합니다.
-    Map<Long, StudioPrice> studioPricesByStudioId = studioPriceRepository.findAllByStudioIdIn(studioIds).stream()
+    Map<Long, StudioPrice> studioPricesByStudioId = studioPriceRepository.findAllByStudioIdIn(
+            studioIds).stream()
         .collect(Collectors.toMap(sp -> sp.getStudio().getId(), Function.identity()));
 
     // 3. 일괄 조회한 데이터를 사용하여 최종 DTO 목록을 생성합니다.
     return studiosWithinBounds.stream()
         .map(studio -> {
           // 미리 조회한 데이터를 사용하여 가격을 계산합니다.
-          StudioPriceInfo studioPriceInfo = calculatePriceWithPrefetched(studio, roomPriceStatsByStudioId, studioPricesByStudioId);
+          StudioPriceInfo studioPriceInfo = calculatePriceWithPrefetched(studio,
+              roomPriceStatsByStudioId, studioPricesByStudioId);
 
           // StudioMapResponse를 빌드합니다.
           return StudioMapResponse.builder()
@@ -134,7 +138,8 @@ public class StudioService {
         .build();
   }
 
-  public Page<StudioListElementResponse> searchStudiosForMapList(MapSearchRequest request, Long musicianId, Pageable pageable) {
+  public Page<StudioListElementResponse> searchStudiosForMapList(MapSearchRequest request,
+      Long musicianId, Pageable pageable) {
     if (request.keyword() != null && !request.keyword().isBlank()) {
       searchHistoryService.addSearchKeyword(musicianId, request.keyword());
     }
@@ -151,7 +156,8 @@ public class StudioService {
     List<Long> studioIds = studios.stream().map(Studio::getId).toList();
 
     // 방 가격 통계 일괄 조회 (N+1 문제 해결, Studio fallback 가격과 비교용)
-    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(studioIds).stream()
+    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(
+            studioIds).stream()
         .collect(Collectors.groupingBy(
             Room::getStudioId,
             Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull,
@@ -212,14 +218,16 @@ public class StudioService {
         }
       }
 
-      SubwayStationNearbyStudio subwayStationNearbyStudio = nearbySubwayStationsByStudioId.get(studio.getId());
+      SubwayStationNearbyStudio subwayStationNearbyStudio = nearbySubwayStationsByStudioId.get(
+          studio.getId());
 
       StudioSubwayStationInfo subwayStationInfo = null;
 
       if (subwayStationNearbyStudio != null) {
         SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
 
-        Integer distanceMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
+        Integer distanceMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(),
+            subwayStation.getLocation());
 
         List<StudioSubwayLineInfo> lineInfos = lineInfosByStudioId.getOrDefault(
             subwayStation.getId(),
@@ -319,8 +327,10 @@ public class StudioService {
     StudioSubwayStationInfo nearestSubwayStation = null;
     if (subwayStationNearbyStudio != null) {
       SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
-      Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
-      List<StudioSubwayLineInfo> lines = subwayStationLineRepository.findAllByStationIdInWithLine(subwayStation.getId()).stream()
+      Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(),
+          subwayStation.getLocation());
+      List<StudioSubwayLineInfo> lines = subwayStationLineRepository.findAllByStationIdInWithLine(
+              subwayStation.getId()).stream()
           .map(subwayStationLine -> StudioSubwayLineInfo.builder()
               .lineName(subwayStationLine.getLine().getName())
               .lineColor(subwayStationLine.getLine().getColor())
@@ -359,25 +369,38 @@ public class StudioService {
       return Collections.emptyList();
     }
 
+    // 단계 1-1: studio 결과를 ids 순서 유지
+    Map<Long, Studio> studioById = studios.stream()
+        .collect(Collectors.toMap(Studio::getId, Function.identity()));
+
+    List<Studio> orderedStudios = studioIds.stream()
+        .map(studioById::get)
+        .filter(Objects::nonNull)
+        .toList();
+
     // --- 사전 데이터 일괄 조회 (N+1 방지) ---
 
     // 단계 2를 위한 데이터: Room 가격, Studio 가격 정보 일괄 조회
-    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(studioIds).stream()
+    Map<Long, IntSummaryStatistics> roomPriceStatsByStudioId = roomRepository.findAllByStudioIdIn(
+            studioIds).stream()
         .collect(Collectors.groupingBy(
             Room::getStudioId,
-            Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull, Collectors.summarizingInt(Integer::intValue)))));
-    Map<Long, StudioPrice> studioPricesByStudioId = studioPriceRepository.findAllByStudioIdIn(studioIds).stream()
+            Collectors.mapping(Room::getBasePrice, Collectors.filtering(Objects::nonNull,
+                Collectors.summarizingInt(Integer::intValue)))));
+    Map<Long, StudioPrice> studioPricesByStudioId = studioPriceRepository.findAllByStudioIdIn(
+            studioIds).stream()
         .collect(Collectors.toMap(sp -> sp.getStudio().getId(), Function.identity()));
 
     // 단계 3을 위한 데이터: 가장 가까운 지하철역 정보 일괄 조회
     // getStudioInfoById의 `findFirstByStudioIdOrderBySequenceAsc`에 해당
-    Map<Long, SubwayStationNearbyStudio> nearbyStationsByStudioId = subwayStationNearbyStudioRepository.findAllByStudioIdInWithStation(
-            studioIds).stream()
-        .collect(Collectors.toMap(
-            SubwayStationNearbyStudio::getStudioId,
-            Function.identity(),
-            (s1, s2) -> s1.getSequence() < s2.getSequence() ? s1 : s2
-        ));
+    Map<Long, SubwayStationNearbyStudio> nearbyStationsByStudioId =
+        subwayStationNearbyStudioRepository.findAllByStudioIdInWithStation(
+                studioIds).stream()
+            .collect(Collectors.toMap(
+                SubwayStationNearbyStudio::getStudioId,
+                Function.identity(),
+                (s1, s2) -> s1.getSequence() < s2.getSequence() ? s1 : s2
+            ));
 
     // 단계 4를 위한 데이터: 지하철 노선 정보 일괄 조회
     Set<Long> stationIds = nearbyStationsByStudioId.values().stream()
@@ -389,21 +412,26 @@ public class StudioService {
         : subwayStationLineRepository.findAllByStationIdsInWithLine(stationIds).stream()
             .collect(Collectors.groupingBy(line -> line.getStation().getId(),
                 Collectors.mapping(line -> StudioSubwayLineInfo.builder()
-                    .lineName(line.getLine().getName()).lineColor(line.getLine().getColor()).build(), Collectors.toList())));
+                    .lineName(line.getLine().getName()).lineColor(line.getLine().getColor())
+                    .build(), Collectors.toList())));
 
     // --- 최종 DTO 조립 ---
-    return studios.stream().map(studio -> {
+    return orderedStudios.stream().map(studio -> {
 
       // 단계 2: 가격 계산 (사전 조회된 데이터 사용)
-      StudioPriceInfo studioPriceInfo = calculatePriceWithPrefetched(studio, roomPriceStatsByStudioId, studioPricesByStudioId);
+      StudioPriceInfo studioPriceInfo = calculatePriceWithPrefetched(studio,
+          roomPriceStatsByStudioId, studioPricesByStudioId);
 
       // 단계 3 & 4: 지하철역 정보 계산 (사전 조회된 데이터 사용)
-      SubwayStationNearbyStudio subwayStationNearbyStudio = nearbyStationsByStudioId.get(studio.getId());
+      SubwayStationNearbyStudio subwayStationNearbyStudio = nearbyStationsByStudioId.get(
+          studio.getId());
       StudioSubwayStationInfo nearestSubwayStation = null;
       if (subwayStationNearbyStudio != null) {
         SubwayStation subwayStation = subwayStationNearbyStudio.getSubwayStation();
-        Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(studio.getLocation(), subwayStation.getLocation());
-        List<StudioSubwayLineInfo> lines = lineInfosByStationId.getOrDefault(subwayStation.getId(), Collections.emptyList());
+        Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(
+            studio.getLocation(), subwayStation.getLocation());
+        List<StudioSubwayLineInfo> lines = lineInfosByStationId.getOrDefault(subwayStation.getId(),
+            Collections.emptyList());
         nearestSubwayStation = StudioSubwayStationInfo.builder()
             .stationName(subwayStation.getName())
             .lines(lines)
@@ -427,7 +455,8 @@ public class StudioService {
   }
 
   private StudioPriceInfo calculatePriceWithPrefetched(
-      Studio studio, Map<Long, IntSummaryStatistics> roomStatsMap, Map<Long, StudioPrice> studioPriceMap
+      Studio studio, Map<Long, IntSummaryStatistics> roomStatsMap,
+      Map<Long, StudioPrice> studioPriceMap
   ) {
     Integer minPrice = null;
     Integer maxPrice = null;
