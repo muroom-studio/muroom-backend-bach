@@ -5,8 +5,10 @@ import kr.muroom.muroombackendbach.auth.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.common.context.AnonymousUserContext;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import org.springframework.core.MethodParameter;
+import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.ParseException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -58,9 +60,9 @@ public class CurrentSubjectIdArgumentResolver implements HandlerMethodArgumentRe
           }
           return null;
         }
-
         return "U:" + userId;
-      } catch (Exception e) {
+
+      } catch (ParseException | EvaluationException e) {
         if (required) {
           throw new BusinessException(AuthErrorCode.UNAUTHORIZED);
         }

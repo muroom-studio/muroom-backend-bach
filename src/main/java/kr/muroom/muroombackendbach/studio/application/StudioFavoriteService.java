@@ -93,10 +93,10 @@ public class StudioFavoriteService {
     }
 
     Subject subject = parseSubject(subjectId);
-    String zsetKey = zsetKey(subject);
+    String setKey = setKey(subject);
 
-    Double score = redisTemplate.opsForZSet().score(zsetKey, studioId.toString());
-    return score != null;
+    Boolean member = redisTemplate.opsForSet().isMember(setKey, studioId.toString());
+    return Boolean.TRUE.equals(member);
   }
 
   // ------------------------

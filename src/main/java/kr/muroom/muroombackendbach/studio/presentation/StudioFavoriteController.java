@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.muroom.muroombackendbach.auth.annotation.CurrentSubjectId;
-import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
 import kr.muroom.muroombackendbach.studio.application.StudioFavoriteService;
@@ -35,7 +34,6 @@ public class StudioFavoriteController {
     return ApiResponse.success(true);
   }
 
-  @PreAuthorize("hasRole('MUSICIAN')")
   @Operation(summary = "스튜디오 찜 취소", description = "스튜디오 찜을 취소합니다. (멱등)")
   @DeleteMapping("/{studioId}/favorite")
   public ApiResponse<Boolean> removeFavorite(
@@ -47,7 +45,6 @@ public class StudioFavoriteController {
     return ApiResponse.success(false);
   }
 
-  @PreAuthorize("hasRole('MUSICIAN')")
   @Operation(
       summary = "찜한 스튜디오 목록 조회",
       description = "사용자가 찜한 스튜디오 목록을 조회합니다."
