@@ -3,6 +3,7 @@ package kr.muroom.muroombackendbach.studio.presentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentSubjectId;
 import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
@@ -23,15 +24,14 @@ public class StudioFavoriteController {
 
   private final StudioFavoriteService studioFavoriteService;
 
-  @PreAuthorize("hasRole('MUSICIAN')")
   @Operation(summary = "스튜디오 찜하기", description = "스튜디오를 찜합니다. (멱등)")
   @PutMapping("/{studioId}/favorite")
   public ApiResponse<Boolean> addFavorite(
       @PathVariable Long studioId,
       @Parameter(hidden = true)
-      @CurrentUserId Long musicianId
+      @CurrentSubjectId String subjectId
   ) {
-    studioFavoriteService.addFavorite(studioId, musicianId);
+    studioFavoriteService.addFavorite(studioId, subjectId);
     return ApiResponse.success(true);
   }
 
@@ -41,9 +41,9 @@ public class StudioFavoriteController {
   public ApiResponse<Boolean> removeFavorite(
       @PathVariable Long studioId,
       @Parameter(hidden = true)
-      @CurrentUserId Long musicianId
+      @CurrentSubjectId String subjectId
   ) {
-    studioFavoriteService.removeFavorite(studioId, musicianId);
+    studioFavoriteService.removeFavorite(studioId, subjectId);
     return ApiResponse.success(false);
   }
 
@@ -55,11 +55,11 @@ public class StudioFavoriteController {
   @GetMapping("/favorites")
   public ApiResponse<PaginatedData<StudioInfo>> getFavoriteStudios(
       @Parameter(hidden = true)
-      @CurrentUserId Long musicianId,
+      @CurrentSubjectId String subjectId,
       @PageableDefault Pageable pageable
   ) {
     PageImpl<StudioInfo> favorites =
-        studioFavoriteService.getFavoriteStudios(musicianId, pageable);
+        studioFavoriteService.getFavoriteStudios(subjectId, pageable);
 
     return ApiResponse.success(PaginatedData.from(favorites));
   }
