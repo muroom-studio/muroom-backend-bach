@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.*;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class StudioFavoriteService {
@@ -24,7 +25,6 @@ public class StudioFavoriteService {
   private static final String ZSET_PREFIX = "fav:U";
   private static final String COUNT_PREFIX = "favcnt:STUDIO:";
 
-  @Transactional(readOnly = true)
   public void addFavorite(Long studioId, Long musicianId) {
     studioService.isExistingStudioId(studioId);
 
@@ -40,7 +40,6 @@ public class StudioFavoriteService {
     );
   }
 
-  @Transactional(readOnly = true)
   public void removeFavorite(Long studioId, Long musicianId) {
     studioService.isExistingStudioId(studioId);
 
@@ -72,7 +71,6 @@ public class StudioFavoriteService {
     Long total = redisTemplate.opsForZSet().size(zsetKey);
     long totalCount = (total == null) ? 0 : total;
 
-    // ✅ studioService가 "입력 순서 유지"를 보장해야 최신 찜 순이 유지됨
     List<StudioInfo> studios = studioService.getStudioInfoByIds(studioIds);
 
     return new PageImpl<>(studios, pageable, totalCount);

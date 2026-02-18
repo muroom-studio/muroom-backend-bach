@@ -2,6 +2,7 @@ package kr.muroom.muroombackendbach.studio.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
@@ -14,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Studio Favorite", description = "스튜디오 찜 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/studios")
@@ -56,7 +58,6 @@ public class StudioFavoriteController {
       @CurrentUserId Long musicianId,
       @PageableDefault Pageable pageable
   ) {
-
     PageImpl<StudioInfo> favorites =
         studioFavoriteService.getFavoriteStudios(musicianId, pageable);
 
