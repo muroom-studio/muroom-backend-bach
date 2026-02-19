@@ -113,7 +113,10 @@ public record StudioDetailResponse(
                 }
               ]
               """, defaultValue = "[]", requiredMode = Schema.RequiredMode.REQUIRED)
-      List<StudioSubwayStationInfo> nearbySubwayStations
+      List<StudioSubwayStationInfo> nearbySubwayStations,
+
+      @Schema(description = "스튜디오 찜 유무", example = "true")
+      Boolean isFavorite
   ) {
 
   }
@@ -234,7 +237,8 @@ public record StudioDetailResponse(
       List<String> instruments
   ) {
 
-    public static StudioForbiddenInstrumentsDto from(List<StudioForbiddenInstrument> forbiddenInstruments) {
+    public static StudioForbiddenInstrumentsDto from(
+        List<StudioForbiddenInstrument> forbiddenInstruments) {
       return StudioForbiddenInstrumentsDto.builder()
           .instruments(forbiddenInstruments.stream()
               .map(forbiddenInstrument -> forbiddenInstrument.getInstrument().getDescription())

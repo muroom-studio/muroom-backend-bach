@@ -1,5 +1,7 @@
 package kr.muroom.muroombackendbach.studio.application;
 
+import kr.muroom.muroombackendbach.common.util.SubjectParser;
+import kr.muroom.muroombackendbach.common.util.SubjectParser.Subject;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -33,7 +35,7 @@ public class StudioFavoriteService {
   public void addFavorite(Long studioId, String subjectId) {
     studioService.isExistingStudioId(studioId);
 
-    Subject subject = parseSubject(subjectId);
+    Subject subject = SubjectParser.parse(subjectId);
 
     String zsetKey = zsetKey(subject);
     String setKey = setKey(subject);
@@ -50,7 +52,7 @@ public class StudioFavoriteService {
   public void removeFavorite(Long studioId, String subjectId) {
     studioService.isExistingStudioId(studioId);
 
-    Subject subject = parseSubject(subjectId);
+    Subject subject = SubjectParser.parse(subjectId);
 
     String zsetKey = zsetKey(subject);
     String setKey = setKey(subject);
@@ -65,7 +67,7 @@ public class StudioFavoriteService {
 
   @Transactional(readOnly = true)
   public PageImpl<StudioInfo> getFavoriteStudios(String subjectId, Pageable pageable) {
-    Subject subject = parseSubject(subjectId);
+    Subject subject = SubjectParser.parse(subjectId);
     String zsetKey = zsetKey(subject);
 
     long start = pageable.getOffset();
@@ -87,12 +89,10 @@ public class StudioFavoriteService {
   }
 
   @Transactional(readOnly = true)
-  public boolean isFavorite(String subjectId, Long studioId) {
-    if (subjectId == null || subjectId.isBlank() || studioId == null) {
-      return false;
-    }
+  public boolean isFavorite(Long studioId, String subjectId) {
+    studioService.isExistingStudioId(studioId);
 
-    Subject subject = parseSubject(subjectId);
+    Subject subject = SubjectParser.parse(subjectId);
     String setKey = setKey(subject);
 
     Boolean member = redisTemplate.opsForSet().isMember(setKey, studioId.toString());
@@ -102,48 +102,15 @@ public class StudioFavoriteService {
   // ------------------------
   // Key builders
   // ------------------------
-
   private String zsetKey(Subject subject) {
-    return ZSET_PREFIX + subject.prefix + subject.id + STUDIO_SUFFIX;
+    return ZSET_PREFIX + subject.prefix() + subject.id() + STUDIO_SUFFIX;
   }
 
   private String setKey(Subject subject) {
-    return SET_PREFIX + subject.prefix + subject.id + STUDIO_SUFFIX;
+    return SET_PREFIX + subject.prefix() + subject.id() + STUDIO_SUFFIX;
   }
 
   private String countKey(Long studioId) {
     return COUNT_PREFIX + studioId;
-  }
-
-  // ------------------------
-  // Subject parsing
-  // ------------------------
-
-  private Subject parseSubject(String subjectId) {
-    // expected: "U:123" or "G:uuid"
-    if (subjectId == null) {
-      throw new IllegalArgumentException("subjectId is null");
-    }
-
-    int idx = subjectId.indexOf(':');
-    if (idx <= 0 || idx == subjectId.length() - 1) {
-      throw new IllegalArgumentException("Invalid subjectId format: " + subjectId);
-    }
-
-    String prefix = subjectId.substring(0, idx);
-    String id = subjectId.substring(idx + 1);
-
-    if (!prefix.equals("U") && !prefix.equals("G")) {
-      throw new IllegalArgumentException("Invalid subject prefix: " + prefix);
-    }
-    if (id.isBlank()) {
-      throw new IllegalArgumentException("Empty subject id");
-    }
-
-    return new Subject(prefix, id);
-  }
-
-  private record Subject(String prefix, String id) {
-
   }
 }
