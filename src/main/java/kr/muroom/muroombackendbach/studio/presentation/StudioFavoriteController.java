@@ -6,13 +6,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.muroom.muroombackendbach.auth.annotation.CurrentSubjectId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
-import kr.muroom.muroombackendbach.studio.application.StudioFavoriteService;
+import kr.muroom.muroombackendbach.studio.application.command.StudioFavoriteCommandService;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Studio Favorite", description = "스튜디오 찜 관련 API")
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/studios")
 public class StudioFavoriteController {
 
-  private final StudioFavoriteService studioFavoriteService;
+  private final StudioFavoriteCommandService studioFavoriteService;
 
   @Operation(summary = "스튜디오 찜하기", description = "스튜디오를 찜합니다. (멱등)")
   @PutMapping("/{studioId}/favorite")

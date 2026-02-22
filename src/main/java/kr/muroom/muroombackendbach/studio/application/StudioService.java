@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.SubjectParser;
 import kr.muroom.muroombackendbach.common.util.SubjectParser.Subject;
+import kr.muroom.muroombackendbach.studio.application.query.StudioFavoriteQueryService;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
@@ -50,7 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudioService {
 
   private final StudioRepository studioRepository;
-  private final StudioFavoriteService studioFavoriteService;
+  private final StudioFavoriteQueryService studioFavoriteReader;
   private final RoomRepository roomRepository;
   private final StudioPriceRepository studioPriceRepository;
   private final SubwayStationNearbyStudioRepository subwayStationNearbyStudioRepository;
@@ -103,7 +104,7 @@ public class StudioService {
               .latitude(studio.getLocation().getY())
               .minPrice(studioPriceInfo.minPrice())
               .maxPrice(studioPriceInfo.maxPrice())
-              .isFavorite(studioFavoriteService.isFavorite(studio.getId(), subjectId))
+              .isFavorite(studioFavoriteReader.isFavoriteStudio(studio.getId(), subjectId))
               .build();
         })
         .toList();
@@ -268,7 +269,7 @@ public class StudioService {
           .nearbySubwayStationInfo(subwayStationInfo)
           .longitude(longitude)
           .latitude(latitude)
-          .isFavorite(studioFavoriteService.isFavorite(studio.getId(), subjectId))
+          .isFavorite(studioFavoriteReader.isFavoriteStudio(studio.getId(), subjectId))
           .build();
     }).toList();
 

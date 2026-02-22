@@ -1,7 +1,8 @@
-package kr.muroom.muroombackendbach.studio.application;
+package kr.muroom.muroombackendbach.studio.application.command;
 
 import kr.muroom.muroombackendbach.common.util.SubjectParser;
 import kr.muroom.muroombackendbach.common.util.SubjectParser.Subject;
+import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -16,7 +17,7 @@ import java.util.*;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class StudioFavoriteService {
+public class StudioFavoriteCommandService {
 
   private final RedisTemplate<String, String> redisTemplate;
   private final DefaultRedisScript<Long> addFavoriteScript;
@@ -86,17 +87,6 @@ public class StudioFavoriteService {
     List<StudioInfo> studios = studioService.getStudioInfoByIds(studioIds);
 
     return new PageImpl<>(studios, pageable, totalCount);
-  }
-
-  @Transactional(readOnly = true)
-  public boolean isFavorite(Long studioId, String subjectId) {
-    studioService.isExistingStudioId(studioId);
-
-    Subject subject = SubjectParser.parse(subjectId);
-    String setKey = setKey(subject);
-
-    Boolean member = redisTemplate.opsForSet().isMember(setKey, studioId.toString());
-    return Boolean.TRUE.equals(member);
   }
 
   // ------------------------
