@@ -16,8 +16,12 @@ public class FavoriteRedisScriptConfig {
     DefaultRedisScript<Long> script = new DefaultRedisScript<>();
     script.setResultType(Long.class);
     script.setScriptText(
+        // KEYS[1] = zsetKey, KEYS[2] = countKey, KEYS[3] = setKey
         "local added = redis.call('ZADD', KEYS[1], 'NX', ARGV[1], ARGV[2]); " +
-            "if added == 1 then redis.call('INCR', KEYS[2]); end; " +
+            "if added == 1 then " +
+            "  redis.call('SADD', KEYS[3], ARGV[2]); " +
+            "  redis.call('INCR', KEYS[2]); " +
+            "end; " +
             "return added;"
     );
     return script;
@@ -32,12 +36,15 @@ public class FavoriteRedisScriptConfig {
     DefaultRedisScript<Long> script = new DefaultRedisScript<>();
     script.setResultType(Long.class);
     script.setScriptText(
-        "local removed = redis.call('ZREM', KEYS[1], ARGV[1]); " +
-            "if removed == 1 then " +
-            "  local newVal = redis.call('DECR', KEYS[2]); " +
-            "  if newVal < 0 then redis.call('SET', KEYS[2], 0); end; " +
-            "end; " +
-            "return removed;"
+        // KEYS[1] = zsetKey, KEYS[2] = countKey, KEYS[3] = setKey
+        // ARGV[1]=member(studioId)
+        "local removed = redis.call('ZREM', KEYS[1], ARGV[1])\n"
+            + "if removed == 1 then\n"
+            + "  redis.call('SREM', KEYS[3], ARGV[1])\n"
+            + "  local newVal = redis.call('DECR', KEYS[2])\n"
+            + "  if newVal < 0 then redis.call('SET', KEYS[2], 0) end\n"
+            + "end\n"
+            + "return removed"
     );
     return script;
   }

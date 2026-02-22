@@ -1,4 +1,4 @@
-package kr.muroom.muroombackendbach.common.filter;
+package kr.muroom.muroombackendbach.auth.filter;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;

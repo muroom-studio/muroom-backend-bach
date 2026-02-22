@@ -9,6 +9,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.common.util.SubjectParser;
+import kr.muroom.muroombackendbach.common.util.SubjectParser.Subject;
+import kr.muroom.muroombackendbach.studio.application.query.StudioFavoriteQueryService;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
@@ -19,7 +22,6 @@ import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
 import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
-import kr.muroom.muroombackendbach.studio.domain.repository.StudioImageRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
@@ -49,7 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudioService {
 
   private final StudioRepository studioRepository;
-  private final StudioImageRepository studioImageRepository;
+  private final StudioFavoriteQueryService studioFavoriteQueryService;
   private final RoomRepository roomRepository;
   private final StudioPriceRepository studioPriceRepository;
   private final SubwayStationNearbyStudioRepository subwayStationNearbyStudioRepository;
@@ -60,7 +62,8 @@ public class StudioService {
   private final SearchHistoryService searchHistoryService;
   private final MapGeocodingService mapGeocodingService;
 
-  public List<StudioMapResponse> searchStudiosInMapBounds(MapSearchRequest request) {
+  public List<StudioMapResponse> searchStudiosInMapBounds(MapSearchRequest request,
+      String subjectId) {
     MapSearchRequest resolvedRequest = resolveOptions(request);
 
     List<Studio> studiosWithinBounds = studioRepository.findStudiosWithinBounds(resolvedRequest);
@@ -86,6 +89,7 @@ public class StudioService {
             studioIds).stream()
         .collect(Collectors.toMap(sp -> sp.getStudio().getId(), Function.identity()));
 
+    Set<Long> favoriteIds = studioFavoriteQueryService.getFavoriteStudioIds(subjectId);
     // 3. 일괄 조회한 데이터를 사용하여 최종 DTO 목록을 생성합니다.
     return studiosWithinBounds.stream()
         .map(studio -> {
@@ -93,6 +97,7 @@ public class StudioService {
           StudioPriceInfo studioPriceInfo = calculatePriceWithPrefetched(studio,
               roomPriceStatsByStudioId, studioPricesByStudioId);
 
+          boolean isFav = favoriteIds.contains(studio.getId());
           // StudioMapResponse를 빌드합니다.
           return StudioMapResponse.builder()
               .id(String.valueOf(studio.getId()))
@@ -101,6 +106,7 @@ public class StudioService {
               .latitude(studio.getLocation().getY())
               .minPrice(studioPriceInfo.minPrice())
               .maxPrice(studioPriceInfo.maxPrice())
+              .isFavorite(isFav)
               .build();
         })
         .toList();
@@ -139,7 +145,16 @@ public class StudioService {
   }
 
   public Page<StudioListElementResponse> searchStudiosForMapList(MapSearchRequest request,
-      Long musicianId, Pageable pageable) {
+      String subjectId, Pageable pageable) {
+
+    // 회원(U)인 경우에만 musicianId 추출 (비회원은 null 유지)
+    Long musicianId = null;
+
+    Subject subject = SubjectParser.parse(subjectId);
+    if (subject != null && "U".equals(subject.prefix())) {
+      musicianId = Long.valueOf(subject.id());
+    }
+
     if (request.keyword() != null && !request.keyword().isBlank()) {
       searchHistoryService.addSearchKeyword(musicianId, request.keyword());
     }
@@ -256,6 +271,7 @@ public class StudioService {
           .nearbySubwayStationInfo(subwayStationInfo)
           .longitude(longitude)
           .latitude(latitude)
+          .isFavorite(studioFavoriteQueryService.isFavoriteStudio(studio.getId(), subjectId))
           .build();
     }).toList();
 

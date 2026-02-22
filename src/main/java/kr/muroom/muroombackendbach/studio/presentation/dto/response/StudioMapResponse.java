@@ -22,7 +22,10 @@ public record StudioMapResponse(
     Integer minPrice,
 
     @Schema(description = "스튜디오 최대 가격", example = "430000", nullable = true)
-    Integer maxPrice
+    Integer maxPrice,
+
+    @Schema(description = "스튜디오 찜 유무", example = "true")
+    Boolean isFavorite
 ) {
 
 }

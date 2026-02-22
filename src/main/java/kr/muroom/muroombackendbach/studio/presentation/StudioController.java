@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentSubjectId;
 import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
@@ -37,9 +38,10 @@ public class StudioController {
 
   @GetMapping("/map-search")
   public ApiResponse<List<StudioMapResponse>> searchStudiosInMapBounds(
-      @Validated @ParameterObject MapSearchRequest request
+      @Validated @ParameterObject MapSearchRequest request,
+      @CurrentSubjectId String subjectId
   ) {
-    List<StudioMapResponse> response = studioService.searchStudiosInMapBounds(request);
+    List<StudioMapResponse> response = studioService.searchStudiosInMapBounds(request, subjectId);
     return ApiResponse.success(response);
   }
 
@@ -56,12 +58,12 @@ public class StudioController {
   @GetMapping("/map-list")
   public ApiResponse<PaginatedData<StudioListElementResponse>> searchStudiosForMapList(
       @Validated @ParameterObject MapSearchRequest request,
-      @CurrentUserId(required = false) Long musicianId,
+      @CurrentSubjectId String subjectId,
       @Parameter(hidden = true)
       @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
   ) {
     Page<StudioListElementResponse> response = studioService.searchStudiosForMapList(request,
-        musicianId, pageable);
+        subjectId, pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
 

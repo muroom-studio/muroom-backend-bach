@@ -1,6 +1,7 @@
 package kr.muroom.muroombackendbach.common.config;
 
 import java.util.List;
+import kr.muroom.muroombackendbach.auth.resolver.CurrentSubjectIdArgumentResolver;
 import kr.muroom.muroombackendbach.auth.resolver.CurrentUserIdArgumentResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,11 +20,16 @@ public class WebConfig implements WebMvcConfigurer {
 
   private final String[] allowedOrigins;
   private final CurrentUserIdArgumentResolver currentUserIdArgumentResolver;
+  private final CurrentSubjectIdArgumentResolver currentSubjectIdArgumentResolver;
 
-  public WebConfig(@Value("${cors.allowed-origins}") String[] allowedOrigins,
-      CurrentUserIdArgumentResolver currentUserIdArgumentResolver) {
+  public WebConfig(
+      @Value("${cors.allowed-origins}") String[] allowedOrigins,
+      CurrentUserIdArgumentResolver currentUserIdArgumentResolver,
+      CurrentSubjectIdArgumentResolver currentSubjectIdArgumentResolver
+  ) {
     this.allowedOrigins = allowedOrigins;
     this.currentUserIdArgumentResolver = currentUserIdArgumentResolver;
+    this.currentSubjectIdArgumentResolver = currentSubjectIdArgumentResolver;
   }
 
   @Override
@@ -38,6 +44,7 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
     resolvers.add(currentUserIdArgumentResolver);
+    resolvers.add(currentSubjectIdArgumentResolver);
   }
 
   /**

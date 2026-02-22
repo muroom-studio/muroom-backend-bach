@@ -7,10 +7,12 @@ import lombok.Builder;
 @Builder
 @Schema(description = "지도 스튜디오 목록")
 public record StudioListElementResponse(
-    @Schema(description = "스튜디오 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "791543436721219205")
+    @Schema(description = "스튜디오 ID", requiredMode = Schema.RequiredMode.REQUIRED, example =
+        "791543436721219205")
     String studioId,
 
-    @Schema(description = "스튜디오 이름", example = "뮤룸 스튜디오 홍대점", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "스튜디오 이름", example = "뮤룸 스튜디오 홍대점", requiredMode =
+        Schema.RequiredMode.REQUIRED)
     String studioName,
 
     @Schema(description = "최소 가격", example = "150000", nullable = true)
@@ -29,7 +31,10 @@ public record StudioListElementResponse(
     Double longitude,
 
     @Schema(description = "위도", example = "37.5665", requiredMode = Schema.RequiredMode.REQUIRED)
-    Double latitude
+    Double latitude,
+
+    @Schema(description = "스튜디오 찜 유무", example = "true")
+    Boolean isFavorite
 ) {
 
 }

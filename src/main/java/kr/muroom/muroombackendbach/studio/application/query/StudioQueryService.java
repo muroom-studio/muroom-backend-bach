@@ -87,16 +87,22 @@ public class StudioQueryService {
     // 3. 별도 쿼리가 필요한 연관 데이터들을 조회 (N+1 방지)
     List<Room> rooms = roomRepository.findAllByStudioId(studioId);
     StudioPrice studioPrice = studioPriceRepository.findById(studioId).orElse(null);
-    StudioBuildingInfo studioBuildingInfo = studioBuildingInfoRepository.findById(studioId).orElse(null);
+    StudioBuildingInfo studioBuildingInfo = studioBuildingInfoRepository.findById(studioId)
+        .orElse(null);
     List<StudioImage> studioImages = studioImageRepository.findAllByStudio(studio);
     List<StudioOption> studioOptions = studioOptionRepository.findAllByStudio(studio);
-    List<StudioForbiddenInstrument> forbiddenInstruments = studioForbiddenInstrumentRepository.findAllByStudio(studio);
-    List<SubwayStationNearbyStudio> nearbyStations = subwayStationNearbyStudioRepository.findAllByStudioOrderBySequenceAsc(studioId);
+    List<StudioForbiddenInstrument> forbiddenInstruments =
+        studioForbiddenInstrumentRepository.findAllByStudio(
+        studio);
+    List<SubwayStationNearbyStudio> nearbyStations =
+        subwayStationNearbyStudioRepository.findAllByStudioOrderBySequenceAsc(
+        studioId);
 
     // 4. 나머지 데이터들을 변수에 할당
     Owner owner = ownerService.findByIdOrThrowException(studio.getOwnerId());
     PriceRange priceRange = calculateStudioPriceRange(studioPrice, rooms);
-    List<StudioSubwayStationInfo> nearbySubwayStationInfos = getNearbySubwayStations(studio, nearbyStations);
+    List<StudioSubwayStationInfo> nearbySubwayStationInfos = getNearbySubwayStations(studio,
+        nearbyStations);
 
     StudioBaseInfoDto studioBaseInfoDto = StudioBaseInfoDto.builder()
         .studioId(String.valueOf(studio.getId()))
@@ -113,19 +119,21 @@ public class StudioQueryService {
         .build();
 
     Point parkingLocation = null;
-    if (studioBuildingInfo != null && studioBuildingInfo.getParkingFeeType() != null && !ParkingFeeType.NONE.equals(
+    if (studioBuildingInfo != null && studioBuildingInfo.getParkingFeeType() != null
+        && !ParkingFeeType.NONE.equals(
         studioBuildingInfo.getParkingFeeType())) {
       String parkingLocationAddress = studioBuildingInfo.getParkingLocationAddress();
       parkingLocation = mapGeocodingService.getPointFromAddress(parkingLocationAddress);
     }
-        StudioBuildingInfoDto studioBuildingInfoDto = studioBuildingInfo != null
-            ? StudioBuildingInfoDto.from(studioBuildingInfo, parkingLocation)
-            : null;
-    
+    StudioBuildingInfoDto studioBuildingInfoDto = studioBuildingInfo != null
+        ? StudioBuildingInfoDto.from(studioBuildingInfo, parkingLocation)
+        : null;
 
     StudioNoticeDto studioNoticeDto = StudioNoticeDto.from(owner, studio);
 
-    StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto = StudioForbiddenInstrumentsDto.from(forbiddenInstruments);
+    StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto =
+        StudioForbiddenInstrumentsDto.from(
+        forbiddenInstruments);
 
     StudioRoomsDto studioRoomsDto = StudioRoomsDto.from(rooms);
 
@@ -197,7 +205,8 @@ public class StudioQueryService {
     return new PriceRange(minPrice, maxPrice);
   }
 
-  private List<StudioSubwayStationInfo> getNearbySubwayStations(Studio studio, List<SubwayStationNearbyStudio> nearbyStations) {
+  private List<StudioSubwayStationInfo> getNearbySubwayStations(Studio studio,
+      List<SubwayStationNearbyStudio> nearbyStations) {
     if (nearbyStations.isEmpty()) {
       return Collections.emptyList();
     }

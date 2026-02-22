@@ -1,5 +1,8 @@
-package kr.muroom.muroombackendbach.studio.application;
+package kr.muroom.muroombackendbach.studio.application.command;
 
+import kr.muroom.muroombackendbach.common.util.SubjectParser;
+import kr.muroom.muroombackendbach.common.util.SubjectParser.Subject;
+import kr.muroom.muroombackendbach.studio.application.StudioService;
 import kr.muroom.muroombackendbach.studioboasting.presentation.dto.response.StudioBoastDetailResponse.StudioInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -14,7 +17,7 @@ import java.util.*;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class StudioFavoriteService {
+public class StudioFavoriteCommandService {
 
   private final RedisTemplate<String, String> redisTemplate;
   private final DefaultRedisScript<Long> addFavoriteScript;
@@ -22,41 +25,51 @@ public class StudioFavoriteService {
 
   private final StudioService studioService;
 
-  private static final String ZSET_PREFIX = "fav:U";
+  private static final String ZSET_PREFIX = "fav:";
+  private static final String SET_PREFIX = "favset:";
   private static final String COUNT_PREFIX = "favcnt:STUDIO:";
+  private static final String STUDIO_SUFFIX = ":STUDIO";
 
-  public void addFavorite(Long studioId, Long musicianId) {
+  /**
+   * subjectId: "U:{userId}" or "G:{anonymousId}"
+   */
+  public void addFavorite(Long studioId, String subjectId) {
     studioService.isExistingStudioId(studioId);
 
-    String zsetKey = zsetKey(musicianId);
+    Subject subject = SubjectParser.parse(subjectId);
+
+    String zsetKey = zsetKey(subject);
+    String setKey = setKey(subject);
     String countKey = countKey(studioId);
 
-    // Redis 원자 처리 (ZADD NX + (added면) INCR)
     redisTemplate.execute(
         addFavoriteScript,
-        List.of(zsetKey, countKey),
+        List.of(zsetKey, countKey, setKey),
         String.valueOf(Instant.now().toEpochMilli()),
         studioId.toString()
     );
   }
 
-  public void removeFavorite(Long studioId, Long musicianId) {
+  public void removeFavorite(Long studioId, String subjectId) {
     studioService.isExistingStudioId(studioId);
 
-    String zsetKey = zsetKey(musicianId);
+    Subject subject = SubjectParser.parse(subjectId);
+
+    String zsetKey = zsetKey(subject);
+    String setKey = setKey(subject);
     String countKey = countKey(studioId);
 
-    // ZREM + (removed면) DECR (0 이하 방지)
     redisTemplate.execute(
         removeFavoriteScript,
-        List.of(zsetKey, countKey),
+        List.of(zsetKey, countKey, setKey),
         studioId.toString()
     );
   }
 
   @Transactional(readOnly = true)
-  public PageImpl<StudioInfo> getFavoriteStudios(Long musicianId, Pageable pageable) {
-    String zsetKey = zsetKey(musicianId);
+  public PageImpl<StudioInfo> getFavoriteStudios(String subjectId, Pageable pageable) {
+    Subject subject = SubjectParser.parse(subjectId);
+    String zsetKey = zsetKey(subject);
 
     long start = pageable.getOffset();
     long end = start + pageable.getPageSize() - 1;
@@ -76,8 +89,15 @@ public class StudioFavoriteService {
     return new PageImpl<>(studios, pageable, totalCount);
   }
 
-  private String zsetKey(Long musicianId) {
-    return ZSET_PREFIX + musicianId + ":STUDIO";
+  // ------------------------
+  // Key builders
+  // ------------------------
+  private String zsetKey(Subject subject) {
+    return ZSET_PREFIX + subject.prefix() + subject.id() + STUDIO_SUFFIX;
+  }
+
+  private String setKey(Subject subject) {
+    return SET_PREFIX + subject.prefix() + subject.id() + STUDIO_SUFFIX;
   }
 
   private String countKey(Long studioId) {
