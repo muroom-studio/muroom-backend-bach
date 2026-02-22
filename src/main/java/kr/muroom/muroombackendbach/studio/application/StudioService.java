@@ -51,7 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudioService {
 
   private final StudioRepository studioRepository;
-  private final StudioFavoriteQueryService studioFavoriteReader;
+  private final StudioFavoriteQueryService studioFavoriteQueryService;
   private final RoomRepository roomRepository;
   private final StudioPriceRepository studioPriceRepository;
   private final SubwayStationNearbyStudioRepository subwayStationNearbyStudioRepository;
@@ -89,6 +89,7 @@ public class StudioService {
             studioIds).stream()
         .collect(Collectors.toMap(sp -> sp.getStudio().getId(), Function.identity()));
 
+    Set<Long> favoriteIds = studioFavoriteQueryService.getFavoriteStudioIds(subjectId);
     // 3. 일괄 조회한 데이터를 사용하여 최종 DTO 목록을 생성합니다.
     return studiosWithinBounds.stream()
         .map(studio -> {
@@ -96,6 +97,7 @@ public class StudioService {
           StudioPriceInfo studioPriceInfo = calculatePriceWithPrefetched(studio,
               roomPriceStatsByStudioId, studioPricesByStudioId);
 
+          boolean isFav = favoriteIds.contains(studio.getId());
           // StudioMapResponse를 빌드합니다.
           return StudioMapResponse.builder()
               .id(String.valueOf(studio.getId()))
@@ -104,7 +106,7 @@ public class StudioService {
               .latitude(studio.getLocation().getY())
               .minPrice(studioPriceInfo.minPrice())
               .maxPrice(studioPriceInfo.maxPrice())
-              .isFavorite(studioFavoriteReader.isFavoriteStudio(studio.getId(), subjectId))
+              .isFavorite(isFav)
               .build();
         })
         .toList();
@@ -269,7 +271,7 @@ public class StudioService {
           .nearbySubwayStationInfo(subwayStationInfo)
           .longitude(longitude)
           .latitude(latitude)
-          .isFavorite(studioFavoriteReader.isFavoriteStudio(studio.getId(), subjectId))
+          .isFavorite(studioFavoriteQueryService.isFavoriteStudio(studio.getId(), subjectId))
           .build();
     }).toList();
 

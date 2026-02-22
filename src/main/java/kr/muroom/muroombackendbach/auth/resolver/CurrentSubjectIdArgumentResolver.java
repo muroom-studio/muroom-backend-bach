@@ -2,15 +2,10 @@ package kr.muroom.muroombackendbach.auth.resolver;
 
 import kr.muroom.muroombackendbach.auth.annotation.CurrentSubjectId;
 import kr.muroom.muroombackendbach.auth.auth.exception.AuthErrorCode;
+import kr.muroom.muroombackendbach.auth.session.SessionAuthPrincipal; // ✅ 실제 패키지에 맞게 수정
 import kr.muroom.muroombackendbach.common.context.AnonymousUserContext;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import org.springframework.core.MethodParameter;
-import org.springframework.expression.EvaluationException;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.ParseException;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,8 +17,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 @Component
 public class CurrentSubjectIdArgumentResolver implements HandlerMethodArgumentResolver {
-
-  private final ExpressionParser parser = new SpelExpressionParser();
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
@@ -49,10 +42,9 @@ public class CurrentSubjectIdArgumentResolver implements HandlerMethodArgumentRe
         && !(authentication instanceof AnonymousAuthenticationToken)) {
 
       Object principal = authentication.getPrincipal();
-      try {
-        StandardEvaluationContext context = new StandardEvaluationContext(principal);
-        Expression expression = parser.parseExpression("userId");
-        Object userId = expression.getValue(context);
+
+      if (principal instanceof SessionAuthPrincipal p) {
+        Long userId = p.userId();
 
         if (userId == null) {
           if (required) {
@@ -60,14 +52,15 @@ public class CurrentSubjectIdArgumentResolver implements HandlerMethodArgumentRe
           }
           return null;
         }
-        return "U:" + userId;
 
-      } catch (ParseException | EvaluationException e) {
-        if (required) {
-          throw new BusinessException(AuthErrorCode.UNAUTHORIZED);
-        }
-        return null;
+        return "U:" + userId;
       }
+
+      // principal 타입이 예상과 다른 경우 (설정 변경/JWT 도입/OAuth2 등)
+      if (required) {
+        throw new BusinessException(AuthErrorCode.UNAUTHORIZED);
+      }
+      return null;
     }
 
     // 2) 비회원이면 "G:{anonymousUserId}" (AnonymousUserFilter가 세팅)
