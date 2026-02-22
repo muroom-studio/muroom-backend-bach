@@ -31,8 +31,6 @@ spring:
           max-idle: 10
           min-idle: 2
           max-wait: 1000ms
-      ssl:
-        enabled: true
 
   jpa:
     open-in-view: false
