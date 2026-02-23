@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import kr.muroom.muroombackendbach.common.context.AnonymousUserContext;
+import kr.muroom.muroombackendbach.common.util.AnonymousIdSigner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
@@ -22,38 +24,61 @@ public class AnonymousUserFilter implements Filter {
   public static final String ANONYMOUS_USER_ID_HEADER_NAME = "X-Anonymous-ID";
   public static final String ANONYMOUS_USER_ID_COOKIE_NAME = "anonymous_user_id";
   public static final String SET_COOKIE_HEADER_NAME = "Set-Cookie";
+  public static final String ANONYMOUS_USER_SIG_COOKIE_NAME = "anonymous_user_sig";
+
+  private final AnonymousIdSigner signer;
+
+  public AnonymousUserFilter(
+          @Value("${jwt.secret-key}") String secret
+  ) {
+    this.signer = new AnonymousIdSigner(secret);
+  }
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain filterChain) throws IOException, ServletException {
+                       FilterChain filterChain) throws IOException, ServletException {
 
-    HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-    HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
+    HttpServletRequest req = (HttpServletRequest) servletRequest;
+    HttpServletResponse res = (HttpServletResponse) servletResponse;
 
     try {
-      Optional<String> anonymousUserId = getAnonymousUserIdFromHeader(httpServletRequest);
+      Optional<String> anonIdOpt = getCookie(req, ANONYMOUS_USER_ID_COOKIE_NAME);
+      Optional<String> sigOpt = getCookie(req, ANONYMOUS_USER_SIG_COOKIE_NAME);
 
-      if (anonymousUserId.isEmpty()) {
-        anonymousUserId = getAnonymousUserIdFromCookie(httpServletRequest);
+      String anonId = null;
 
-        if (anonymousUserId.isEmpty()) {
-          String newAnonymousUserId = UUID.randomUUID().toString();
-          ResponseCookie anonymousUserCookieForWeb = ResponseCookie
-              .from(ANONYMOUS_USER_ID_COOKIE_NAME, newAnonymousUserId)
-              .maxAge(60 * 60 * 24 * 365) // 1년
-              .path("/")
-              .httpOnly(true)
-              .secure(true)
-              .sameSite("Lax") // 외부에서 muroom 도메인으로 접근하는 경우에도 쿠키가 전송되도록 설정
-              .build();
-          httpServletResponse.addHeader(SET_COOKIE_HEADER_NAME,
-              anonymousUserCookieForWeb.toString());
-
-          anonymousUserId = Optional.of(newAnonymousUserId);
-        }
+      // 1) 쿠키가 둘 다 있고, 서명 검증이 통과하면 신뢰
+      if (anonIdOpt.isPresent() && sigOpt.isPresent()
+              && signer.verify(anonIdOpt.get(), sigOpt.get())) {
+        anonId = anonIdOpt.get();
       }
 
-      anonymousUserId.ifPresent(AnonymousUserContext::setAnonymousUserId);
+      // 2) 없거나/검증 실패면 새로 발급
+      if (anonId == null) {
+        anonId = UUID.randomUUID().toString();
+        String sig = signer.sign(anonId);
+
+        ResponseCookie idCookie = ResponseCookie.from(ANONYMOUS_USER_ID_COOKIE_NAME, anonId)
+                .maxAge(60 * 60 * 24 * 365)
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
+                .build();
+
+        ResponseCookie sigCookie = ResponseCookie.from(ANONYMOUS_USER_SIG_COOKIE_NAME, sig)
+                .maxAge(60 * 60 * 24 * 365)
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
+                .build();
+
+        res.addHeader(SET_COOKIE_HEADER_NAME, idCookie.toString());
+        res.addHeader(SET_COOKIE_HEADER_NAME, sigCookie.toString());
+      }
+
+      AnonymousUserContext.setAnonymousUserId(anonId);
 
       filterChain.doFilter(servletRequest, servletResponse);
     } finally {
@@ -61,18 +86,11 @@ public class AnonymousUserFilter implements Filter {
     }
   }
 
-  private Optional<String> getAnonymousUserIdFromHeader(HttpServletRequest request) {
-    String headerValue = request.getHeader(ANONYMOUS_USER_ID_HEADER_NAME);
-    return Optional.ofNullable(headerValue);
-  }
-
-  private Optional<String> getAnonymousUserIdFromCookie(HttpServletRequest request) {
-    if (request.getCookies() == null) {
-      return Optional.empty();
-    }
+  private Optional<String> getCookie(HttpServletRequest request, String name) {
+    if (request.getCookies() == null) return Optional.empty();
     return Arrays.stream(request.getCookies())
-        .filter(cookie -> ANONYMOUS_USER_ID_COOKIE_NAME.equals(cookie.getName()))
-        .map(Cookie::getValue)
-        .findFirst();
+            .filter(c -> name.equals(c.getName()))
+            .map(Cookie::getValue)
+            .findFirst();
   }
 }

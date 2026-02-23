@@ -5,6 +5,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import kr.muroom.muroombackendbach.auth.auth.domain.entity.UserType;
+import kr.muroom.muroombackendbach.common.context.AnonymousUserContext;
+import kr.muroom.muroombackendbach.studio.application.command.StudioFavoriteCommandService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -14,17 +17,25 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class SessionAuthService {
 
   private static final String JSESSIONID = "JSESSIONID";
-  private final SecurityContextRepository securityContextRepository =
-      new HttpSessionSecurityContextRepository();
+  private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+  private final StudioFavoriteCommandService studioFavoriteCommandService;
 
   public void login(HttpServletRequest request,
       HttpServletResponse response,
       UserType userType,
       Long userId) {
 
+    // 1) 게스트 찜 이관 (로그인 전에 anonId 확보)
+    String anonId = AnonymousUserContext.getAnonymousUserId();
+    if (anonId != null && !anonId.isBlank()) {
+      studioFavoriteCommandService.migrateGuestFavoritesToUser(anonId, userId);
+    }
+
+    // 2) 세션 로그인 처리
     SessionAuthPrincipal principal = new SessionAuthPrincipal(userType, userId);
     var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + userType.name()));
 

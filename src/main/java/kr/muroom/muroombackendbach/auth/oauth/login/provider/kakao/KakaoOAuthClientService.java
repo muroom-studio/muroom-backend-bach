@@ -8,8 +8,10 @@ import kr.muroom.muroombackendbach.auth.oauth.login.provider.OAuthTokenResult;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao.dto.KakaoIdTokenPayload;
 import kr.muroom.muroombackendbach.auth.oauth.login.provider.kakao.dto.KakaoTokenResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class KakaoOAuthClientService implements OAuthClientService {
@@ -25,6 +27,8 @@ public class KakaoOAuthClientService implements OAuthClientService {
   public OAuthTokenResult exchangeCode(String authorizationCode, String origin) {
     KakaoTokenResponse response =
         kakaoOAuthClient.exchangeCodeForToken(authorizationCode, origin);
+
+    log.debug("Kakao OAuth exchangeCode called. origin={}", origin);
 
     return OAuthTokenResult.builder()
         .idToken(response.idToken())
