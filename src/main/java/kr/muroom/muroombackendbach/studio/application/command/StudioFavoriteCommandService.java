@@ -35,7 +35,7 @@ public class StudioFavoriteCommandService {
    * subjectId: "U:{userId}" or "G:{anonymousId}"
    */
   public void addFavorite(Long studioId, String subjectId) {
-    studioService.isExistingStudioId(studioId);
+    studioService.validateStudioIdExists(studioId);
 
     Subject subject = SubjectParser.parse(subjectId);
 
@@ -52,7 +52,7 @@ public class StudioFavoriteCommandService {
   }
 
   public void removeFavorite(Long studioId, String subjectId) {
-    studioService.isExistingStudioId(studioId);
+    studioService.validateStudioIdExists(studioId);
 
     Subject subject = SubjectParser.parse(subjectId);
 

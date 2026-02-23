@@ -19,7 +19,6 @@ import kr.muroom.muroombackendbach.musician.application.MusicianService;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
-import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoast;
 import kr.muroom.muroombackendbach.studioboasting.domain.entity.StudioBoastImage;
 import kr.muroom.muroombackendbach.studioboasting.domain.repository.StudioBoastCommentLikeRepository;
@@ -69,7 +68,7 @@ public class StudioBoastService {
 
   @Transactional
   public Long createStudioBoast(CreateStudioBoastRequest request, Long musicianId) {
-    studioService.isExistingStudioId(request.studioId());
+    studioService.validateStudioIdExists(request.studioId());
 
     if (request.instagramAccount() != null && !request.instagramAccount().isBlank()
         && !request.agreedToEventTerms()) {
