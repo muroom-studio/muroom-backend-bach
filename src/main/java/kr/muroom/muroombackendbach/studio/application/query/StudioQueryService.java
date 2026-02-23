@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.common.util.SubjectParser;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.owner.domain.application.OwnerService;
@@ -69,6 +70,7 @@ public class StudioQueryService {
   private final RoomRepository roomRepository;
   private final StudioPriceRepository studioPriceRepository;
   private final StudioBuildingInfoRepository studioBuildingInfoRepository;
+  private final StudioFavoriteQueryService studioFavoriteQueryService;
   private final StudioForbiddenInstrumentRepository studioForbiddenInstrumentRepository;
   private final OwnerService ownerService;
 
@@ -76,7 +78,15 @@ public class StudioQueryService {
 
   }
 
-  public StudioDetailResponse getStudio(Long studioId, Long musicianId) {
+  public StudioDetailResponse getStudio(Long studioId, String subjectId) {
+    // 회원(U)인 경우에만 musicianId 추출 (비회원은 null 유지)
+    Long musicianId = null;
+
+    SubjectParser.Subject subject = SubjectParser.parse(subjectId);
+    if (subject != null && "U".equals(subject.prefix())) {
+      musicianId = Long.valueOf(subject.id());
+    }
+
     // 1. 조회수 증가 로직 호출
     studioViewService.incrementViewCount(studioId, musicianId);
 
@@ -116,6 +126,7 @@ public class StudioQueryService {
         .studioMaxPrice(priceRange.maxPrice())
         .depositAmount(studio.getDepositAmount())
         .nearbySubwayStations(nearbySubwayStationInfos)
+        .isFavorite(studioFavoriteQueryService.isFavoriteStudio(studioId, subjectId))
         .build();
 
     Point parkingLocation = null;

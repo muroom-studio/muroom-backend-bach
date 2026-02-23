@@ -39,6 +39,7 @@ public class StudioController {
   @GetMapping("/map-search")
   public ApiResponse<List<StudioMapResponse>> searchStudiosInMapBounds(
       @Validated @ParameterObject MapSearchRequest request,
+      @Parameter(hidden = true)
       @CurrentSubjectId String subjectId
   ) {
     List<StudioMapResponse> response = studioService.searchStudiosInMapBounds(request, subjectId);
@@ -58,6 +59,7 @@ public class StudioController {
   @GetMapping("/map-list")
   public ApiResponse<PaginatedData<StudioListElementResponse>> searchStudiosForMapList(
       @Validated @ParameterObject MapSearchRequest request,
+      @Parameter(hidden = true)
       @CurrentSubjectId String subjectId,
       @Parameter(hidden = true)
       @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
@@ -70,8 +72,9 @@ public class StudioController {
   @Operation(summary = "스튜디오 상세 조회", description = "스튜디오의 상세 정보를 조회합니다.")
   @GetMapping("/{studioId}")
   public ApiResponse<StudioDetailResponse> getStudio(@PathVariable Long studioId,
-      @CurrentUserId(required = false) Long musicianId) {
-    StudioDetailResponse response = studioQueryService.getStudio(studioId, musicianId);
+      @Parameter(hidden = true)
+      @CurrentSubjectId String subjectId) {
+    StudioDetailResponse response = studioQueryService.getStudio(studioId, subjectId);
 
     return ApiResponse.success(response);
   }

@@ -52,6 +52,7 @@ public class StudioFavoriteController {
   public ApiResponse<PaginatedData<StudioInfo>> getFavoriteStudios(
       @Parameter(hidden = true)
       @CurrentSubjectId String subjectId,
+      @Parameter(hidden = true)
       @PageableDefault Pageable pageable
   ) {
     PageImpl<StudioInfo> favorites =

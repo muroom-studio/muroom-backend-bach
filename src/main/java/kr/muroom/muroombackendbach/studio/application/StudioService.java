@@ -322,8 +322,10 @@ public class StudioService {
         .build();
   }
 
-  public boolean isExistingStudioId(Long studioId) {
-    return studioRepository.existsById(studioId);
+  public void isExistingStudioId(Long studioId) {
+    if (studioId != null && studioRepository.existsById(studioId)){
+      throw new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND);
+    }
   }
 
   /**

@@ -69,9 +69,7 @@ public class StudioBoastService {
 
   @Transactional
   public Long createStudioBoast(CreateStudioBoastRequest request, Long musicianId) {
-    if (request.studioId() != null && !studioService.isExistingStudioId(request.studioId())) {
-      throw new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND);
-    }
+    studioService.isExistingStudioId(request.studioId());
 
     if (request.instagramAccount() != null && !request.instagramAccount().isBlank()
         && !request.agreedToEventTerms()) {
