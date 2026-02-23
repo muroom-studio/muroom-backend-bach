@@ -11,6 +11,7 @@ import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse;
 import kr.muroom.muroombackendbach.auth.oauth.login.dto.OAuthLoginResponse.ResultType;
 import kr.muroom.muroombackendbach.auth.session.SessionAuthService;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
+import kr.muroom.muroombackendbach.studio.application.command.StudioFavoriteCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,8 +40,7 @@ public class MusicianAuthController implements MusicianAuthControllerDocs {
     OAuthLoginResponse response = oAuthLoginService.login(request, origin);
 
     if (response.type() == ResultType.LOGIN) {
-      sessionAuthService.login(httpRequest, httpResponse, UserType.MUSICIAN,
-          Long.valueOf(response.userId()));
+      sessionAuthService.login(httpRequest, httpResponse, UserType.MUSICIAN, Long.valueOf(response.userId()));
     }
 
     return ApiResponse.success(response);

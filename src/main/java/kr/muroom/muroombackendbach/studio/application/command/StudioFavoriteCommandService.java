@@ -22,6 +22,7 @@ public class StudioFavoriteCommandService {
   private final RedisTemplate<String, String> redisTemplate;
   private final DefaultRedisScript<Long> addFavoriteScript;
   private final DefaultRedisScript<Long> removeFavoriteScript;
+  private final DefaultRedisScript<Long> migrateGuestToUserFavoriteScript;
 
   private final StudioService studioService;
 
@@ -87,6 +88,24 @@ public class StudioFavoriteCommandService {
     List<StudioInfo> studios = studioService.getStudioInfoByIds(studioIds);
 
     return new PageImpl<>(studios, pageable, totalCount);
+  }
+
+  public long migrateGuestFavoritesToUser(String anonymousUserId, Long userId) {
+    String guestZ = "fav:G" + anonymousUserId + ":STUDIO";
+    String guestSet = "favset:G" + anonymousUserId + ":STUDIO";
+    String userZ = "fav:U" + userId + ":STUDIO";
+    String userSet = "favset:U" + userId + ":STUDIO";
+
+      return redisTemplate.execute(
+              migrateGuestToUserFavoriteScript,
+              List.of(
+                      guestZ,
+                      guestSet,
+                      userZ,
+                      userSet,
+                      "favcnt:STUDIO:"
+              )
+      );
   }
 
   // ------------------------

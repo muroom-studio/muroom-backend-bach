@@ -323,7 +323,7 @@ public class StudioService {
   }
 
   public void isExistingStudioId(Long studioId) {
-    if (studioId != null && studioRepository.existsById(studioId)){
+    if (studioId == null || !studioRepository.existsById(studioId)){
       throw new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND);
     }
   }
