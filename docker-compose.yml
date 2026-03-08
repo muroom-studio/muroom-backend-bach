@@ -35,12 +35,12 @@ services:
         RUN apt-get update \
             && apt-get install -y postgis postgresql-17-postgis-3 \
             && rm -rf /var/lib/apt/lists/*
-    container_name: muroom-postgres
+    container_name: muroom-postgres-flyway
     restart: always
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=muroomdb
+      - POSTGRES_DB=muroomdb-flyway
       - POSTGRES_USER=muroomadmin
       - POSTGRES_PASSWORD=muroom1234
       - TZ=Asia/Seoul

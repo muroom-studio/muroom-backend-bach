@@ -1,6 +1,7 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/muroomdb
+    #url: jdbc:postgresql://localhost:5432/muroomdb
+    url: jdbc:postgresql://localhost:5432/muroomdb-flyway
     username: muroomadmin
     password: muroom1234
     driver-class-name: org.postgresql.Driver
@@ -17,15 +18,17 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      #ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
   flyway:
-    enabled: false
-    #baseline-on-migrate: true
-    #locations: classpath:db/migration
+    #enabled: false
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
 
   data:
     redis:

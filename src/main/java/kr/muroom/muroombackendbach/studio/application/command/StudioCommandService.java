@@ -16,6 +16,7 @@ import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioI
 import kr.muroom.muroombackendbach.admin.studio.presentation.dto.request.StudioUpdateRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
@@ -72,8 +73,7 @@ public class StudioCommandService {
   private final OwnerService ownerService;
 
   public GeneratePresignedPutUrlResponse generatePresignedPutUrl(StudioImageUploadRequest request) {
-    return fileStorageService.generatePresignedPutUrlForPublic(request,
-        FileStorageService::validateImageContentType);
+    return fileStorageService.getUploadUrl(FileStorageLocation.PUBLIC_TEMP, request);
   }
 
   public Long createStudio(StudioCreateRequest request) {
@@ -239,7 +239,7 @@ public class StudioCommandService {
         Room existingRoom = existingRoomsMap.get(roomName);
         if (existingRoom != null) {
           existingRoom.update(currentSequence, roomReq.widthMm(), roomReq.heightMm(),
-              roomReq.isAvailable(), roomReq.availableAt(), roomReq.roomBasePrice());
+              roomReq.isAvailable(), roomReq.availableAt(), roomReq.basePrice());
           roomsToSave.add(existingRoom);
         } else {
           roomsToSave.add(Room.builder()
@@ -250,7 +250,7 @@ public class StudioCommandService {
               .height(roomReq.heightMm())
               .isAvailable(roomReq.isAvailable())
               .availableAt(roomReq.availableAt())
-              .basePrice(roomReq.roomBasePrice())
+              .basePrice(roomReq.basePrice())
               .build());
         }
       }
@@ -273,7 +273,7 @@ public class StudioCommandService {
       List<StudioImage> existingImages = studioImageRepository.findAllByStudio(studio);
       studioImageRepository.deleteAll(existingImages);
       existingImages.forEach(
-          image -> fileStorageService.deletePublicFile(image.getImageKey()));
+          image -> fileStorageService.softDelete(image.getImageKey(), FileStorageLocation.PUBLIC_PERMANENT));
       return new ArrayList<>();
     }
 
@@ -321,7 +321,7 @@ public class StudioCommandService {
         existingImage.updateCategoryAndSequence(req.category(), req.sequence());
         finalImages.add(existingImage);
       } else {
-        String permanentKey = fileStorageService.movePublicFileFromTempToPermanent(req.key());
+        String permanentKey = fileStorageService.move(req.key(), FileStorageLocation.PUBLIC_TEMP, FileStorageLocation.PUBLIC_PERMANENT);
         finalImages.add(StudioImage.builder()
             .studio(studio)
             .category(req.category())
@@ -338,7 +338,7 @@ public class StudioCommandService {
     studioImageRepository.deleteAll(imagesToDelete);
     studioImageRepository.saveAll(finalImages);
     imagesToDelete.forEach(
-        image -> fileStorageService.deletePublicFile(image.getImageKey()));
+        image -> fileStorageService.softDelete(image.getImageKey(), FileStorageLocation.PUBLIC_PERMANENT));
 
     return finalImages;
   }
@@ -441,7 +441,7 @@ public class StudioCommandService {
     List<String> imageKeys = studioImageRepository.findAllByStudio(studio).stream()
         .map(StudioImage::getImageKey)
         .toList();
-    imageKeys.forEach(fileStorageService::deletePublicFile);
+    imageKeys.forEach(imageKey -> fileStorageService.softDelete(imageKey, FileStorageLocation.PUBLIC_PERMANENT));
 
     roomRepository.deleteAllByStudioId(studioId);
     studioPriceRepository.deleteById(studioId);
@@ -491,7 +491,7 @@ public class StudioCommandService {
         .map(roomReq -> Room.builder()
             .studioId(studioId)
             .name(roomReq.roomName())
-            .basePrice(roomReq.roomBasePrice())
+            .basePrice(roomReq.basePrice())
             .isAvailable(roomReq.isAvailable())
             .availableAt(roomReq.availableAt())
             .width(roomReq.widthMm())
@@ -531,7 +531,7 @@ public class StudioCommandService {
     request.mainImageKeys()
         .forEach(key -> images.add(StudioImage.builder()
             .category(StudioImageCategory.MAIN)
-            .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
+            .imageKey(fileStorageService.move(key, FileStorageLocation.PUBLIC_TEMP, FileStorageLocation.PUBLIC_PERMANENT))
             .sequence(sequence.getAndIncrement())
             .build()));
 
@@ -540,7 +540,7 @@ public class StudioCommandService {
       request.buildingImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.BUILDING)
-              .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
+              .imageKey(fileStorageService.move(key, FileStorageLocation.PUBLIC_TEMP, FileStorageLocation.PUBLIC_PERMANENT))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
@@ -550,14 +550,15 @@ public class StudioCommandService {
       request.roomImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.ROOM)
-              .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
+              .imageKey(fileStorageService.move(key, FileStorageLocation.PUBLIC_TEMP, FileStorageLocation.PUBLIC_PERMANENT))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
 
     images.add(StudioImage.builder()
         .category(StudioImageCategory.BLUEPRINT)
-        .imageKey(fileStorageService.movePublicFileFromTempToPermanent(request.blueprintImageKey()))
+        .imageKey(
+            fileStorageService.move(request.blueprintImageKey(), FileStorageLocation.PUBLIC_TEMP, FileStorageLocation.PUBLIC_PERMANENT))
         .sequence(1)
         .build());
 
@@ -566,7 +567,7 @@ public class StudioCommandService {
       request.commonOptionImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.COMMON_OPTION)
-              .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
+              .imageKey(fileStorageService.move(key, FileStorageLocation.PUBLIC_TEMP, FileStorageLocation.PUBLIC_PERMANENT))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
@@ -576,7 +577,7 @@ public class StudioCommandService {
       request.individualOptionImageKeys()
           .forEach(key -> images.add(StudioImage.builder()
               .category(StudioImageCategory.INDIVIDUAL_OPTION)
-              .imageKey(fileStorageService.movePublicFileFromTempToPermanent(key))
+              .imageKey(fileStorageService.move(key, FileStorageLocation.PUBLIC_TEMP, FileStorageLocation.PUBLIC_PERMANENT))
               .sequence(sequence.getAndIncrement())
               .build()));
     }
