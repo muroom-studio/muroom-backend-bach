@@ -11,12 +11,13 @@ import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.SubjectParser;
 import kr.muroom.muroombackendbach.common.util.SubjectParser.Subject;
-import kr.muroom.muroombackendbach.studio.application.query.StudioFavoriteQueryService;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.room.domain.entity.Room;
 import kr.muroom.muroombackendbach.room.domain.repository.RoomRepository;
 import kr.muroom.muroombackendbach.search.application.SearchHistoryService;
+import kr.muroom.muroombackendbach.studio.application.query.StudioFavoriteQueryService;
 import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
@@ -215,7 +216,7 @@ public class StudioService {
         .filter(Objects::nonNull).toList();
     Map<String, String> presignedUrls = studioThumbnailImageKeys.stream()
         .collect(Collectors.toMap(studioThumbnailImageKey -> studioThumbnailImageKey,
-            fileStorageService::getPublicFileUrl));
+            key -> fileStorageService.getViewUrl(key, FileStorageLocation.PUBLIC_PERMANENT)));
 
     // 정보 조합
     List<StudioListElementResponse> responseContent = studios.stream().map(studio -> {
@@ -323,7 +324,7 @@ public class StudioService {
   }
 
   public void validateStudioIdExists(Long studioId) {
-    if (studioId == null || !studioRepository.existsById(studioId)){
+    if (studioId == null || !studioRepository.existsById(studioId)) {
       throw new BusinessException(StudioErrorCode.STUDIO_NOT_FOUND);
     }
   }
@@ -364,7 +365,7 @@ public class StudioService {
     return StudioBoastDetailResponse.StudioInfo.builder()
         .id(String.valueOf(studio.getId()))
         .name(studio.getName())
-        .thumbnailImageFileUrl(fileStorageService.getPublicFileUrl(studio.getThumbnailImageKey()))
+        .thumbnailImageFileUrl(fileStorageService.getViewUrl(studio.getThumbnailImageKey(), FileStorageLocation.PUBLIC_PERMANENT))
         .roadNameAddress(studio.getRoadNameAddress())
         .lotNumberAddress(studio.getLotNumberAddress())
         .detailedAddress(studio.getDetailedAddress())
@@ -461,7 +462,7 @@ public class StudioService {
       return StudioBoastDetailResponse.StudioInfo.builder()
           .id(String.valueOf(studio.getId()))
           .name(studio.getName())
-          .thumbnailImageFileUrl(fileStorageService.getPublicFileUrl(studio.getThumbnailImageKey()))
+          .thumbnailImageFileUrl(fileStorageService.getViewUrl(studio.getThumbnailImageKey(), FileStorageLocation.PUBLIC_PERMANENT))
           .roadNameAddress(studio.getRoadNameAddress())
           .lotNumberAddress(studio.getLotNumberAddress())
           .detailedAddress(studio.getDetailedAddress())

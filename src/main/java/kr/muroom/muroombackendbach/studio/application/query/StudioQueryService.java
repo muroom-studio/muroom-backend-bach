@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.util.SubjectParser;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
 import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
 import kr.muroom.muroombackendbach.owner.domain.application.OwnerService;
 import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
@@ -103,10 +104,10 @@ public class StudioQueryService {
     List<StudioOption> studioOptions = studioOptionRepository.findAllByStudio(studio);
     List<StudioForbiddenInstrument> forbiddenInstruments =
         studioForbiddenInstrumentRepository.findAllByStudio(
-        studio);
+            studio);
     List<SubwayStationNearbyStudio> nearbyStations =
         subwayStationNearbyStudioRepository.findAllByStudioOrderBySequenceAsc(
-        studioId);
+            studioId);
 
     // 4. 나머지 데이터들을 변수에 할당
     Owner owner = ownerService.findByIdOrThrowException(studio.getOwnerId());
@@ -144,7 +145,7 @@ public class StudioQueryService {
 
     StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto =
         StudioForbiddenInstrumentsDto.from(
-        forbiddenInstruments);
+            forbiddenInstruments);
 
     StudioRoomsDto studioRoomsDto = StudioRoomsDto.from(rooms);
 
@@ -267,7 +268,7 @@ public class StudioQueryService {
         .toList();
 
     return keys.stream()
-        .map(fileStorageService::getPublicFileUrl)
+        .map(key -> fileStorageService.getViewUrl(key, FileStorageLocation.PUBLIC_PERMANENT))
         .toList();
   }
 }

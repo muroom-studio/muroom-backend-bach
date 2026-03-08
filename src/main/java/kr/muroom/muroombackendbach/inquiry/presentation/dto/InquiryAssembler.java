@@ -2,6 +2,7 @@ package kr.muroom.muroombackendbach.inquiry.presentation.dto;
 
 import java.util.List;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryImage;
@@ -146,7 +147,7 @@ public class InquiryAssembler {
   private ImageDto toReplyImageDto(InquiryReplyImage img) {
     return ImageDto.builder()
         .id(String.valueOf(img.getId()))
-        .imageFileUrl(fileStorageService.generatePresignedGetUrlForPrivateFile(img.getImageKey()))
+        .imageFileUrl(fileStorageService.getViewUrl(img.getImageKey(), FileStorageLocation.PRIVATE_PERMANENT))
         .build();
   }
 
@@ -164,7 +165,7 @@ public class InquiryAssembler {
         .map(img -> ImageDto.builder()
             .id(String.valueOf(img.getId()))
             .imageFileUrl(
-                fileStorageService.generatePresignedGetUrlForPrivateFile(img.getImageKey()))
+                fileStorageService.getViewUrl(img.getImageKey(), FileStorageLocation.PRIVATE_PERMANENT))
             .build())
         .toList();
   }

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.auth.auth.exception.AuthErrorCode;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.musician.application.MusicianService;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
@@ -62,8 +63,7 @@ public class StudioBoastService {
 
   public GeneratePresignedPutUrlResponse generateStudioImagePresignedPutUrl(
       StudioBoastImageUploadRequest request) {
-    return fileStorageService.generatePresignedPutUrlForPublic(request,
-        FileStorageService::validateImageContentType);
+    return fileStorageService.getUploadUrl(FileStorageLocation.PUBLIC_TEMP, request);
   }
 
   @Transactional
@@ -77,7 +77,7 @@ public class StudioBoastService {
 
     List<String> temporaryImageKeys = request.imageFileKeys();
     List<String> permanentImageKeys = temporaryImageKeys.stream()
-        .map(fileStorageService::movePublicFileFromTempToPermanent)
+        .map(key -> fileStorageService.move(key, FileStorageLocation.PUBLIC_TEMP, FileStorageLocation.PUBLIC_PERMANENT))
         .toList();
 
     StudioBoast newStudioBoast = StudioBoast.builder()
@@ -166,7 +166,7 @@ public class StudioBoastService {
     if (!imagesToDelete.isEmpty()) {
       studioBoastImageRepository.deleteAll(imagesToDelete);
       // S3에 저장된 파일도 삭제합니다.
-      imagesToDelete.forEach(image -> fileStorageService.deletePublicFile(image.getImageFileKey()));
+      imagesToDelete.forEach(image -> fileStorageService.softDelete(image.getImageFileKey(), FileStorageLocation.PUBLIC_PERMANENT));
     }
 
     // 5. 새 이미지 목록 생성 및 업데이트 (순서 변경 및 추가 처리)
@@ -183,7 +183,7 @@ public class StudioBoastService {
         // 기존에 없던 새로운 이미지는 생성
         imagesToUpdate.add(StudioBoastImage.builder()
             .studioBoast(studioBoast)
-            .imageFileKey(fileStorageService.movePublicFileFromTempToPermanent(imageFileKey))
+            .imageFileKey(fileStorageService.move(imageFileKey, FileStorageLocation.PUBLIC_TEMP, FileStorageLocation.PUBLIC_PERMANENT))
             .sequence(i)
             .build());
       }
@@ -215,7 +215,7 @@ public class StudioBoastService {
         .map(studioBoast -> StudioBoastListElementResponse.builder()
             .id(String.valueOf(studioBoast.getId()))
             .thumbnailImageFileUrl(
-                fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey())
+                fileStorageService.getViewUrl(studioBoast.getThumbnailImageFileKey(), FileStorageLocation.PUBLIC_PERMANENT)
             )
             .isLikedByRequestUser(likedBoastIds.contains(studioBoast.getId()))
             .build())
@@ -268,7 +268,7 @@ public class StudioBoastService {
     return studioBoastPage.map(studioBoast -> StudioBoastSimpleResponse.builder()
         .id(String.valueOf(studioBoast.getId()))
         .thumbnailImageFileUrl(
-            fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey())
+            fileStorageService.getViewUrl(studioBoast.getThumbnailImageFileKey(), FileStorageLocation.PUBLIC_PERMANENT)
         )
         .build());
   }
@@ -332,7 +332,7 @@ public class StudioBoastService {
               Collections.emptyList())
           .stream()
           .sorted(Comparator.comparing(StudioBoastImage::getSequence))
-          .map(image -> fileStorageService.getPublicFileUrl(image.getImageFileKey()))
+          .map(image -> fileStorageService.getViewUrl(image.getImageFileKey(), FileStorageLocation.PUBLIC_PERMANENT))
           .toList();
 
       // 작성자 정보 DTO 생성
@@ -376,7 +376,7 @@ public class StudioBoastService {
           .id(String.valueOf(studioBoast.getId()))
           .content(studioBoast.getContent())
           .thumbnailImageFileUrl(
-              fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey())
+              fileStorageService.getViewUrl(studioBoast.getThumbnailImageFileKey(), FileStorageLocation.PUBLIC_PERMANENT)
           )
           .imageFileUrls(imageUrls)
           .isWrittenByRequestUser(isWrittenByRequestUser)
@@ -399,8 +399,8 @@ public class StudioBoastService {
     List<StudioBoastImage> studioBoastImages =
         studioBoastImageRepository.findByStudioBoastOrderBySequenceAsc(studioBoast);
     List<String> studioBoastImageFileUrls = studioBoastImages.stream()
-        .map(studioBoastImage -> fileStorageService.getPublicFileUrl(
-            studioBoastImage.getImageFileKey()))
+        .map(studioBoastImage -> fileStorageService.getViewUrl(
+            studioBoastImage.getImageFileKey(), FileStorageLocation.PUBLIC_PERMANENT))
         .toList();
 
     // 작성자 정보 DTO 생성
@@ -451,7 +451,7 @@ public class StudioBoastService {
         .id(String.valueOf(studioBoast.getId()))
         .content(studioBoast.getContent())
         .thumbnailImageFileUrl(
-            fileStorageService.getPublicFileUrl(studioBoast.getThumbnailImageFileKey())
+            fileStorageService.getViewUrl(studioBoast.getThumbnailImageFileKey(), FileStorageLocation.PUBLIC_PERMANENT)
         )
         .imageFileUrls(studioBoastImageFileUrls)
         .isWrittenByRequestUser(isWrittenByRequestUser)
@@ -481,7 +481,7 @@ public class StudioBoastService {
     if (studioBoastImages != null && !studioBoastImages.isEmpty()) {
       studioBoastImages.stream()
           .map(StudioBoastImage::getImageFileKey)
-          .forEach(fileStorageService::deletePublicFile);
+          .forEach(imageKey -> fileStorageService.softDelete(imageKey, FileStorageLocation.PUBLIC_PERMANENT));
       studioBoastImageRepository.deleteAllByStudioBoast(studioBoast);
     }
 
