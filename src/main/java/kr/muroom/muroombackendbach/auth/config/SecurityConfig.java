@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +28,7 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
         .formLogin(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
-        //.anonymous(AbstractHttpConfigurer::disable)
+        .requestCache(cache -> cache.requestCache(new NullRequestCache()))
         .exceptionHandling(eh -> eh
             .authenticationEntryPoint(
                 (req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
@@ -41,6 +42,7 @@ public class SecurityConfig {
                 "/swagger-ui.html",
                 "/v3/api-docs/**",
                 "/api/v1/auth/**",
+                "/api/v1/musicians/sign-up",
                 "/api/v1/musicians/register",
                 "/api/v1/musicians/nickname/check",
                 "/api/v1/musicians/phone/check",
@@ -52,7 +54,8 @@ public class SecurityConfig {
                 "/api/v1/subways/**",
                 "/api/v1/terms/**",
                 "/docs",
-                "/api/v1/sms/**"
+                "/api/v1/sms/**",
+                "api/v1/studio-boasts/**"
             ).permitAll()
             .anyRequest().authenticated()
         );
