@@ -42,7 +42,7 @@ public class SecurityConfig {
                 "/swagger-ui.html",
                 "/v3/api-docs/**",
                 "/api/v1/auth/**",
-                "/api/v1/musicians/sign-up",
+                "/api/v1/owners/sign-up",
                 "/api/v1/musicians/register",
                 "/api/v1/musicians/nickname/check",
                 "/api/v1/musicians/phone/check",
@@ -55,7 +55,7 @@ public class SecurityConfig {
                 "/api/v1/terms/**",
                 "/docs",
                 "/api/v1/sms/**",
-                "api/v1/studio-boasts/**"
+                "/api/v1/studio-boasts/**"
             ).permitAll()
             .anyRequest().authenticated()
         );
