@@ -12,5 +12,5 @@ public interface StudioDraftRepository extends JpaRepository<StudioDraft, Long> 
 
   Optional<StudioDraft> findByIdAndOwnerId(Long id, Long ownerId);
 
-  void deleteAllByExpiresAtBefore(OffsetDateTime now);
+  List<StudioDraft> findAllByExpiresAtBefore(OffsetDateTime now);
 }

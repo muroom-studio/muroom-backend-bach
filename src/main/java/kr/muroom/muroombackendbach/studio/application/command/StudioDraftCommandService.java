@@ -1,7 +1,12 @@
 package kr.muroom.muroombackendbach.studio.application.command;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
 import kr.muroom.muroombackendbach.studio.application.command.dto.CreateStudioDraftCommand;
 import kr.muroom.muroombackendbach.studio.application.command.dto.UpdateStudioDraftCommand;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioDraft;
@@ -17,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudioDraftCommandService {
 
   private final StudioDraftRepository studioDraftRepository;
+  private final FileStorageService fileStorageService;
 
   public Long createStudioDraft(CreateStudioDraftCommand command) {
     StudioDraft newStudioDraft = StudioDraft.builder()
@@ -33,6 +39,13 @@ public class StudioDraftCommandService {
     StudioDraft studioDraft = studioDraftRepository.findByIdAndOwnerId(command.studioDraftId(), command.ownerId())
         .orElseThrow(() -> new BusinessException(StudioErrorCode.DRAFT_NOT_FOUND));
 
+    List<String> oldKeys = studioDraft.getStudioDraftData().extractAllImageKeys();
+    Set<String> newKeys = new HashSet<>(command.studioDraftData().extractAllImageKeys());
+
+    oldKeys.stream()
+        .filter(key -> !newKeys.contains(key))
+        .forEach(key -> fileStorageService.softDelete(key, FileStorageLocation.PRIVATE_DRAFT));
+
     studioDraft.update(
         command.step(),
         command.studioDraftData().studioName(),
@@ -45,6 +58,20 @@ public class StudioDraftCommandService {
     StudioDraft studioDraft = studioDraftRepository.findByIdAndOwnerId(draftId, ownerId)
         .orElseThrow(() -> new BusinessException(StudioErrorCode.DRAFT_NOT_FOUND));
 
+    studioDraft.getStudioDraftData().extractAllImageKeys()
+        .forEach(key -> fileStorageService.softDelete(key, FileStorageLocation.PRIVATE_DRAFT));
+
     studioDraftRepository.delete(studioDraft);
+  }
+
+  public void deleteExpiredDrafts() {
+    List<StudioDraft> expiredDrafts = studioDraftRepository.findAllByExpiresAtBefore(OffsetDateTime.now());
+
+    expiredDrafts.forEach(draft ->
+        draft.getStudioDraftData().extractAllImageKeys()
+            .forEach(key -> fileStorageService.softDelete(key, FileStorageLocation.PRIVATE_DRAFT))
+    );
+
+    studioDraftRepository.deleteAll(expiredDrafts);
   }
 }

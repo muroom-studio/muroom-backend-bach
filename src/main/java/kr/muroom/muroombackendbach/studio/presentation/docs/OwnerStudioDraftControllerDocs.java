@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.request.StudioDraftImageUploadRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.StudioDraftSaveRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDraftDetailResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDraftListResponse;
@@ -17,6 +19,33 @@ import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDraftL
 @Tag(name = "Owner - 스튜디오 임시 저장 API")
 @SuppressWarnings("unused")
 public interface OwnerStudioDraftControllerDocs {
+
+  @Operation(
+      summary = "드래프트 이미지 업로드용 Presigned URL 발급",
+      description = "스튜디오 임시 저장에 첨부할 이미지를 업로드하기 위한 PUT Presigned URL을 발급합니다. "
+          + "발급된 URL로 클라이언트가 S3에 직접 업로드한 뒤, 응답의 fileKey를 임시 저장 요청의 이미지 키 필드에 사용합니다."
+  )
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Presigned URL 발급 성공"),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "400", description = "입력값 검증 실패 (fileName, category, contentType 누락)",
+          content = @Content(schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  value = "{\"status\": 400, \"message\": \"fileName: 공백일 수 없습니다.\"}"))),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "401", description = "인증 실패 (로그인 필요)",
+          content = @Content(schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  value = "{\"status\": 401, \"code\": \"AU-401-01\", \"message\": \"인증이 필요한 서비스입니다.\"}"))),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(
+          responseCode = "403", description = "권한 없음 (OWNER 권한 필요)",
+          content = @Content(schema = @Schema(implementation = BusinessException.class),
+              examples = @ExampleObject(
+                  value = "{\"status\": 403, \"code\": \"AU-403-01\", \"message\": \"해당 리소스에 접근 권한이 없습니다.\"}")))
+  })
+  ApiResponse<GeneratePresignedPutUrlResponse> generatePresignedUrl(
+      StudioDraftImageUploadRequest request
+  );
 
   @Operation(
       summary = "스튜디오 임시 저장 생성",

@@ -3,6 +3,9 @@ package kr.muroom.muroombackendbach.studio.presentation;
 import java.util.List;
 import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
+import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.studio.application.command.StudioDraftCommandService;
 import kr.muroom.muroombackendbach.studio.application.command.dto.CreateStudioDraftCommand;
 import kr.muroom.muroombackendbach.studio.application.command.dto.UpdateStudioDraftCommand;
@@ -10,11 +13,13 @@ import kr.muroom.muroombackendbach.studio.application.query.StudioDraftQueryServ
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioDraft;
 import kr.muroom.muroombackendbach.studio.domain.valueobject.StudioDraftData;
 import kr.muroom.muroombackendbach.studio.presentation.docs.OwnerStudioDraftControllerDocs;
+import kr.muroom.muroombackendbach.studio.presentation.dto.request.StudioDraftImageUploadRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.StudioDraftSaveRequest;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDraftDetailResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDraftListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +36,17 @@ public class OwnerStudioDraftController implements OwnerStudioDraftControllerDoc
 
   private final StudioDraftCommandService studioDraftCommandService;
   private final StudioDraftQueryService studioDraftQueryService;
+  private final FileStorageService fileStorageService;
+
+  @Override
+  @PostMapping("/presigned-url")
+  @PreAuthorize("hasRole('OWNER')")
+  public ApiResponse<GeneratePresignedPutUrlResponse> generatePresignedUrl(
+      @Validated @RequestBody StudioDraftImageUploadRequest request) {
+    GeneratePresignedPutUrlResponse response =
+        fileStorageService.getUploadUrl(FileStorageLocation.PRIVATE_DRAFT, request);
+    return ApiResponse.success(response);
+  }
 
   @Override
   @PostMapping
