@@ -100,6 +100,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "prod_private_lifecycle" {
       days = 7
     }
   }
+
+  rule {
+    id     = "prod-private-draft-cleanup"
+    status = "Enabled"
+
+    filter {
+      prefix = "draft/" # draft/ 폴더 내의 고아 객체 자동 정리
+    }
+
+    expiration {
+      days = 7
+    }
+  }
 }
 
 resource "aws_s3_bucket" "muroom_dev_private_storage" {
@@ -162,6 +175,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "dev_private_lifecycle" {
 
     filter {
       prefix = "deletion-scheduled/"
+    }
+
+    expiration {
+      days = 1
+    }
+  }
+
+  rule {
+    id     = "dev-private-draft-cleanup"
+    status = "Enabled"
+
+    filter {
+      prefix = "draft/"
     }
 
     expiration {

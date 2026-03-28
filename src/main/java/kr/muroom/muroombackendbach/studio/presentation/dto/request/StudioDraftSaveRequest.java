@@ -3,9 +3,10 @@ package kr.muroom.muroombackendbach.studio.presentation.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import kr.muroom.muroombackendbach.room.domain.enums.DiscountType;
@@ -45,15 +46,15 @@ public record StudioDraftSaveRequest(
       List<NearbyStationRequest> nearbyStationInfos,
 
       @Schema(description = "메인 이미지 키 목록 (최대 3장)")
-      @Max(3)
+      @Size(max = 3)
       List<String> mainImageKeys,
 
       @Schema(description = "건물 이미지 키 목록 (최대 2장)")
-      @Max(2)
+      @Size(max = 2)
       List<String> buildingImageKeys,
 
       @Schema(description = "방 이미지 키 목록 (최대 20장)")
-      @Max(20)
+      @Size(max = 20)
       List<String> roomImageKeys,
 
       @Schema(description = "건물 상세 정보")
@@ -63,7 +64,6 @@ public record StudioDraftSaveRequest(
       List<String> forbiddenInstrumentCodes,
 
       @Schema(description = "도면 이미지 키 (최대 1장)")
-      @Max(1)
       String blueprintImageKey,
 
       @Schema(description = "가격 공개 여부", example = "true")
@@ -76,15 +76,15 @@ public record StudioDraftSaveRequest(
       List<String> optionCodes,
 
       @Schema(description = "공통 옵션 이미지 키 목록 (최대 10장)")
-      @Max(10)
+      @Size(max = 10)
       List<String> commonOptionImageKeys,
 
       @Schema(description = "개별 옵션 이미지 키 목록 (최대 10장)")
-      @Max(10)
+      @Size(max = 10)
       List<String> individualOptionImageKeys,
 
       @Schema(description = "사장님 안내 사항 (최대 1500자)", example = "24시간 운영되는 쾌적한 연습실입니다.")
-      @Max(1500)
+      @Size(max = 1500)
       String introduction
   ) {
 

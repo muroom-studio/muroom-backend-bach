@@ -111,6 +111,6 @@ public class OwnerStudioDraftController implements OwnerStudioDraftControllerDoc
   @PreAuthorize("hasRole('OWNER')")
   public ApiResponse<Void> deleteStudioDraft(@CurrentUserId Long ownerId, @PathVariable Long studioDraftId) {
     studioDraftCommandService.deleteStudioDraft(ownerId, studioDraftId);
-    return ApiResponse.success();
+    return ApiResponse.deleted();
   }
 }

@@ -28,6 +28,7 @@ public class StudioDraftCommandService {
     StudioDraft newStudioDraft = StudioDraft.builder()
         .ownerId(command.ownerId())
         .step(command.step())
+        .studioName(command.studioDraftData().studioName())
         .studioDraftData(command.studioDraftData())
         .expiresAt(OffsetDateTime.now().plusDays(3))
         .build();
