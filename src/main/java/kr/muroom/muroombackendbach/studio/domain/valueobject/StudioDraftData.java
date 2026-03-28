@@ -33,12 +33,24 @@ public record StudioDraftData(
 
   public List<String> extractAllImageKeys() {
     List<String> keys = new ArrayList<>();
-    if (mainImageKeys != null) keys.addAll(mainImageKeys);
-    if (buildingImageKeys != null) keys.addAll(buildingImageKeys);
-    if (roomImageKeys != null) keys.addAll(roomImageKeys);
-    if (blueprintImageKey != null) keys.add(blueprintImageKey);
-    if (commonOptionImageKeys != null) keys.addAll(commonOptionImageKeys);
-    if (individualOptionImageKeys != null) keys.addAll(individualOptionImageKeys);
+    if (mainImageKeys != null) {
+      keys.addAll(mainImageKeys);
+    }
+    if (buildingImageKeys != null) {
+      keys.addAll(buildingImageKeys);
+    }
+    if (roomImageKeys != null) {
+      keys.addAll(roomImageKeys);
+    }
+    if (blueprintImageKey != null) {
+      keys.add(blueprintImageKey);
+    }
+    if (commonOptionImageKeys != null) {
+      keys.addAll(commonOptionImageKeys);
+    }
+    if (individualOptionImageKeys != null) {
+      keys.addAll(individualOptionImageKeys);
+    }
     return keys;
   }
 }
