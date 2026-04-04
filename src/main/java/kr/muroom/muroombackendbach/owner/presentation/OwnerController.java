@@ -29,7 +29,7 @@ public class OwnerController implements OwnerControllerDocs {
   private final OwnerCommandService ownerCommandService;
   private final OwnerQueryService ownerQueryService;
 
-  @PostMapping("/register")
+  @PostMapping("/sign-up")
   public ApiResponse<Long> registerOwner(
       @Valid @RequestBody OwnerSignupRequest request
   ) {
