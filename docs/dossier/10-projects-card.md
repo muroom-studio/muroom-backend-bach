@@ -46,7 +46,7 @@
 - 선택지: ① 공개 전환 ② README 미러 ③ org/프로필 링크 유지
 - **추천: 8월 리소스 해체 + 외부 키 폐기 후 공개 전환.** 근거: `MusicianAuthControllerDocs.java:49,73`에 카카오 REST 키·구글 client ID가 하드코딩되어 git 히스토리에 존재 [확인 — raw/auth-subsystem.md]. 서비스 종료로 키를 전부 폐기하면 노출 위험이 소멸하므로 히스토리 재작성 없이 공개 가능. `terraform.tfvars`는 미추적 확인됨 [확인]. 공개 전 최종 시크릿 스캔(gitleaks 등) 1회 권장. 그 전까지 카드는 GitHub 링크 보류 또는 org 링크.
 
-**Case study** — 블로그에 Muroom 글 **미발행** [확인: /api/search 결과는 테스트 글 3건뿐]. blog/en/01(비용 회고)을 발행하면 그 slug로 확정 — 추천 slug: `muroom-aws-on-pocket-money`. 발행 전까지 카드의 Case study 링크는 비활성 처리 권장.
+**Case study** — 블로그에 Muroom 글 **미발행** [확인: /api/search 결과는 테스트 글 3건뿐]. blog/en/01(비용 회고)을 발행하면 그 slug로 확정 — slug 확정: `/writing/muroom-aws-on-pocket-money` (시리즈: muroom-deleting-jwt, muroom-ids-javascript). 발행 전까지 카드의 Case study 링크는 비활성 처리 권장.
 
 ## 5. 최종 카드 (조립본 — 2026-08-03 증언 반영 확정)
 
@@ -54,6 +54,6 @@
 - EN: *University-backed music-studio search platform, founded in a team of five. Owned backend search & all AWS infra: PostGIS viewport queries, 13 dynamic filters; Terraform prod + dev at ~$150/mo. Beta live in 3 weeks.* (35w)
 - KO: *대학 창업지원을 받은 합주실 검색 플랫폼, 5인 팀 창업(대표). 백엔드 검색과 AWS 인프라 전체 담당 — PostGIS 뷰포트 쿼리·13개 동적 필터, Terraform으로 prod+dev 월 ~$150 운영. 3주 만에 베타 배포.*
 - 칩: `Spring Boot` `PostGIS` `Terraform`
-- 링크: Case study → `/blog/muroom-aws-on-pocket-money` (발행 후 활성화) · GitHub → `github.com/muroom-studio/muroom-backend-bach` (공개 전환 후 활성화)
+- 링크: Case study → `/writing/muroom-aws-on-pocket-money` (slug 확정 — 본인 커밋 dda059d 기준) · GitHub → `github.com/muroom-studio/muroom-backend-bach` (공개 전환 후 활성화)
 
 변경 이력: "rental→search", "6인→5인", "5개월→3주"는 실측·증언 우선 원칙으로 교정. "Founder"·"University-backed"는 2026-08-03 본인 확정 증언으로 유지/복원.
