@@ -36,7 +36,7 @@
 - **T**: Two days later the frontend (Next.js) silently truncated IDs — JS numbers are safe only to 2^53-1.
 - **A**: Same-day fix: every response DTO serializes IDs as strings (33 files). I even asked in the PR "is this really what industry does?" — it is (Twitter's id_str precedent).
 - **R**: Rule stuck for all future DTOs. Bonus thread: 실무자 피드백 기반 FK 제거 — "DB 레벨 완화, 코드 레벨 강화" (예방적 운영 유연성 결정, studio 경계 14개 드롭).
-- **꼬리질문**: *"TSID vs UUIDv7?"* → **reference-tsid-vs-uuid.md의 한 단락 버전 암기** (핵심: v7은 정렬은 풀지만 16B — FK-less 설계라 ID 폭이 모든 참조 컬럼×인덱스에 곱해짐 + 채택 시점 pg 17엔 v7 네이티브 없음 + "pg 18이면 재비교하겠다"로 마무리); *"FK 없이 정합성은?"* → 애플리케이션 서비스 레벨 검증 + 소프트 딜리트 전략 + partial unique index(`WHERE deleted_at IS NULL`)로 재가입 유니크 해결; *"고아 행 리스크?"* → 인정 + 배치 정합성 검사 개선안.
+- **꼬리질문**: *"TSID vs UUIDv7?"* → **reference-tsid-vs-uuid.md의 한 단락 버전 암기** (핵심: v7은 정렬은 풀지만 16B — FK-less 설계라 ID 폭이 모든 참조 컬럼×인덱스에 곱해짐 + 채택 시점 pg 17엔 v7 네이티브 없음 + "pg 18이면 재비교하겠다"로 마무리); *"FK 없이 정합성은?"* → **구체 답변(2026-08-03 코드 검증 완료)**: "생성 시점 존재 검증이 전 참조 지점에 있다 — Studio→Owner(`findByPhoneNumberOrThrowException`), 역 연결(`findById`+NOT_FOUND), Boast/찜→Studio(`validateStudioIdExists`). 삭제 연쇄는 `deleteStudio`가 서브엔티티 7종+S3까지 서비스에서 소유. 알려진 갭 1개 — nullable 참조(boast→studio)의 단건 읽기 경로에 TODO 잔존(`StudioService.java:338`), 목록 경로는 비정규화 폴백으로 이미 견딤 → 같은 패턴 적용이 해법." 갭을 스스로 아는 것까지가 답변. 소프트 딜리트 유니크는 partial unique index(`WHERE deleted_at IS NULL`); *"고아 행 리스크?"* → 인정 + 배치 정합성 검사 개선안.
 
 ## S4. 지리공간 검색 (— "Walk me through a system you built")
 
