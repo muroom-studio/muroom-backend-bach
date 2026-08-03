@@ -61,4 +61,4 @@ But I walked away with a working mental model of everything a managed service do
 
 ---
 
-*Next in the series: [We built JWT refresh tokens, then deleted the whole thing](./02-deleting-jwt.md)*
+*Next in the series: [We built JWT refresh tokens, then deleted the whole thing](/writing/muroom-deleting-jwt)*

@@ -61,4 +61,4 @@ Muroom은 소프트 런칭을 넘지 못했습니다. 실사용자 8명, 나머�
 
 ---
 
-*다음 편: [JWT 리프레시 토큰을 다 만들고, 전부 지웠습니다](./02-deleting-jwt.md)*
+*다음 편: [JWT 리프레시 토큰을 다 만들고, 전부 지웠습니다](/writing/muroom-deleting-jwt)*

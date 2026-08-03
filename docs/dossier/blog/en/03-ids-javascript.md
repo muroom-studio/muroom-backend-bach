@@ -1,6 +1,6 @@
 # The day our IDs stopped fitting in JavaScript
 
-*Part 3 of a three-part postmortem on Muroom, a five-person studio-search startup I founded. Parts 1 and 2: [pocket-money AWS](./01-pocket-money-aws.md), [deleting our JWT infrastructure](./02-deleting-jwt.md).*
+*Part 3 of a three-part postmortem on Muroom, a five-person studio-search startup I founded. Parts 1 and 2: [pocket-money AWS](/writing/muroom-aws-on-pocket-money), [deleting our JWT infrastructure](/writing/muroom-deleting-jwt).*
 
 ---
 
@@ -28,7 +28,7 @@ You may have noticed the one cell in that table where UUID quietly wins. So did 
 
 ## Migration two: the one I didn't see coming
 
-Within days, the frontend started showing entities that couldn't be found. The Next.js dev tools told the story: IDs in API responses didn't match the IDs in subsequent requests — the last few digits differed.
+Within hours, the frontend started showing entities that couldn't be found. The Next.js dev tools told the story: IDs in API responses didn't match the IDs in subsequent requests — the last few digits differed.
 
 JavaScript's `Number` is an IEEE-754 double. Integers are exact only up to 2⁵³ − 1. A 64-bit TSID sails past that, and `JSON.parse` silently rounds it — no error, no warning, adjacent entities collapsing onto the same rounded number.
 

@@ -1,10 +1,10 @@
 # We built JWT refresh tokens, then deleted the whole thing
 
-*Part 2 of a three-part postmortem on Muroom, a five-person studio-search startup I founded. Part 1 — [how we ran AWS on pocket money](./01-pocket-money-aws.md) — explains the project; this one is about the day our auth architecture told us what it wanted to be.*
+*Part 2 of a three-part postmortem on Muroom, a five-person studio-search startup I founded. Part 1 — [how we ran AWS on pocket money](/writing/muroom-aws-on-pocket-money) — explains the project; this one is about the day our auth architecture told us what it wanted to be.*
 
 ---
 
-There's a moment in every JWT implementation where you quietly start building a session store and refuse to call it that. Ours came about a week in.
+There's a moment in every JWT implementation where you quietly start building a session store and refuse to call it that. Ours came early.
 
 Our service had two kinds of users — musicians logging in with Kakao or Google OAuth, and studio owners with email and password. The obvious modern answer was JWT: short-lived access tokens, long-lived refresh tokens. My teammate built it properly, and "properly" is exactly where the trouble starts.
 
@@ -41,4 +41,4 @@ The pivot is still visible in the repo: a fully implemented `RefreshTokenService
 
 ---
 
-*Next in the series: [The day our IDs stopped fitting in JavaScript](./03-ids-javascript.md)*
+*Next in the series: [The day our IDs stopped fitting in JavaScript](/writing/muroom-ids-javascript)*
