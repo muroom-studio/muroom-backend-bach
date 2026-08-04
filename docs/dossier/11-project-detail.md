@@ -91,9 +91,9 @@
 
 ## 6. 역할 분담
 
-**EN**: Five-person team: two designers, one frontend developer (Next.js), two on the backend. I founded the company (registered CEO) and owned the geospatial search, the studio domain and its file-storage engine, every schema migration, all AWS infrastructure and Terraform, and every deploy. My backend teammate built authentication (OAuth, sessions, SMS verification) and the member-facing domains — my-page, terms, reports, inquiries. Architecture rules — the layer structure, FK-less references, ID strategy — were mine; the switch from JWT to sessions was my call, implemented by my teammate.
+**EN**: Five-person team: two designers, one frontend developer (Next.js), two on the backend. I founded the company (registered CEO — Taehwan "Monte" Kim) and owned the geospatial search, the studio domain and its file-storage engine, every schema migration, all AWS infrastructure and Terraform, and every deploy. My backend teammate built authentication (OAuth, sessions, SMS verification) and the member-facing domains — my-page, terms, reports, inquiries. Architecture rules — the layer structure, FK-less references, ID strategy — were mine; the switch from JWT to sessions was my call, implemented by my teammate.
 
-**KO**: 5인 팀 — 디자이너 2, 프론트엔드 1(Next.js), 백엔드 2. 저는 창업자(사업자등록 대표)로서 지리공간 검색, 스튜디오 도메인과 파일 스토리지 엔진, 모든 스키마 마이그레이션, AWS 인프라와 Terraform 전체, 그리고 모든 배포를 맡았습니다. 백엔드 팀원은 인증(OAuth·세션·SMS 인증)과 회원향 도메인 — 마이페이지·약관·신고·문의 — 을 구축했습니다. 레이어 구조·FK 없는 참조·ID 전략 같은 아키텍처 규칙은 제가 정했고, JWT→세션 전환은 제가 결정하고 팀원이 구현했습니다.
+**KO**: 5인 팀 — 디자이너 2, 프론트엔드 1(Next.js), 백엔드 2. 저는 창업자(사업자등록 대표, 김태환)로서 지리공간 검색, 스튜디오 도메인과 파일 스토리지 엔진, 모든 스키마 마이그레이션, AWS 인프라와 Terraform 전체, 그리고 모든 배포를 맡았습니다. 백엔드 팀원은 인증(OAuth·세션·SMS 인증)과 회원향 도메인 — 마이페이지·약관·신고·문의 — 을 구축했습니다. 레이어 구조·FK 없는 참조·ID 전략 같은 아키텍처 규칙은 제가 정했고, JWT→세션 전환은 제가 결정하고 팀원이 구현했습니다.
 
 근거: 저자 귀속 [확인: 02-history §1 — monte 188커밋/핵심 마이그레이션 5종/deploy 전부], 팀 구성·대표 [증언 + 사이트 푸터 "(주) 뮤룸 대표이사" [실측: muroom.kr footer]], JWT→세션 결정 [증언 Q30].
 
@@ -133,12 +133,13 @@
 | `02-filters-options.png` | Amenity filter panel — shared vs. per-room options (the schema's COMMON/INDIVIDUAL categories) / 옵션 필터 패널 — 공용/개인 구분(스키마의 COMMON/INDIVIDUAL 그대로) |
 | `02b-filters-building.png` | Building-type filter chip open / 건물 유형 필터 |
 | `03-studio-detail.png` | Studio detail: photos, three nearby stations with straight-line distances, contact CTAs / 스튜디오 상세 — 사진, 인근 역 3곳 직선거리, 문의 CTA |
-| `03b-studio-detail-scrolled.png` | Detail scrolled — building info section / 상세 하단(건물 정보) *(검수 전 — 아래 질문)* |
-| `04-studio-boast.png` | UGC feed (empty state) / 작업실 자랑 피드(빈 상태) |
+| `03b-studio-detail-building.png` | Building-info tab: floor, parking, restroom, fire insurance — owner-entered facts / 건물정보 탭 — 사장님이 등록하는 정보(지층·주차·화장실·화재보험) |
+| `03c-studio-detail-rooms.png` | Rooms tab: room count, forbidden instruments, photos, availability state / 방정보 탭 — 방 개수·금지악기·사진·계약 상태 |
+| `04-studio-boast.png` | UGC feed, empty state — feature was retired (see note) / 작업실 자랑 피드(빈 상태 — 기능 회수, 아래 참조) |
 
-## 질문 / 미확보
+## 질문 → 답변 반영 완료 (2026-08-04)
 
-1. **사장님 등록 플로우 스크린샷 미확보** — owner 자격증명이 없고(활성 owner 0, 셀프 가입 미개방) 등록은 admin API 전용이라 화면이 없음. 프론트에 owner용 화면이 별도 존재한다면(admin.muroom.kr?) 접속 정보를 주시면 캡처 추가. admin.muroom.kr은 로그인 기능 미구현 상태[증언 Q7]라 화면이 있다면 지금이 마지막 기회.
-2. **자랑 피드가 빈 상태** — DB에는 boasts_live 2건인데 리스트 API가 0건 반환. 사유 미상(노출 조건? 이벤트 종료 필터?). 글 있는 상태 캡처가 필요하면 확인 필요.
-3. `03b`(상세 스크롤)는 자동 캡처라 내용 검수 전 — 쓰기 전에 한 번 봐주세요.
-4. 대표이사 실명이 사이트 푸터에 공개돼 있어 상세 페이지의 "registered CEO" 표현과 정합 [실측] — 페이지에 실명 표기까지 할지는 선택.
+1. **사장님 등록 플로우** [해소]: 프론트 화면은 구현 중단으로 **존재하지 않음** [증언]. API 현황 [확인]: ① owner **계정 가입** API는 존재(`POST /api/v1/owners/register`, SMS 인증 연동 — 단 SecurityConfig permitAll 미등록이라 비로그인 호출이 막힌 상태) ② **스튜디오 등록**은 admin API(`/api/admin/studios`) 전용 ③ owner용 8단계 위저드 draft API는 feature/studio 브랜치에만 존재, 미배포. → 캡처 불가 확정, 상세 페이지 §3의 "still being built" 서술과 정합.
+2. **자랑 피드** [해소·증언]: 기능은 실제 배포됐으나 사용 저조(게시물 2건)로 **기획자가 "유지 시 브랜드에 마이너스" 판단 → 화면에서 기능 회수**. DB의 2건은 그 잔존. 과거 캡처본 수색은 **불필요 권고** — 상세 페이지 가치가 낮고, "만들었고, 데이터를 보고, 내렸다"는 제품 결정 서사는 문서 기록(04-decisions F)으로 충분. 빈 상태 캡처는 각주용으로만 유지.
+3. **03b 검수** [해소]: 초판은 휠이 리스트를 스크롤한 오캡처였음 → 삭제 후 **건물정보 탭·방정보 탭 재캡처로 교체**(위 인벤토리). 룸 보유 스튜디오(미라클사운드)로 대상 변경.
+4. **실명 표기** [확정]: 표기한다 — §6에 반영. 공개 근거: 사이트 푸터 "(주) 뮤룸 대표이사 김태환" [실측].
