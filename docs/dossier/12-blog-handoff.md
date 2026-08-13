@@ -7,15 +7,20 @@
 
 | 자산 | 파일 | 상태 |
 |---|---|---|
-| 블로그 글 EN 6편 | `blog/en/01`~`06` | 발행 준비 완료 — 본문 내 상호 링크가 이미 확정 slug 기준 |
-| 블로그 글 KO 6편 | `blog/ko/` 동일 구조 | 〃 (직역 아닌 국문 재구성판) |
+| 블로그 글 EN 9편 | `blog/en/01`~`09` | 발행 준비 완료 — 본문 내 상호 링크가 이미 확정 slug 기준 |
+| 블로그 글 KO 9편 | `blog/ko/` 동일 구조 | 〃 (직역 아닌 국문 재구성판) |
 | /projects 카드 | `10-projects-card.md` **§5 조립본** | 배지·EN/KO 문안·칩·링크 확정 |
 | /projects/muroom 상세 | `11-project-detail.md` | 섹션 1~9 EN/KO 쌍 + 아키텍처 다이어그램 스펙(디자이너용) + 캡션 |
 | 스크린샷 7장 | `assets/*.png` (2880×1800 @2x) | 라이브 캡처 완료(2026-08-04) — 서비스 종료 후에도 사용 가능 |
 
-**확정 slug** (6편): 회고 시리즈 — `/writing/muroom-aws-on-pocket-money` · `/writing/muroom-deleting-jwt` · `/writing/muroom-ids-javascript` / 기술 딥다이브 — `/writing/muroom-viewport-search` · `/writing/muroom-credential-rotation` · `/writing/muroom-file-storage-policy`
-**발행 순서 권장**: 1편(비용) 먼저 — 카드/상세의 Case study 링크가 1편을 가리킴. 이후 회고 2·3편 → 딥다이브 4~6편 순차. 딥다이브 3편(2026-08-13 추가)은 회고 시리즈와 성격 구분: 4=검색 기술, 5=how-to(검색 유입용), 6=리팩토링 서사.
-**추가 집필 백로그** (재료는 dossier에 있음, 미집필): ⑦ 프리런치 포스트모템 캡스톤("130개 공급을 채웠고, 8명이 왔다" — 창업 독자층) ⑧ 콜드스타트 널 리절트("고쳤는데 측정해보니 차이가 없었다 — 진짜 가치는 readiness 게이팅") ⑨ 소프트 딜리트 3종+partial unique index ⑩ 2인 팀의 AI 코드 리뷰 활용기.
+**확정 slug** (9편):
+- 회고 시리즈 — `/writing/muroom-aws-on-pocket-money` · `/writing/muroom-deleting-jwt` · `/writing/muroom-ids-javascript`
+- 기술 딥다이브 — `/writing/muroom-viewport-search` · `/writing/muroom-credential-rotation` · `/writing/muroom-file-storage-policy`
+- 캡스톤·에세이 — `/writing/muroom-130-studios-8-users`(프리런치 포스트모템) · `/writing/muroom-cold-start-null-result`(널 리절트) · `/writing/muroom-ai-code-review`(AI 리뷰어)
+
+**발행 순서 권장**: 회고 1→2→3 → 딥다이브 4→5→6 → 에세이 8·9 → **캡스톤 7은 마지막**(시리즈 전체의 감정적 마무리 — 다른 글들이 깔린 뒤에 읽혀야 함). 카드/상세의 Case study 링크는 1편.
+**집필 제외**: 소프트 딜리트 3종 글은 사용자 판단으로 스킵(재료는 03-data-layer-decisions에 있음).
+**7편 톤 주의**: 팀원 언급은 존중 톤 유지(기획 판단을 "건강한 결정"으로 서술), 수요 실패 원인은 사실이 아니라 가설로만 표기됨 — 수정 시 이 프레임 유지할 것.
 
 ## 2. 카드 최종본 (10 §5 그대로)
 
