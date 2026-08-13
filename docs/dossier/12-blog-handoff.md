@@ -7,14 +7,15 @@
 
 | 자산 | 파일 | 상태 |
 |---|---|---|
-| 블로그 글 EN 3편 | `blog/en/01-pocket-money-aws.md`, `02-deleting-jwt.md`, `03-ids-javascript.md` | 발행 준비 완료 — 본문 내 상호 링크가 이미 확정 slug 기준 |
-| 블로그 글 KO 3편 | `blog/ko/` 동일 구조 | 〃 (직역 아닌 국문 재구성판) |
+| 블로그 글 EN 6편 | `blog/en/01`~`06` | 발행 준비 완료 — 본문 내 상호 링크가 이미 확정 slug 기준 |
+| 블로그 글 KO 6편 | `blog/ko/` 동일 구조 | 〃 (직역 아닌 국문 재구성판) |
 | /projects 카드 | `10-projects-card.md` **§5 조립본** | 배지·EN/KO 문안·칩·링크 확정 |
 | /projects/muroom 상세 | `11-project-detail.md` | 섹션 1~9 EN/KO 쌍 + 아키텍처 다이어그램 스펙(디자이너용) + 캡션 |
 | 스크린샷 7장 | `assets/*.png` (2880×1800 @2x) | 라이브 캡처 완료(2026-08-04) — 서비스 종료 후에도 사용 가능 |
 
-**확정 slug**: `/writing/muroom-aws-on-pocket-money` · `/writing/muroom-deleting-jwt` · `/writing/muroom-ids-javascript`
-**발행 순서 권장**: 1편(비용) 먼저 — 카드/상세의 Case study 링크가 1편을 가리킴. 2·3편은 순차.
+**확정 slug** (6편): 회고 시리즈 — `/writing/muroom-aws-on-pocket-money` · `/writing/muroom-deleting-jwt` · `/writing/muroom-ids-javascript` / 기술 딥다이브 — `/writing/muroom-viewport-search` · `/writing/muroom-credential-rotation` · `/writing/muroom-file-storage-policy`
+**발행 순서 권장**: 1편(비용) 먼저 — 카드/상세의 Case study 링크가 1편을 가리킴. 이후 회고 2·3편 → 딥다이브 4~6편 순차. 딥다이브 3편(2026-08-13 추가)은 회고 시리즈와 성격 구분: 4=검색 기술, 5=how-to(검색 유입용), 6=리팩토링 서사.
+**추가 집필 백로그** (재료는 dossier에 있음, 미집필): ⑦ 프리런치 포스트모템 캡스톤("130개 공급을 채웠고, 8명이 왔다" — 창업 독자층) ⑧ 콜드스타트 널 리절트("고쳤는데 측정해보니 차이가 없었다 — 진짜 가치는 readiness 게이팅") ⑨ 소프트 딜리트 3종+partial unique index ⑩ 2인 팀의 AI 코드 리뷰 활용기.
 
 ## 2. 카드 최종본 (10 §5 그대로)
 
