@@ -1,10 +1,14 @@
 package kr.muroom.muroombackendbach.common.config;
 
+import java.util.List;
+import kr.muroom.muroombackendbach.auth.resolver.CurrentSubjectIdArgumentResolver;
+import kr.muroom.muroombackendbach.auth.resolver.CurrentUserIdArgumentResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -15,18 +19,32 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
   private final String[] allowedOrigins;
+  private final CurrentUserIdArgumentResolver currentUserIdArgumentResolver;
+  private final CurrentSubjectIdArgumentResolver currentSubjectIdArgumentResolver;
 
-  public WebConfig(@Value("${cors.allowed-origins}") String[] allowedOrigins) {
+  public WebConfig(
+      @Value("${cors.allowed-origins}") String[] allowedOrigins,
+      CurrentUserIdArgumentResolver currentUserIdArgumentResolver,
+      CurrentSubjectIdArgumentResolver currentSubjectIdArgumentResolver
+  ) {
     this.allowedOrigins = allowedOrigins;
+    this.currentUserIdArgumentResolver = currentUserIdArgumentResolver;
+    this.currentSubjectIdArgumentResolver = currentSubjectIdArgumentResolver;
   }
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**")
         .allowedOrigins(allowedOrigins)
-        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
         .allowedHeaders("*")
         .allowCredentials(true);
+  }
+
+  @Override
+  public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+    resolvers.add(currentUserIdArgumentResolver);
+    resolvers.add(currentSubjectIdArgumentResolver);
   }
 
   /**

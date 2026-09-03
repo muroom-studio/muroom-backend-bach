@@ -4,16 +4,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import kr.muroom.muroombackendbach.studio.domain.entity.Option;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
 import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
-import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import kr.muroom.muroombackendbach.studio.domain.repository.OptionRepository;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioOptionResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioOptionResponse.GetSingle;
-import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
-import kr.muroom.muroombackendbach.user.domain.repository.InstrumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +32,10 @@ public class StudioOptionService {
         .map(GetSingle::from)
         .toList();
 
-    List<GetSingle> restroomOptions = Arrays.stream(RestroomType.values())
-        .map(GetSingle::from)
-        .toList();
+    List<GetSingle> restroomOptions = java.util.stream.Stream.concat(
+        Arrays.stream(RestroomLocation.values()).map(GetSingle::from),
+        Arrays.stream(RestroomGender.values()).map(GetSingle::from)
+    ).toList();
 
     List<GetSingle> parkingFeeOptions = Arrays.stream(ParkingFeeType.values())
         .map(GetSingle::from)
@@ -54,7 +56,7 @@ public class StudioOptionService {
         .toList();
 
     List<Instrument> instrumentEntityList = instrumentRepository.findAll();
-    List<GetSingle> unavailableInstrumentOptions = instrumentEntityList.stream()
+    List<GetSingle> forbiddenInstrumentOptions = instrumentEntityList.stream()
         .map(GetSingle::from)
         .toList();
 
@@ -64,7 +66,7 @@ public class StudioOptionService {
         .parkingFeeOptions(parkingFeeOptions)
         .studioCommonOptions(studioCommonOptions)
         .studioIndividualOptions(studioIndividualOptions)
-        .unavailableInstrumentOptions(unavailableInstrumentOptions)
+        .forbiddenInstrumentOptions(forbiddenInstrumentOptions)
         .build();
   }
 }

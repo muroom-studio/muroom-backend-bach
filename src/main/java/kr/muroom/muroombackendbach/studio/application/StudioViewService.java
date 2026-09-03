@@ -4,13 +4,13 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import kr.muroom.muroombackendbach.common.context.AnonymousUserContext;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
+import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.entity.StudioViewLog;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
 import kr.muroom.muroombackendbach.studio.domain.repository.StudioViewLogRepository;
 import kr.muroom.muroombackendbach.studio.exception.StudioErrorCode;
-import kr.muroom.muroombackendbach.user.domain.entity.Musician;
-import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -44,7 +44,7 @@ public class StudioViewService {
     if (musicianId != null) {
       musicianProxy = musicianRepository.getReferenceById(musicianId);
       alreadyViewedToday = studioViewLogRepository.existsByStudioAndMusicianAndViewedAtAfter(
-          musicianProxy, studio, startOfTodayUtc);
+          studio, musicianProxy, startOfTodayUtc);
     } else {
       anonymousUserId = AnonymousUserContext.getAnonymousUserId();
 

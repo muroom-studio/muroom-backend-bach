@@ -25,11 +25,20 @@ public class SubwayStationLineRepositoryImpl implements SubwayStationLineQueryRe
   }
 
   @Override
-  public List<SubwayStationLine> findAllByStationIdInWithLine(List<Long> stationIds) {
+  public List<SubwayStationLine> findAllByStationIdsInWithLine(Collection<Long> stationIds) {
     return queryFactory
         .selectFrom(subwayStationLine)
         .join(subwayStationLine.line, subwayLine).fetchJoin()
         .where(subwayStationLine.station.id.in(stationIds))
+        .fetch();
+  }
+
+  @Override
+  public List<SubwayStationLine> findAllByStationIdInWithLine(Long stationId) {
+    return queryFactory
+        .selectFrom(subwayStationLine)
+        .join(subwayStationLine.line, subwayLine).fetchJoin()
+        .where(subwayStationLine.station.id.eq(stationId))
         .fetch();
   }
 }

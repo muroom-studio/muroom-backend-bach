@@ -8,7 +8,6 @@ import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioOption.stu
 import static kr.muroom.muroombackendbach.studio.domain.entity.QStudioPrice.studioPrice;
 import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStation.subwayStation;
 import static kr.muroom.muroombackendbach.subway.domain.entity.QSubwayStationNearbyStudio.subwayStationNearbyStudio;
-import static kr.muroom.muroombackendbach.user.domain.entity.QInstrument.instrument;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -23,14 +22,16 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import kr.muroom.muroombackendbach.studio.domain.entity.QStudio;
 import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
-import kr.muroom.muroombackendbach.studio.domain.enums.RestroomType;
+import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
+import kr.muroom.muroombackendbach.studio.domain.enums.RestroomLocation;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -49,9 +50,6 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
   public List<Studio> findStudiosWithinBounds(MapSearchRequest request) {
     return queryFactory
         .selectFrom(studio).distinct()
-        .leftJoin(studio.studioBuildingInfo, studioBuildingInfo)
-        .leftJoin(studio.studioPrice, studioPrice)
-        .leftJoin(studio.rooms, room)
         .where(
             studio.deletedAt.isNull(),
             studioFilteringWhereClause(request)
@@ -65,9 +63,9 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     JPAQuery<Long> idsQuery = queryFactory
         .select(studio.id)
         .from(studio)
-        .leftJoin(studio.studioBuildingInfo, studioBuildingInfo)
-        .leftJoin(studio.studioPrice, studioPrice)
-        .leftJoin(studio.rooms, room);
+        .leftJoin(room).on(room.studioId.eq(studio.id))
+        .leftJoin(studioPrice).on(studioPrice.id.eq(studio.id))
+        .leftJoin(studioBuildingInfo).on(studioBuildingInfo.id.eq(studio.id));
 
     idsQuery.where(
             studio.deletedAt.isNull(),
@@ -86,9 +84,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
 
     // 조회된 ID 목록을 기반으로 실제 스튜디오 엔티티들을 다시 조회
     List<Studio> content = queryFactory
-        .selectFrom(studio).distinct()
-        .leftJoin(studio.rooms, room).fetchJoin()
-        .leftJoin(studio.studioPrice, studioPrice).fetchJoin()
+        .selectFrom(studio)
         .where(studio.id.in(studioIds))
         .fetch();
 
@@ -103,9 +99,9 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     JPAQuery<Long> countQuery = queryFactory
         .select(studio.countDistinct())
         .from(studio)
-        .leftJoin(studio.studioBuildingInfo, studioBuildingInfo)
-        .leftJoin(studio.studioPrice, studioPrice)
-        .leftJoin(studio.rooms, room)
+        .leftJoin(room).on(room.studioId.eq(studio.id))
+        .leftJoin(studioPrice).on(studioPrice.id.eq(studio.id))
+        .leftJoin(studioBuildingInfo).on(studioBuildingInfo.id.eq(studio.id))
         .where(
             studio.deletedAt.isNull(),
             studioFilteringWhereClause(request)
@@ -115,21 +111,6 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     long total = totalResult != null ? totalResult : 0L;
 
     return new PageImpl<>(sortedContent, pageable, total);
-  }
-
-  @Override
-  public Optional<Studio> findStudioDetailsById(Long studioId) {
-    Studio result = queryFactory.selectFrom(studio).distinct()
-        .leftJoin(studio.owner).fetchJoin()
-        .leftJoin(studio.studioBuildingInfo).fetchJoin()
-        .leftJoin(studio.studioPrice).fetchJoin()
-        .leftJoin(studio.rooms).fetchJoin()
-        .leftJoin(studio.forbiddenInstruments, studioForbiddenInstrument).fetchJoin()
-        .leftJoin(studioForbiddenInstrument.instrument, instrument).fetchJoin()
-        .where(studio.id.eq(studioId))
-        .fetchOne();
-
-    return Optional.ofNullable(result);
   }
 
   private BooleanBuilder studioFilteringWhereClause(MapSearchRequest request) {
@@ -146,7 +127,8 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     whereClause.and(
         hasAllOptionsInCategory(request.individualOptionCodes(), OptionCategory.INDIVIDUAL));
     whereClause.and(inFloorTypes(request.floorTypes()));
-    whereClause.and(inRestroomTypes(request.restroomTypes()));
+    whereClause.and(inRestroomLocations(request.restroomLocations()));
+    whereClause.and(inRestroomGenders(request.restroomGenders()));
     whereClause.and(isParkingAvailable(request.isParkingAvailable()));
     whereClause.and(isLodgingAvailable(request.isLodgingAvailable()));
     whereClause.and(hasFireInsurance(request.hasFireInsurance()));
@@ -202,7 +184,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
         .from(subwayStationNearbyStudio)
         .join(subwayStationNearbyStudio.subwayStation, subwayStation)
         .where(
-            subwayStationNearbyStudio.studio.eq(studio),
+            subwayStationNearbyStudio.studioId.eq(studio.id),
             subwayStation.name.containsIgnoreCase(keyword)
         ).exists();
 
@@ -228,21 +210,23 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     }
 
     BooleanBuilder studioPriceMatches = new BooleanBuilder();
-    studioPriceMatches.and(studioPrice.minPrice.isNotNull());
-    studioPriceMatches.and(studioPrice.maxPrice.isNotNull());
-
-    if (minPrice != null) {
-      studioPriceMatches.and(studioPrice.maxPrice.goe(minPrice));
-    }
-    if (maxPrice != null) {
-      studioPriceMatches.and(studioPrice.minPrice.loe(maxPrice));
-    }
+    studioPriceMatches.and(
+        JPAExpressions.selectOne()
+            .from(studioPrice)
+            .where(
+                studioPrice.id.eq(studio.id),
+                studioPrice.minPrice.isNotNull(),
+                studioPrice.maxPrice.isNotNull(),
+                minPrice != null ? studioPrice.maxPrice.goe(minPrice) : null,
+                maxPrice != null ? studioPrice.minPrice.loe(maxPrice) : null
+            ).exists()
+    );
 
     // 조건 1: 가격 범위에 맞는 Room이 하나라도 존재하는 스튜디오
     BooleanExpression hasRoomWithMatchingPrice = JPAExpressions.selectOne()
         .from(room)
         .where(
-            room.studio.eq(studio),
+            room.studioId.eq(studio.id), // id로 연결
             room.basePrice.isNotNull(),
             between(room.basePrice, minPrice, maxPrice)
         ).exists();
@@ -251,7 +235,7 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     BooleanExpression noRoomPriceExists = JPAExpressions.selectOne()
         .from(room)
         .where(
-            room.studio.eq(studio),
+            room.studioId.eq(studio.id), // id로 연결
             room.basePrice.isNotNull()
         ).notExists();
 
@@ -266,13 +250,13 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     return JPAExpressions.selectOne()
         .from(room)
         .where(
-            room.studio.eq(studio), // 메인 쿼리의 studio와 현재 서브쿼리의 room을 연결
+            room.studioId.eq(studio.id), // 메인 쿼리의 studio와 현재 서브쿼리의 room을 연결
             between(room.width, minWidth, maxWidth),   // width 조건
             between(room.height, minHeight, maxHeight) // height 조건
         ).exists();
   }
 
-  private BooleanExpression hasAllOptionsInCategory(List<String> optionCodes,
+  private BooleanExpression hasAllOptionsInCategory(Set<String> optionCodes,
       OptionCategory optionCategory) {
     if (CollectionUtils.isEmpty(optionCodes)) {
       return null;
@@ -286,42 +270,86 @@ public class StudioRepositoryImpl implements StudioQueryRepository {
     );
   }
 
-  private BooleanExpression inFloorTypes(List<FloorType> floorTypes) {
+  private BooleanExpression inFloorTypes(Set<FloorType> floorTypes) {
     if (CollectionUtils.isEmpty(floorTypes)) {
       return null;
     }
-    return studio.studioBuildingInfo.floorType.in(floorTypes);
+    return JPAExpressions.selectOne()
+        .from(studioBuildingInfo)
+        .where(
+            studioBuildingInfo.id.eq(studio.id),
+            studioBuildingInfo.floorType.in(floorTypes)
+        ).exists();
   }
 
   private BooleanExpression isLodgingAvailable(Boolean isLodgingAvailable) {
     if (isLodgingAvailable == null) {
       return null;
     }
-    return studio.studioBuildingInfo.isLodgingAvailable.eq(isLodgingAvailable);
+    return JPAExpressions.selectOne()
+        .from(studioBuildingInfo)
+        .where(
+            studioBuildingInfo.id.eq(studio.id),
+            studioBuildingInfo.isLodgingAvailable.eq(isLodgingAvailable)
+        ).exists();
   }
 
-  private BooleanExpression inRestroomTypes(List<RestroomType> restroomTypes) {
-    if (CollectionUtils.isEmpty(restroomTypes)) {
+  private BooleanExpression inRestroomLocations(Set<RestroomLocation> restroomLocations) {
+    if (CollectionUtils.isEmpty(restroomLocations)) {
       return null;
     }
-    return studio.studioBuildingInfo.restroomType.in(restroomTypes);
+    return JPAExpressions.selectOne()
+        .from(studioBuildingInfo)
+        .where(
+            studioBuildingInfo.id.eq(studio.id),
+            studioBuildingInfo.restroomLocation.in(restroomLocations)
+        ).exists();
+  }
+
+  private BooleanExpression inRestroomGenders(Set<RestroomGender> restroomGenders) {
+    if (CollectionUtils.isEmpty(restroomGenders)) {
+      return null;
+    }
+    return JPAExpressions.selectOne()
+        .from(studioBuildingInfo)
+        .where(
+            studioBuildingInfo.id.eq(studio.id),
+            studioBuildingInfo.restroomGender.in(restroomGenders)
+        ).exists();
   }
 
   private BooleanExpression isParkingAvailable(Boolean isParkingAvailable) {
     if (isParkingAvailable == null) {
       return null;
     }
-    return studio.studioBuildingInfo.isParkingAvailable.eq(isParkingAvailable);
+    BooleanExpression parkingExpression;
+    if (isParkingAvailable) {
+      parkingExpression = studioBuildingInfo.parkingFeeType.in(ParkingFeeType.FREE, ParkingFeeType.PAID);
+    } else {
+      parkingExpression = studioBuildingInfo.parkingFeeType.eq(ParkingFeeType.NONE);
+    }
+
+    return JPAExpressions.selectOne()
+        .from(studioBuildingInfo)
+        .where(
+            studioBuildingInfo.id.eq(studio.id),
+            parkingExpression
+        ).exists();
   }
 
   private BooleanExpression hasFireInsurance(Boolean hasFireInsurance) {
     if (hasFireInsurance == null) {
       return null;
     }
-    return studio.studioBuildingInfo.hasFireInsurance.eq(hasFireInsurance);
+    return JPAExpressions.selectOne()
+        .from(studioBuildingInfo)
+        .where(
+            studioBuildingInfo.id.eq(studio.id),
+            studioBuildingInfo.hasFireInsurance.eq(hasFireInsurance)
+        ).exists();
   }
 
-  private BooleanExpression notForbidsInstruments(List<String> forbiddenInstrumentCodes) {
+  private BooleanExpression notForbidsInstruments(Set<String> forbiddenInstrumentCodes) {
     if (CollectionUtils.isEmpty(forbiddenInstrumentCodes)) {
       return null;
     }

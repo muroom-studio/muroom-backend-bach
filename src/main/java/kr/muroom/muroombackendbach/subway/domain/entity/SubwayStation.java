@@ -3,14 +3,12 @@ package kr.muroom.muroombackendbach.subway.domain.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,9 +25,7 @@ import org.locationtech.jts.geom.Point;
 public class SubwayStation {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subway_station_id_seq_gen")
-  @SequenceGenerator(name = "subway_station_id_seq_gen", sequenceName = "subway_station_id_seq",
-      allocationSize = 1)
+  @Tsid
   @Column(name = "subway_station_id")
   private Long id;
 

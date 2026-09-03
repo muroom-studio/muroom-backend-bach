@@ -1,9 +1,27 @@
 spring:
   application:
     name: muroom-backend-bach
+  mvc:
+    servlet:
+      load-on-startup: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics # 헬스, 정보, 메트릭만 노출
+  endpoint:
+    health:
+      show-details: when_authorized # 상세 정보(DB 연결 상태, 디스크 공간 등)를 보여줌. (보안상 운영에선 when_authorized 권장이나 내부망이면 always도 가능)
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 cors:
-  allowed-origins: "http://localhost:3000, http://localhost:3001, https://muroom.kr, https://www.muroom.kr, https://admin.muroom.kr"
+  allowed-origins: "http://localhost:3000,http://localhost:3001,https://muroom.kr,https://www.muroom.kr,https://admin.muroom.kr,https://muroom-frontend-handel-web.vercel.app,https://admin.muroom.kr,https://dev.admin.muroom.kr,
+https://dev-api.muroom.kr"
 
 seoul:
   api:
@@ -26,6 +44,8 @@ springdoc:
     path: /docs
     display-request-duration: true
     groups-order: DESC
+    tags-sorter: alpha
+    operations-sorter: alpha
   paths-to-match:
     - /api/v1/**
 #    - /api/v2/**

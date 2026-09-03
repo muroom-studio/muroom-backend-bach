@@ -1,15 +1,17 @@
 package kr.muroom.muroombackendbach.instrument.application;
 
 import java.util.List;
-import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
-import kr.muroom.muroombackendbach.user.domain.repository.InstrumentRepository;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
+import kr.muroom.muroombackendbach.instrument.domain.repository.InstrumentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Profile("!test")
 @Slf4j
 @Component
 @RequiredArgsConstructor

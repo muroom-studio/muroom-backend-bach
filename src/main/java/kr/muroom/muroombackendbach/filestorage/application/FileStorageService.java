@@ -1,102 +1,85 @@
 package kr.muroom.muroombackendbach.filestorage.application;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-
 import java.time.Duration;
 import java.util.UUID;
+import kr.muroom.muroombackendbach.filestorage.domain.BucketType;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
+import kr.muroom.muroombackendbach.filestorage.infrastructure.S3Executor;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.request.FileUploadRequest;
+import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FileStorageService {
 
-  private final S3Presigner s3Presigner;
-  private final String bucket;
+  private final S3Executor s3Executor;
+  private final String privateBucket;
+  private final String publicBucket;
   private final Duration expiration;
 
-  /**
-   * 파일 저장 서비스 생성자입니다.
-   *
-   * @param s3Presigner S3 프리사이너 - S3와 상호작용하여 사전 서명된 URL을 생성합니다.
-   * @param bucket      S3 버킷 이름
-   * @param expiration  사전 서명된 URL의 만료 시간
-   */
   public FileStorageService(
-      S3Presigner s3Presigner,
-      @Value("${cloud.aws.s3.bucket}") String bucket,
+      S3Executor s3Executor,
+      @Value("${cloud.aws.s3.private-bucket-name}") String privateBucket,
+      @Value("${cloud.aws.s3.public-bucket-name}") String publicBucket,
       @Value("${cloud.aws.s3.presign.expiration}") Duration expiration
   ) {
-    this.s3Presigner = s3Presigner;
-    this.bucket = bucket;
+    this.s3Executor = s3Executor;
+    this.privateBucket = privateBucket;
+    this.publicBucket = publicBucket;
     this.expiration = expiration;
   }
 
-  /**
-   * 사전 서명된 업로드 URL과 파일 키를 포함하는 DTO입니다.
-   *
-   * @param url     사전 서명된 업로드 URL
-   * @param fileKey S3에 저장될 파일 키
-   */
-  public record PresignedPutUrlDto(String url, String fileKey) {
-
+  public GeneratePresignedPutUrlResponse getUploadUrl(FileStorageLocation sourceLocation, FileUploadRequest request) {
+    String bucket = resolveBucket(sourceLocation.getBucketType());
+    String key = String.format("%s%s/%s-%s", sourceLocation.getPrefix(), request.getDomainDirectory(), UUID.randomUUID(),
+        request.getFileName());
+    String url = s3Executor.presignUploadUrl(bucket, key, request.getContentType(), expiration);
+    return new GeneratePresignedPutUrlResponse(url, key);
   }
 
-  /**
-   * 주어진 파일 이름과 도메인에 대해 사전 서명된 업로드 URL을 생성합니다.
-   *
-   * @param fileName    업로드할 파일의 이름
-   * @param domain      파일이 속한 도메인 (예: "profile-images", "documents" 등)
-   * @param contentType 파일의 MIME 타입 (예: "image/png", "application/pdf" 등)
-   * @return 사전 서명된 업로드 URL과 파일 키를 포함하는 DTO
-   */
-  public PresignedPutUrlDto generatePresignedPutUrl(String fileName, String domain,
-      String contentType) {
-    String sanitizedFileName = fileName.replaceAll("[^a-zA-Z0-9.\\-_]", "_");
-    String fileKey = domain + "/" + UUID.randomUUID() + "-" + sanitizedFileName;
-
-    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-        .bucket(bucket)
-        .key(fileKey)
-        .contentType(contentType)
-        .build();
-
-    PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-        .signatureDuration(expiration)
-        .putObjectRequest(putObjectRequest)
-        .build();
-
-    PresignedPutObjectRequest presignedPutObjectRequest =
-        s3Presigner.presignPutObject(presignRequest);
-
-    return new PresignedPutUrlDto(presignedPutObjectRequest.url().toString(), fileKey);
+  public String getViewUrl(String key, FileStorageLocation sourceLocation) {
+    if (key == null || key.isBlank()) {
+      return null;
+    }
+    String bucket = resolveBucket(sourceLocation.getBucketType());
+    return switch (sourceLocation.getBucketType()) {
+      case PUBLIC -> s3Executor.getPublicUrl(bucket, key);
+      case PRIVATE -> s3Executor.presignViewUrl(bucket, key, expiration);
+    };
   }
 
-  /**
-   * 주어진 파일 키에 대해 사전 서명된 조회 및 다운로드 URL을 생성합니다.
-   *
-   * @param fileKey S3에 저장된 파일의 키
-   * @return 사전 서명된 조회 및 다운로드 URL
-   */
-  public String generatePresignedGetUrl(String fileKey) {
-    GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-        .bucket(bucket)
-        .key(fileKey)
-        .build();
+  public String move(String key, FileStorageLocation sourceLocation, FileStorageLocation destinationLocation) {
+    String sourceBucket = resolveBucket(sourceLocation.getBucketType());
+    String destinationBucket = resolveBucket(destinationLocation.getBucketType());
+    String destinationKey = destinationLocation.generateFullKey(sourceLocation.extractPureFileName(key));
 
-    GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-        .signatureDuration(expiration)
-        .getObjectRequest(getObjectRequest)
-        .build();
+    s3Executor.copy(sourceBucket, key, destinationBucket, destinationKey);
+    s3Executor.hardDelete(sourceBucket, key);
+    return destinationKey;
+  }
 
-    PresignedGetObjectRequest presignedGetObjectRequest =
-        s3Presigner.presignGetObject(presignRequest);
+  public void softDelete(String key, FileStorageLocation sourceLocation) {
+    move(key, sourceLocation, sourceLocation.getTrashLocation());
+  }
 
-    return presignedGetObjectRequest.url().toString();
+  public String copyToReportSnapshot(String key, FileStorageLocation sourceLocation, String domain) {
+    // from here
+    String sourceBucket = resolveBucket(sourceLocation.getBucketType());
+    String destinationBucket = resolveBucket(FileStorageLocation.PRIVATE_REPORT.getBucketType());
+
+    String fileName = sourceLocation.extractPureFileName(key);
+    String snapshotKey = FileStorageLocation.PRIVATE_REPORT.generateFullKey(
+        domain.toLowerCase() + "/" + UUID.randomUUID() + "-" + fileName);
+
+    s3Executor.copy(sourceBucket, key, destinationBucket, snapshotKey);
+    return snapshotKey;
+  }
+
+  private String resolveBucket(BucketType bucketType) {
+    return switch (bucketType) {
+      case PUBLIC -> publicBucket;
+      case PRIVATE -> privateBucket;
+    };
   }
 }

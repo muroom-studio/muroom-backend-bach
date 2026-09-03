@@ -4,15 +4,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import kr.muroom.muroombackendbach.user.domain.entity.Owner;
+import kr.muroom.muroombackendbach.common.util.tsid.Tsid;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,8 +27,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class OwnerAgreement {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "owner_agreement_id_seq_gen")
-  @SequenceGenerator(name = "owner_agreement_id_seq_gen", sequenceName = "owner_agreement_id_seq", allocationSize = 1)
+  @Tsid
   @Column(name = "owner_agreement_id")
   private Long id;
 

@@ -1,0 +1,258 @@
+#!/bin/bash
+set -e
+
+# 모든 출력을 로그 파일(/var/log/user-data.log)로 저장합니다.
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+echo "INFO: PostgreSQL + PostGIS Setup Script Starting..."
+
+# --- 1. 필수 패키지 설치 ---
+echo "INFO: Installing Docker, JQ, NVMe-CLI, and SSM Agent..."
+dnf update -y
+dnf install -y docker jq nvme-cli cronie https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_arm64/amazon-ssm-agent.rpm
+
+# --- 2. 서비스 시작 및 권한 설정 ---
+# Docker 로그가 디스크를 다 먹지 않도록 제한 설정 (최대 10MB 파일 3개 = 30MB)
+mkdir -p /etc/docker
+cat <<EOF > /etc/docker/daemon.json
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+EOF
+
+systemctl start docker
+systemctl enable docker
+systemctl start amazon-ssm-agent
+systemctl enable amazon-ssm-agent
+systemctl start crond
+systemctl enable crond
+
+usermod -a -G docker ec2-user
+id -u ssm-user &>/dev/null || useradd -m ssm-user # ssm-user가 없으면 생성 (보통 있음)
+usermod -a -G docker ssm-user
+
+# ssm-user에게 비밀번호 없이 sudo 권한 부여
+echo "ssm-user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ssm-user
+chmod 440 /etc/sudoers.d/ssm-user
+
+# --- 3. Terraform 변수 주입 (templatefile에서 넘겨받는 값들) ---
+EBS_VOLUME_ID="${ebs_volume_id}"
+MOUNT_POINT="${mount_point}"
+DB_SECRET_ARN="${postgres_secret_arn}"
+AWS_REGION="${aws_region}"
+BACKUP_S3_BUCKET_NAME="${backup_s3_bucket_name}"
+
+# --- 4. EBS 볼륨 마운트 로직 ---
+echo "INFO: Locating EBS volume $EBS_VOLUME_ID..."
+SERIAL_ID=$(echo $EBS_VOLUME_ID | sed 's/vol-//')
+DEVICE_PATH=$(lsblk -dpno NAME,SERIAL | grep "$SERIAL_ID" | awk '{print $1}')
+
+if [ -z "$DEVICE_PATH" ]; then
+    for i in $(seq 1 12); do
+        echo "Waiting for device $EBS_VOLUME_ID to appear... ($i/12)"
+        sleep 5
+        DEVICE_PATH=$(lsblk -dpno NAME,SERIAL | grep "$SERIAL_ID" | awk '{print $1}')
+        [ -n "$DEVICE_PATH" ] && break
+    done
+fi
+
+if [ -z "$DEVICE_PATH" ]; then
+    echo "ERROR: Could not find device for $EBS_VOLUME_ID after 60s."
+    exit 1
+fi
+
+echo "INFO: Found device $DEVICE_PATH. Checking filesystem..."
+if ! blkid $DEVICE_PATH | grep -q 'TYPE="xfs"'; then
+    echo "INFO: Formatting $DEVICE_PATH as xfs..."
+    mkfs -t xfs $DEVICE_PATH
+fi
+
+mkdir -p $MOUNT_POINT
+mountpoint -q $MOUNT_POINT || mount $DEVICE_PATH $MOUNT_POINT
+
+UUID=$(blkid -s UUID -o value $DEVICE_PATH)
+grep -q "$UUID" /etc/fstab || echo "UUID=$UUID $MOUNT_POINT xfs defaults,nofail 0 2" >> /etc/fstab
+
+# --- 5. Secrets Manager에서 DB 정보 가져오기 ---
+echo "INFO: Fetching secrets from AWS Secrets Manager..."
+SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id $DB_SECRET_ARN --region $AWS_REGION --query SecretString --output text)
+
+DB_NAME=$(echo $SECRET_JSON | jq -r .dbname)
+DB_USERNAME=$(echo $SECRET_JSON | jq -r .username)
+DB_PASSWORD=$(echo $SECRET_JSON | jq -r .password)
+
+# .pgpass 파일 생성 (보안 강화) ---
+# 형식: hostname:port:database:username:password
+# (호스트네임은 로컬 접속이므로 127.0.0.1 또는 localhost 사용)
+echo "127.0.0.1:5432:*:$DB_USERNAME:$DB_PASSWORD" > /home/ec2-user/.pgpass
+echo "localhost:5432:*:$DB_USERNAME:$DB_PASSWORD" >> /home/ec2-user/.pgpass
+
+# 권한 설정 (매우 중요! 600 아니면 pg_dump가 파일을 무시함)
+chmod 600 /home/ec2-user/.pgpass
+chown ec2-user:ec2-user /home/ec2-user/.pgpass
+
+# --- 6. WAL 아카이브 경로 준비 ---
+echo "INFO: Preparing WAL archive directory..."
+DATA_DIR="$MOUNT_POINT/data"
+mkdir -p $DATA_DIR
+WAL_ARCHIVE_PATH="$MOUNT_POINT/wal_archive"
+mkdir -p $WAL_ARCHIVE_PATH
+
+chmod 777 $DATA_DIR
+chown -R 999:999 $DATA_DIR
+chmod 777 $WAL_ARCHIVE_PATH
+chown -R 999:999 $WAL_ARCHIVE_PATH
+
+# --- 7. Custom PostGIS Image Build & Run (Official Postgres Base) ---
+echo "INFO: Building custom PostGIS image from official postgres:17-bookworm..."
+
+# Dockerfile 생성
+mkdir -p /home/ec2-user/docker-postgis
+cat <<EOF > /home/ec2-user/docker-postgis/Dockerfile
+FROM postgres:17-bookworm
+
+# 패키지 업데이트 및 PostGIS 설치
+RUN apt-get update \\
+    && apt-get install -y postgis postgresql-17-postgis-3 \\
+    && rm -rf /var/lib/apt/lists/*
+EOF
+
+docker rm -f muroom-postgres || true
+docker rmi muroom/postgis:17 || true
+
+# 이미지 빌드
+docker build -t muroom/postgis:17 /home/ec2-user/docker-postgis
+
+echo "INFO: Starting PostgreSQL container..."
+# 공식 이미지 기반이므로 -c 옵션 사용이 안전함
+docker run -d --name muroom-postgres \
+  -p 5432:5432 \
+  -v $DATA_DIR:/var/lib/postgresql/data \
+  -v $WAL_ARCHIVE_PATH:/var/lib/postgresql/wal_archive \
+  -e POSTGRES_DB="$DB_NAME" \
+  -e POSTGRES_USER="$DB_USERNAME" \
+  -e POSTGRES_PASSWORD="$DB_PASSWORD" \
+  --restart always \
+  muroom/postgis:17 \
+  -c "shared_buffers=512MB" \
+  -c "max_connections=60" \
+  -c "wal_level=replica" \
+  -c "archive_mode=on" \
+  -c "archive_command=cp %p /var/lib/postgresql/wal_archive/%f"
+
+# --- 8. WAL-to-S3 동기화 스크립트 ---
+cat <<EOF > /home/ec2-user/wal_sync_to_s3.sh
+#!/bin/bash
+WAL_LOCAL_DIR="$WAL_ARCHIVE_PATH"
+S3_WAL_PATH="s3://$BACKUP_S3_BUCKET_NAME/backups/postgres/wal"
+
+while true; do
+    if [ -d "\$WAL_LOCAL_DIR" ]; then
+        if [ -n "\$(ls -A \$WAL_LOCAL_DIR 2>/dev/null)" ]; then
+            aws s3 mv \$WAL_LOCAL_DIR/ \$S3_WAL_PATH/ --recursive
+            echo "INFO: WAL files synced to S3 at \$(date)"
+        fi
+    fi
+    sleep 10
+done
+EOF
+
+chmod +x /home/ec2-user/wal_sync_to_s3.sh
+chown ec2-user:ec2-user /home/ec2-user/wal_sync_to_s3.sh
+
+cat <<EOF > /etc/systemd/system/wal-sync.service
+[Unit]
+Description=PostgreSQL WAL Sync to S3
+After=docker.service
+
+[Service]
+ExecStart=/bin/bash /home/ec2-user/wal_sync_to_s3.sh
+Restart=always
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now wal-sync.service
+
+echo "INFO: PITR and WAL Archiving setup completed!"
+
+# --- 9. 기존 pg_dump 기반 백업 스크립트 ---
+echo "INFO: Creating backup script..."
+
+cat <<EOF > /home/ec2-user/db_backup_to_s3.sh
+#!/bin/bash
+TIMESTAMP=\$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="/tmp/db_backups"
+BACKUP_FILE="muroom_dump_\$TIMESTAMP.sql.gz"
+
+mkdir -p \$BACKUP_DIR
+
+# .pgpass 파일을 컨테이너 안으로 복사 (일회성 실행)
+docker cp /home/ec2-user/.pgpass muroom-postgres:/root/.pgpass
+docker exec muroom-postgres chmod 600 /root/.pgpass
+
+if docker exec muroom-postgres pg_dump -h 127.0.0.1 -U '$DB_USERNAME' '$DB_NAME' | gzip > "\$BACKUP_DIR/\$BACKUP_FILE"; then
+    aws s3 cp "\$BACKUP_DIR/\$BACKUP_FILE" "s3://$BACKUP_S3_BUCKET_NAME/backups/postgres/\$TIMESTAMP/" --storage-class INTELLIGENT_TIERING
+    rm -rf "\$BACKUP_DIR"
+    echo "SUCCESS: Backup uploaded to S3 at \$(date)"
+else
+    echo "ERROR: Backup failed at \$(date)"
+    exit 1
+fi
+EOF
+
+chmod +x /home/ec2-user/db_backup_to_s3.sh
+chown ec2-user:ec2-user /home/ec2-user/db_backup_to_s3.sh
+
+# 9-2. systemd 서비스 등록 (User=root 권한으로 실행)
+cat <<EOF > /etc/systemd/system/postgres-backup.service
+[Unit]
+Description=Daily PostgreSQL pg_dump Backup
+After=docker.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/bin/bash /home/ec2-user/db_backup_to_s3.sh
+EOF
+
+# 9-3. systemd 타이머 등록 (Valkey와 겹치지 않게 1시간 차이 권장: 17:30 UTC = KST 새벽 2시 30분)
+cat <<EOF > /etc/systemd/system/postgres-backup.timer
+[Unit]
+Description=Run PostgreSQL Backup daily at 2AM KST
+
+[Timer]
+OnCalendar=*-*-* 17:30:00
+Persistent=true
+Unit=postgres-backup.service
+
+[Install]
+WantedBy=timers.target
+EOF
+
+# 서비스 반영 및 타이머 활성화
+systemctl daemon-reload
+systemctl enable --now postgres-backup.timer
+
+echo "INFO: PostgreSQL backup service and timer created successfully!"
+
+# --- 10. PostGIS Extension 활성화 ---
+sleep 30
+echo "INFO: Enabling PostGIS extension..."
+
+# [추가] 컨테이너에 .pgpass 파일 주입 (초기화 시점용)
+docker cp /home/ec2-user/.pgpass muroom-postgres:/root/.pgpass
+docker exec muroom-postgres chmod 600 /root/.pgpass
+
+docker exec muroom-postgres psql -h 127.0.0.1 -U "$DB_USERNAME" -d "$DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+echo "INFO: PostGIS extension enabled."
+
+echo "INFO: All Setup Completed Successfully!"

@@ -1,49 +1,70 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/muroom-db
-    username: muroom-root
-    password: 1234
+    #url: jdbc:postgresql://localhost:5432/muroomdb
+    url: jdbc:postgresql://localhost:5432/muroomdb-flyway
+    username: muroomadmin
+    password: muroom1234
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 30000
-      connection-timeout: 60000
-
-  sql:
-    init:
-      mode: never
-
-  #  data:
-  #    redis:
-  #      host: localhost
-  #      port: 6379
+      maximum-pool-size: 10
+      minimum-idle: 10
+      connection-timeout: 3000
+      validation-timeout: 2000
+      max-lifetime: 1800000
+      keep-alive-time: 60000
+      idle-timeout: 0
+      pool-name: HikariPool-Postgres
 
   jpa:
     open-in-view: false
     hibernate:
-      # ddl-auto: update
-      ddl-auto: none
+      #ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
-        #show-sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    defer-datasource-initialization: true
+  flyway:
+    #enabled: false
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      username: muroomadmin
+      password: muroom1234
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 2
+          max-wait: 1000ms
 
 cloud:
   aws:
     region:
       static: ${AWS_REGION}
-    s3:
-      bucket: ${AWS_S3_BUCKET}
-      presign:
-        expiration: 10m
+    secretsmanager:
+      enabled: true
+    credentials:
+      instance-profile: true
     stack:
       auto: false
+    s3:
+      private-bucket-name: ${AWS_S3_PRIVATE_BUCKET}
+      public-bucket-name: ${AWS_S3_PUBLIC_BUCKET}
+      presign:
+        expiration: 10m
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
-  expiration-ms: 900000 #15분
+  access-expiration-ms: 2592000000 #15분은 900000ms
+  refresh-expiration-ms: 3600000 # 1시간
+  signup-expiration-ms: 900000
 
 logging:
   level:
@@ -52,6 +73,7 @@ logging:
 
 server:
   url: http://localhost:8080
+  forward-headers-strategy: native
 springdoc:
   api-docs:
     enabled: true
@@ -65,3 +87,17 @@ oauth2:
   google:
     client-id: ${GOOGLE_CLIENT_ID}
     client-secret: ${GOOGLE_CLIENT_SECRET}
+
+
+ncp:
+  sens:
+    access-key: ${NAVER_ACCESS_KEY_ID}
+    secret-key: ${NAVER_SECRET_KEY}
+    service-id: ${NAVER_SENS_SERVICE_ID}
+    from: ${NAVER_SENS_FROM}
+
+
+withdrawal:
+  hard-delete:
+    batch-size: 10
+    max-loop: 200

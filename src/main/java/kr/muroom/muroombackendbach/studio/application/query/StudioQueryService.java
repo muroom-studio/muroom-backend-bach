@@ -1,0 +1,274 @@
+package kr.muroom.muroombackendbach.studio.application.query;
+
+import static kr.muroom.muroombackendbach.studio.exception.StudioErrorCode.STUDIO_NOT_FOUND;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.IntSummaryStatistics;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import kr.muroom.muroombackendbach.common.exception.BusinessException;
+import kr.muroom.muroombackendbach.common.util.SubjectParser;
+import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
+import kr.muroom.muroombackendbach.map.application.MapGeocodingService;
+import kr.muroom.muroombackendbach.owner.domain.application.OwnerService;
+import kr.muroom.muroombackendbach.owner.domain.entity.Owner;
+import kr.muroom.muroombackendbach.room.domain.entity.Room;
+import kr.muroom.muroombackendbach.room.domain.repository.RoomRepository;
+import kr.muroom.muroombackendbach.studio.application.StudioViewService;
+import kr.muroom.muroombackendbach.studio.domain.entity.Studio;
+import kr.muroom.muroombackendbach.studio.domain.entity.StudioBuildingInfo;
+import kr.muroom.muroombackendbach.studio.domain.entity.StudioForbiddenInstrument;
+import kr.muroom.muroombackendbach.studio.domain.entity.StudioImage;
+import kr.muroom.muroombackendbach.studio.domain.entity.StudioOption;
+import kr.muroom.muroombackendbach.studio.domain.entity.StudioPrice;
+import kr.muroom.muroombackendbach.studio.domain.enums.OptionCategory;
+import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
+import kr.muroom.muroombackendbach.studio.domain.enums.StudioImageCategory;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioBuildingInfoRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioForbiddenInstrumentRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioImageRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioOptionRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioPriceRepository;
+import kr.muroom.muroombackendbach.studio.domain.repository.StudioRepository;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.OptionDto;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioBaseInfoDto;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioBuildingInfoDto;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioForbiddenInstrumentsDto;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioImagesDto;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioNoticeDto;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioOptionsDto;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse.StudioRoomsDto;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayLineInfo;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioInfo.StudioSubwayStationInfo;
+import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStation;
+import kr.muroom.muroombackendbach.subway.domain.entity.SubwayStationNearbyStudio;
+import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationLineRepository;
+import kr.muroom.muroombackendbach.subway.domain.repository.SubwayStationNearbyStudioRepository;
+import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class StudioQueryService {
+
+  private final StudioRepository studioRepository;
+  private final SubwayStationNearbyStudioRepository subwayStationNearbyStudioRepository;
+  private final SubwayStationLineRepository subwayStationLineRepository;
+  private final StudioImageRepository studioImageRepository;
+  private final StudioOptionRepository studioOptionRepository;
+
+  private final FileStorageService fileStorageService;
+  private final StudioViewService studioViewService;
+  private final MapGeocodingService mapGeocodingService;
+  private final RoomRepository roomRepository;
+  private final StudioPriceRepository studioPriceRepository;
+  private final StudioBuildingInfoRepository studioBuildingInfoRepository;
+  private final StudioFavoriteQueryService studioFavoriteQueryService;
+  private final StudioForbiddenInstrumentRepository studioForbiddenInstrumentRepository;
+  private final OwnerService ownerService;
+
+  private record PriceRange(Integer minPrice, Integer maxPrice) {
+
+  }
+
+  public StudioDetailResponse getStudio(Long studioId, String subjectId) {
+    // 회원(U)인 경우에만 musicianId 추출 (비회원은 null 유지)
+    Long musicianId = null;
+
+    SubjectParser.Subject subject = SubjectParser.parse(subjectId);
+    if (subject != null && "U".equals(subject.prefix())) {
+      musicianId = Long.valueOf(subject.id());
+    }
+
+    // 1. 조회수 증가 로직 호출
+    studioViewService.incrementViewCount(studioId, musicianId);
+
+    // 2. Studio와 대부분의 연관 데이터를 한번의 쿼리로 조회
+    Studio studio = studioRepository.findById(studioId)
+        .orElseThrow(() -> new BusinessException(STUDIO_NOT_FOUND));
+
+    // 3. 별도 쿼리가 필요한 연관 데이터들을 조회 (N+1 방지)
+    List<Room> rooms = roomRepository.findAllByStudioId(studioId);
+    StudioPrice studioPrice = studioPriceRepository.findById(studioId).orElse(null);
+    StudioBuildingInfo studioBuildingInfo = studioBuildingInfoRepository.findById(studioId)
+        .orElse(null);
+    List<StudioImage> studioImages = studioImageRepository.findAllByStudio(studio);
+    List<StudioOption> studioOptions = studioOptionRepository.findAllByStudio(studio);
+    List<StudioForbiddenInstrument> forbiddenInstruments =
+        studioForbiddenInstrumentRepository.findAllByStudio(
+            studio);
+    List<SubwayStationNearbyStudio> nearbyStations =
+        subwayStationNearbyStudioRepository.findAllByStudioOrderBySequenceAsc(
+            studioId);
+
+    // 4. 나머지 데이터들을 변수에 할당
+    Owner owner = ownerService.findByIdOrThrowException(studio.getOwnerId());
+    PriceRange priceRange = calculateStudioPriceRange(studioPrice, rooms);
+    List<StudioSubwayStationInfo> nearbySubwayStationInfos = getNearbySubwayStations(studio,
+        nearbyStations);
+
+    StudioBaseInfoDto studioBaseInfoDto = StudioBaseInfoDto.builder()
+        .studioId(String.valueOf(studio.getId()))
+        .studioName(studio.getName())
+        .roadNameAddress(studio.getRoadNameAddress())
+        .lotNumberAddress(studio.getLotNumberAddress())
+        .detailedAddress(studio.getDetailedAddress())
+        .studioLongitude(studio.getLocation() != null ? studio.getLocation().getX() : null)
+        .studioLatitude(studio.getLocation() != null ? studio.getLocation().getY() : null)
+        .studioMinPrice(priceRange.minPrice())
+        .studioMaxPrice(priceRange.maxPrice())
+        .depositAmount(studio.getDepositAmount())
+        .nearbySubwayStations(nearbySubwayStationInfos)
+        .isFavorite(studioFavoriteQueryService.isFavoriteStudio(studioId, subjectId))
+        .build();
+
+    Point parkingLocation = null;
+    if (studioBuildingInfo != null && studioBuildingInfo.getParkingFeeType() != null
+        && !ParkingFeeType.NONE.equals(
+        studioBuildingInfo.getParkingFeeType())) {
+      String parkingLocationAddress = studioBuildingInfo.getParkingLocationAddress();
+      parkingLocation = mapGeocodingService.getPointFromAddress(parkingLocationAddress);
+    }
+    StudioBuildingInfoDto studioBuildingInfoDto = studioBuildingInfo != null
+        ? StudioBuildingInfoDto.from(studioBuildingInfo, parkingLocation)
+        : null;
+
+    StudioNoticeDto studioNoticeDto = StudioNoticeDto.from(owner, studio);
+
+    StudioForbiddenInstrumentsDto studioForbiddenInstrumentsDto =
+        StudioForbiddenInstrumentsDto.from(
+            forbiddenInstruments);
+
+    StudioRoomsDto studioRoomsDto = StudioRoomsDto.from(rooms);
+
+    StudioOptionsDto studioOptionsDto = StudioOptionsDto.builder()
+        .commonOptions(studioOptions.stream()
+            .filter(studioOption -> studioOption.getOption().getCategory() == OptionCategory.COMMON)
+            .map(studioOption -> OptionDto.from(studioOption.getOption()))
+            .toList())
+        .individualOptions(studioOptions.stream()
+            .filter(
+                studioOption -> studioOption.getOption().getCategory() == OptionCategory.INDIVIDUAL)
+            .map(studioOption -> OptionDto.from(studioOption.getOption()))
+            .toList())
+        .build();
+
+    List<String> studioMainImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.MAIN);
+    List<String> studioBuildingImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.BUILDING);
+    List<String> studioRoomImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.ROOM);
+    String studioBlueprintImageKey = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.BLUEPRINT).getFirst();
+    List<String> studioCommonOptionImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.COMMON_OPTION);
+    List<String> studioIndividualOptionImageKeys = getPresignedUrlsForType(studioImages,
+        StudioImageCategory.INDIVIDUAL_OPTION);
+    StudioImagesDto studioImagesDto = StudioImagesDto.builder()
+        .mainImageKeys(studioMainImageKeys)
+        .buildingImageKeys(studioBuildingImageKeys)
+        .roomImageKeys(studioRoomImageKeys)
+        .blueprintImageKey(studioBlueprintImageKey)
+        .commonOptionImageKeys(studioCommonOptionImageKeys)
+        .individualOptionImageKeys(studioIndividualOptionImageKeys)
+        .build();
+
+    return StudioDetailResponse.builder()
+        .studioBaseInfo(studioBaseInfoDto)
+        .studioBuildingInfo(studioBuildingInfoDto)
+        .studioNotice(studioNoticeDto)
+        .studioForbiddenInstruments(studioForbiddenInstrumentsDto)
+        .studioRooms(studioRoomsDto)
+        .studioOptions(studioOptionsDto)
+        .studioImages(studioImagesDto)
+        .build();
+  }
+
+  private PriceRange calculateStudioPriceRange(StudioPrice studioPrice, List<Room> rooms) {
+    Integer minPrice = null;
+    Integer maxPrice = null;
+
+    if (rooms != null && !rooms.isEmpty()) {
+      IntSummaryStatistics priceSummaryStats = rooms.stream()
+          .filter(room -> room != null && room.getBasePrice() != null)
+          .mapToInt(Room::getBasePrice)
+          .summaryStatistics();
+
+      if (priceSummaryStats.getCount() > 0) {
+        minPrice = priceSummaryStats.getMin();
+        maxPrice = priceSummaryStats.getMax();
+      }
+    }
+
+    if (minPrice == null && studioPrice != null) {
+      minPrice = studioPrice.getMinPrice();
+      maxPrice = studioPrice.getMaxPrice();
+    }
+
+    return new PriceRange(minPrice, maxPrice);
+  }
+
+  private List<StudioSubwayStationInfo> getNearbySubwayStations(Studio studio,
+      List<SubwayStationNearbyStudio> nearbyStations) {
+    if (nearbyStations.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // 2. 지하철역들의 노선 정보를 한번의 쿼리로 모두 조회
+    List<Long> stationIds = nearbyStations.stream()
+        .map(nearby -> nearby.getSubwayStation().getId())
+        .toList();
+    Map<Long, List<StudioSubwayLineInfo>> linesByStationId =
+        subwayStationLineRepository.findAllByStudioIdsInWithLine(stationIds)
+            .stream()
+            .collect(Collectors.groupingBy(
+                subwayStationLine -> subwayStationLine.getStation().getId(),
+                Collectors.mapping(subwayStationLine -> StudioInfo.StudioSubwayLineInfo.builder()
+                    .lineName(subwayStationLine.getLine().getName())
+                    .lineColor(subwayStationLine.getLine().getColor())
+                    .build(), Collectors.toList())
+            ));
+
+    // 3. 각 지하철역까지의 직선 거리를 계산
+    return nearbyStations.stream()
+        .map(nearby -> {
+          SubwayStation subwayStation = nearby.getSubwayStation();
+          Integer distanceInMeters = mapGeocodingService.calculateDistanceInMeters(
+              studio.getLocation(), subwayStation.getLocation());
+
+          return StudioSubwayStationInfo.builder()
+              .stationName(subwayStation.getName())
+              .lines(linesByStationId.getOrDefault(subwayStation.getId(), Collections.emptyList()))
+              .distanceInMeters(distanceInMeters)
+              .build();
+        })
+        .toList();
+  }
+
+  private List<String> getPresignedUrlsForType(List<StudioImage> images,
+      StudioImageCategory category) {
+    if (images == null) {
+      return Collections.emptyList();
+    }
+
+    List<String> keys = images.stream()
+        .filter(image -> image.getCategory() == category)
+        .sorted(Comparator.comparing(StudioImage::getSequence,
+            Comparator.nullsLast(Comparator.naturalOrder())))
+        .map(StudioImage::getImageKey)
+        .toList();
+
+    return keys.stream()
+        .map(key -> fileStorageService.getViewUrl(key, FileStorageLocation.PUBLIC_PERMANENT))
+        .toList();
+  }
+}

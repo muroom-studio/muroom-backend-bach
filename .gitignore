@@ -1,8 +1,21 @@
-# 프로젝트 전반에 걸친 공통 무시 규칙
+# Environment variables
 *.env
 *.log
-*.sql
 
+# Terraform files
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+crash.log
+
+# 쿼리 파일
+**/src/main/resources/queries/
+
+# macOS
+.DS_Store
+
+# 자동 설정
 HELP.md
 .gradle
 build/
@@ -40,3 +53,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+### claude md ###
+CLAUDE.MD

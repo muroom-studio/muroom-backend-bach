@@ -3,8 +3,8 @@ package kr.muroom.muroombackendbach.studio.presentation.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import kr.muroom.muroombackendbach.common.domain.EnumMapperType;
+import kr.muroom.muroombackendbach.instrument.domain.entity.Instrument;
 import kr.muroom.muroombackendbach.studio.domain.entity.Option;
-import kr.muroom.muroombackendbach.user.domain.entity.Instrument;
 import lombok.Builder;
 
 public final class StudioOptionResponse {
@@ -30,7 +30,7 @@ public final class StudioOptionResponse {
       List<GetSingle> studioIndividualOptions,
 
       @Schema(description = "이용 불가 악기 옵션")
-      List<GetSingle> unavailableInstrumentOptions
+      List<GetSingle> forbiddenInstrumentOptions
   ) {
 
   }
@@ -38,8 +38,8 @@ public final class StudioOptionResponse {
   @Builder
   @Schema(description = "옵션 DTO")
   public record GetSingle(
-      @Schema(description = "옵션 ID", example = "29")
-      Long id,
+      @Schema(description = "옵션 ID", example = "791543436721219205")
+      String id,
       @Schema(description = "옵션 코드", example = "GROUND")
       String code,
       @Schema(description = "옵션 이름 및 표시값", example = "지상")
@@ -57,7 +57,7 @@ public final class StudioOptionResponse {
 
     public static GetSingle from(Option option) {
       return GetSingle.builder()
-          .id(option.getId())
+          .id(String.valueOf(option.getId()))
           .code(option.getCode())
           .description(option.getDescription())
           .iconImageKey(option.getIconImageKey())
@@ -66,7 +66,7 @@ public final class StudioOptionResponse {
 
     public static GetSingle from(Instrument instrument) {
       return GetSingle.builder()
-          .id(instrument.getId())
+          .id(String.valueOf(instrument.getId()))
           .code(instrument.getCode())
           .description(instrument.getDescription())
           .build();

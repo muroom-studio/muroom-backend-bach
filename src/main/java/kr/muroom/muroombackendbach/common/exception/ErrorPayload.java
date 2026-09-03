@@ -1,7 +1,6 @@
 package kr.muroom.muroombackendbach.common.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.List;
 
 /**

@@ -2,14 +2,18 @@ package kr.muroom.muroombackendbach.studio.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentSubjectId;
+import kr.muroom.muroombackendbach.auth.annotation.CurrentUserId;
 import kr.muroom.muroombackendbach.common.presentation.response.ApiResponse;
 import kr.muroom.muroombackendbach.common.presentation.response.PaginatedData;
-import kr.muroom.muroombackendbach.studio.application.StudioDetailsService;
 import kr.muroom.muroombackendbach.studio.application.StudioService;
+import kr.muroom.muroombackendbach.studio.application.query.StudioQueryService;
 import kr.muroom.muroombackendbach.studio.presentation.dto.request.MapSearchRequest;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioAddressSearchResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioDetailResponse;
-import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListResponse;
+import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioListElementResponse;
 import kr.muroom.muroombackendbach.studio.presentation.dto.response.StudioMapResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -17,11 +21,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,13 +34,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudioController {
 
   private final StudioService studioService;
-  private final StudioDetailsService studioDetailsService;
+  private final StudioQueryService studioQueryService;
 
   @GetMapping("/map-search")
   public ApiResponse<List<StudioMapResponse>> searchStudiosInMapBounds(
-      @Validated @ParameterObject MapSearchRequest request
+      @Validated @ParameterObject MapSearchRequest request,
+      @Parameter(hidden = true)
+      @CurrentSubjectId String subjectId
   ) {
-    List<StudioMapResponse> response = studioService.searchStudiosInMapBounds(request);
+    List<StudioMapResponse> response = studioService.searchStudiosInMapBounds(request, subjectId);
     return ApiResponse.success(response);
   }
 
@@ -51,21 +57,35 @@ public class StudioController {
       }
   )
   @GetMapping("/map-list")
-  public ApiResponse<PaginatedData<StudioListResponse>> searchStudiosForMapList(
+  public ApiResponse<PaginatedData<StudioListElementResponse>> searchStudiosForMapList(
       @Validated @ParameterObject MapSearchRequest request,
-      @AuthenticationPrincipal Long musicianId,
+      @Parameter(hidden = true)
+      @CurrentSubjectId String subjectId,
       @Parameter(hidden = true)
       @PageableDefault(sort = "latest", direction = Direction.DESC) Pageable pageable
   ) {
-    Page<StudioListResponse> response = studioService.searchStudiosForMapList(request, musicianId, pageable);
+    Page<StudioListElementResponse> response = studioService.searchStudiosForMapList(request,
+        subjectId, pageable);
     return ApiResponse.success(PaginatedData.from(response));
   }
 
   @Operation(summary = "스튜디오 상세 조회", description = "스튜디오의 상세 정보를 조회합니다.")
   @GetMapping("/{studioId}")
-  public ApiResponse<StudioDetailResponse> getStudio(@PathVariable Long studioId, @AuthenticationPrincipal Long musicianId) {
-    StudioDetailResponse response = studioDetailsService.getStudio(studioId, musicianId);
+  public ApiResponse<StudioDetailResponse> getStudio(@PathVariable Long studioId,
+      @Parameter(hidden = true)
+      @CurrentSubjectId String subjectId) {
+    StudioDetailResponse response = studioQueryService.getStudio(studioId, subjectId);
 
+    return ApiResponse.success(response);
+  }
+
+  @Operation(summary = "도로명 주소로 스튜디오 검색", description = "입력한 도로명 주소(일부분 가능)를 포함하는 스튜디오들을 검색합니다.")
+  @GetMapping("/search/address")
+  public ApiResponse<List<StudioAddressSearchResponse>> searchStudiosByAddress(
+      @Parameter(description = "도로명 주소(일부분도 가능)") @RequestParam @NotBlank String roadNameAddress
+  ) {
+    List<StudioAddressSearchResponse> response = studioService.getStudiosByRoadNameAddress(
+        roadNameAddress);
     return ApiResponse.success(response);
   }
 }

@@ -4,44 +4,44 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
-
-  sql:
-    init:
-      mode: never
-  #  data:
-  #    redis:
-  #      host: localhost
-  #      port: 6379
-
   jpa:
     open-in-view: false
     hibernate:
       # ddl-auto: update
-      ddl-auto: none
+      ddl-auto: create-drop
     properties:
       hibernate:
         #show-sql: true
         format_sql: true
+  flyway:
+    enabled: false
 
 cloud:
   aws:
     region:
       static: test-region
-    s3:
-      bucket: test-bucket
-      presign:
-        expiration: 10m
+    secretsmanager:
+      enabled: true
+    credentials:
+      instance-profile: true
     stack:
       auto: false
+    s3:
+      private-bucket-name: test-private-bucket
+      public-bucket-name: test-public-bucket
+      presign:
+        expiration: 10m
 
 jwt:
   secret-key: some-very-very-very-very-very-very-very-long-secret-key
-  expiration-ms: 900000 #15분
+  access-expiration-ms: 900000 #15분
+  refresh-expiration-ms: 3600000 # 1시간
+  signup-expiration-ms: 900000
 
 logging:
   level:
     org.springframework: INFO
-    com.moty.solarserver: DEBUG
+    kr.muroom.muroombackendbach: DEBUG
 
 seoul:
   api:
@@ -72,3 +72,11 @@ oauth2:
   google:
     client-id: test-google-client-id
     client-secret: test-google-client-secret
+
+
+ncp:
+  sens:
+    access-key: test
+    secret-key: test
+    service-id: test
+    from: test

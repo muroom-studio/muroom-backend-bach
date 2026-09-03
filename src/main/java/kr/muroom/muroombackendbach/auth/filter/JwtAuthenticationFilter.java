@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import kr.muroom.muroombackendbach.auth.jwt.JwtTokenProvider;
-import kr.muroom.muroombackendbach.user.domain.repository.MusicianRepository;
+import kr.muroom.muroombackendbach.musician.domain.repository.MusicianRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +24,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final MusicianRepository musicianRepository;
 
   @Override
-  protected void doFilterInternal(@NonNull HttpServletRequest request,
+  protected void doFilterInternal(
+      @NonNull HttpServletRequest request,
       @NonNull HttpServletResponse response,
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
@@ -32,13 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String token = resolveToken(request);
 
     if (token != null && jwtTokenProvider.validateToken(token)) {
-      Long musicianId = jwtTokenProvider.getMusicianId(token);
+      Long musicianId = jwtTokenProvider.getMusicianIdFromAccess(token);
 
       if (musicianRepository.existsById(musicianId)) {
         UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken(
-                musicianId,
-                null,
+            new UsernamePasswordAuthenticationToken(musicianId, null,
                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
             );
 

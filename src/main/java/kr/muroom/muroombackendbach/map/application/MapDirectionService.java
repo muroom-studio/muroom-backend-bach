@@ -7,14 +7,26 @@ import kr.muroom.muroombackendbach.map.presentation.dto.KakaoDirectionsResponse;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 
-@Service
+/**
+ * Kakao Directions API를 사용한 도보시간 계산 서비스입니다.
+ *
+ * @deprecated 비용 문제로 더 이상 도보 시간을 사용하지 않으므로 이 서비스는 제거됐습니다.
+ */
+// @Service
 @RequiredArgsConstructor
 public class MapDirectionService {
 
   private final KakaoDirectionsApiClient kakaoDirectionsApiClient;
 
+  /**
+   * 두 지점 간의 도보 시간을 분 단위로 비동기 조회합니다.
+   *
+   * @param start 출발지점 좌표
+   * @param end   도착지점 좌표
+   * @return 도보 시간(분) 또는 null (조회 실패 시)
+   * @deprecated 비용 문제로 더 이상 도보 시간을 사용하지 않으므로 이 메서드는 제거됐습니다.
+   */
   @Async
   public CompletableFuture<Integer> getWalkingTimeMinutes(Point start, Point end) {
     if (start == null || end == null) {
