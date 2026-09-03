@@ -28,18 +28,32 @@ services:
 
   # 2. Database (Postgres 17 + PostGIS 3.5)
   db:
-    image: kartoza/postgis:17-3.5
-    container_name: muroom-postgres
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM postgres:17-bookworm
+        RUN apt-get update \
+            && apt-get install -y postgis postgresql-17-postgis-3 \
+            && rm -rf /var/lib/apt/lists/*
+    container_name: muroom-postgres-flyway
     restart: always
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: muroomadmin
-      POSTGRES_PASSWORD: muroom1234
-      POSTGRES_DB: muroomdb
-      TZ: UTC
+      - POSTGRES_DB=muroomdb-flyway
+      - POSTGRES_USER=muroomadmin
+      - POSTGRES_PASSWORD=muroom1234
+      - TZ=Asia/Seoul
     volumes:
-      - ${HOME}/muroom/development/docker-volumes/postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=128MB"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "archive_mode=off"
     networks:
       - muroom-network
 

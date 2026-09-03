@@ -47,7 +47,7 @@ resource "aws_ebs_volume" "muroom_postgres_prod_storage" {
   encrypted         = true
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   tags = {
@@ -62,7 +62,7 @@ resource "aws_instance" "muroom_postgres_prod_instance" {
 
   lifecycle {
     ignore_changes  = [ami, user_data, launch_template]
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   launch_template {
@@ -194,7 +194,7 @@ resource "aws_ebs_volume" "muroom_postgres_dev_storage" {
   encrypted         = true
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   tags = {
@@ -209,7 +209,7 @@ resource "aws_instance" "muroom_postgres_dev_instance" {
 
   lifecycle {
     ignore_changes  = [ami, user_data, launch_template]
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   launch_template {

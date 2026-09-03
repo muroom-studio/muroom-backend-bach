@@ -8,6 +8,7 @@ import static kr.muroom.muroombackendbach.musician.exception.MusicianErrorCode.M
 import java.util.List;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.InquiryCategory;
@@ -72,7 +73,7 @@ public class InquiryService {
         .filter(k -> k != null && !k.isBlank())
         .map(String::trim)
         .distinct()
-        .map(fileStorageService::movePrivateFileFromTempToPermanent)
+        .map(key -> fileStorageService.move(key, FileStorageLocation.PRIVATE_TEMP, FileStorageLocation.PRIVATE_PERMANENT))
         .toList();
 
     if (permanentImageFileKeys.isEmpty()) {
@@ -115,7 +116,6 @@ public class InquiryService {
 
   public GeneratePresignedPutUrlResponse generatePresignedPutUrl(
       InquiryImageUploadRequest request) {
-    return fileStorageService.generatePresignedPutUrlForPrivate(
-        request, FileStorageService::validateImageContentType);
+    return fileStorageService.getUploadUrl(FileStorageLocation.PRIVATE_TEMP, request);
   }
 }

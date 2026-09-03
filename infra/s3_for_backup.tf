@@ -4,9 +4,9 @@
 resource "aws_s3_bucket" "muroom_prod_postgres_backup" {
   bucket = "muroom-prod-postgres-backup"
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
-  force_destroy = false
+  force_destroy = true
 }
 
 # 보안 설정 (비공개)
@@ -65,9 +65,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "prod_postgres_backup_lifecycle
 resource "aws_s3_bucket" "muroom_dev_postgres_backup" {
   bucket = "muroom-dev-postgres-backup"
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
-  force_destroy = false
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "dev_postgres_backup_lifecycle" {
@@ -104,9 +104,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "dev_postgres_backup_lifecycle"
 resource "aws_s3_bucket" "muroom_prod_valkey_backup" {
   bucket = "muroom-prod-valkey-backup"
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
-  force_destroy = false
+  force_destroy = true
 }
 resource "aws_s3_bucket_public_access_block" "prod_valkey_backup_access_block" {
   bucket                  = aws_s3_bucket.muroom_prod_valkey_backup.id
@@ -131,9 +131,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "prod_valkey_backup_lifecycle" 
 resource "aws_s3_bucket" "muroom_dev_valkey_backup" {
   bucket = "muroom-dev-valkey-backup"
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
-  force_destroy = false
+  force_destroy = true
 }
 resource "aws_s3_bucket_lifecycle_configuration" "dev_valkey_backup_lifecycle" {
   bucket = aws_s3_bucket.muroom_dev_valkey_backup.id

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
+import kr.muroom.muroombackendbach.room.domain.model.DiscountBenefit;
 import kr.muroom.muroombackendbach.studio.domain.enums.FloorType;
 import kr.muroom.muroombackendbach.studio.domain.enums.ParkingFeeType;
 import kr.muroom.muroombackendbach.studio.domain.enums.RestroomGender;
@@ -120,7 +121,13 @@ public record StudioCreateRequest(
 
       Integer heightMm,
 
-      Integer roomBasePrice
+      Integer basePrice,
+
+      Integer depositAmount,
+
+      DiscountBenefit discountBenefit,
+
+      String additionalInfo
   ) {
 
   }

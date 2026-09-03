@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
 import kr.muroom.muroombackendbach.musician.domain.entity.Musician;
 import kr.muroom.muroombackendbach.report.domain.enums.ReportDomainType;
 import kr.muroom.muroombackendbach.report.exception.ReportErrorCode;
@@ -57,9 +58,10 @@ public class StudioBoastReportTargetHandler implements ReportTargetHandler {
         .map(StudioBoastImage::getImageFileKey)
         .filter(key -> key != null && !key.isBlank())
         .map(key ->
-            fileStorageService.copyPublicFileToReportSnapshot(
-                supports().name().toLowerCase(),
-                key
+            fileStorageService.copyToReportSnapshot(
+                key,
+                FileStorageLocation.PUBLIC_PERMANENT,
+                supports().name().toLowerCase()
             )
         )
         .toList();

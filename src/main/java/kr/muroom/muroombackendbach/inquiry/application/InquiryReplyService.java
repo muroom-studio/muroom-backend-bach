@@ -9,6 +9,7 @@ import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.InquiryReplyRe
 import kr.muroom.muroombackendbach.admin.inquiry.presentation.dto.UpdateInquiryReplyRequest;
 import kr.muroom.muroombackendbach.common.exception.BusinessException;
 import kr.muroom.muroombackendbach.filestorage.application.FileStorageService;
+import kr.muroom.muroombackendbach.filestorage.domain.FileStorageLocation;
 import kr.muroom.muroombackendbach.filestorage.exception.FileErrorCode;
 import kr.muroom.muroombackendbach.filestorage.presentation.dto.response.GeneratePresignedPutUrlResponse;
 import kr.muroom.muroombackendbach.inquiry.domain.entity.Inquiry;
@@ -33,7 +34,7 @@ public class InquiryReplyService {
 
   @Transactional(readOnly = true)
   public GeneratePresignedPutUrlResponse generatePresignedPutUrl(InquiryReplyImageUploadRequest request) {
-    return fileStorageService.generatePresignedPutUrlForPrivate(request, FileStorageService::validateImageContentType);
+    return fileStorageService.getUploadUrl(FileStorageLocation.PRIVATE_TEMP, request);
   }
 
   private void validateContentType(String contentType) {
