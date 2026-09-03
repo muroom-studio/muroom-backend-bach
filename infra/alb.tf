@@ -11,7 +11,7 @@ resource "aws_lb" "muroom_alb" {
     aws_subnet.muroom_public_subnet_2b.id
   ]
 
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   tags = {
     Name = "muroom-alb"

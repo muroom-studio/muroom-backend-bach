@@ -25,9 +25,9 @@ resource "aws_s3_bucket" "muroom_prod_private_storage" {
   bucket = var.prod_s3_private_bucket_name
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
-  force_destroy = false
+  force_destroy = true
 }
 resource "aws_s3_bucket_versioning" "prod_private_versioning" {
   bucket = aws_s3_bucket.muroom_prod_private_storage.id
@@ -119,10 +119,10 @@ resource "aws_s3_bucket" "muroom_dev_private_storage" {
   bucket = var.dev_s3_private_bucket_name
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
-  force_destroy = false
+  force_destroy = true
 }
 resource "aws_s3_bucket_versioning" "dev_private_versioning" {
   bucket = aws_s3_bucket.muroom_dev_private_storage.id
@@ -202,9 +202,9 @@ resource "aws_s3_bucket" "muroom_prod_public_storage" {
   bucket = var.prod_s3_public_bucket_name
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
-  force_destroy = false
+  force_destroy = true
 }
 resource "aws_s3_bucket_public_access_block" "prod_public_access_block" {
   bucket = aws_s3_bucket.muroom_prod_public_storage.id
@@ -285,9 +285,9 @@ resource "aws_s3_bucket" "muroom_dev_public_storage" {
   bucket = var.dev_s3_public_bucket_name
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
-  force_destroy = false
+  force_destroy = true
 }
 resource "aws_s3_bucket_public_access_block" "dev_public_access_block" {
   bucket = aws_s3_bucket.muroom_dev_public_storage.id
