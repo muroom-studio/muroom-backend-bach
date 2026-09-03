@@ -10,9 +10,9 @@ resource "aws_ecr_repository" "muroom_backend_bach" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
-  force_delete = false
+  force_delete = true
 
   tags = {
     Name = "muroom-backend-bach-repository"

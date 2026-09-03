@@ -14,7 +14,7 @@ resource "aws_serverlessapplicationrepository_cloudformation_stack" "muroom_post
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   capabilities = ["CAPABILITY_IAM", "CAPABILITY_RESOURCE_POLICY", "CAPABILITY_AUTO_EXPAND"]

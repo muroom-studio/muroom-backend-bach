@@ -21,7 +21,7 @@ resource "aws_instance" "muroom_nat_instance" {
 
   lifecycle {
     ignore_changes  = [ami, user_data]
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   user_data = <<-EOF
